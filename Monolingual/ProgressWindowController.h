@@ -38,5 +38,7 @@
 - (void) setFile: (NSString *)file;
 - (void) windowDidLoad;
 + (id) sharedProgressWindowController: (id)sender;
+- (id) init;
+- (void) dealloc;
 
 @end

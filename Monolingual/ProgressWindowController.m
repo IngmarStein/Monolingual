@@ -8,6 +8,8 @@
 
 @implementation ProgressWindowController
 id parent;
+NSMutableParagraphStyle *fileParagraphStyle;
+NSDictionary *fileAttributes;
 
 - (IBAction) cancelButton: (id)sender
 {
@@ -20,14 +22,23 @@ id parent;
 - (id) init
 {
 	self = [self initWithWindowNibName:@"ProgressWindow"];
+	fileParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+	[fileParagraphStyle setLineBreakMode:NSLineBreakByTruncatingMiddle];
+	fileAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:fileParagraphStyle, NSParagraphStyleAttributeName, nil];
 	return self;
+}
+
+- (void) dealloc
+{
+	[fileAttributes release];
+	[fileParagraphStyle release];
 }
 
 + (id) sharedProgressWindowController: (id)sender
 {
-	static ProgressWindowController *_sharedProgressWindowController=nil;
+	static ProgressWindowController *_sharedProgressWindowController = nil;
 
-	if (!_sharedProgressWindowController) {
+	if( !_sharedProgressWindowController ) {
 		_sharedProgressWindowController = [[ProgressWindowController allocWithZone:[self zone]] init];
 		parent = sender;
 	}
@@ -44,7 +55,7 @@ id parent;
 {
 	[progressBar startAnimation: self];
 	[applicationText setStringValue: NSLocalizedString(@"Removing language resources...",@"")];
-	[fileText setStringValue: @""];
+	[self setFile: @""];
 }
 
 - (void) stop
@@ -54,7 +65,11 @@ id parent;
 
 - (void) setFile: (NSString *)file
 {
-	[fileText setStringValue: file];
+	NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:file attributes:fileAttributes];
+	[[fileText cell] setAttributedStringValue:attrStr];
+	[fileText updateCell:[fileText cell]];
+	[attrStr release];
+	//[fileText setStringValue: file];
 }
 
 - (void) setText: (NSString *)text

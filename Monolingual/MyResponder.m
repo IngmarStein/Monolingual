@@ -477,7 +477,7 @@ static NSComparisonResult sortLanguages( NSArray *l1, NSArray *l2, void *context
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de"]], NSLocalizedString(@"German", @""), @"de.lproj", @"de_DE.lproj", @"German.lproj", nil]];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"dz"]], NSLocalizedString(@"Dzongkha", @""), @"dz.lproj", @"Dzongkha.lproj", nil]];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"el"]], NSLocalizedString(@"Greek", @""), @"el.lproj", @"el_GR.lproj", @"Greek.lproj", nil]];
-	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en"]], NSLocalizedString(@"English", @""), @"en.lproj", @"English.lproj", nil]];
+	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: NO], NSLocalizedString(@"English", @""), @"en.lproj", @"English.lproj", nil]];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_AU"]], NSLocalizedString(@"Australian English", @""), @"en_AU.lproj", nil]];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_CA"]], NSLocalizedString(@"Canadian English", @""), @"en_CA.lproj", nil]];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_GB"]], NSLocalizedString(@"British English", @""), @"en_GB.lproj", nil]];
@@ -577,13 +577,9 @@ static NSComparisonResult sortLanguages( NSArray *l1, NSArray *l2, void *context
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_CN"]], NSLocalizedString(@"Simplified Chinese", @""), @"zh_CN.lproj", @"zh_SC.lproj", nil]];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_TW"]], NSLocalizedString(@"Traditional Chinese", @""), @"zh_TW.lproj", nil]];
 
-	NSButtonCell *prototypeCell = [[[NSButtonCell alloc] initTextCell: @""] autorelease]; 
-	[prototypeCell setEditable: YES]; // Not sure this one is necessary 
-	[prototypeCell setButtonType:NSSwitchButton]; 
-	[prototypeCell setImagePosition:NSImageOnly]; // This line is useful if you want to center the checkbox 
 	NSTableColumn *removeColumn = [languageView tableColumnWithIdentifier:@"Remove"];
 	NSTableColumn *languageColumn = [languageView tableColumnWithIdentifier:@"Language"];
-	[removeColumn setDataCell: prototypeCell];
+	[[removeColumn dataCell] setImagePosition:NSImageOnly]; // Center the checkbox 
 	sortAscending = 1;
 	sortColumn = [languageColumn retain];
 	[languages sortUsingFunction: sortLanguages context: (void *)sortAscending];
