@@ -107,7 +107,7 @@ tableSort_t layoutSort;
 	for( i=0; i<length; ++i ) {
 		NSString *file = [files objectAtIndex: i];
 		if( [[file pathExtension] isEqualToString:@"bundle"] ) {
-			[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], [file stringByDeletingPathExtension], @"Keyboard Layout", [layoutPath stringByAppendingPathExtension: file], nil]];
+			[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], [file stringByDeletingPathExtension], @"Keyboard Layout", [layoutPath stringByAppendingPathComponent: file], nil]];
 		}
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/Kotoeri.component"] ) {
