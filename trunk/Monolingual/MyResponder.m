@@ -107,20 +107,20 @@ tableSort_t layoutSort;
 	for( i=0; i<length; ++i ) {
 		NSString *file = [files objectAtIndex: i];
 		if( [[file pathExtension] isEqualToString:@"bundle"] ) {
-			[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], [file stringByDeletingPathExtension], @"Keyboard Layout", [layoutPath stringByAppendingPathComponent: file], nil]];
+			[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString([file stringByDeletingPathExtension],@""), NSLocalizedString(@"Keyboard Layout",@""), [layoutPath stringByAppendingPathComponent: file], nil]];
 		}
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/Kotoeri.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], @"Kotoeri", @"Input Method", @"/System/Library/Components/Kotoeri.component", nil]];
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Kotoeri",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/Kotoeri.component", nil]];
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/XPIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], @"Hangul", @"Input Method", @"/System/Library/Components/XPIM.component", nil]];
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Hangul",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/XPIM.component", nil]];
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/TCIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], @"Traditional Chinese", @"Input Method", @"/System/Library/Components/TCIM.component", nil]];
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Traditional Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/TCIM.component", nil]];
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/SCIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], @"Simple Chinese", @"Input Method", @"/System/Library/Components/SCIM.component", nil]];
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Simple Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/SCIM.component", nil]];
 	}
 	[layoutView reloadData];
 }
