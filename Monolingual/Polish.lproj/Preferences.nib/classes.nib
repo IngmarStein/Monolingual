@@ -13,6 +13,13 @@
             LANGUAGE = ObjC; 
             OUTLETS = {languageView = NSTableView; layoutView = NSTableView; }; 
             SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {add = id; remove = id; }; 
+            CLASS = PreferencesController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {removeButton = NSButton; rootDirView = NSTableView; }; 
+            SUPERCLASS = NSWindowController; 
         }
     ); 
     IBVersion = 1; 

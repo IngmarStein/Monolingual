@@ -26,18 +26,38 @@ int main( int argc, const char *argv[] )
 {
 	int i;
 
-	if( argc <= 1 ) {
+	if( argc <= 2 ) {
 		return( 1 );
 	}
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	NSMutableSet *directories = [[NSMutableSet alloc] initWithCapacity: argc-1];
+	NSMutableArray *roots = [[NSMutableArray alloc] initWithCapacity: argc-1];
+	NSMutableArray *files = [[NSMutableArray alloc] initWithCapacity: argc-1];
 	for( i=1; i<argc; ++i ) {
-		[directories addObject: [NSString stringWithCString: argv[i]]];
+		if( !strcmp( argv[i], "-r" ) ) {
+			++i;
+			if( i == argc ) {
+				printf( "Argument expected for -r\n" );
+				return( 1 );
+			} else {
+				[roots addObject: [NSString stringWithCString: argv[i]]];
+			}
+		} else if( !strcmp( argv[i], "-f" ) ) {
+			++i;
+			if( i == argc ) {
+				printf( "Argument expected for -f\n" );
+				return( 1 );
+			} else {
+				[files addObject: [NSString stringWithCString: argv[i]]];
+			}
+		} else {
+			[directories addObject: [NSString stringWithCString: argv[i]]];
+		}
 	}
 
-	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories];
+	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories roots:roots files:files];
 	NSApp = [NSApplication sharedApplication];
 	[NSApp setDelegate: deleteHelper];
 	[pool release];

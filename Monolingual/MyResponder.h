@@ -26,10 +26,15 @@
 @interface MyResponder : NSObject
 {
 	IBOutlet NSTableView *languageView;
+	IBOutlet NSTableView *layoutView;
 }
++ (void) initialize;
 - (IBAction) documentationBundler: (id)sender;
 - (IBAction) openWebsite: (id)sender;
-- (IBAction) remove: (id)sender;
+- (IBAction) removeLanguages: (id)sender;
+- (IBAction) removeLayouts: (id)sender;
+- (IBAction) showPreferences: (id)sender;
+- (void) scanLayouts;
 - (int) numberOfRowsInTableView: (NSTableView *)aTableView;
 - (id) tableView: (NSTableView *)aTableView objectValueForTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex;
 - (void) tableView: (NSTableView *)aTableView setObjectValue: (id)anObject forTableColumn: (NSTableColumn *)aTableColumn row: (int) rowIndex;

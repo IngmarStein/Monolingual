@@ -26,8 +26,10 @@
 //NSLock *statusLock;
 BOOL removeTaskStatus;
 NSSet *directories;
+NSArray *roots;
+NSArray *files;
 
-- (id) initWithDirectories: (NSSet *)dirs
+- (id) initWithDirectories: (NSSet *)dirs roots: (NSArray *)r files: (NSArray *)f
 {
 	self = [super init];
 	NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -42,6 +44,8 @@ NSSet *directories;
 	[inputHandle readInBackgroundAndNotify];
 	removeTaskStatus = FALSE;
 	directories = dirs;
+	roots = r;
+	files = f;
 	//statusLock = [[NSLock alloc] init];
 	return self;
 }
@@ -49,6 +53,8 @@ NSSet *directories;
 - (void) finishedTask: (NSNotification *)aNotification
 {
 	//[statusLock release];
+	[files release];
+	[roots release];
 	[directories release];
 	[NSApp terminate: self];
 }
@@ -63,7 +69,7 @@ NSSet *directories;
 - (void) applicationDidFinishLaunching: (NSNotification *)notification
 {
 	removeTaskStatus = TRUE;
-	[NSThread detachNewThreadSelector: @selector(removeDirectories:) toTarget: self withObject: directories];
+	[NSThread detachNewThreadSelector: @selector(removeDirectories) toTarget: self withObject: nil];
 }
 
 - (void) fileManager: (NSFileManager *)manager willProcessPath: (NSString *)path
@@ -78,34 +84,47 @@ NSSet *directories;
 	return( TRUE );
 }
 
-- (void) removeDirectories: (NSSet *)directories atRoot: (NSString *)root
+- (void) removeDirectories
 {
+	NSString *root;
 	NSString *file;
+	NSEnumerator *enumerator;
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSFileManager *fileManager = [NSFileManager defaultManager];
-	NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:root];
+
+	// delete regular files
+	enumerator = [files objectEnumerator];
 	while( (file = [enumerator nextObject]) ) {
-		//if( [statusLock tryLock] ) {
-			if( !removeTaskStatus ) {
-		//		[statusLock unlock];
-				return;
+		if( !removeTaskStatus ) {
+			break;
+		}
+		[fileManager removeFileAtPath:file handler:self];
+	}
+
+	// recursively delete directories
+	enumerator = [roots objectEnumerator];
+	while( (root = [enumerator nextObject]) ) {
+		if( removeTaskStatus ) {
+			NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:root];
+			while( (file = [enumerator nextObject]) ) {
+				//if( [statusLock tryLock] ) {
+				if( !removeTaskStatus ) {
+					//		[statusLock unlock];
+					break;
+				}
+				//	[statusLock unlock];
+				//}
+				if( [directories containsObject: [file lastPathComponent]] ) {
+					[enumerator skipDescendents];
+					NSString *path = [root stringByAppendingPathComponent:file];
+					[fileManager removeFileAtPath:path handler:self];
+				}
 			}
-		//	[statusLock unlock];
-		//}
-		if( [directories containsObject: [file lastPathComponent]] ) {
-			[enumerator skipDescendents];
-			NSString *path = [root stringByAppendingPathComponent:file];
-			[fileManager removeFileAtPath:path handler:self];
+		} else {
+			break;
 		}
 	}
-}
 
-- (void) removeDirectories: (NSSet *)directories
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	if( removeTaskStatus ) { [self removeDirectories: directories atRoot: @"/Applications"]; }
-	if( removeTaskStatus ) { [self removeDirectories: directories atRoot: @"/Developer"]; }
-	if( removeTaskStatus ) { [self removeDirectories: directories atRoot: @"/Library"]; }
-	if( removeTaskStatus ) { [self removeDirectories: directories atRoot: @"/System"]; }
 	[pool release];
 }
 
