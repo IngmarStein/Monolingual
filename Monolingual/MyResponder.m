@@ -83,11 +83,8 @@ NSDictionary *finishedNotificationInfo;
 
 - (IBAction) documentationBundler: (id)sender
 {
-	NSMutableString *myPath = [[NSMutableString alloc] initWithString: [[NSBundle mainBundle] resourcePath]];
-	[myPath appendString: @"/"];
-	[myPath appendString: [sender title]];
+	NSString *myPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[sender title]];
 	[[NSWorkspace sharedWorkspace] openFile: myPath];
-	[myPath release];
 }
 
 - (IBAction) openWebsite: (id)sender
