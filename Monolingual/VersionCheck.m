@@ -15,12 +15,12 @@ The old way used a perl script, curl, and a NSTask, and was quite ugly;
 see the Monolingual or Swap Cop source code for how this used to be
 */
 
-+ (void) checkInfrequentVersionAtURL: (NSString *)url displayText: (NSString *)message downloadURL: (NSString *)goURL
++ (void) checkInfrequentVersionAtURL: (NSURL *)url displayText: (NSString *)message downloadURL: (NSURL *)goURL
 {
 	[VersionCheck checkVersionAtURL: url withDayInterval:30 displayText: message downloadURL: goURL];
 }
 
-+ (void) checkVersionAtURL: (NSString *)url withDayInterval: (int)minDays displayText: (NSString *)message downloadURL: (NSString *)goURL
++ (void) checkVersionAtURL: (NSURL *)url withDayInterval: (int)minDays displayText: (NSString *)message downloadURL: (NSURL *)goURL
 {
 	NSString *currVersionNumber = [[[NSBundle bundleForClass:[self class]] infoDictionary] objectForKey:@"CFBundleVersion"];
 	NSDictionary *productVersionDict;
@@ -33,7 +33,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 
 	if ((lastCheck == nil) || (days> minDays)) {
 		NSLog(@"Going online to check version...");
-		productVersionDict = [NSDictionary dictionaryWithContentsOfURL: [NSURL URLWithString:url]];
+		productVersionDict = [NSDictionary dictionaryWithContentsOfURL: url];
 		latestVersionNumber = [productVersionDict valueForKey:
 			[[[NSBundle bundleForClass:[self class]] infoDictionary] objectForKey:@"CFBundleExecutable"] ];
 
@@ -54,10 +54,10 @@ see the Monolingual or Swap Cop source code for how this used to be
 	}
 }
 
-+ (void) checkVersionAtURL: (NSString *)url displayText: (NSString *)message downloadURL: (NSString *)goURL
++ (void) checkVersionAtURL: (NSURL *)url displayText: (NSString *)message downloadURL: (NSURL *)goURL
 {
 	NSString *currVersionNumber = [[[NSBundle bundleForClass:[self class]] infoDictionary] objectForKey:@"CFBundleVersion"];
-	NSDictionary *productVersionDict = [NSDictionary dictionaryWithContentsOfURL: [NSURL URLWithString:url]];
+	NSDictionary *productVersionDict = [NSDictionary dictionaryWithContentsOfURL: url];
 	NSString *latestVersionNumber = [productVersionDict valueForKey:
 		[[[NSBundle bundleForClass:[self class]] infoDictionary] objectForKey:@"CFBundleExecutable"] ];
 
@@ -80,7 +80,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 + (void) downloadSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (id)contextInfo
 {
 	if (returnCode == NSAlertDefaultReturn) { 
-		[[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: contextInfo]];
+		[[NSWorkspace sharedWorkspace] openURL: contextInfo];
 	}
 }
 
