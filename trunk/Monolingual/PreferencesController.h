@@ -8,7 +8,6 @@
 
 #import <AppKit/AppKit.h>
 
-
 @interface PreferencesController : NSWindowController {
 	IBOutlet NSTableView *rootDirView;
 	IBOutlet NSButton *removeButton;

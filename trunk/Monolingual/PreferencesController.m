@@ -31,7 +31,7 @@
 	[moveToTrash setState: [defaults boolForKey:@"Trash"]];
 
 	NSTableColumn *enabledColumn = [rootDirView tableColumnWithIdentifier:@"Enabled"];
-	[[enabledColumn dataCell] setImagePosition:NSImageOnly]; // Center the checkbox 
+	[[enabledColumn dataCell] setImagePosition:NSImageOnly]; // Center the checkbox
 
 	NSArray *rootsPref = [defaults arrayForKey:@"Roots"];
 	count = [rootsPref count];
@@ -39,7 +39,7 @@
 	for( i=0; i<count; ++i ) {
 		[roots addObject: [[[rootsPref objectAtIndex:i] mutableCopy] autorelease]];
 	}
-	//[rootsPref release];
+
 	[self update];
 }
 

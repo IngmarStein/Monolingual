@@ -5,6 +5,7 @@
  */
 
 #import "ProgressWindowController.h"
+#import "MyResponder.h"
 
 @implementation ProgressWindowController
 id parent;
@@ -21,10 +22,11 @@ NSDictionary *fileAttributes;
 
 - (id) init
 {
-	self = [self initWithWindowNibName:@"ProgressWindow"];
-	fileParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-	[fileParagraphStyle setLineBreakMode:NSLineBreakByTruncatingMiddle];
-	fileAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:fileParagraphStyle, NSParagraphStyleAttributeName, nil];
+	if( (self = [self initWithWindowNibName:@"ProgressWindow"]) ) {
+		fileParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+		[fileParagraphStyle setLineBreakMode:NSLineBreakByTruncatingMiddle];
+		fileAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:fileParagraphStyle, NSParagraphStyleAttributeName, nil];
+	}
 	return self;
 }
 

@@ -36,6 +36,7 @@ int main( int argc, const char *argv[] )
 
 	NSMutableSet *directories = [[NSMutableSet alloc] initWithCapacity: argc-1];
 	NSMutableArray *roots = [[NSMutableArray alloc] initWithCapacity: argc-1];
+	NSMutableArray *excludes = [[NSMutableArray alloc] initWithCapacity: argc-1];
 	NSMutableArray *files = [[NSMutableArray alloc] initWithCapacity: argc-1];
 	for( i=1; i<argc; ++i ) {
 		if( !strcmp( argv[i], "-r" ) ) {
@@ -45,6 +46,14 @@ int main( int argc, const char *argv[] )
 				return( 1 );
 			} else {
 				[roots addObject: [NSString stringWithCString: argv[i]]];
+			}
+		} else if( !strcmp( argv[i], "-x" ) ) {
+			++i;
+			if( i == argc ) {
+				printf( "Argument expected for -x\n" );
+				return( 1 );
+			} else {
+				[excludes addObject: [NSString stringWithCString: argv[i]]];
 			}
 		} else if( !strcmp( argv[i], "-t" ) ) {
 			trash = TRUE;
@@ -63,6 +72,7 @@ int main( int argc, const char *argv[] )
 
 	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories
 																	 roots: roots
+																  excludes: excludes
 																	 files: files
 																	 moveToTrash: trash];
 	NSApp = [NSApplication sharedApplication];
