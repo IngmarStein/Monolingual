@@ -8,6 +8,7 @@
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
 #import "VersionCheck.h"
+#import "GrowlDefines.h"
 #import <Security/Authorization.h>
 #import <Security/AuthorizationTags.h>
 
@@ -28,6 +29,8 @@ unsigned long long bytesSaved;
 BOOL cancelled;
 tableSort_t languageSort;
 tableSort_t layoutSort;
+NSDictionary *startedNotificationInfo;
+NSDictionary *finishedNotificationInfo;
 
 + (void) initialize
 {
@@ -67,6 +70,11 @@ tableSort_t layoutSort;
 	[NSApp endSheet: [myProgress window]];
 	[[myProgress window] orderOut: self]; 
 	[myProgress stop];
+
+	NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
+	[distCenter postNotificationName:GROWL_NOTIFICATION
+							  object:nil
+							userInfo:finishedNotificationInfo];
 
 	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled",@""),@"OK",nil,nil,
 			[NSApp mainWindow],self,NULL,NULL,self,
@@ -349,6 +357,12 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 			[NSApp endSheet:[myProgress window]];
 			[[myProgress window] orderOut:self]; 
 			[myProgress stop];
+
+			NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
+			[distCenter postNotificationName:GROWL_NOTIFICATION
+									  object:nil
+									userInfo:finishedNotificationInfo];
+
 			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
 							  @"OK",nil,nil,parentWindow,self,NULL,NULL,self,
 							  [NSString stringWithFormat: NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable( bytesSaved, hbuf, 1024 )],
@@ -403,6 +417,11 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 
 	status = AuthorizationExecuteWithPrivileges( authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &pipe );
 	if( errAuthorizationSuccess == status ) {
+		NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
+		[distCenter postNotificationName:GROWL_NOTIFICATION
+								  object:nil
+								userInfo:startedNotificationInfo];
+
 		bytesSaved = 0ULL;
 		pipeBuffer = [[NSMutableData alloc] initWithCapacity:1024];
 		pipeHandle = [[NSFileHandle alloc] initWithFileDescriptor: fileno(pipe)];
@@ -611,6 +630,8 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	[layoutSort.sortColumn release];
 	[layouts release];
 	[languages release];
+	[startedNotificationInfo release];
+	[finishedNotificationInfo release];
 	[super dealloc];
 }
 
@@ -871,6 +892,43 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	[layouts sortUsingFunction: sortNames context: (void *)layoutSort.sortAscending];
 	[layoutView setHighlightedTableColumn: nameColumn];
 	[layoutView setIndicatorImage: [NSImage imageNamed: @"NSAscendingSortIndicator"] inTableColumn: nameColumn];
+
+	NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
+
+	//register with Growl.
+	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started",@"");
+	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished",@"");
+	NSString *appName = @"Monolingual";
+
+	NSArray *defaultAndAllNotifications = [[NSArray alloc] initWithObjects: startedNotificationName, finishedNotificationName, nil];
+	NSDictionary *userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+		appName, GROWL_APP_NAME,
+		defaultAndAllNotifications, GROWL_NOTIFICATIONS_ALL,
+		defaultAndAllNotifications, GROWL_NOTIFICATIONS_DEFAULT,
+		nil];
+	[distCenter postNotificationName:GROWL_APP_REGISTRATION
+							  object:nil
+							userInfo:userInfo];
+	[defaultAndAllNotifications release];
+	[userInfo release];
+
+	NSData *icon = [[NSApp applicationIconImage] TIFFRepresentation];
+
+	startedNotificationInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+		startedNotificationName, GROWL_NOTIFICATION_NAME,
+		appName, GROWL_APP_NAME,
+		startedNotificationName, GROWL_NOTIFICATION_TITLE,
+		icon, GROWL_NOTIFICATION_ICON,
+		NSLocalizedString(@"Started removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
+		nil];
+
+	finishedNotificationInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+		finishedNotificationName, GROWL_NOTIFICATION_NAME,
+		appName, GROWL_APP_NAME,
+		finishedNotificationName, GROWL_NOTIFICATION_TITLE,
+		icon, GROWL_NOTIFICATION_ICON,
+		NSLocalizedString(@"Finished removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
+		nil];
 }
 
 @end
