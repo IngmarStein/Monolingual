@@ -69,8 +69,7 @@ NSSet *directories;
 - (void) fileManager: (NSFileManager *)manager willProcessPath: (NSString *)path
 {
 	NSDictionary *fattrs = [manager fileAttributesAtPath: path traverseLink: YES];
-	printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', [fattrs fileSize], '\0' );
-	fflush( NULL );
+	printf( "%s%c%llu%c\n", [path fileSystemRepresentation], '\0', [fattrs fileSize], '\0' );
 }
 
 - (BOOL) fileManager: (NSFileManager *)manager shouldProceedAfterError: (NSDictionary *)errorInfo
@@ -80,9 +79,9 @@ NSSet *directories;
 
 - (void) removeDirectories: (NSSet *)directories atRoot: (NSString *)root
 {
+	NSString *file;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:root];
-	NSString *file;
 	while( (file = [enumerator nextObject]) ) {
 		//if( [statusLock tryLock] ) {
 			if( !removeTaskStatus ) {
@@ -93,8 +92,7 @@ NSSet *directories;
 		//}
 		if( [directories containsObject: [file lastPathComponent]] ) {
 			[enumerator skipDescendents];
-			NSString *path = [root stringByAppendingString:@"/"];
-			path = [path stringByAppendingString:file];
+			NSString *path = [root stringByAppendingPathComponent:file];
 			[fileManager removeFileAtPath:path handler:self];
 		}
 	}
