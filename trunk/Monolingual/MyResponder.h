@@ -40,6 +40,7 @@
 - (void) dealloc;
 - (void) readCompletion: (NSNotification *)aNotification;
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
+- (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
 
 @end
