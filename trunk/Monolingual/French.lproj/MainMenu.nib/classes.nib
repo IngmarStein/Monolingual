@@ -2,10 +2,16 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {documentationBundler = id; openWebsite = id; remove = id; }; 
+            ACTIONS = {
+                documentationBundler = id; 
+                openWebsite = id; 
+                removeLanguages = id; 
+                removeLayouts = id; 
+                showPreferences = id; 
+            }; 
             CLASS = MyResponder; 
             LANGUAGE = ObjC; 
-            OUTLETS = {languageView = NSTableView; }; 
+            OUTLETS = {languageView = NSTableView; layoutView = NSTableView; }; 
             SUPERCLASS = NSObject; 
         }
     ); 

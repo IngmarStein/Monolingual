@@ -24,12 +24,11 @@
 
 @interface DeleteHelper : NSObject {
 }
-- (id) initWithDirectories: (NSSet *)dirs;
+- (id) initWithDirectories: (NSMutableSet *)dirs roots: (NSArray *)r files: (NSArray *)f;
 - (void) finishedTask: (NSNotification *)aNotification;
 - (void) cancelRemoval: (NSNotification *)aNotification;
 - (void) fileManager: (NSFileManager *)manager willProcessPath: (NSString *)path;
 - (BOOL) fileManager: (NSFileManager *)manager shouldProceedAfterError: (NSDictionary *)errorInfo;
-- (void) removeDirectories: (NSSet *)directories;
-- (void) removeDirectories: (NSSet *)directories atRoot: (NSString *)root;
+- (void) removeDirectories;
 
 @end
