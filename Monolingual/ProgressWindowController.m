@@ -32,6 +32,7 @@ NSDictionary *fileAttributes;
 {
 	[fileAttributes release];
 	[fileParagraphStyle release];
+	[super dealloc];
 }
 
 + (id) sharedProgressWindowController: (id)sender

@@ -261,7 +261,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
 							  @"OK",nil,nil,parentWindow,self,NULL,NULL,self,
 							  [NSString stringWithFormat: NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable( bytesSaved, hbuf, 1024 )],
-							  nil);  
+							  nil);
 		}
 	}
 }

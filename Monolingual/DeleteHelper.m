@@ -69,7 +69,8 @@ NSSet *directories;
 - (void) fileManager: (NSFileManager *)manager willProcessPath: (NSString *)path
 {
 	NSDictionary *fattrs = [manager fileAttributesAtPath: path traverseLink: YES];
-	printf( "%s%c%llu%c\n", [path fileSystemRepresentation], '\0', [fattrs fileSize], '\0' );
+	printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', [fattrs fileSize], '\0' );
+	fflush( stdout );
 }
 
 - (BOOL) fileManager: (NSFileManager *)manager shouldProceedAfterError: (NSDictionary *)errorInfo
