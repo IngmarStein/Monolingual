@@ -462,7 +462,6 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 {
 	int i;
 	int lCount;
-	BOOL didWarn = FALSE;
 
 	if( NSAlertDefaultReturn != returnCode ) {
 		lCount = [languages count];
@@ -473,13 +472,9 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
 										  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?",@""),nil);
-				didWarn = TRUE;
-				break;
+				return;
 			}
 		}
-	}
-
-	if( !didWarn ) {
 		[self englishWarningSelector:nil returnCode:NSAlertAlternateReturn contextInfo:nil];
 	}
 }
