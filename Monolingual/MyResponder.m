@@ -97,9 +97,10 @@ NSDictionary *finishedNotificationInfo;
 
 - (id) init
 {
-	self = [super init];
-	parentWindow = nil;
-	pipeHandle = nil;
+	if( (self = [super init]) ) {
+		parentWindow = nil;
+		pipeHandle = nil;
+	}
 	return self;
 }
 
@@ -547,10 +548,16 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		}
 		for( i=0; i<roots_count; ++i ) {
 			NSDictionary *root = [roots objectAtIndex: i];
-			if( [[root objectForKey: @"Enabled"] boolValue] ) {
+			int enabled = [[root objectForKey: @"Enabled"] intValue];
+			if( enabled > 0 ) {
 				NSString *path = [root objectForKey: @"Path"];
 				NSLog( @"Adding root %@", path);
 				argv[index++] = "-r";
+				argv[index++] = [path fileSystemRepresentation];
+			} else if( !enabled ) {
+				NSString *path = [root objectForKey: @"Path"];
+				NSLog( @"Excluding root %@", path);
+				argv[index++] = "-x";
 				argv[index++] = [path fileSystemRepresentation];
 			}
 		}

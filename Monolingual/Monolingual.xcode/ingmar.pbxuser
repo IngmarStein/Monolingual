@@ -2,18 +2,18 @@
 {
 	00ECF787010242A17F000001 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {866, 727}}";
-			sepNavSelRange = "{1050, 0}";
-			sepNavVisRect = "{{0, 228}, {711, 428}}";
-			sepNavWindowFrame = "{{95, 165}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {866, 742}}";
+			sepNavSelRange = "{833, 0}";
+			sepNavVisRect = "{{0, 312}, {711, 430}}";
+			sepNavWindowFrame = "{{77, 235}, {750, 558}}";
 		};
 	};
 	00ECF788010242A17F000001 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1622, 13089}}";
-			sepNavSelRange = "{49737, 31}";
-			sepNavVisRect = "{{0, 12536}, {894, 553}}";
-			sepNavWindowFrame = "{{375, 145}, {933, 683}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1622, 13342}}";
+			sepNavSelRange = "{3259, 9}";
+			sepNavVisRect = "{{0, 1328}, {730, 74}}";
+			sepNavWindowFrame = "{{665, 164}, {750, 558}}";
 		};
 	};
 	089C165DFE840E0CC02AAC07 = {
@@ -26,18 +26,18 @@
 	};
 	10400F480164385C7F000001 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {711, 629}}";
-			sepNavSelRange = "{1402, 0}";
-			sepNavVisRect = "{{0, 180}, {711, 449}}";
-			sepNavWindowFrame = "{{25, 317}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {711, 616}}";
+			sepNavSelRange = "{1006, 0}";
+			sepNavVisRect = "{{0, 128}, {711, 430}}";
+			sepNavWindowFrame = "{{480, 297}, {750, 558}}";
 		};
 	};
 	10400F490164385C7F000001 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {752, 1147}}";
-			sepNavSelRange = "{1125, 0}";
-			sepNavVisRect = "{{0, 0}, {711, 449}}";
-			sepNavWindowFrame = "{{15, 315}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {776, 1176}}";
+			sepNavSelRange = "{573, 9}";
+			sepNavVisRect = "{{0, 0}, {701, 430}}";
+			sepNavWindowFrame = "{{464, 181}, {750, 558}}";
 		};
 	};
 	29B97313FDCFA39411CA2CEA = {
@@ -79,8 +79,8 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXErrorsWarningsDataSource_LocationID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					381.8799,
-					213.2085,
+					219,
+					213,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXErrorsWarningsDataSource_TypeID,
@@ -93,7 +93,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					22,
-					596.7974,
+					434,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXExecutablesDataSource_ActiveFlagID,
@@ -105,9 +105,9 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					287,
+					242,
 					20,
-					56,
+					48.1626,
 					43,
 					43,
 					20,
@@ -182,7 +182,7 @@
 					210,
 					50,
 					20,
-					50,
+					48.1626,
 					43,
 					43,
 				);
@@ -196,7 +196,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 120488641;
+			PBXPerProjectTemplateStateSaveDate = 130419636;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -260,7 +260,7 @@
 						image = SmartFolder;
 						isLeaf = 0;
 						recursive = 1;
-						regex = "?*\\.[mcMC]";
+						regex = "\\.(c|cpp|C|CPP|m|mm|java|sh|scpt)$";
 						root = "<PROJECT>";
 					};
 				},
@@ -834,7 +834,11 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "541 414 745 464 0 0 1440 878 ";
 			};
-			PBXWorkspaceStateSaveDate = 120488641;
+			PBXWorkspaceStateSaveDate = 130419636;
+		};
+		perUserProjectItems = {
+			957C524007C60D6500218C27 = 957C524007C60D6500218C27;
+			95A60CEC07BCFB3600D696D5 = 95A60CEC07BCFB3600D696D5;
 		};
 		sourceControlManager = 95A130110608F3D400D8E30C;
 		userBuildSettings = {
@@ -842,9 +846,9 @@
 	};
 	29B97316FDCFA39411CA2CEA = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {603, 461}}";
+			sepNavIntBoundsRect = "{{0, 0}, {711, 430}}";
 			sepNavSelRange = "{237, 0}";
-			sepNavVisRect = "{{0, 0}, {603, 168}}";
+			sepNavVisRect = "{{0, 0}, {711, 430}}";
 			sepNavWindowFrame = "{{130, 210}, {750, 558}}";
 		};
 	};
@@ -880,6 +884,16 @@
 			sepNavWindowFrame = "{{130, 210}, {750, 558}}";
 		};
 	};
+	957C524007C60D6500218C27 = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 115";
+		rLen = 0;
+		rLoc = 3518;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
 	95833CDF06ED8C2D00238761 = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {740, 111}}";
@@ -890,18 +904,18 @@
 	};
 	95A0BEA106346AD3007510F1 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {740, 428}}";
-			sepNavSelRange = "{465, 0}";
-			sepNavVisRect = "{{0, 0}, {711, 428}}";
+			sepNavIntBoundsRect = "{{0, 0}, {740, 430}}";
+			sepNavSelRange = "{192, 0}";
+			sepNavVisRect = "{{0, 0}, {711, 430}}";
 			sepNavWindowFrame = "{{226, 204}, {750, 558}}";
 		};
 	};
 	95A0BEA206346AD3007510F1 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1034, 1483}}";
-			sepNavSelRange = "{1100, 0}";
-			sepNavVisRect = "{{0, 283}, {711, 428}}";
-			sepNavWindowFrame = "{{314, 199}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1034, 1484}}";
+			sepNavSelRange = "{306, 0}";
+			sepNavVisRect = "{{0, 0}, {701, 430}}";
+			sepNavWindowFrame = "{{267, 200}, {750, 558}}";
 		};
 	};
 	95A130110608F3D400D8E30C = {
@@ -915,16 +929,6 @@
 	95A130120608F3D400D8E30C = {
 		indexTemplatePath = "";
 		isa = PBXCodeSenseManager;
-		usesDefaults = 0;
-		wantsCodeCompletion = 1;
-		wantsCodeCompletionAutoSuggestions = 0;
-		wantsCodeCompletionCaseSensitivity = 1;
-		wantsCodeCompletionListAlways = 0;
-		wantsCodeCompletionOnlyMatchingItems = 1;
-		wantsCodeCompletionParametersIncluded = 1;
-		wantsCodeCompletionPlaceholdersInserted = 1;
-		wantsCodeCompletionTabCompletes = 1;
-		wantsIndex = 1;
 	};
 	95A130250608F92F00D8E30C = {
 		activeExec = 0;
@@ -957,21 +961,513 @@
 		enableDebugStr = 1;
 		environmentEntries = (
 		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
 		isa = PBXExecutable;
 		libgmallocEnabled = 0;
 		name = Monolingual;
 		savedGlobals = {
 		};
 		shlibInfoDictList = (
+			{
+				level = 0;
+				path = /Library/Frameworks/ApplicationEnhancer.framework/Versions/A/ApplicationEnhancer;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Library/Application Enhancers/WindowShade X.ape/Contents/PlugIns/WindowShade X Cocoa.ape/Contents/MacOS/WindowShade X Cocoa";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libcrypto.0.9.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/ImageCapture.framework/Versions/A/ImageCapture;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SecurityHI.framework/Versions/A/SecurityHI;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Ink.framework/Versions/A/Ink;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Help.framework/Versions/A/Help;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/system/libmathCommon.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libSystem.B.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libicucore.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libauto.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libobjc.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Security.framework/Versions/A/Security;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libz.1.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/Versions/A/CFNetwork;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/WebServicesCore.framework/Versions/A/WebServicesCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libcrypto.0.9.7.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSync.framework/Versions/A/ColorSync;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreText.framework/Versions/A/CoreText;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libcups.2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LangAnalysis.framework/Versions/A/LangAnalysis;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/FindByContent.framework/Versions/A/FindByContent;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libRaw.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libOpenEXR.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/CarbonSound.framework/Versions/A/CarbonSound;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libiconv.2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libxml2.2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/PrivateFrameworks/DesktopServicesPriv.framework/Versions/A/DesktopServicesPriv;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCGATS.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCSync.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libPDFRIP.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libPSRIP.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libRIP.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/HIToolbox;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SpeechRecognition.framework/Versions/A/SpeechRecognition;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libsqlite3.0.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreData.framework/Versions/A/CoreData;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/PrivateFrameworks/ZeroLink.framework/Versions/A/ZeroLink;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /Users/ingmar/Devel/Monolingual/build/Monolingual.app/Contents/MacOS/Monolingual;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Monolingual.build/Objects-normal/ppc/main.ob";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Monolingual.build/Objects-normal/ppc/MyResponder.ob";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Monolingual.build/Objects-normal/ppc/VersionCheck.ob";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libOpenGLContext.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Library/InputManagers/Ecamm/Ecamm Plugin Loader.bundle/Contents/MacOS/Ecamm Plugin Loader";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /Library/InputManagers/SIMBL/SIMBL.bundle/Contents/MacOS/SIMBL;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLProgrammability.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Resources/GLEngine.bundle/GLEngine;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Extensions/ATIRadeon9700GLDriver.bundle/Contents/MacOS/ATIRadeon9700GLDriver;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Monolingual.build/Objects-normal/ppc/PreferencesController.ob";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/dyld;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /Developer/Applications/Xcode.app/Contents/PlugIns/GDBMIDebugging.xcplugin/Contents/Resources/PBGDBIntrospectionSupport.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Monolingual.build/Objects-normal/ppc/ProgressWindowController.ob";
+				whenToLoad = 0;
+			},
 		);
 		sourceDirectories = (
 		);
 	};
+	95A60CEC07BCFB3600D696D5 = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 114";
+		rLen = 0;
+		rLoc = 3518;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
 	95C3C93A06100B0C00D417BC = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {554, 1049}}";
-			sepNavSelRange = "{2043, 39}";
-			sepNavVisRect = "{{0, 0}, {0, 0}}";
+			sepNavIntBoundsRect = "{{0, 0}, {711, 1190}}";
+			sepNavSelRange = "{2540, 0}";
+			sepNavVisRect = "{{0, 751}, {711, 430}}";
 			sepNavWindowFrame = "{{558, 297}, {750, 558}}";
 		};
 	};
@@ -982,16 +1478,20 @@
 		);
 	};
 	95C3C9610610144300D417BC = {
-		activeArgIndex = 0;
+		activeArgIndex = 12;
 		activeArgIndices = (
-			YES,
-			YES,
-			YES,
-			YES,
-			YES,
-			YES,
-			YES,
-			YES,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
+			NO,
 			YES,
 			YES,
 			YES,
@@ -1010,6 +1510,10 @@
 			/System/Library/Components/TCIM.component,
 			"-f",
 			/System/Library/Components/SCIM.component,
+			"-r",
+			/Applications,
+			"-x",
+			/,
 		);
 		configStateDict = {
 		};
@@ -1022,10 +1526,419 @@
 		enableDebugStr = 1;
 		environmentEntries = (
 		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
 		isa = PBXExecutable;
 		libgmallocEnabled = 0;
 		name = Helper;
+		savedGlobals = {
+		};
 		shlibInfoDictList = (
+			{
+				level = 0;
+				path = /usr/lib/system/libmathCommon.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libSystem.B.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libicucore.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libauto.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libobjc.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libz.1.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Security.framework/Versions/A/Security;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/Versions/A/CFNetwork;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/WebServicesCore.framework/Versions/A/WebServicesCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libcrypto.0.9.7.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSync.framework/Versions/A/ColorSync;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreText.framework/Versions/A/CoreText;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libcups.2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LangAnalysis.framework/Versions/A/LangAnalysis;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/FindByContent.framework/Versions/A/FindByContent;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libRaw.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libOpenEXR.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/CarbonSound.framework/Versions/A/CarbonSound;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libiconv.2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libxml2.2.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/PrivateFrameworks/DesktopServicesPriv.framework/Versions/A/DesktopServicesPriv;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCGATS.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCSync.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libPDFRIP.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libPSRIP.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libRIP.A.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/HIToolbox;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SpeechRecognition.framework/Versions/A/SpeechRecognition;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/libsqlite3.0.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/CoreData.framework/Versions/A/CoreData;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /System/Library/PrivateFrameworks/ZeroLink.framework/Versions/A/ZeroLink;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /Users/ingmar/Devel/Monolingual/build/Helper;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Helper.build/Objects-normal/ppc/helper.ob";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Users/ingmar/Devel/Monolingual/build/Monolingual.build/Helper.build/Objects-normal/ppc/DeleteHelper.ob";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = "/Library/InputManagers/Ecamm/Ecamm Plugin Loader.bundle/Contents/MacOS/Ecamm Plugin Loader";
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /Library/InputManagers/SIMBL/SIMBL.bundle/Contents/MacOS/SIMBL;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /usr/lib/dyld;
+				whenToLoad = 0;
+			},
+			{
+				level = 0;
+				path = /Developer/Applications/Xcode.app/Contents/PlugIns/GDBMIDebugging.xcplugin/Contents/Resources/PBGDBIntrospectionSupport.A.dylib;
+				whenToLoad = 0;
+			},
 		);
 		sourceDirectories = (
 		);
@@ -1040,18 +1953,18 @@
 	};
 	95D17F150610B00900633B04 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {711, 489}}";
-			sepNavSelRange = "{476, 0}";
-			sepNavVisRect = "{{0, 61}, {711, 428}}";
-			sepNavWindowFrame = "{{136, 254}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {776, 490}}";
+			sepNavSelRange = "{942, 0}";
+			sepNavVisRect = "{{0, 60}, {711, 430}}";
+			sepNavWindowFrame = "{{631, 179}, {750, 558}}";
 		};
 	};
 	95D17F160610B00900633B04 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {711, 2225}}";
-			sepNavSelRange = "{3432, 0}";
-			sepNavVisRect = "{{0, 1277}, {711, 428}}";
-			sepNavWindowFrame = "{{140, 116}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {770, 2436}}";
+			sepNavSelRange = "{3518, 0}";
+			sepNavVisRect = "{{0, 0}, {0, 0}}";
+			sepNavWindowFrame = "{{269, 145}, {750, 558}}";
 		};
 	};
 	95EDCC84062C3B83007229A3 = {
@@ -1097,9 +2010,9 @@
 	F51C1B3501F29B1C0120C6FA = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {818, 4353}}";
-			sepNavSelRange = "{4926, 332}";
-			sepNavVisRect = "{{0, 2229}, {711, 428}}";
-			sepNavWindowFrame = "{{38, 294}, {750, 558}}";
+			sepNavSelRange = "{8884, 9}";
+			sepNavVisRect = "{{0, 3925}, {711, 428}}";
+			sepNavWindowFrame = "{{222, 126}, {750, 558}}";
 		};
 	};
 	F51C1B3701F2ACAC0120C6FA = {
@@ -1144,18 +2057,18 @@
 	};
 	F54BC88002DA668D0100012F = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {866, 489}}";
-			sepNavSelRange = "{23, 88}";
-			sepNavVisRect = "{{0, 0}, {603, 168}}";
-			sepNavWindowFrame = "{{130, 210}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {812, 490}}";
+			sepNavSelRange = "{1275, 0}";
+			sepNavVisRect = "{{0, 60}, {711, 430}}";
+			sepNavWindowFrame = "{{84, 252}, {750, 558}}";
 		};
 	};
 	F54BC88102DA668D0100012F = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {842, 1231}}";
-			sepNavSelRange = "{2655, 0}";
-			sepNavVisRect = "{{111, 655}, {711, 449}}";
-			sepNavWindowFrame = "{{465, 142}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {806, 1232}}";
+			sepNavSelRange = "{2476, 0}";
+			sepNavVisRect = "{{0, 576}, {711, 430}}";
+			sepNavWindowFrame = "{{334, 107}, {750, 558}}";
 		};
 	};
 	F5A6E37F01A07759016596AB = {

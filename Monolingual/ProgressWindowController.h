@@ -22,7 +22,6 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "MyResponder.h"
 
 @interface ProgressWindowController : NSWindowController
 {
