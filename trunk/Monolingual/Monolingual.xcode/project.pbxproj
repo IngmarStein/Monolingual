@@ -33,6 +33,7 @@
 //084
 		080E96DDFE201D6D7F000001 = {
 			children = (
+				9534F842072707D200CAB28E,
 				00ECF787010242A17F000001,
 				00ECF788010242A17F000001,
 				10400F480164385C7F000001,
@@ -392,6 +393,20 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
+		9534F842072707D200CAB28E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = GrowlDefines.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9534F843072707D200CAB28E = {
+			fileRef = 9534F842072707D200CAB28E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		9558F75E0615904700F6DE23 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -562,6 +577,7 @@
 				95A130280608F92F00D8E30C,
 				95A1302B0608F92F00D8E30C,
 				95A0BEA306346AD3007510F1,
+				9534F843072707D200CAB28E,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
