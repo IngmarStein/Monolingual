@@ -1,0 +1,26 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                documentationBundler = id; 
+                openWebsite = id; 
+                removeLanguages = id; 
+                removeLayouts = id; 
+                showPreferences = id; 
+            }; 
+            CLASS = MyResponder; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {languageView = NSTableView; layoutView = NSTableView; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {add = id; changeTrash = id; remove = id; }; 
+            CLASS = PreferencesController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {moveToTrash = NSButton; removeButton = NSButton; rootDirView = NSTableView; }; 
+            SUPERCLASS = NSWindowController; 
+        }
+    ); 
+    IBVersion = 1; 
+}
