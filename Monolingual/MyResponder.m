@@ -602,7 +602,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	if( [identifier isEqualToString:@"Remove"] ) {
 		return( [row objectAtIndex: 0] );
 	} else if( [identifier isEqualToString:@"Type"] ) {
-			return( [row objectAtIndex: 2] );
+		return( [row objectAtIndex: 2] );
 	} else {
 		return( [row objectAtIndex: 1] );
 	}
@@ -727,6 +727,26 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	}
 	[tableView setIndicatorImage:[NSImage imageNamed:(tableSort->sortAscending) ? (@"NSAscendingSortIndicator"):(@"NSDescendingSortIndicator")] inTableColumn:tableColumn];
 	[tableView reloadData];
+}
+
+- (void) registerGrowl: (NSNotification *)note
+{
+	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", @"");
+	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", @"");
+	NSString *appName = @"Monolingual";
+	
+	NSArray *defaultAndAllNotifications = [[NSArray alloc] initWithObjects: startedNotificationName, finishedNotificationName, nil];
+	NSDictionary *userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+		appName, GROWL_APP_NAME,
+		defaultAndAllNotifications, GROWL_NOTIFICATIONS_ALL,
+		defaultAndAllNotifications, GROWL_NOTIFICATIONS_DEFAULT,
+		nil];
+	NSDistributedNotificationCenter *nc = [NSDistributedNotificationCenter defaultCenter];
+	[nc postNotificationName:GROWL_APP_REGISTRATION
+							  object:nil
+							userInfo:userInfo];
+	[defaultAndAllNotifications release];
+	[userInfo release];
 }
 
 - (void) awakeFromNib
@@ -893,32 +913,21 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	[layoutView setHighlightedTableColumn: nameColumn];
 	[layoutView setIndicatorImage: [NSImage imageNamed: @"NSAscendingSortIndicator"] inTableColumn: nameColumn];
 
-	NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
+	// register for GROWL_IS_READY to register if Growl is launched after Monolingual
+	NSDistributedNotificationCenter *nc = [NSDistributedNotificationCenter defaultCenter];
+	[nc addObserver: self selector: @selector(registerGrowl:) name: GROWL_IS_READY object: nil];
 
-	//register with Growl.
-	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started",@"");
-	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished",@"");
+	// register with Growl now
+	[self registerGrowl: nil];
+
+	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", @"");
+	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", @"");
 	NSString *appName = @"Monolingual";
-
-	NSArray *defaultAndAllNotifications = [[NSArray alloc] initWithObjects: startedNotificationName, finishedNotificationName, nil];
-	NSDictionary *userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
-		appName, GROWL_APP_NAME,
-		defaultAndAllNotifications, GROWL_NOTIFICATIONS_ALL,
-		defaultAndAllNotifications, GROWL_NOTIFICATIONS_DEFAULT,
-		nil];
-	[distCenter postNotificationName:GROWL_APP_REGISTRATION
-							  object:nil
-							userInfo:userInfo];
-	[defaultAndAllNotifications release];
-	[userInfo release];
-
-	NSData *icon = [[NSApp applicationIconImage] TIFFRepresentation];
 
 	startedNotificationInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
 		startedNotificationName, GROWL_NOTIFICATION_NAME,
 		appName, GROWL_APP_NAME,
 		startedNotificationName, GROWL_NOTIFICATION_TITLE,
-		icon, GROWL_NOTIFICATION_ICON,
 		NSLocalizedString(@"Started removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
 		nil];
 
@@ -926,7 +935,6 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 		finishedNotificationName, GROWL_NOTIFICATION_NAME,
 		appName, GROWL_APP_NAME,
 		finishedNotificationName, GROWL_NOTIFICATION_TITLE,
-		icon, GROWL_NOTIFICATION_ICON,
 		NSLocalizedString(@"Finished removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
 		nil];
 }
