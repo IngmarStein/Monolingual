@@ -12,10 +12,12 @@
 @interface PreferencesController : NSWindowController {
 	IBOutlet NSTableView *rootDirView;
 	IBOutlet NSButton *removeButton;
+	IBOutlet NSButton *moveToTrash;
 	NSMutableArray *roots;
 }
 - (IBAction) add: (id)sender;
 - (IBAction) remove: (id)sender;
+- (IBAction) changeTrash: (id)sender;
 - (id) init;
 - (void) update;
 - (void) awakeFromNib;

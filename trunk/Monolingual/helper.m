@@ -25,11 +25,13 @@
 int main( int argc, const char *argv[] )
 {
 	int i;
+	BOOL trash;
 
 	if( argc <= 2 ) {
 		return( 1 );
 	}
 
+	trash = FALSE;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	NSMutableSet *directories = [[NSMutableSet alloc] initWithCapacity: argc-1];
@@ -44,6 +46,8 @@ int main( int argc, const char *argv[] )
 			} else {
 				[roots addObject: [NSString stringWithCString: argv[i]]];
 			}
+		} else if( !strcmp( argv[i], "-t" ) ) {
+			trash = TRUE;
 		} else if( !strcmp( argv[i], "-f" ) ) {
 			++i;
 			if( i == argc ) {
@@ -57,7 +61,10 @@ int main( int argc, const char *argv[] )
 		}
 	}
 
-	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories roots:roots files:files];
+	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories
+																	 roots: roots
+																	 files: files
+																	 moveToTrash: trash];
 	NSApp = [NSApplication sharedApplication];
 	[NSApp setDelegate: deleteHelper];
 	[pool release];

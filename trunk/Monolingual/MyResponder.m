@@ -425,6 +425,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	int count;
 	int index;
 	NSArray *row;
+	BOOL trash;
 	const char **argv;
 
 	if( NSAlertDefaultReturn == returnCode ) {
@@ -443,6 +444,10 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		argv[7] = "-f";
 		argv[8] = "/System/Library/Caches/com.apple.IntlDataCache.tecx";
 		index = 9;
+		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
+		if( trash ) {
+			argv[index++] = "-t";
+		}
 		for( i=0; i<count; ++i ) {
 			row = [layouts objectAtIndex: i];
 			if( [[row objectAtIndex: 0] boolValue] ) {
@@ -490,6 +495,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	const char **argv;
 	NSArray *roots;
 	int roots_count;
+	BOOL trash;
 
 	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = [roots count];
@@ -511,8 +517,12 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	} else {
 		rCount = 0;
 		lCount = [languages count];
-		argv = (const char **)malloc( (2+3*lCount+roots_count+roots_count)*sizeof(char *) );
+		argv = (const char **)malloc( (3+3*lCount+roots_count+roots_count)*sizeof(char *) );
 		index = 1;
+		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
+		if( trash ) {
+			argv[index++] = "-t";
+		}
 		for( i=0; i<roots_count; ++i ) {
 			NSDictionary *root = [roots objectAtIndex: i];
 			if( [[root objectForKey: @"Enabled"] boolValue] ) {
