@@ -54,6 +54,7 @@
 				F5230A6E028CE07101D970AB,
 				F52C8EEB02C5606B01250A50,
 				F505F4EC0300C29D01E3DC1E,
+				95EDCC8B062C4393007229A3,
 			);
 			isa = PBXVariantGroup;
 			name = InfoPlist.strings;
@@ -102,6 +103,7 @@
 				F5230A6C028CE07101D970AB,
 				F52C8EEF02C5606B01250A50,
 				F505F4EB0300C28A01E3DC1E,
+				95EDCC86062C40E9007229A3,
 			);
 			isa = PBXVariantGroup;
 			name = ProgressWindow.nib;
@@ -236,6 +238,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				95EDCC87062C4264007229A3,
 				9558F813061598BA00F6DE23,
 				9558F814061598BA00F6DE23,
 				F51C1B3401F29B1C0120C6FA,
@@ -259,6 +262,7 @@
 				F5230A6B028CE07101D970AB,
 				F52C8EED02C5606B01250A50,
 				F505F4E90300C27901E3DC1E,
+				95EDCC85062C4092007229A3,
 			);
 			isa = PBXVariantGroup;
 			name = MainMenu.nib;
@@ -489,6 +493,7 @@
 				95A130350608F92F00D8E30C,
 				95A130360608F92F00D8E30C,
 				9558F7900615953200F6DE23,
+				95EDCC88062C4264007229A3,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -737,6 +742,51 @@
 			target = 95C3C95F0610144300D417BC;
 			targetProxy = 95E7A46D06115DA5009E5926;
 		};
+		95EDCC84062C3B83007229A3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = French;
+			path = French.lproj/Localizable.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95EDCC85062C4092007229A3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = French;
+			path = French.lproj/MainMenu.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95EDCC86062C40E9007229A3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = French;
+			path = French.lproj/ProgressWindow.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95EDCC87062C4264007229A3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.rtfd;
+			path = LisezMoi.rtfd;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95EDCC88062C4264007229A3 = {
+			fileRef = 95EDCC87062C4264007229A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		95EDCC8B062C4393007229A3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = French;
+			path = French.lproj/InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
 //950
 //951
 //952
@@ -788,6 +838,7 @@
 				F5230A69028CE07101D970AB,
 				F52C8EEC02C5606B01250A50,
 				F505F4ED0300C2B001E3DC1E,
+				95EDCC84062C3B83007229A3,
 			);
 			isa = PBXVariantGroup;
 			name = Localizable.strings;
