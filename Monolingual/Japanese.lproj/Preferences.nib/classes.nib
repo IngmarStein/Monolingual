@@ -15,10 +15,10 @@
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {add = id; remove = id; }; 
+            ACTIONS = {add = id; changeTrash = id; remove = id; }; 
             CLASS = PreferencesController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {removeButton = NSButton; rootDirView = NSTableView; }; 
+            OUTLETS = {moveToTrash = NSButton; removeButton = NSButton; rootDirView = NSTableView; }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

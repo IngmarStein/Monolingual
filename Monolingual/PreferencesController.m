@@ -27,10 +27,13 @@
 	int i;
 	int count;
 
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[moveToTrash setState: [defaults boolForKey:@"Trash"]];
+
 	NSTableColumn *enabledColumn = [rootDirView tableColumnWithIdentifier:@"Enabled"];
 	[[enabledColumn dataCell] setImagePosition:NSImageOnly]; // Center the checkbox 
 
-	NSArray *rootsPref = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	NSArray *rootsPref = [defaults arrayForKey:@"Roots"];
 	count = [rootsPref count];
 	roots = [[NSMutableArray alloc] initWithCapacity:count];
 	for( i=0; i<count; ++i ) {
@@ -61,6 +64,11 @@
 	[rootDirView reloadData];
 	[removeButton setEnabled: ([roots count] > 0)];
 	[[NSUserDefaults standardUserDefaults] setObject:roots forKey:@"Roots"];
+}
+
+- (IBAction) changeTrash: (id)sender
+{
+	[[NSUserDefaults standardUserDefaults] setBool:[sender state] forKey:@"Trash"];
 }
 
 - (IBAction) add: (id)sender

@@ -28,8 +28,9 @@ BOOL removeTaskStatus;
 NSSet *directories;
 NSArray *roots;
 NSArray *files;
+BOOL trash;
 
-- (id) initWithDirectories: (NSSet *)dirs roots: (NSArray *)r files: (NSArray *)f
+- (id) initWithDirectories: (NSSet *)dirs roots: (NSArray *)r files: (NSArray *)f moveToTrash: (BOOL)t
 {
 	self = [super init];
 	NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -46,6 +47,7 @@ NSArray *files;
 	directories = dirs;
 	roots = r;
 	files = f;
+	trash = t;
 	//statusLock = [[NSLock alloc] init];
 	return self;
 }
@@ -86,6 +88,29 @@ NSArray *files;
 	return( TRUE );
 }
 
+- (void) removeFile: (NSString *)path
+{
+	int tag;
+
+	if( trash ) {
+		NSString *parent = [path stringByDeletingLastPathComponent];
+		NSString *file = [path lastPathComponent];
+		NSArray *files = [[NSArray alloc] initWithObjects: file, nil];
+		NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+		[workspace performFileOperation: NSWorkspaceRecycleOperation
+								 source: parent
+							destination: @""
+								  files: files
+									tag: &tag];
+		[files release];
+		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', 0ULL, '\0' );
+		fflush( stdout );
+	} else {
+		NSFileManager *fileManager = [NSFileManager defaultManager];
+		[fileManager removeFileAtPath:path handler:self];
+	}
+}
+
 - (void) removeDirectories
 {
 	NSString *root;
@@ -100,7 +125,7 @@ NSArray *files;
 		if( !removeTaskStatus ) {
 			break;
 		}
-		[fileManager removeFileAtPath:file handler:self];
+		[self removeFile: file];
 	}
 
 	// recursively delete directories
@@ -119,7 +144,7 @@ NSArray *files;
 				if( [directories containsObject: [file lastPathComponent]] ) {
 					[enumerator skipDescendents];
 					NSString *path = [root stringByAppendingPathComponent:file];
-					[fileManager removeFileAtPath:path handler:self];
+					[self removeFile:path];
 				}
 			}
 		} else {
