@@ -19,6 +19,7 @@ NSMutableArray *languages;
 unsigned long long bytesSaved;
 int sortAscending;
 NSTableColumn* sortColumn;
+BOOL cancelled;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication
 {
@@ -268,6 +269,32 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
 	int i;
+	int lCount;
+	BOOL didWarn = FALSE;
+
+	if( NSAlertDefaultReturn != returnCode ) {
+		lCount = [languages count];
+		for( i=0; i<lCount; ++i ) {
+			NSArray *language = [languages objectAtIndex: i];
+			if( [[language objectAtIndex: 0] boolValue] && [[language objectAtIndex: 2] isEqualToString: @"en.lproj"] ) {
+				//Display a warning
+				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
+										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
+										  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?",@""),nil);
+				didWarn = TRUE;
+				break;
+			}
+		}
+	}
+
+	if( !didWarn ) {
+		[self englishWarningSelector:nil returnCode:NSAlertAlternateReturn contextInfo:nil];
+	}
+}
+
+- (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
+{
+	int i;
 	int j;
 	int k;
 	int rCount;
@@ -275,19 +302,29 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	int index;
 	OSStatus status;
 	FILE *pipe;
+	const char **argv;
 
-	if( returnCode == NSAlertDefaultReturn ) { 
+	if( NSAlertDefaultReturn == returnCode ) {
 		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),@"OK",nil,nil,[NSApp mainWindow],self,
-			NULL,NULL,contextInfo,
-			NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
+						  NULL,NULL,contextInfo,
+						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 	} else {
 		rCount = 0;
 		lCount = [languages count];
-		const char **argv = alloca( 3*lCount*sizeof(char *) );
+		argv = alloca( 3*lCount*sizeof(char *) );
 		index = 1;
 		for( i=0; i<lCount; ++i ) {
 			NSArray *language = [languages objectAtIndex: i];
 			if( [[language objectAtIndex: 0] boolValue] ) {
+				if( [[language objectAtIndex: 2] isEqualToString: @"en.lproj"] ) {
+					//Display a warning
+					NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
+											  @selector(englishWarningSelector:returnCode:contextInfo:),self,
+											  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?",@""),nil);
+					if( returnCode == NSAlertDefaultReturn ) {
+						break;
+					}
+				}
 				k = [language count];
 				for( j=2; j<k; ++j ) {
 					argv[index++] = [[language objectAtIndex: j] cString];
@@ -300,7 +337,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),@"OK",nil,nil,[NSApp mainWindow],self,NULL,NULL,nil,NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
 		} else if( rCount ) {
 			// start things off if we have something to remove!
-			NSString *myPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingString: @"/Helper"];
+			NSString *myPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @"Helper"];
 			const char *path = [myPath fileSystemRepresentation];
 			AuthorizationItem right = {kAuthorizationRightExecute, strlen(path)+1, (char *)path, 0};
 			AuthorizationRights rights = {1, &right};
@@ -325,7 +362,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 									  NULL,self,NSLocalizedString(@"Failed to authorize as an administrator.",@""),nil);
 					return;
 			}
-			
+
 			argv[0] = path;
 			argv[index++] = NULL;
 
