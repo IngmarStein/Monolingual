@@ -27,8 +27,8 @@
 }
 
 + (void) downloadSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (id)contextInfo;
-+ (void) checkVersionAtURL: (NSString *)url displayText: (NSString *)message downloadURL: (NSString *)goURL;
-+ (void) checkInfrequentVersionAtURL: (NSString *)url displayText: (NSString *)message downloadURL: (NSString *)goURL;
-+ (void) checkVersionAtURL: (NSString *)url withDayInterval: (int)minDays displayText: (NSString *)message downloadURL: (NSString *)goURL;
++ (void) checkVersionAtURL: (NSURL *)url displayText: (NSString *)message downloadURL: (NSURL *)goURL;
++ (void) checkInfrequentVersionAtURL: (NSURL *)url displayText: (NSString *)message downloadURL: (NSURL *)goURL;
++ (void) checkVersionAtURL: (NSURL *)url withDayInterval: (int)minDays displayText: (NSString *)message downloadURL: (NSURL *)goURL;
 
 @end
