@@ -23,7 +23,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface MyResponder : NSObject
+@interface MyResponder : NSWindowController
 {
 	IBOutlet NSTableView *languageView;
 	IBOutlet NSTableView *layoutView;

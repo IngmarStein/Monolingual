@@ -12,7 +12,7 @@
             CLASS = MyResponder; 
             LANGUAGE = ObjC; 
             OUTLETS = {languageView = NSTableView; layoutView = NSTableView; }; 
-            SUPERCLASS = NSObject; 
+            SUPERCLASS = NSWindowController; 
         }
     ); 
     IBVersion = 1; 
