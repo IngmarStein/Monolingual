@@ -56,7 +56,7 @@ NSTableColumn* sortColumn;
 
 - (IBAction) openWebsite: (id) sender
 {
-	[[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: @"http://homepage.mac.com/jschrier/index.html"]];
+	[[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: @"http://monolingual.sourceforge.net/"]];
 }
 
 - (id) init
@@ -454,9 +454,9 @@ static NSComparisonResult sortLanguages( NSArray *l1, NSArray *l2, void *context
 	NSArray *userLanguages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 	NSSet *userLanguagesSet = [[NSSet alloc] initWithArray:userLanguages];
 
-	[VersionCheck checkVersionAtURL: @"http://homepage.mac.com/jschrier/version.xml" 
+	[VersionCheck checkVersionAtURL: @"http://monolingual.sourceforge.net/version.xml" 
 		displayText: NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
-		downloadURL: @"http://homepage.mac.com/jschrier/index.html"];
+		downloadURL: @"http://monolingual.sourceforge.net"];
 
 	languages = [[NSMutableArray alloc] initWithCapacity: 116];
 	[languages addObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"af"]], NSLocalizedString(@"Afrikaans", @""), @"af.lproj", @"Afrikaans.lproj", nil]];
