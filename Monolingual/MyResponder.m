@@ -316,15 +316,6 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		for( i=0; i<lCount; ++i ) {
 			NSArray *language = [languages objectAtIndex: i];
 			if( [[language objectAtIndex: 0] boolValue] ) {
-				if( [[language objectAtIndex: 2] isEqualToString: @"en.lproj"] ) {
-					//Display a warning
-					NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
-											  @selector(englishWarningSelector:returnCode:contextInfo:),self,
-											  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?",@""),nil);
-					if( returnCode == NSAlertDefaultReturn ) {
-						break;
-					}
-				}
 				k = [language count];
 				for( j=2; j<k; ++j ) {
 					argv[index++] = [[language objectAtIndex: j] cString];
