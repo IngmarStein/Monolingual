@@ -710,6 +710,8 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	NSArray *userLanguages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 	NSSet *userLanguagesSet = [[NSSet alloc] initWithArray:userLanguages];
 
+	[[self window] setFrameAutosaveName:@"MainWindow"];
+
 	[VersionCheck checkVersionAtURL: @"http://monolingual.sourceforge.net/version.xml" 
 		displayText: NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
 		downloadURL: @"http://monolingual.sourceforge.net"];
