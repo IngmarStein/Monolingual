@@ -57,6 +57,7 @@
 				F52C8EEB02C5606B01250A50,
 				F505F4EC0300C29D01E3DC1E,
 				95EDCC8B062C4393007229A3,
+				95833CDF06ED8C2D00238761,
 			);
 			isa = PBXVariantGroup;
 			name = InfoPlist.strings;
@@ -106,6 +107,7 @@
 				F52C8EEF02C5606B01250A50,
 				F505F4EB0300C28A01E3DC1E,
 				95EDCC86062C40E9007229A3,
+				95833CCA06ED88B700238761,
 			);
 			isa = PBXVariantGroup;
 			name = ProgressWindow.nib;
@@ -195,6 +197,7 @@
 				German,
 				Swedish,
 				Polish,
+				Italian,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -265,6 +268,7 @@
 				F52C8EED02C5606B01250A50,
 				F505F4E90300C27901E3DC1E,
 				95EDCC85062C4092007229A3,
+				95833CC906ED88A900238761,
 			);
 			isa = PBXVariantGroup;
 			name = MainMenu.nib;
@@ -452,6 +456,38 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		95833CC906ED88A900238761 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = Italian;
+			path = Italian.lproj/MainMenu.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95833CCA06ED88B700238761 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = Italian;
+			path = Italian.lproj/ProgressWindow.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95833CCB06ED88F800238761 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = Italian;
+			path = Italian.lproj/Preferences.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		95833CDF06ED8C2D00238761 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = Italian;
+			path = Italian.lproj/InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
 		};
 		95A0BE9D06346795007510F1 = {
 			isa = PBXFileReference;
@@ -760,6 +796,15 @@
 			settings = {
 			};
 		};
+		95CB1AFE06E8DDDD00293B60 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = Italian;
+			path = Italian.lproj/Localizable.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
 		95CC53A30635449F006A4D12 = {
 			children = (
 				95A0BE9D06346795007510F1,
@@ -768,6 +813,7 @@
 				950C126E0636EA600007DD3D,
 				950C126F0636EA620007DD3D,
 				950C12700636EA680007DD3D,
+				95833CCB06ED88F800238761,
 			);
 			isa = PBXVariantGroup;
 			name = Preferences.nib;
@@ -938,6 +984,7 @@
 				F52C8EEC02C5606B01250A50,
 				F505F4ED0300C2B001E3DC1E,
 				95EDCC84062C3B83007229A3,
+				95CB1AFE06E8DDDD00293B60,
 			);
 			isa = PBXVariantGroup;
 			name = Localizable.strings;
