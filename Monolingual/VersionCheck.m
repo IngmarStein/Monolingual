@@ -31,7 +31,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 	[[NSCalendarDate calendarDate] 
 		years: NULL months: NULL days: &days hours: NULL minutes: NULL seconds: NULL sinceDate: lastCheck]; 
 
-	if ((lastCheck == nil) || (days> minDays)) {
+	if (!lastCheck || (days > minDays)) {
 		NSLog(@"Going online to check version...");
 		productVersionDict = [NSDictionary dictionaryWithContentsOfURL: url];
 		latestVersionNumber = [productVersionDict valueForKey:
@@ -79,6 +79,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 
 + (void) downloadSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (id)contextInfo
 {
+#pragma unused(sheet)
 	if (returnCode == NSAlertDefaultReturn) { 
 		[[NSWorkspace sharedWorkspace] openURL: contextInfo];
 	}

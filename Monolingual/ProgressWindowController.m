@@ -14,6 +14,7 @@ NSDictionary *fileAttributes;
 
 - (IBAction) cancelButton: (id)sender
 {
+#pragma unused(sender)
 	[applicationText setStringValue: NSLocalizedString(@"Canceling operation...",@"")];
 	[fileText setStringValue: @""];
 	[NSApp updateWindows];

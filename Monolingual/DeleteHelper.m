@@ -57,6 +57,7 @@ BOOL trash;
 
 - (void) finishedTask: (NSNotification *)aNotification
 {
+#pragma unused(aNotification)
 	//[statusLock release];
 	[files release];
 	[roots release];
@@ -66,6 +67,7 @@ BOOL trash;
 
 - (void) cancelRemoval: (NSNotification *)aNotification
 {
+#pragma unused(aNotification)
 	//while( ![statusLock tryLock] ) {}
 	removeTaskStatus = FALSE;
 	//[statusLock unlock];
@@ -73,6 +75,7 @@ BOOL trash;
 
 - (void) applicationDidFinishLaunching: (NSNotification *)notification
 {
+#pragma unused(notification)
 	removeTaskStatus = TRUE;
 	[NSThread detachNewThreadSelector: @selector(removeDirectories) toTarget: self withObject: nil];
 }
@@ -88,6 +91,7 @@ BOOL trash;
 
 - (BOOL) fileManager: (NSFileManager *)manager shouldProceedAfterError: (NSDictionary *)errorInfo
 {
+#pragma unused(manager,errorInfo)
 	return( TRUE );
 }
 
@@ -98,14 +102,14 @@ BOOL trash;
 	if( trash ) {
 		NSString *parent = [path stringByDeletingLastPathComponent];
 		NSString *file = [path lastPathComponent];
-		NSArray *files = [[NSArray alloc] initWithObjects: file, nil];
+		NSArray *filesToRecycle = [[NSArray alloc] initWithObjects: file, nil];
 		NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
 		[workspace performFileOperation: NSWorkspaceRecycleOperation
 								 source: parent
 							destination: @""
-								  files: files
+								  files: filesToRecycle
 									tag: &tag];
-		[files release];
+		[filesToRecycle release];
 		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', 0ULL, '\0' );
 		fflush( stdout );
 	} else {

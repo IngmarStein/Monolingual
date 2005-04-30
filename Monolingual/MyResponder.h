@@ -47,6 +47,6 @@
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
-- (void) registerGrowl: (NSNotification *)note;
+- (NSDictionary *) registrationDictionaryForGrowl;
 
 @end

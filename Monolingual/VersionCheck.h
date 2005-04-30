@@ -20,7 +20,6 @@
 
 
 #import <Foundation/Foundation.h>
-#import <Appkit/Appkit.h>
 
 @interface VersionCheck : NSObject {
 

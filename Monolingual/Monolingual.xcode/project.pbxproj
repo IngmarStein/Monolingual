@@ -126,6 +126,7 @@
 		};
 		1058C7A0FEA54F0111CA2CBB = {
 			children = (
+				9595189907E48934004A4471,
 				1058C7A1FEA54F0111CA2CBB,
 			);
 			isa = PBXGroup;
@@ -329,6 +330,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.2;
 				OPTIMIZATION_CFLAGS = "-O0";
 				ZERO_LINK = YES;
@@ -400,12 +402,6 @@
 			path = GrowlDefines.h;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		9534F843072707D200CAB28E = {
-			fileRef = 9534F842072707D200CAB28E;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		9558F75E0615904700F6DE23 = {
 			fileEncoding = 4;
@@ -504,6 +500,35 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
+		9595189907E48934004A4471 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			path = Growl.framework;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9595189A07E48934004A4471 = {
+			fileRef = 9595189907E48934004A4471;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		959518FF07E48C1F004A4471 = {
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9595190107E48C30004A4471,
+			);
+			isa = PBXCopyFilesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9595190107E48C30004A4471 = {
+			fileRef = 9595189907E48934004A4471;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		95A0BE9D06346795007510F1 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.nib;
@@ -528,12 +553,6 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		95A0BEA306346AD3007510F1 = {
-			fileRef = 95A0BEA106346AD3007510F1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		95A0BEA406346AD3007510F1 = {
 			fileRef = 95A0BEA206346AD3007510F1;
 			isa = PBXBuildFile;
@@ -542,23 +561,38 @@
 		};
 		95A130250608F92F00D8E30C = {
 			buildPhases = (
-				95A130260608F92F00D8E30C,
+				959518FF07E48C1F004A4471,
 				95A1302C0608F92F00D8E30C,
 				95A130370608F92F00D8E30C,
 				95A1303E0608F92F00D8E30C,
-				95A130400608F92F00D8E30C,
 			);
 			buildRules = (
 			);
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = Monolingual;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wall";
+				WARNING_CFLAGS = "-W -Wall";
 				WRAPPER_EXTENSION = app;
 			};
 			dependencies = (
@@ -569,36 +603,6 @@
 			productName = Monolingual;
 			productReference = 95A130430608F93000D8E30C;
 			productType = "com.apple.product-type.application";
-		};
-		95A130260608F92F00D8E30C = {
-			buildActionMask = 2147483647;
-			files = (
-				95A130270608F92F00D8E30C,
-				95A130280608F92F00D8E30C,
-				95A1302B0608F92F00D8E30C,
-				95A0BEA306346AD3007510F1,
-				9534F843072707D200CAB28E,
-			);
-			isa = PBXHeadersBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		95A130270608F92F00D8E30C = {
-			fileRef = 00ECF787010242A17F000001;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		95A130280608F92F00D8E30C = {
-			fileRef = 10400F480164385C7F000001;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		95A1302B0608F92F00D8E30C = {
-			fileRef = F54BC88002DA668D0100012F;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		95A1302C0608F92F00D8E30C = {
 			buildActionMask = 2147483647;
@@ -692,6 +696,7 @@
 			files = (
 				95D180030610CBDD00633B04,
 				95A1303F0608F92F00D8E30C,
+				9595189A07E48934004A4471,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -702,13 +707,6 @@
 			settings = {
 			};
 		};
-		95A130400608F92F00D8E30C = {
-			buildActionMask = 2147483647;
-			files = (
-			);
-			isa = PBXRezBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		95A130420608F92F00D8E30C = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.xml;
@@ -717,9 +715,9 @@
 			sourceTree = "<group>";
 		};
 		95A130430608F93000D8E30C = {
+			explicitFileType = wrapper.application;
 			includeInIndex = 0;
 			isa = PBXFileReference;
-			lastKnownFileType = wrapper.application;
 			path = Monolingual.app;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -731,14 +729,6 @@
 			path = helper.m;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		95C3C95C0610144300D417BC = {
-			buildActionMask = 2147483647;
-			files = (
-				95D17F170610B00900633B04,
-			);
-			isa = PBXHeadersBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		95C3C95D0610144300D417BC = {
 			buildActionMask = 2147483647;
@@ -759,7 +749,6 @@
 		};
 		95C3C95F0610144300D417BC = {
 			buildPhases = (
-				95C3C95C0610144300D417BC,
 				95C3C95D0610144300D417BC,
 				95C3C95E0610144300D417BC,
 			);
@@ -769,12 +758,26 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = Helper;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wall";
+				WARNING_CFLAGS = "-W -Wall";
 			};
 			dependencies = (
 			);
@@ -865,12 +868,6 @@
 			path = DeleteHelper.m;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		95D17F170610B00900633B04 = {
-			fileRef = 95D17F150610B00900633B04;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		95D17F180610B00900633B04 = {
 			fileRef = 95D17F160610B00900633B04;
