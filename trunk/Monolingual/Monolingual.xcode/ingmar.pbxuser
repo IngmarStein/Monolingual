@@ -3,16 +3,16 @@
 	00ECF787010242A17F000001 = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {866, 742}}";
-			sepNavSelRange = "{833, 0}";
-			sepNavVisRect = "{{0, 312}, {711, 430}}";
+			sepNavSelRange = "{2304, 0}";
+			sepNavVisRect = "{{0, 313}, {711, 429}}";
 			sepNavWindowFrame = "{{77, 235}, {750, 558}}";
 		};
 	};
 	00ECF788010242A17F000001 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1622, 13048}}";
-			sepNavSelRange = "{25490, 0}";
-			sepNavVisRect = "{{0, 10332}, {711, 430}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1622, 13440}}";
+			sepNavSelRange = "{5008, 0}";
+			sepNavVisRect = "{{357, 1487}, {711, 429}}";
 			sepNavWindowFrame = "{{651, 98}, {750, 558}}";
 		};
 	};
@@ -34,9 +34,9 @@
 	};
 	10400F490164385C7F000001 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {776, 1176}}";
-			sepNavSelRange = "{573, 9}";
-			sepNavVisRect = "{{0, 0}, {701, 430}}";
+			sepNavIntBoundsRect = "{{0, 0}, {776, 1190}}";
+			sepNavSelRange = "{1061, 0}";
+			sepNavVisRect = "{{0, 213}, {711, 429}}";
 			sepNavWindowFrame = "{{464, 181}, {750, 558}}";
 		};
 	};
@@ -107,7 +107,7 @@
 					20,
 					242,
 					20,
-					48.1626,
+					48,
 					43,
 					43,
 					20,
@@ -180,9 +180,9 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
 					210,
-					50,
+					52,
 					20,
-					48.1626,
+					48,
 					43,
 					43,
 				);
@@ -196,7 +196,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 131271493;
+			PBXPerProjectTemplateStateSaveDate = 136563284;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -834,11 +834,37 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "541 414 745 464 0 0 1440 878 ";
 			};
-			PBXWorkspaceStateSaveDate = 131271493;
+			PBXWorkspaceStateSaveDate = 136563284;
 		};
 		perUserProjectItems = {
-			951432C407D30B6700981175 = 951432C407D30B6700981175;
-			95A26F9707CF3BCC0046CE43 = 95A26F9707CF3BCC0046CE43;
+			950F709E07F5EEDE00593410 = 950F709E07F5EEDE00593410;
+			950F70D507F5F40C00593410 = 950F70D507F5F40C00593410;
+			950F70DA07F5F40C00593410 = 950F70DA07F5F40C00593410;
+			95A1641F07F1BDB900E0C9BB = 95A1641F07F1BDB900E0C9BB;
+			95D6383B0823CA5800DB66DA = 95D6383B0823CA5800DB66DA;
+			95D638420823CE1700DB66DA = 95D638420823CE1700DB66DA;
+			95D638430823CE1700DB66DA = 95D638430823CE1700DB66DA;
+			95D638500823CE2F00DB66DA = 95D638500823CE2F00DB66DA;
+			95D638550823CE2F00DB66DA = 95D638550823CE2F00DB66DA;
+			95D6385A0823CE6400DB66DA = 95D6385A0823CE6400DB66DA;
+			95D6385B0823CE6400DB66DA = 95D6385B0823CE6400DB66DA;
+			95D638890823D27800DB66DA = 95D638890823D27800DB66DA;
+			95D638B00823D3C600DB66DA = 95D638B00823D3C600DB66DA;
+			95D638B70823D43D00DB66DA = 95D638B70823D43D00DB66DA;
+			95D638B80823D43D00DB66DA = 95D638B80823D43D00DB66DA;
+			95D638BA0823D43D00DB66DA = 95D638BA0823D43D00DB66DA;
+			95D638BB0823D43D00DB66DA = 95D638BB0823D43D00DB66DA;
+			95D638BC0823D43D00DB66DA = 95D638BC0823D43D00DB66DA;
+			95D638BD0823D43D00DB66DA = 95D638BD0823D43D00DB66DA;
+			95D638BE0823D43D00DB66DA = 95D638BE0823D43D00DB66DA;
+			95D638C00823D43D00DB66DA = 95D638C00823D43D00DB66DA;
+			95D638C10823D43D00DB66DA = 95D638C10823D43D00DB66DA;
+			95D638C20823D43E00DB66DA = 95D638C20823D43E00DB66DA;
+			95D638C50823D43E00DB66DA = 95D638C50823D43E00DB66DA;
+			95D638C80823D43E00DB66DA = 95D638C80823D43E00DB66DA;
+			95D638CF0823D58200DB66DA = 95D638CF0823D58200DB66DA;
+			95D638D00823D58200DB66DA = 95D638D00823D58200DB66DA;
+			95D638D10823D58200DB66DA = 95D638D10823D58200DB66DA;
 		};
 		sourceControlManager = 95A130110608F3D400D8E30C;
 		userBuildSettings = {
@@ -852,15 +878,29 @@
 			sepNavWindowFrame = "{{130, 210}, {750, 558}}";
 		};
 	};
-	951432C407D30B6700981175 = {
+	950F709E07F5EEDE00593410 = {
+		fRef = F54BC88102DA668D0100012F;
+		isa = PBXBookmark;
+	};
+	950F70D507F5F40C00593410 = {
 		fRef = 95D17F160610B00900633B04;
 		isa = PBXTextBookmark;
 		name = "DeleteHelper.m: 115";
 		rLen = 0;
-		rLoc = 3518;
+		rLoc = 3668;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
+	};
+	950F70DA07F5F40C00593410 = {
+		fRef = F54BC88102DA668D0100012F;
+		isa = PBXTextBookmark;
+		name = "VersionCheck.m: 32";
+		rLen = 0;
+		rLoc = 1209;
+		rType = 0;
+		vrLen = 1631;
+		vrLoc = 730;
 	};
 	9558F75E0615904700F6DE23 = {
 		uiCtxt = {
@@ -912,9 +952,9 @@
 	};
 	95A0BEA206346AD3007510F1 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1034, 1484}}";
-			sepNavSelRange = "{306, 0}";
-			sepNavVisRect = "{{0, 0}, {701, 430}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1034, 1568}}";
+			sepNavSelRange = "{2021, 2}";
+			sepNavVisRect = "{{0, 1042}, {592, 170}}";
 			sepNavWindowFrame = "{{267, 200}, {750, 558}}";
 		};
 	};
@@ -1450,15 +1490,17 @@
 				whenToLoad = 0;
 			},
 		);
+		shlibInfoDictList_v2 = (
+		);
 		sourceDirectories = (
 		);
 	};
-	95A26F9707CF3BCC0046CE43 = {
+	95A1641F07F1BDB900E0C9BB = {
 		fRef = 95D17F160610B00900633B04;
 		isa = PBXTextBookmark;
 		name = "DeleteHelper.m: 115";
 		rLen = 0;
-		rLoc = 3518;
+		rLoc = 3668;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -1940,6 +1982,8 @@
 				whenToLoad = 0;
 			},
 		);
+		shlibInfoDictList_v2 = (
+		);
 		sourceDirectories = (
 		);
 	};
@@ -1961,11 +2005,251 @@
 	};
 	95D17F160610B00900633B04 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {770, 2436}}";
-			sepNavSelRange = "{3518, 0}";
-			sepNavVisRect = "{{0, 0}, {0, 0}}";
+			sepNavIntBoundsRect = "{{0, 0}, {770, 2492}}";
+			sepNavSelRange = "{3432, 0}";
+			sepNavVisRect = "{{0, 1249}, {711, 429}}";
 			sepNavWindowFrame = "{{269, 145}, {750, 558}}";
 		};
+	};
+	95D6383B0823CA5800DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXBookmark;
+	};
+	95D638420823CE1700DB66DA = {
+		comments = "error: Appkit/Appkit.h: No such file or directory";
+		fRef = F54BC88002DA668D0100012F;
+		isa = PBXTextBookmark;
+		rLen = 1;
+		rLoc = 22;
+		rType = 1;
+	};
+	95D638430823CE1700DB66DA = {
+		fRef = F54BC88002DA668D0100012F;
+		isa = PBXTextBookmark;
+		name = "VersionCheck.h: 34";
+		rLen = 0;
+		rLoc = 1457;
+		rType = 0;
+		vrLen = 534;
+		vrLoc = 923;
+	};
+	95D638500823CE2F00DB66DA = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 115";
+		rLen = 0;
+		rLoc = 3668;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	95D638550823CE2F00DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "MyResponder.m: 754";
+		rLen = 0;
+		rLoc = 26382;
+		rType = 0;
+		vrLen = 1367;
+		vrLoc = 24520;
+	};
+	95D6385A0823CE6400DB66DA = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 115";
+		rLen = 0;
+		rLoc = 3668;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	95D6385B0823CE6400DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "MyResponder.m: 752";
+		rLen = 0;
+		rLoc = 26321;
+		rType = 0;
+		vrLen = 1244;
+		vrLoc = 24520;
+	};
+	95D638890823D27800DB66DA = {
+		comments = "warning: declaration of 'files' shadows a global declaration";
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		rLen = 1;
+		rLoc = 104;
+		rType = 1;
+	};
+	95D638B00823D3C600DB66DA = {
+		comments = "warning: comparison between signed and unsigned";
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		rLen = 1;
+		rLoc = 212;
+		rType = 1;
+	};
+	95D638B70823D43D00DB66DA = {
+		fRef = F54BC88002DA668D0100012F;
+		isa = PBXTextBookmark;
+		name = "VersionCheck.h: 34";
+		rLen = 0;
+		rLoc = 1457;
+		rType = 0;
+		vrLen = 534;
+		vrLoc = 923;
+	};
+	95D638B80823D43D00DB66DA = {
+		fRef = 95D638B90823D43D00DB66DA;
+		isa = PBXTextBookmark;
+		name = "char\t*index(const char *, int);";
+		rLen = 32;
+		rLoc = 4726;
+		rType = 0;
+		vrLen = 472;
+		vrLoc = 4540;
+	};
+	95D638B90823D43D00DB66DA = {
+		isa = PBXFileReference;
+		name = string.h;
+		path = /usr/include/string.h;
+		refType = 0;
+		sourceTree = "<absolute>";
+	};
+	95D638BA0823D43D00DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "{";
+		rLen = 2;
+		rLoc = 6471;
+		rType = 0;
+		vrLen = 841;
+		vrLoc = 5425;
+	};
+	95D638BB0823D43D00DB66DA = {
+		comments = "warning: unused parameter 'sender'";
+		fRef = 95A0BEA206346AD3007510F1;
+		isa = PBXTextBookmark;
+		rLen = 1;
+		rLoc = 78;
+		rType = 1;
+	};
+	95D638BC0823D43D00DB66DA = {
+		fRef = F54BC88002DA668D0100012F;
+		isa = PBXTextBookmark;
+		name = "VersionCheck.h: 34";
+		rLen = 0;
+		rLoc = 1457;
+		rType = 0;
+		vrLen = 534;
+		vrLoc = 923;
+	};
+	95D638BD0823D43D00DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "{";
+		rLen = 2;
+		rLoc = 16186;
+		rType = 0;
+		vrLen = 265;
+		vrLoc = 15307;
+	};
+	95D638BE0823D43D00DB66DA = {
+		fRef = 95D638BF0823D43D00DB66DA;
+		isa = PBXTextBookmark;
+		name = "char\t*index(const char *, int);";
+		rLen = 32;
+		rLoc = 4726;
+		rType = 0;
+		vrLen = 472;
+		vrLoc = 4540;
+	};
+	95D638BF0823D43D00DB66DA = {
+		isa = PBXFileReference;
+		name = string.h;
+		path = /usr/include/string.h;
+		refType = 0;
+		sourceTree = "<absolute>";
+	};
+	95D638C00823D43D00DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "{";
+		rLen = 2;
+		rLoc = 6471;
+		rType = 0;
+		vrLen = 841;
+		vrLoc = 5425;
+	};
+	95D638C10823D43D00DB66DA = {
+		fRef = 95A0BEA206346AD3007510F1;
+		isa = PBXTextBookmark;
+		name = "{";
+		rLen = 2;
+		rLoc = 2021;
+		rType = 0;
+		vrLen = 307;
+		vrLoc = 1908;
+	};
+	95D638C20823D43E00DB66DA = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 119";
+		rLen = 0;
+		rLoc = 3668;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	95D638C50823D43E00DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "MyResponder.m: 179";
+		rLen = 0;
+		rLoc = 7329;
+		rType = 0;
+		vrLen = 791;
+		vrLoc = 6418;
+	};
+	95D638C80823D43E00DB66DA = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 112";
+		rLen = 0;
+		rLoc = 3432;
+		rType = 0;
+		vrLen = 883;
+		vrLoc = 2788;
+	};
+	95D638CF0823D58200DB66DA = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 119";
+		rLen = 0;
+		rLoc = 3668;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	95D638D00823D58200DB66DA = {
+		fRef = 00ECF788010242A17F000001;
+		isa = PBXTextBookmark;
+		name = "MyResponder.m: 128";
+		rLen = 0;
+		rLoc = 5008;
+		rType = 0;
+		vrLen = 2534;
+		vrLoc = 3244;
+	};
+	95D638D10823D58200DB66DA = {
+		fRef = 95D17F160610B00900633B04;
+		isa = PBXTextBookmark;
+		name = "DeleteHelper.m: 112";
+		rLen = 0;
+		rLoc = 3432;
+		rType = 0;
+		vrLen = 883;
+		vrLoc = 2788;
 	};
 	95EDCC84062C3B83007229A3 = {
 		uiCtxt = {
@@ -2057,18 +2341,18 @@
 	};
 	F54BC88002DA668D0100012F = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {812, 490}}";
-			sepNavSelRange = "{1275, 0}";
-			sepNavVisRect = "{{0, 60}, {711, 430}}";
+			sepNavIntBoundsRect = "{{0, 0}, {812, 476}}";
+			sepNavSelRange = "{1457, 0}";
+			sepNavVisRect = "{{0, 306}, {592, 170}}";
 			sepNavWindowFrame = "{{84, 252}, {750, 558}}";
 		};
 	};
 	F54BC88102DA668D0100012F = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {806, 1232}}";
-			sepNavSelRange = "{2476, 0}";
-			sepNavVisRect = "{{0, 576}, {711, 430}}";
-			sepNavWindowFrame = "{{334, 107}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {806, 1246}}";
+			sepNavSelRange = "{3597, 0}";
+			sepNavVisRect = "{{0, 803}, {711, 429}}";
+			sepNavWindowFrame = "{{106, 100}, {750, 558}}";
 		};
 	};
 	F5A6E37F01A07759016596AB = {

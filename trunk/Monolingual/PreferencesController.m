@@ -45,16 +45,19 @@
 
 - (int) numberOfRowsInTableView: (NSTableView *)aTableView
 {
+#pragma unused(aTableView)
 	return( [roots count] );
 }
 
 - (id) tableView: (NSTableView *)aTableView objectValueForTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex
 {
+#pragma unused(aTableView)
 	return( [[roots objectAtIndex: rowIndex] objectForKey:[aTableColumn identifier]] );
 }
 
 - (void) tableView: (NSTableView *)aTableView setObjectValue: (id)anObject forTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex
 {
+#pragma unused(aTableView)
 	[[roots objectAtIndex: rowIndex] setObject:anObject forKey:[aTableColumn identifier]];
 	[[NSUserDefaults standardUserDefaults] setObject:roots forKey:@"Roots"];
 }
@@ -68,11 +71,13 @@
 
 - (IBAction) changeTrash: (id)sender
 {
+#pragma unused(sender)
 	[[NSUserDefaults standardUserDefaults] setBool:[sender state] forKey:@"Trash"];
 }
 
 - (IBAction) add: (id)sender
 {
+#pragma unused(sender)
 	int result;
 	int i;
 	int count;
@@ -95,6 +100,7 @@
 
 - (IBAction) remove: (id)sender
 {
+#pragma unused(sender)
 	int row = [rootDirView selectedRow];
 	if( row != -1 ) {
 		[roots removeObjectAtIndex: row];

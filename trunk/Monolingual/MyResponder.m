@@ -8,7 +8,7 @@
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
 #import "VersionCheck.h"
-#import "GrowlDefines.h"
+#import <Growl/Growl.h>
 #import <Security/Authorization.h>
 #import <Security/AuthorizationTags.h>
 
@@ -38,13 +38,13 @@ NSDictionary *finishedNotificationInfo;
 	NSDictionary *applications = [[NSDictionary alloc] initWithObjectsAndKeys:@"/Applications", @"Path", enabled, @"Enabled", nil];
 	NSDictionary *developer = [[NSDictionary alloc] initWithObjectsAndKeys:@"/Developer", @"Path", enabled, @"Enabled", nil];
 	NSDictionary *library = [[NSDictionary alloc] initWithObjectsAndKeys:@"/Library", @"Path", enabled, @"Enabled", nil];
-	NSDictionary *system = [[NSDictionary alloc] initWithObjectsAndKeys:@"/System", @"Path", enabled, @"Enabled", nil];
-	NSArray *defaultRoots = [[NSArray alloc] initWithObjects:applications, developer, library, system, nil];
+	NSDictionary *systemPath = [[NSDictionary alloc] initWithObjectsAndKeys:@"/System", @"Path", enabled, @"Enabled", nil];
+	NSArray *defaultRoots = [[NSArray alloc] initWithObjects:applications, developer, library, systemPath, nil];
 	NSDictionary *defaultValues = [[NSDictionary alloc] initWithObjectsAndKeys:defaultRoots, @"Roots", nil];
 	[[NSUserDefaults standardUserDefaults] registerDefaults: defaultValues];
 	[defaultValues release];
 	[defaultRoots release];
-	[system release];
+	[systemPath release];
 	[library release];
 	[developer release];
 	[applications release];
@@ -53,6 +53,7 @@ NSDictionary *finishedNotificationInfo;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication
 {
+#pragma unused(theApplication)
 	return YES;
 }
 
@@ -71,10 +72,7 @@ NSDictionary *finishedNotificationInfo;
 	[[myProgress window] orderOut: self]; 
 	[myProgress stop];
 
-	NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
-	[distCenter postNotificationName:GROWL_NOTIFICATION
-							  object:nil
-							userInfo:finishedNotificationInfo];
+	[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
 
 	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled",@""),@"OK",nil,nil,
 			[NSApp mainWindow],self,NULL,NULL,self,
@@ -89,6 +87,7 @@ NSDictionary *finishedNotificationInfo;
 
 - (IBAction) openWebsite: (id)sender
 {
+#pragma unused(sender)
 	[[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: @"http://monolingual.sourceforge.net/"]];
 }
 
@@ -126,13 +125,20 @@ NSDictionary *finishedNotificationInfo;
 		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Traditional Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/TCIM.component", nil]];
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/SCIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Simple Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/SCIM.component", nil]];
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Simplified Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/SCIM.component", nil]];
+	}
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/AnjalIM.component"] ) {
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Murasu Anjal Tamil",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/AnjalIM.component", nil]];
+	}
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/HangulIM.component"] ) {
+		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Hangul",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/HangulIM.component", nil]];
 	}
 	[layoutView reloadData];
 }
 
 - (IBAction) showPreferences: (id)sender
 {
+#pragma unused(sender)
 	if( !myPreferences ) {
 		myPreferences = [[PreferencesController alloc] init];
 	}
@@ -141,6 +147,7 @@ NSDictionary *finishedNotificationInfo;
 
 - (IBAction) removeLanguages: (id)sender
 {
+#pragma unused(sender)
 	//Display a warning first
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 					  @selector(warningSelector:returnCode:contextInfo:),self,
@@ -149,6 +156,7 @@ NSDictionary *finishedNotificationInfo;
 
 - (IBAction) removeLayouts: (id)sender
 {
+#pragma unused(sender)
 	//Display a warning first
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 					  @selector(removeLayoutsWarning:returnCode:contextInfo:),self,
@@ -172,37 +180,37 @@ static const char suffixes[] =
 								 * CHAR_BIT / 3)
 
 /* Convert AMT to a human readable format in BUF. */
-static char * human_readable( unsigned long long amt, char *buf, int base )
+static char * human_readable( unsigned long long amt, char *buf, unsigned int base )
 {
-	int tenths = 0;
-	int power = 0;
+	unsigned int tenths = 0U;
+	unsigned int power = 0U;
 	char *p;
 	
 	/* 0 means adjusted N == AMT.TENTHS;
 	1 means AMT.TENTHS < adjusted N < AMT.TENTHS + 0.05;
 	2 means adjusted N == AMT.TENTHS + 0.05;
 	3 means AMT.TENTHS + 0.05 < adjusted N < AMT.TENTHS + 0.1.  */
-	int rounding = 0;
+	unsigned int rounding = 0U;
 	
 	p = buf + LONGEST_HUMAN_READABLE;
 	*p = '\0';
 
 	/* Use power of BASE notation if adjusted AMT is large enough.  */
 
-	if (base) {
-		if(base <= amt) {
-			power = 0;
+	if( base ) {
+		if( base <= amt ) {
+			power = 0U;
 
 			do {
-				int r10 = (amt % base) * 10 + tenths;
-				int r2 = (r10 % base) * 2 + (rounding >> 1);
+				int r10 = (amt % base) * 10U + tenths;
+				unsigned int r2 = (r10 % base) * 2 + (rounding >> 1);
 				amt /= base;
 				tenths = r10 / base;
 				rounding = (r2 < base
 							? 0 < r2 + rounding
 							: 2 + (base < r2 + rounding));
 				power++;
-			} while (base <= amt && power < sizeof suffixes - 1);
+			} while (base <= amt && power < sizeof(suffixes) - 1);
 
 			*--p = suffixes[power];
 
@@ -211,16 +219,16 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 					tenths++;
 					rounding = 0;
 					
-					if (tenths == 10) {
+					if (tenths == 10U) {
 						amt++;
-						tenths = 0;
+						tenths = 0U;
 					}
 				}
 
-				if (amt < 10) {
+				if (amt < 10U) {
 					*--p = '0' + tenths;
 					*--p = '.';
-					tenths = rounding = 0;
+					tenths = rounding = 0U;
 				}
 			}
 		} else {
@@ -228,7 +236,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		}
 	}
 
-	if( 5 < tenths + (2 < rounding + (amt & 1)) ) {
+	if( 5U < tenths + (2 < rounding + (amt & 1)) ) {
 		amt++;
 
 		if( amt == base && power < sizeof suffixes - 1) {
@@ -310,7 +318,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 							for( k=0; k<[languages count]; ++k ) {
 								NSArray *language = [languages objectAtIndex: k];
 								if( NSNotFound != [language indexOfObject: pathComponent] ) {
-									lang = [language objectAtIndex: 1];
+									lang = [language objectAtIndex: 1U];
 									break;
 								}
 							}
@@ -359,10 +367,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 			[[NSNotificationCenter defaultCenter] removeObserver:self
 															name:NSFileHandleReadCompletionNotification 
 														  object:nil];
-			NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
-			[distCenter postNotificationName:GROWL_NOTIFICATION
-									  object:nil
-									userInfo:finishedNotificationInfo];
+			[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
 
 			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
 							  @"OK",nil,nil,parentWindow,self,NULL,NULL,self,
@@ -418,10 +423,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 
 	status = AuthorizationExecuteWithPrivileges( authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &pipe );
 	if( errAuthorizationSuccess == status ) {
-		NSDistributedNotificationCenter *distCenter = [NSDistributedNotificationCenter defaultCenter];
-		[distCenter postNotificationName:GROWL_NOTIFICATION
-								  object:nil
-								userInfo:startedNotificationInfo];
+		[GrowlApplicationBridge notifyWithDictionary:startedNotificationInfo];
 
 		bytesSaved = 0ULL;
 		pipeBuffer = [[NSMutableData alloc] initWithCapacity:1024];
@@ -441,9 +443,10 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 
 - (void) removeLayoutsWarning: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
+#pragma unused(sheet)
 	int i;
 	int count;
-	int index;
+	int idx;
 	NSArray *row;
 	BOOL trash;
 	const char **argv;
@@ -463,20 +466,20 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		argv[6] = "/System/Library/Caches/com.apple.IntlDataCache.sbdl";
 		argv[7] = "-f";
 		argv[8] = "/System/Library/Caches/com.apple.IntlDataCache.tecx";
-		index = 9;
+		idx = 9;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if( trash ) {
-			argv[index++] = "-t";
+			argv[idx++] = "-t";
 		}
 		for( i=0; i<count; ++i ) {
 			row = [layouts objectAtIndex: i];
 			if( [[row objectAtIndex: 0] boolValue] ) {
-				argv[index++] = "-f";
-				argv[index++] = [[row objectAtIndex: 3] fileSystemRepresentation];
+				argv[idx++] = "-f";
+				argv[idx++] = [[row objectAtIndex: 3U] fileSystemRepresentation];
 			}
 		}
-		if( index != 9 ) {
-			argv[index] = NULL;
+		if( idx != 9 ) {
+			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs: argv];
 		}
 		free( argv );
@@ -485,6 +488,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
+#pragma unused(sheet,contextInfo)
 	int i;
 	int lCount;
 
@@ -492,7 +496,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		lCount = [languages count];
 		for( i=0; i<lCount; ++i ) {
 			NSArray *language = [languages objectAtIndex: i];
-			if( [[language objectAtIndex: 0] boolValue] && [[language objectAtIndex: 2] isEqualToString: @"en.lproj"] ) {
+			if( [[language objectAtIndex: 0U] boolValue] && [[language objectAtIndex: 2U] isEqualToString: @"en.lproj"] ) {
 				//Display a warning
 				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
@@ -506,12 +510,13 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
+#pragma unused(sheet)
 	int i;
 	int j;
 	int k;
 	int rCount;
 	int lCount;
-	int index;
+	int idx;
 	const char **argv;
 	NSArray *roots;
 	int roots_count;
@@ -538,10 +543,10 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 		rCount = 0;
 		lCount = [languages count];
 		argv = (const char **)malloc( (3+3*lCount+roots_count+roots_count)*sizeof(char *) );
-		index = 1;
+		idx = 1;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if( trash ) {
-			argv[index++] = "-t";
+			argv[idx++] = "-t";
 		}
 		for( i=0; i<roots_count; ++i ) {
 			NSDictionary *root = [roots objectAtIndex: i];
@@ -549,22 +554,22 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 			if( enabled > 0 ) {
 				NSString *path = [root objectForKey: @"Path"];
 				NSLog( @"Adding root %@", path);
-				argv[index++] = "-r";
-				argv[index++] = [path fileSystemRepresentation];
+				argv[idx++] = "-r";
+				argv[idx++] = [path fileSystemRepresentation];
 			} else if( !enabled ) {
 				NSString *path = [root objectForKey: @"Path"];
 				NSLog( @"Excluding root %@", path);
-				argv[index++] = "-x";
-				argv[index++] = [path fileSystemRepresentation];
+				argv[idx++] = "-x";
+				argv[idx++] = [path fileSystemRepresentation];
 			}
 		}
 		for( i=0; i<lCount; ++i ) {
 			NSArray *language = [languages objectAtIndex: i];
-			if( [[language objectAtIndex: 0] boolValue] ) {
+			if( [[language objectAtIndex: 0U] boolValue] ) {
 				k = [language count];
 				for( j=2; j<k; ++j ) {
 					NSLog( @"Will remove %@", [language objectAtIndex: j] );
-					argv[index++] = [[language objectAtIndex: j] cString];
+					argv[idx++] = [[language objectAtIndex: j] cString];
 				}
 				++rCount;
 			}
@@ -574,7 +579,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),@"OK",nil,nil,[NSApp mainWindow],self,NULL,NULL,nil,NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
 		} else if( rCount ) {
 			// start things off if we have something to remove!
-			argv[index] = NULL;
+			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs: argv];
 		}
 		free( argv );
@@ -607,16 +612,17 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	NSString *identifier = [aTableColumn identifier];
 	NSArray *row = [dataArray objectAtIndex: rowIndex];
 	if( [identifier isEqualToString:@"Remove"] ) {
-		return( [row objectAtIndex: 0] );
+		return( [row objectAtIndex: 0U] );
 	} else if( [identifier isEqualToString:@"Type"] ) {
-		return( [row objectAtIndex: 2] );
+		return( [row objectAtIndex: 2U] );
 	} else {
-		return( [row objectAtIndex: 1] );
+		return( [row objectAtIndex: 1U] );
 	}
 }
 
 - (void) tableView: (NSTableView *)aTableView setObjectValue: (id)anObject forTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex
 {
+#pragma unused(aTableColumn)
 	NSArray *dataArray;
 
 	if( aTableView == languageView ) {
@@ -626,7 +632,7 @@ static char * human_readable( unsigned long long amt, char *buf, int base )
 	}
 
 	NSMutableArray *row = [dataArray objectAtIndex: rowIndex];
-	[row replaceObjectAtIndex: 0 withObject: anObject];
+	[row replaceObjectAtIndex: 0U withObject: anObject];
 }
 
 - (void) dealloc
@@ -648,7 +654,7 @@ static NSComparisonResult sortSelected( NSArray *l1, NSArray *l2, void *context 
 	int ascending;
 
 	ascending = (int)context;
-	result = [((NSNumber *)[l1 objectAtIndex: 0]) compare: (NSNumber *)[l2 objectAtIndex: 0]];
+	result = [((NSNumber *)[l1 objectAtIndex: 0U]) compare: (NSNumber *)[l2 objectAtIndex: 0U]];
 	switch( result ) {
 		case NSOrderedSame:
 			break;
@@ -668,7 +674,7 @@ static NSComparisonResult sortNames( NSArray *l1, NSArray *l2, void *context )
 	int ascending;
 
 	ascending = (int)context;
-	result = [((NSString *)[l1 objectAtIndex: 1]) compare: (NSString *)[l2 objectAtIndex: 1]];
+	result = [((NSString *)[l1 objectAtIndex: 1U]) compare: (NSString *)[l2 objectAtIndex: 1U]];
 	switch( result ) {
 		case NSOrderedSame:
 			break;
@@ -688,7 +694,7 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	int ascending;
 	
 	ascending = (int)context;
-	result = [((NSString *)[l1 objectAtIndex: 2]) compare: (NSString *)[l2 objectAtIndex: 2]];
+	result = [((NSString *)[l1 objectAtIndex: 2U]) compare: (NSString *)[l2 objectAtIndex: 2U]];
 	switch( result ) {
 		case NSOrderedSame:
 			break;
@@ -736,32 +742,41 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	[tableView reloadData];
 }
 
-- (void) registerGrowl: (NSNotification *)note
+- (NSDictionary *) registrationDictionaryForGrowl
 {
 	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", @"");
 	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", @"");
-	NSString *appName = @"Monolingual";
-	
-	NSArray *defaultAndAllNotifications = [[NSArray alloc] initWithObjects: startedNotificationName, finishedNotificationName, nil];
-	NSDictionary *userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
-		appName, GROWL_APP_NAME,
+
+	NSArray *defaultAndAllNotifications = [[NSArray alloc] initWithObjects:
+		startedNotificationName, finishedNotificationName, nil];
+	NSDictionary *registrationDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		defaultAndAllNotifications, GROWL_NOTIFICATIONS_ALL,
 		defaultAndAllNotifications, GROWL_NOTIFICATIONS_DEFAULT,
 		nil];
-	NSDistributedNotificationCenter *nc = [NSDistributedNotificationCenter defaultCenter];
-	[nc postNotificationName:GROWL_APP_REGISTRATION
-							  object:nil
-							userInfo:userInfo];
 	[defaultAndAllNotifications release];
-	[userInfo release];
+
+	return registrationDictionary;
 }
 
 - (void) awakeFromNib
 {
 	NSTableColumn *nameColumn;
 	NSTableColumn *removeColumn;
-	NSArray *userLanguages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
+	NSMutableArray *userLanguages = [[[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"] mutableCopy];
+
+	// the localization variants have changed from en_US (<= 10.3) to en-US (>= 10.4)
+	for (unsigned i=0U, count=[userLanguages count]; i<count; ++i) {
+		NSMutableString *language = [[userLanguages objectAtIndex:i] mutableCopy];
+		[language replaceOccurrencesOfString:@"-"
+								  withString:@"_"
+									 options:NSLiteralSearch
+									   range:NSMakeRange(0U, [language length])];
+		[userLanguages replaceObjectAtIndex:i withObject:language];
+		[language release];
+	}
+
 	NSSet *userLanguagesSet = [[NSSet alloc] initWithArray:userLanguages];
+	[userLanguages release];
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
@@ -920,27 +935,22 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	[layoutView setHighlightedTableColumn: nameColumn];
 	[layoutView setIndicatorImage: [NSImage imageNamed: @"NSAscendingSortIndicator"] inTableColumn: nameColumn];
 
-	// register for GROWL_IS_READY to register if Growl is launched after Monolingual
-	NSDistributedNotificationCenter *nc = [NSDistributedNotificationCenter defaultCenter];
-	[nc addObserver: self selector: @selector(registerGrowl:) name: GROWL_IS_READY object: nil];
-
-	// register with Growl now
-	[self registerGrowl: nil];
+	// set ourself as the Growl delegate
+	[GrowlApplicationBridge setGrowlDelegate:self];
 
 	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", @"");
 	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", @"");
-	NSString *appName = @"Monolingual";
 
 	startedNotificationInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+		@"Monolingual", GROWL_APP_NAME,
 		startedNotificationName, GROWL_NOTIFICATION_NAME,
-		appName, GROWL_APP_NAME,
 		startedNotificationName, GROWL_NOTIFICATION_TITLE,
 		NSLocalizedString(@"Started removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
 		nil];
 
 	finishedNotificationInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+		@"Monolingual", GROWL_APP_NAME,
 		finishedNotificationName, GROWL_NOTIFICATION_NAME,
-		appName, GROWL_APP_NAME,
 		finishedNotificationName, GROWL_NOTIFICATION_TITLE,
 		NSLocalizedString(@"Finished removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
 		nil];
