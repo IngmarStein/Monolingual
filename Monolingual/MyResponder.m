@@ -14,7 +14,7 @@
 
 typedef struct tableSort_s {
 	int sortAscending;
-	NSTableColumn* sortColumn;
+	NSTableColumn *sortColumn;
 } tableSort_t;
 
 @implementation MyResponder
@@ -738,7 +738,7 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	} else {
 		[dataArray sortUsingFunction: sortNames context: (void *)tableSort->sortAscending];
 	}
-	[tableView setIndicatorImage:[NSImage imageNamed:(tableSort->sortAscending) ? (@"NSAscendingSortIndicator"):(@"NSDescendingSortIndicator")] inTableColumn:tableColumn];
+	[tableView setIndicatorImage:[NSImage imageNamed:(tableSort->sortAscending) ? (@"NSAscendingSortIndicator"):(@"NSDescendingSortIndicator")] inTableColumn:tableSort->sortColumn];
 	[tableView reloadData];
 }
 
@@ -761,7 +761,6 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 - (void) awakeFromNib
 {
 	NSTableColumn *nameColumn;
-	NSTableColumn *removeColumn;
 	NSMutableArray *userLanguages = [[[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"] mutableCopy];
 
 	// the localization variants have changed from en_US (<= 10.3) to en-US (>= 10.4)
@@ -913,10 +912,8 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 		nil];
 	[userLanguagesSet release];
 
-	removeColumn = [languageView tableColumnWithIdentifier:@"Remove"];
-	[[removeColumn dataCell] setImagePosition:NSImageOnly]; // Center the checkbox 
 	nameColumn = [languageView tableColumnWithIdentifier:@"Name"];
-	languageSort.sortAscending = 1;
+	languageSort.sortAscending = YES;
 	languageSort.sortColumn = [nameColumn retain];
 	[languages sortUsingFunction: sortNames context: (void *)languageSort.sortAscending];
 	[languageView setHighlightedTableColumn: nameColumn];
@@ -926,11 +923,9 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 	layouts = [[NSMutableArray alloc] initWithCapacity:14];
 	[self scanLayouts];
 
-	removeColumn = [layoutView tableColumnWithIdentifier:@"Remove"];
-	[[removeColumn dataCell] setImagePosition:NSImageOnly]; // Center the checkbox 
 	nameColumn = [layoutView tableColumnWithIdentifier:@"Name"];
-	languageSort.sortAscending = 1;
-	languageSort.sortColumn = [nameColumn retain];
+	layoutSort.sortAscending = YES;
+	layoutSort.sortColumn = [nameColumn retain];
 	[layouts sortUsingFunction: sortNames context: (void *)layoutSort.sortAscending];
 	[layoutView setHighlightedTableColumn: nameColumn];
 	[layoutView setIndicatorImage: [NSImage imageNamed: @"NSAscendingSortIndicator"] inTableColumn: nameColumn];
