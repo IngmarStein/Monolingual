@@ -102,8 +102,8 @@ NSDictionary *finishedNotificationInfo;
 
 - (void) scanLayouts
 {
-	int i;
-	int length;
+	unsigned int i;
+	unsigned int length;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
 	NSArray *files = [fileManager directoryContentsAtPath: layoutPath];
@@ -111,7 +111,7 @@ NSDictionary *finishedNotificationInfo;
 	[layouts removeAllObjects];
 	for( i=0; i<length; ++i ) {
 		NSString *file = [files objectAtIndex: i];
-		if( [[file pathExtension] isEqualToString:@"bundle"] ) {
+		if( [[file pathExtension] isEqualToString:@"bundle"] && ![file isEqualToString:@"Roman.bundle"] ) {
 			[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString([file stringByDeletingPathExtension],@""), NSLocalizedString(@"Keyboard Layout",@""), [layoutPath stringByAppendingPathComponent: file], nil]];
 		}
 	}
