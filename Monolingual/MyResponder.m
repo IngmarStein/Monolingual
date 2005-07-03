@@ -12,25 +12,18 @@
 #import <Security/Authorization.h>
 #import <Security/AuthorizationTags.h>
 
-typedef struct tableSort_s {
-	int sortAscending;
-	NSTableColumn *sortColumn;
-} tableSort_t;
-
 @implementation MyResponder
 ProgressWindowController *myProgress;
-PreferencesController *myPreferences;
-NSWindow *parentWindow;
-NSFileHandle *pipeHandle;
-NSMutableData *pipeBuffer;
-NSMutableArray *languages;
-NSMutableArray *layouts;
-unsigned long long bytesSaved;
-BOOL cancelled;
-tableSort_t languageSort;
-tableSort_t layoutSort;
-NSDictionary *startedNotificationInfo;
-NSDictionary *finishedNotificationInfo;
+PreferencesController    *myPreferences;
+NSWindow                 *parentWindow;
+NSFileHandle             *pipeHandle;
+NSMutableData            *pipeBuffer;
+NSMutableArray           *languages;
+NSMutableArray           *layouts;
+NSDictionary             *startedNotificationInfo;
+NSDictionary             *finishedNotificationInfo;
+unsigned long long       bytesSaved;
+BOOL                     cancelled;
 
 + (void) initialize
 {
@@ -59,7 +52,7 @@ NSDictionary *finishedNotificationInfo;
 
 - (void) cancelRemove
 {
-	const char bytes[1] = {0};
+	const char bytes[1] = {'\0'};
 	NSData *data = [[NSData alloc] initWithBytes:bytes length:1];
 	[pipeHandle writeData:data];
 	[pipeHandle closeFile];
@@ -88,7 +81,9 @@ NSDictionary *finishedNotificationInfo;
 - (IBAction) openWebsite: (id)sender
 {
 #pragma unused(sender)
-	[[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: @"http://monolingual.sourceforge.net/"]];
+	NSURL *url = [[NSURL alloc] initWithString: @"http://monolingual.sourceforge.net/"];
+	[[NSWorkspace sharedWorkspace] openURL:url];
+	[url release];
 }
 
 - (id) init
@@ -108,32 +103,27 @@ NSDictionary *finishedNotificationInfo;
 	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
 	NSArray *files = [fileManager directoryContentsAtPath: layoutPath];
 	length = [files count];
-	[layouts removeAllObjects];
+	NSMutableArray *scannedLayouts = [[NSMutableArray alloc] initWithCapacity:length+6];
+	NSNumber *disabled = [[NSNumber alloc] initWithBool:NO];
 	for( i=0; i<length; ++i ) {
 		NSString *file = [files objectAtIndex: i];
-		if( [[file pathExtension] isEqualToString:@"bundle"] && ![file isEqualToString:@"Roman.bundle"] ) {
-			[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString([file stringByDeletingPathExtension],@""), NSLocalizedString(@"Keyboard Layout",@""), [layoutPath stringByAppendingPathComponent: file], nil]];
-		}
+		if( [[file pathExtension] isEqualToString:@"bundle"] && ![file isEqualToString:@"Roman.bundle"] )
+			[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString([file stringByDeletingPathExtension],@""), @"displayName", NSLocalizedString(@"Keyboard Layout",@""), @"type", [layoutPath stringByAppendingPathComponent: file], @"path", nil]];
 	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/Kotoeri.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Kotoeri",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/Kotoeri.component", nil]];
-	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/XPIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Hangul",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/XPIM.component", nil]];
-	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/TCIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Traditional Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/TCIM.component", nil]];
-	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/SCIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Simplified Chinese",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/SCIM.component", nil]];
-	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/AnjalIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Murasu Anjal Tamil",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/AnjalIM.component", nil]];
-	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/HangulIM.component"] ) {
-		[layouts addObject: [NSMutableArray arrayWithObjects: [NSNumber numberWithBool: NO], NSLocalizedString(@"Hangul",@""), NSLocalizedString(@"Input Method",@""), @"/System/Library/Components/HangulIM.component", nil]];
-	}
-	[layoutView reloadData];
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/Kotoeri.component"] )
+		[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString(@"Kotoeri",@""),             @"displayName", NSLocalizedString(@"Input Method",@""), @"type", @"/System/Library/Components/Kotoeri.component",  @"path", nil]];
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/XPIM.component"] )
+		[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString(@"Hangul",@""),              @"displayName", NSLocalizedString(@"Input Method",@""), @"type", @"/System/Library/Components/XPIM.component",     @"path", nil]];
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/TCIM.component"] )
+		[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString(@"Traditional Chinese",@""), @"displayName", NSLocalizedString(@"Input Method",@""), @"type", @"/System/Library/Components/TCIM.component",     @"path", nil]];
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/SCIM.component"] )
+		[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString(@"Simplified Chinese",@""),  @"displayName", NSLocalizedString(@"Input Method",@""), @"type", @"/System/Library/Components/SCIM.component",     @"path", nil]];
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/AnjalIM.component"] )
+		[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString(@"Murasu Anjal Tamil",@""),  @"displayName", NSLocalizedString(@"Input Method",@""), @"type", @"/System/Library/Components/AnjalIM.component",  @"path", nil]];
+	if( [fileManager fileExistsAtPath:@"/System/Library/Components/HangulIM.component"] )
+		[scannedLayouts addObject: [NSMutableDictionary dictionaryWithObjectsAndKeys: disabled, @"enabled", NSLocalizedString(@"Hangul",@""),              @"displayName", NSLocalizedString(@"Input Method",@""), @"type", @"/System/Library/Components/HangulIM.component", @"path", nil]];
+	[disabled release];
+	[self setLayouts:scannedLayouts];
 }
 
 - (IBAction) showPreferences: (id)sender
@@ -163,7 +153,7 @@ NSDictionary *finishedNotificationInfo;
 					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
 }
 
-static const char suffixes[] =
+static const char suffixes[9] =
 {
 	'B',	/* Byte */
 	'K',	/* Kilo */
@@ -187,9 +177,10 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	char *p;
 	
 	/* 0 means adjusted N == AMT.TENTHS;
-	1 means AMT.TENTHS < adjusted N < AMT.TENTHS + 0.05;
-	2 means adjusted N == AMT.TENTHS + 0.05;
-	3 means AMT.TENTHS + 0.05 < adjusted N < AMT.TENTHS + 0.1.  */
+	 * 1 means AMT.TENTHS < adjusted N < AMT.TENTHS + 0.05;
+	 * 2 means adjusted N == AMT.TENTHS + 0.05;
+	 * 3 means AMT.TENTHS + 0.05 < adjusted N < AMT.TENTHS + 0.1.
+	 */
 	unsigned int rounding = 0U;
 	
 	p = buf + LONGEST_HUMAN_READABLE;
@@ -276,11 +267,9 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 			// count number of '\0' characters
 			num = 0;
-			for( i=0; i<length; ++i ) {
-				if( !bytes[i] ) {
+			for( i=0; i<length; ++i )
+				if( !bytes[i] )
 					++num;
-				}
-			}
 
 			for( i=0, j=0; num > 1 && i<length; ++i, ++j ) {
 				if( !bytes[j] ) {
@@ -316,9 +305,9 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 							im = [pathComponent stringByDeletingPathExtension];
 						} else if( [pathExtension isEqualToString: @"lproj"] ) {
 							for( k=0; k<[languages count]; ++k ) {
-								NSArray *language = [languages objectAtIndex: k];
-								if( NSNotFound != [language indexOfObject: pathComponent] ) {
-									lang = [language objectAtIndex: 1U];
+								NSDictionary *language = [languages objectAtIndex: k];
+								if( NSNotFound != [[language objectForKey:@"folders"] indexOfObject:pathComponent] ) {
+									lang = [language objectForKey:@"displayName"];
 									break;
 								}
 							}
@@ -327,19 +316,19 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 						}
 					}
 					NSString *message;
-					if( layout && [file hasPrefix:@"/System/Library/"] ) {
+					if( layout && [file hasPrefix:@"/System/Library/"] )
 						message = [[NSString alloc] initWithFormat: @"%@ %@%@", NSLocalizedString(@"Removing keyboard layout", @""), layout, NSLocalizedString(@"...",@"")];
-					} else if( im && [file hasPrefix:@"/System/Library/"] ) {
+					else if( im && [file hasPrefix:@"/System/Library/"] )
 						message = [[NSString alloc] initWithFormat: @"%@ %@%@", NSLocalizedString(@"Removing input method", @""), layout, NSLocalizedString(@"...",@"")];
-					} else if( cache ) {
+					else if( cache )
 						message = [[NSString alloc] initWithFormat: @"%@%@", NSLocalizedString(@"Clearing cache", @""), NSLocalizedString(@"...",@"")];
-					} else if( app ) {
+					else if( app )
 						message = [[NSString alloc] initWithFormat: @"%@ %@ %@ %@%@", NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"from", @""), app, NSLocalizedString(@"...",@"")];
-					} else if( lang ) {
+					else if( lang )
 						message = [[NSString alloc] initWithFormat: @"%@ %@%@", NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"...",@"")];
-					} else {
+					else
 						message = [[NSString alloc] initWithFormat: @"%@ %@%@", NSLocalizedString(@"Removing", @""), file, NSLocalizedString(@"...",@"")];
-					}
+
 					[myProgress setText: message];
 					[myProgress setFile: file];
 					[NSApp updateWindows];
@@ -370,11 +359,11 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
 
 			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
-							  @"OK",nil,nil,parentWindow,self,NULL,NULL,self,
+							  @"OK", nil, nil, parentWindow, self, NULL, NULL,
+							  self,
 							  [NSString stringWithFormat: NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable( bytesSaved, hbuf, 1024 )],
 							  nil);
 			[self scanLayouts];
-			[layoutView reloadData];
 		}
 	}
 }
@@ -444,12 +433,12 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 - (void) removeLayoutsWarning: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
 #pragma unused(sheet)
-	int i;
-	int count;
-	int idx;
-	NSArray *row;
-	BOOL trash;
-	const char **argv;
+	unsigned int	i;
+	unsigned int	count;
+	int				idx;
+	NSDictionary	*row;
+	BOOL			trash;
+	const char		**argv;
 
 	if( NSAlertDefaultReturn == returnCode ) {
 		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),@"OK",nil,nil,[NSApp mainWindow],self,
@@ -468,14 +457,13 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		argv[8] = "/System/Library/Caches/com.apple.IntlDataCache.tecx";
 		idx = 9;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
-		if( trash ) {
+		if( trash )
 			argv[idx++] = "-t";
-		}
 		for( i=0; i<count; ++i ) {
 			row = [layouts objectAtIndex: i];
-			if( [[row objectAtIndex: 0] boolValue] ) {
+			if( [[row objectForKey:@"enabled"] boolValue] ) {
 				argv[idx++] = "-f";
-				argv[idx++] = [[row objectAtIndex: 3U] fileSystemRepresentation];
+				argv[idx++] = [[row objectForKey:@"path"] fileSystemRepresentation];
 			}
 		}
 		if( idx != 9 ) {
@@ -489,14 +477,14 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
 #pragma unused(sheet,contextInfo)
-	int i;
-	int lCount;
+	unsigned int i;
+	unsigned int lCount;
 
 	if( NSAlertDefaultReturn != returnCode ) {
 		lCount = [languages count];
 		for( i=0; i<lCount; ++i ) {
-			NSArray *language = [languages objectAtIndex: i];
-			if( [[language objectAtIndex: 0U] boolValue] && [[language objectAtIndex: 2U] isEqualToString: @"en.lproj"] ) {
+			NSDictionary *language = [languages objectAtIndex: i];
+			if( [[language objectForKey:@"enabled"] boolValue] && [[[language objectForKey:@"folders"] objectAtIndex:0U] isEqualToString: @"en.lproj"] ) {
 				//Display a warning
 				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
@@ -511,44 +499,38 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
 {
 #pragma unused(sheet)
-	int i;
-	int j;
-	int k;
-	int rCount;
-	int lCount;
-	int idx;
+	unsigned int i;
+	unsigned int rCount;
+	unsigned int lCount;
+	unsigned int idx;
 	const char **argv;
 	NSArray *roots;
-	int roots_count;
+	unsigned int roots_count;
 	BOOL trash;
 
 	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = [roots count];
 
-	for( i=0; i<roots_count; ++i ) {
-		if( [[[roots objectAtIndex: i] objectForKey:@"Enabled"] boolValue] ) {
+	for( i=0U; i<roots_count; ++i )
+		if( [[[roots objectAtIndex: i] objectForKey:@"Enabled"] boolValue] )
 			break;
-		}
-	}
-	if( i==roots_count ) {
+	if( i==roots_count )
 		// No active roots
-		roots_count = 0;
-	}
+		roots_count = 0U;
 
 	if( NSAlertDefaultReturn == returnCode || !roots_count ) {
 		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),@"OK",nil,nil,[NSApp mainWindow],self,
 						  NULL,NULL,contextInfo,
 						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 	} else {
-		rCount = 0;
+		rCount = 0U;
 		lCount = [languages count];
 		argv = (const char **)malloc( (3+3*lCount+roots_count+roots_count)*sizeof(char *) );
-		idx = 1;
+		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
-		if( trash ) {
+		if( trash )
 			argv[idx++] = "-t";
-		}
-		for( i=0; i<roots_count; ++i ) {
+		for( i=0U; i<roots_count; ++i ) {
 			NSDictionary *root = [roots objectAtIndex: i];
 			int enabled = [[root objectForKey: @"Enabled"] intValue];
 			if( enabled > 0 ) {
@@ -563,20 +545,24 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 				argv[idx++] = [path fileSystemRepresentation];
 			}
 		}
-		for( i=0; i<lCount; ++i ) {
-			NSArray *language = [languages objectAtIndex: i];
-			if( [[language objectAtIndex: 0U] boolValue] ) {
-				k = [language count];
-				for( j=2; j<k; ++j ) {
-					NSLog( @"Will remove %@", [language objectAtIndex: j] );
-					argv[idx++] = [[language objectAtIndex: j] cString];
+		for( i=0U; i<lCount; ++i ) {
+			NSDictionary *language = [languages objectAtIndex: i];
+			if( [[language objectForKey:@"enabled"] boolValue] ) {
+				NSEnumerator *pathEnum = [[language objectForKey:@"folders"] objectEnumerator];
+				NSString *path;
+				while ((path = [pathEnum nextObject])) {
+					NSLog( @"Will remove %@", path );
+					argv[idx++] = [path fileSystemRepresentation];
 				}
 				++rCount;
 			}
 		}
 
-		if( rCount == lCount)  {
-			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),@"OK",nil,nil,[NSApp mainWindow],self,NULL,NULL,nil,NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
+		if( rCount == lCount )  {
+			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),
+							  @"OK", nil, nil, [NSApp mainWindow], self, NULL,
+							  NULL, nil,
+							  NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
 		} else if( rCount ) {
 			// start things off if we have something to remove!
 			argv[idx] = NULL;
@@ -586,160 +572,15 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	}
 }
 
-- (int) numberOfRowsInTableView: (NSTableView *)aTableView
-{
-	NSArray *dataArray;
-	
-	if( aTableView == languageView ) {
-		dataArray = languages;
-	} else {
-		dataArray = layouts;
-	}
-
-	return( [dataArray count] );
-}
-
-- (id) tableView: (NSTableView *)aTableView objectValueForTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex
-{
-	NSArray *dataArray;
-	
-	if( aTableView == languageView ) {
-		dataArray = languages;
-	} else {
-		dataArray = layouts;
-	}
-
-	NSString *identifier = [aTableColumn identifier];
-	NSArray *row = [dataArray objectAtIndex: rowIndex];
-	if( [identifier isEqualToString:@"Remove"] ) {
-		return( [row objectAtIndex: 0U] );
-	} else if( [identifier isEqualToString:@"Type"] ) {
-		return( [row objectAtIndex: 2U] );
-	} else {
-		return( [row objectAtIndex: 1U] );
-	}
-}
-
-- (void) tableView: (NSTableView *)aTableView setObjectValue: (id)anObject forTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex
-{
-#pragma unused(aTableColumn)
-	NSArray *dataArray;
-
-	if( aTableView == languageView ) {
-		dataArray = languages;
-	} else {
-		dataArray = layouts;
-	}
-
-	NSMutableArray *row = [dataArray objectAtIndex: rowIndex];
-	[row replaceObjectAtIndex: 0U withObject: anObject];
-}
-
 - (void) dealloc
 {
-	[myProgress release];
-	[myPreferences release];
-	[languageSort.sortColumn release];
-	[layoutSort.sortColumn release];
-	[layouts release];
-	[languages release];
-	[startedNotificationInfo release];
+	[myProgress               release];
+	[myPreferences            release];
+	[layouts                  release];
+	[languages                release];
+	[startedNotificationInfo  release];
 	[finishedNotificationInfo release];
 	[super dealloc];
-}
-
-static NSComparisonResult sortSelected( NSArray *l1, NSArray *l2, void *context )
-{
-	NSComparisonResult result;
-	int ascending;
-
-	ascending = (int)context;
-	result = [((NSNumber *)[l1 objectAtIndex: 0U]) compare: (NSNumber *)[l2 objectAtIndex: 0U]];
-	switch( result ) {
-		case NSOrderedSame:
-			break;
-		case NSOrderedAscending:
-			result = ascending ? NSOrderedAscending : NSOrderedDescending;
-			break;
-		case NSOrderedDescending:
-			result = ascending ? NSOrderedDescending : NSOrderedAscending;
-			break;
-	}
-	return( result );
-}
-
-static NSComparisonResult sortNames( NSArray *l1, NSArray *l2, void *context )
-{
-	NSComparisonResult result;
-	int ascending;
-
-	ascending = (int)context;
-	result = [((NSString *)[l1 objectAtIndex: 1U]) compare: (NSString *)[l2 objectAtIndex: 1U]];
-	switch( result ) {
-		case NSOrderedSame:
-			break;
-		case NSOrderedAscending:
-			result = ascending ? NSOrderedAscending : NSOrderedDescending;
-			break;
-		case NSOrderedDescending:
-			result = ascending ? NSOrderedDescending : NSOrderedAscending;
-			break;
-	}
-	return( result );
-}
-
-static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
-{
-	NSComparisonResult result;
-	int ascending;
-	
-	ascending = (int)context;
-	result = [((NSString *)[l1 objectAtIndex: 2U]) compare: (NSString *)[l2 objectAtIndex: 2U]];
-	switch( result ) {
-		case NSOrderedSame:
-			break;
-		case NSOrderedAscending:
-			result = ascending ? NSOrderedAscending : NSOrderedDescending;
-			break;
-		case NSOrderedDescending:
-			result = ascending ? NSOrderedDescending : NSOrderedAscending;
-			break;
-	}
-	return( result );
-}
-
-- (void) tableView: (NSTableView *)tableView mouseDownInHeaderOfTableColumn: (NSTableColumn *)tableColumn
-{
-	tableSort_t *tableSort;
-	NSMutableArray *dataArray;
-	NSString *identifier = [tableColumn identifier];
-
-	if( tableView == languageView ) {
-		dataArray = languages;
-		tableSort = &languageSort;
-	} else {
-		dataArray = layouts;
-		tableSort = &layoutSort;
-	}
-
-	if( tableColumn == tableSort->sortColumn ) {
-		tableSort->sortAscending = !tableSort->sortAscending;
-	} else {
-		[tableView setIndicatorImage:nil inTableColumn:tableSort->sortColumn];
-		[tableSort->sortColumn release];
-		tableSort->sortColumn = [tableColumn retain];
-		[tableView setHighlightedTableColumn: tableColumn];
-	}
-
-	if( [identifier isEqualToString: @"Remove"] ) {
-		[dataArray sortUsingFunction: sortSelected context: (void *)tableSort->sortAscending];
-	} else if( [identifier isEqualToString: @"Type"] ) {
-		[dataArray sortUsingFunction: sortTypes context: (void *)tableSort->sortAscending];
-	} else {
-		[dataArray sortUsingFunction: sortNames context: (void *)tableSort->sortAscending];
-	}
-	[tableView setIndicatorImage:[NSImage imageNamed:(tableSort->sortAscending) ? (@"NSAscendingSortIndicator"):(@"NSDescendingSortIndicator")] inTableColumn:tableSort->sortColumn];
-	[tableView reloadData];
 }
 
 - (NSDictionary *) registrationDictionaryForGrowl
@@ -760,7 +601,6 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 
 - (void) awakeFromNib
 {
-	NSTableColumn *nameColumn;
 	NSMutableArray *userLanguages = [[[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"] mutableCopy];
 
 	// the localization variants have changed from en_US (<= 10.3) to en-US (>= 10.4)
@@ -783,152 +623,136 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 						displayText: NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
 						downloadURL: [NSURL URLWithString:@"http://monolingual.sourceforge.net"]];
 
-	languages = [[NSMutableArray alloc] initWithObjects:
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"af"]], NSLocalizedString(@"Afrikaans", @""), @"af.lproj", @"Afrikaans.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"am"]], NSLocalizedString(@"Amharic", @""), @"am.lproj", @"Amharic.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ar"]], NSLocalizedString(@"Arabic", @""), @"ar.lproj", @"Arabic.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"as"]], NSLocalizedString(@"Assamese", @""), @"as.lproj", @"Assamese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ay"]], NSLocalizedString(@"Aymara", @""), @"ay.lproj", @"Aymara.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"az"]], NSLocalizedString(@"Azerbaijani", @""), @"az.lproj", @"Azerbaijani.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"be"]], NSLocalizedString(@"Byelorussian", @""), @"be.lproj", @"Byelorussian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bg"]], NSLocalizedString(@"Bulgarian", @""), @"bg.lproj", @"Bulgarian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bi"]], NSLocalizedString(@"Bislama", @""), @"bi.lproj", @"Bislama.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bn"]], NSLocalizedString(@"Bengali", @""), @"bn.lproj", @"Bengali.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bo"]], NSLocalizedString(@"Tibetan", @""), @"bo.lproj", @"Tibetan.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"br"]], NSLocalizedString(@"Breton", @""), @"br.lproj", @"Breton.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ca"]], NSLocalizedString(@"Catalan", @""), @"ca.lproj", @"Catalan.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"cs"]], NSLocalizedString(@"Czech", @""), @"cs.lproj", @"cs_CZ.lproj", @"Czech.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"cy"]], NSLocalizedString(@"Welsh", @""), @"cy.lproj", @"Welsh.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"da"]], NSLocalizedString(@"Danish", @""), @"da.lproj", @"da_DK.lproj", @"Danish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de"]], NSLocalizedString(@"German", @""), @"de.lproj", @"de_DE.lproj", @"German.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de_AT"]], NSLocalizedString(@"Austrian German", @""), @"de_AT.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de_CH"]], NSLocalizedString(@"Swiss German", @""), @"de_CH.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"dz"]], NSLocalizedString(@"Dzongkha", @""), @"dz.lproj", @"Dzongkha.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"el"]], NSLocalizedString(@"Greek", @""), @"el.lproj", @"el_GR.lproj", @"Greek.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: NO], NSLocalizedString(@"English", @""), @"en.lproj", @"English.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_AU"]], NSLocalizedString(@"Australian English", @""), @"en_AU.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_CA"]], NSLocalizedString(@"Canadian English", @""), @"en_CA.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_GB"]], NSLocalizedString(@"British English", @""), @"en_GB.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_US"]], NSLocalizedString(@"U.S. English", @""), @"en_US.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"eo"]], NSLocalizedString(@"Esperanto", @""), @"eo.lproj", @"Esperanto.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"es"]], NSLocalizedString(@"Spanish", @""), @"es.lproj", @"es_ES.lproj", @"Spanish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"et"]], NSLocalizedString(@"Estonian", @""), @"et.lproj", @"Estonian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"eu"]], NSLocalizedString(@"Basque", @""), @"eu.lproj", @"Basque.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fa"]], NSLocalizedString(@"Farsi", @""), @"fa.lproj", @"Farsi.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fi"]], NSLocalizedString(@"Finnish", @""), @"fi.lproj", @"fi_FI.lproj", @"Finnish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fo"]], NSLocalizedString(@"Faroese", @""), @"fo.lproj", @"Faroese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fr"]], NSLocalizedString(@"French", @""), @"fr.lproj", @"fr_FR.lproj", @"French.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fr_CA"]], NSLocalizedString(@"Canadian French", @""), @"fr_CA.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fr_CH"]], NSLocalizedString(@"Swiss French", @""), @"fr_CH.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ga"]], NSLocalizedString(@"Irish", @""), @"ga.lproj", @"Irish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gd"]], NSLocalizedString(@"Scottish", @""), @"gd.lproj", @"Scottish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gl"]], NSLocalizedString(@"Galician", @""), @"gl.lproj", @"Galician.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gn"]], NSLocalizedString(@"Guarani", @""), @"gn.lproj", @"Guarani.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gu"]], NSLocalizedString(@"Gujarati", @""), @"gu.lproj", @"Gujarati.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gv"]], NSLocalizedString(@"Manx", @""), @"gv.lproj", @"Manx.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"haw"]], NSLocalizedString(@"Hawaiian", @""), @"haw.lproj", @"Hawaiian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"he"]], NSLocalizedString(@"Hebrew", @""), @"he.lproj", @"Hebrew.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hi"]], NSLocalizedString(@"Hindi", @""), @"hi.lproj", @"Hindi.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hr"]], NSLocalizedString(@"Croatian", @""), @"hr.lproj", @"Croatian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hu"]], NSLocalizedString(@"Hungarian", @""), @"hu.lproj", @"hu_HU.lproj", @"Hungarian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hy"]], NSLocalizedString(@"Armenian", @""), @"hy.lproj", @"Armenian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"id"]], NSLocalizedString(@"Indonesian", @""), @"id.lproj", @"Indonesian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"is"]], NSLocalizedString(@"Icelandic", @""), @"is.lproj", @"Icelandic.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"it"]], NSLocalizedString(@"Italian", @""), @"it.lproj", @"it_IT.lproj", @"Italian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"iu"]], NSLocalizedString(@"Inuktitut", @""), @"iu.lproj", @"Inuktitut.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ja"]], NSLocalizedString(@"Japanese", @""), @"ja.lproj", @"ja_JP.lproj", @"Japanese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"jv"]], NSLocalizedString(@"Javanese", @""), @"jv.lproj", @"Javanese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ka"]], NSLocalizedString(@"Georgian", @""), @"ka.lproj", @"Georgian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"kk"]], NSLocalizedString(@"Kazakh", @""), @"kk.lproj", @"Kazakh.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"kl"]], NSLocalizedString(@"Greenlandic", @""), @"kl.lproj", @"Greenlandic.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"km"]], NSLocalizedString(@"Khmer", @""), @"km.lproj", @"Khmer.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"kn"]], NSLocalizedString(@"Kannada", @""), @"kn.lproj", @"Kannada.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ko"]], NSLocalizedString(@"Korean", @""), @"ko.lproj", @"ko_KR.lproj", @"Korean.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ks"]], NSLocalizedString(@"Kashmiri", @""), @"ks.lproj", @"Kashmiri.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ku"]], NSLocalizedString(@"Kurdish", @""), @"ku.lproj", @"Kurdish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ky"]], NSLocalizedString(@"Kirghiz", @""), @"ky.lproj", @"Kirghiz.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"la"]], NSLocalizedString(@"Latin", @""), @"la.lproj", @"Latin.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"lo"]], NSLocalizedString(@"Lao", @""), @"lo.lproj", @"Lao.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"lt"]], NSLocalizedString(@"Lithuanian", @""), @"lt.lproj", @"Lithuanian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"lv"]], NSLocalizedString(@"Latvian", @""), @"lv.lproj", @"Latvian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mg"]], NSLocalizedString(@"Malagasy", @""), @"mg.lproj", @"Malagasy.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mk"]], NSLocalizedString(@"Macedonian", @""), @"mk.lproj", @"Macedonian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ml"]], NSLocalizedString(@"Malayalam", @""), @"ml.lproj", @"Malayalam.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mn"]], NSLocalizedString(@"Mongolian", @""), @"mn.lproj", @"Mongolian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mo"]], NSLocalizedString(@"Moldavian", @""), @"mo.lproj", @"Moldavian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mr"]], NSLocalizedString(@"Marathi", @""), @"mr.lproj", @"Marathi.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ms"]], NSLocalizedString(@"Malay", @""), @"ms.lproj", @"Malay.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mt"]], NSLocalizedString(@"Maltese", @""), @"mt.lproj", @"Maltese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"my"]], NSLocalizedString(@"Burmese", @""), @"my.lproj", @"Burmese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ne"]], NSLocalizedString(@"Nepali", @""), @"ne.lproj", @"Nepali.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nl"]], NSLocalizedString(@"Dutch", @""), @"nl.lproj", @"nl_NL.lproj", @"Dutch.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nl_BE"]], NSLocalizedString(@"Flemish", @""), @"nl_BE.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"no"]], NSLocalizedString(@"Norwegian", @""), @"no.lproj", @"no_NO.lproj", @"Norwegian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nb"]], NSLocalizedString(@"Norwegian Bokmal", @""), @"nb.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nn"]], NSLocalizedString(@"Norwegian Nynorsk", @""), @"nn.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"om"]], NSLocalizedString(@"Oromo", @""), @"om.lproj", @"Oromo.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"or"]], NSLocalizedString(@"Oriya", @""), @"or.lproj", @"Oriya.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pa"]], NSLocalizedString(@"Punjabi", @""), @"pa.lproj", @"Punjabi.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pl"]], NSLocalizedString(@"Polish", @""), @"pl.lproj", @"pl_PL.lproj", @"Polish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ps"]], NSLocalizedString(@"Pashto", @""), @"ps.lproj", @"Pashto.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pt"]], NSLocalizedString(@"Portuguese", @""), @"pt.lproj", @"Portuguese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pt_BR"]], NSLocalizedString(@"Brazilian Portoguese", @""), @"pt_BR.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"qu"]], NSLocalizedString(@"Quechua", @""), @"qu.lproj", @"Quechua.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"rn"]], NSLocalizedString(@"Rundi", @""), @"rn.lproj", @"Rundi.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ro"]], NSLocalizedString(@"Romanian", @""), @"ro.lproj", @"Romanian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ru"]], NSLocalizedString(@"Russian", @""), @"ru.lproj", @"Russian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"rw"]], NSLocalizedString(@"Kinyarwanda", @""), @"rw.lproj", @"Kinyarwanda.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sa"]], NSLocalizedString(@"Sanskrit", @""), @"sa.lproj", @"Sanskrit.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sd"]], NSLocalizedString(@"Sindhi", @""), @"sd.lproj", @"Sindhi.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"se"]], NSLocalizedString(@"Sami", @""), @"se.lproj", @"Sami.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"si"]], NSLocalizedString(@"Sinhalese", @""), @"si.lproj", @"Sinhalese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sk"]], NSLocalizedString(@"Slovak", @""), @"sk.lproj", @"Slovak.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sl"]], NSLocalizedString(@"Slovenian", @""), @"sl.lproj", @"Slovenian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"so"]], NSLocalizedString(@"Somali", @""), @"so.lproj", @"Somali.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sq"]], NSLocalizedString(@"Albanian", @""), @"sq.lproj", @"Albanian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sr"]], NSLocalizedString(@"Serbian", @""), @"sr.lproj", @"Serbian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"su"]], NSLocalizedString(@"Sundanese", @""), @"su.lproj", @"Sundanese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sv"]], NSLocalizedString(@"Swedish", @""), @"sv.lproj", @"sv_SE.lproj", @"Swedish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sw"]], NSLocalizedString(@"Swahili", @""), @"sw.lproj", @"Swahili.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ta"]], NSLocalizedString(@"Tamil", @""), @"ta.lproj", @"Tamil.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"te"]], NSLocalizedString(@"Telugu", @""), @"te.lproj", @"Telugu.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tg"]], NSLocalizedString(@"Tajiki", @""), @"tg.lproj", @"Tajiki.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"th"]], NSLocalizedString(@"Thai", @""), @"th.lproj", @"Thai.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ti"]], NSLocalizedString(@"Tigrinya", @""), @"ti.lproj", @"Tigrinya.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tk"]], NSLocalizedString(@"Turkmen", @""), @"tk.lproj", @"Turkmen.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tl"]], NSLocalizedString(@"Tagalog", @""), @"tl.lproj", @"Tagalog.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tr"]], NSLocalizedString(@"Turkish", @""), @"tr.lproj", @"tr_TR.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tt"]], NSLocalizedString(@"Tatar", @""), @"tt.lproj", @"Tatar.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"to"]], NSLocalizedString(@"Tongan", @""), @"to.lproj", @"Tongan.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ug"]], NSLocalizedString(@"Uighur", @""), @"ug.lproj", @"Uighur.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"uk"]], NSLocalizedString(@"Ukrainian", @""), @"uk.lproj", @"Ukrainian.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ur"]], NSLocalizedString(@"Urdu", @""), @"ur.lproj", @"Urdu.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"uz"]], NSLocalizedString(@"Uzbek", @""), @"uz.lproj", @"Uzbek.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"vi"]], NSLocalizedString(@"Vietnamese", @""), @"vi.lproj", @"Vietnamese.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"yi"]], NSLocalizedString(@"Yiddish", @""), @"yi.lproj", @"Yiddish.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh"]], NSLocalizedString(@"Chinese", @""), @"zh.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_CN"]], NSLocalizedString(@"Simplified Chinese", @""), @"zh_CN.lproj", @"zh_SC.lproj", nil],
-		[NSMutableArray arrayWithObjects:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_TW"]], NSLocalizedString(@"Traditional Chinese", @""), @"zh_TW.lproj", nil],
-		nil];
+	[self setLanguages:[[NSMutableArray alloc] initWithObjects:
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"af"]],    @"enabled", NSLocalizedString(@"Afrikaans", @""),            @"displayName", [NSArray arrayWithObjects:@"af.lproj", @"Afrikaans.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"am"]],    @"enabled", NSLocalizedString(@"Amharic", @""),              @"displayName", [NSArray arrayWithObjects:@"am.lproj", @"Amharic.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ar"]],    @"enabled", NSLocalizedString(@"Arabic", @""),               @"displayName", [NSArray arrayWithObjects:@"ar.lproj", @"Arabic.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"as"]],    @"enabled", NSLocalizedString(@"Assamese", @""),             @"displayName", [NSArray arrayWithObjects:@"as.lproj", @"Assamese.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ay"]],    @"enabled", NSLocalizedString(@"Aymara", @""),               @"displayName", [NSArray arrayWithObjects:@"ay.lproj", @"Aymara.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"az"]],    @"enabled", NSLocalizedString(@"Azerbaijani", @""),          @"displayName", [NSArray arrayWithObjects:@"az.lproj", @"Azerbaijani.lproj", nil],               @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"be"]],    @"enabled", NSLocalizedString(@"Byelorussian", @""),         @"displayName", [NSArray arrayWithObjects:@"be.lproj", @"Byelorussian.lproj", nil],              @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bg"]],    @"enabled", NSLocalizedString(@"Bulgarian", @""),            @"displayName", [NSArray arrayWithObjects:@"bg.lproj", @"Bulgarian.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bi"]],    @"enabled", NSLocalizedString(@"Bislama", @""),              @"displayName", [NSArray arrayWithObjects:@"bi.lproj", @"Bislama.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bn"]],    @"enabled", NSLocalizedString(@"Bengali", @""),              @"displayName", [NSArray arrayWithObjects:@"bn.lproj", @"Bengali.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"bo"]],    @"enabled", NSLocalizedString(@"Tibetan", @""),              @"displayName", [NSArray arrayWithObjects:@"bo.lproj", @"Tibetan.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"br"]],    @"enabled", NSLocalizedString(@"Breton", @""),               @"displayName", [NSArray arrayWithObjects:@"br.lproj", @"Breton.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ca"]],    @"enabled", NSLocalizedString(@"Catalan", @""),              @"displayName", [NSArray arrayWithObjects:@"ca.lproj", @"Catalan.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"cs"]],    @"enabled", NSLocalizedString(@"Czech", @""),                @"displayName", [NSArray arrayWithObjects:@"cs.lproj", @"cs_CZ.lproj", @"Czech.lproj", nil],     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"cy"]],    @"enabled", NSLocalizedString(@"Welsh", @""),                @"displayName", [NSArray arrayWithObjects:@"cy.lproj", @"Welsh.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"da"]],    @"enabled", NSLocalizedString(@"Danish", @""),               @"displayName", [NSArray arrayWithObjects:@"da.lproj", @"da_DK.lproj", @"Danish.lproj", nil],    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de"]],    @"enabled", NSLocalizedString(@"German", @""),               @"displayName", [NSArray arrayWithObjects:@"de.lproj", @"de_DE.lproj", @"German.lproj", nil],    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de_AT"]], @"enabled", NSLocalizedString(@"Austrian German", @""),      @"displayName", [NSArray arrayWithObjects:@"de_AT.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"de_CH"]], @"enabled", NSLocalizedString(@"Swiss German", @""),         @"displayName", [NSArray arrayWithObjects:@"de_CH.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"dz"]],    @"enabled", NSLocalizedString(@"Dzongkha", @""),             @"displayName", [NSArray arrayWithObjects:@"dz.lproj", @"Dzongkha.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"el"]],    @"enabled", NSLocalizedString(@"Greek", @""),                @"displayName", [NSArray arrayWithObjects:@"el.lproj", @"el_GR.lproj", @"Greek.lproj", nil],     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: NO],                                          @"enabled", NSLocalizedString(@"English", @""),              @"displayName", [NSArray arrayWithObjects:@"en.lproj", @"English.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_AU"]], @"enabled", NSLocalizedString(@"Australian English", @""),   @"displayName", [NSArray arrayWithObjects:@"en_AU.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_CA"]], @"enabled", NSLocalizedString(@"Canadian English", @""),     @"displayName", [NSArray arrayWithObjects:@"en_CA.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_GB"]], @"enabled", NSLocalizedString(@"British English", @""),      @"displayName", [NSArray arrayWithObjects:@"en_GB.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"en_US"]], @"enabled", NSLocalizedString(@"U.S. English", @""),         @"displayName", [NSArray arrayWithObjects:@"en_US.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"eo"]],    @"enabled", NSLocalizedString(@"Esperanto", @""),            @"displayName", [NSArray arrayWithObjects:@"eo.lproj", @"Esperanto.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"es"]],    @"enabled", NSLocalizedString(@"Spanish", @""),              @"displayName", [NSArray arrayWithObjects:@"es.lproj", @"es_ES.lproj", @"Spanish.lproj", nil],   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"et"]],    @"enabled", NSLocalizedString(@"Estonian", @""),             @"displayName", [NSArray arrayWithObjects:@"et.lproj", @"Estonian.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"eu"]],    @"enabled", NSLocalizedString(@"Basque", @""),               @"displayName", [NSArray arrayWithObjects:@"eu.lproj", @"Basque.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fa"]],    @"enabled", NSLocalizedString(@"Farsi", @""),                @"displayName", [NSArray arrayWithObjects:@"fa.lproj", @"Farsi.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fi"]],    @"enabled", NSLocalizedString(@"Finnish", @""),              @"displayName", [NSArray arrayWithObjects:@"fi.lproj", @"fi_FI.lproj", @"Finnish.lproj", nil],   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fo"]],    @"enabled", NSLocalizedString(@"Faroese", @""),              @"displayName", [NSArray arrayWithObjects:@"fo.lproj", @"Faroese.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fr"]],    @"enabled", NSLocalizedString(@"French", @""),               @"displayName", [NSArray arrayWithObjects:@"fr.lproj", @"fr_FR.lproj", @"French.lproj", nil],    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fr_CA"]], @"enabled", NSLocalizedString(@"Canadian French", @""),      @"displayName", [NSArray arrayWithObjects:@"fr_CA.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"fr_CH"]], @"enabled", NSLocalizedString(@"Swiss French", @""),         @"displayName", [NSArray arrayWithObjects:@"fr_CH.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ga"]],    @"enabled", NSLocalizedString(@"Irish", @""),                @"displayName", [NSArray arrayWithObjects:@"ga.lproj", @"Irish.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gd"]],    @"enabled", NSLocalizedString(@"Scottish", @""),             @"displayName", [NSArray arrayWithObjects:@"gd.lproj", @"Scottish.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gl"]],    @"enabled", NSLocalizedString(@"Galician", @""),             @"displayName", [NSArray arrayWithObjects:@"gl.lproj", @"Galician.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gn"]],    @"enabled", NSLocalizedString(@"Guarani", @""),              @"displayName", [NSArray arrayWithObjects:@"gn.lproj", @"Guarani.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gu"]],    @"enabled", NSLocalizedString(@"Gujarati", @""),             @"displayName", [NSArray arrayWithObjects:@"gu.lproj", @"Gujarati.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"gv"]],    @"enabled", NSLocalizedString(@"Manx", @""),                 @"displayName", [NSArray arrayWithObjects:@"gv.lproj", @"Manx.lproj", nil],                      @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"haw"]],   @"enabled", NSLocalizedString(@"Hawaiian", @""),             @"displayName", [NSArray arrayWithObjects:@"haw.lproj", @"Hawaiian.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"he"]],    @"enabled", NSLocalizedString(@"Hebrew", @""),               @"displayName", [NSArray arrayWithObjects:@"he.lproj", @"Hebrew.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hi"]],    @"enabled", NSLocalizedString(@"Hindi", @""),                @"displayName", [NSArray arrayWithObjects:@"hi.lproj", @"Hindi.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hr"]],    @"enabled", NSLocalizedString(@"Croatian", @""),             @"displayName", [NSArray arrayWithObjects:@"hr.lproj", @"Croatian.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hu"]],    @"enabled", NSLocalizedString(@"Hungarian", @""),            @"displayName", [NSArray arrayWithObjects:@"hu.lproj", @"hu_HU.lproj", @"Hungarian.lproj", nil], @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"hy"]],    @"enabled", NSLocalizedString(@"Armenian", @""),             @"displayName", [NSArray arrayWithObjects:@"hy.lproj", @"Armenian.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"id"]],    @"enabled", NSLocalizedString(@"Indonesian", @""),           @"displayName", [NSArray arrayWithObjects:@"id.lproj", @"Indonesian.lproj", nil],                @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"is"]],    @"enabled", NSLocalizedString(@"Icelandic", @""),            @"displayName", [NSArray arrayWithObjects:@"is.lproj", @"Icelandic.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"it"]],    @"enabled", NSLocalizedString(@"Italian", @""),              @"displayName", [NSArray arrayWithObjects:@"it.lproj", @"it_IT.lproj", @"Italian.lproj", nil],   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"iu"]],    @"enabled", NSLocalizedString(@"Inuktitut", @""),            @"displayName", [NSArray arrayWithObjects:@"iu.lproj", @"Inuktitut.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ja"]],    @"enabled", NSLocalizedString(@"Japanese", @""),             @"displayName", [NSArray arrayWithObjects:@"ja.lproj", @"ja_JP.lproj", @"Japanese.lproj", nil],  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"jv"]],    @"enabled", NSLocalizedString(@"Javanese", @""),             @"displayName", [NSArray arrayWithObjects:@"jv.lproj", @"Javanese.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ka"]],    @"enabled", NSLocalizedString(@"Georgian", @""),             @"displayName", [NSArray arrayWithObjects:@"ka.lproj", @"Georgian.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"kk"]],    @"enabled", NSLocalizedString(@"Kazakh", @""),               @"displayName", [NSArray arrayWithObjects:@"kk.lproj", @"Kazakh.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"kl"]],    @"enabled", NSLocalizedString(@"Greenlandic", @""),          @"displayName", [NSArray arrayWithObjects:@"kl.lproj", @"Greenlandic.lproj", nil],               @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"km"]],    @"enabled", NSLocalizedString(@"Khmer", @""),                @"displayName", [NSArray arrayWithObjects:@"km.lproj", @"Khmer.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"kn"]],    @"enabled", NSLocalizedString(@"Kannada", @""),              @"displayName", [NSArray arrayWithObjects:@"kn.lproj", @"Kannada.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ko"]],    @"enabled", NSLocalizedString(@"Korean", @""),               @"displayName", [NSArray arrayWithObjects:@"ko.lproj", @"ko_KR.lproj", @"Korean.lproj", nil],    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ks"]],    @"enabled", NSLocalizedString(@"Kashmiri", @""),             @"displayName", [NSArray arrayWithObjects:@"ks.lproj", @"Kashmiri.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ku"]],    @"enabled", NSLocalizedString(@"Kurdish", @""),              @"displayName", [NSArray arrayWithObjects:@"ku.lproj", @"Kurdish.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ky"]],    @"enabled", NSLocalizedString(@"Kirghiz", @""),              @"displayName", [NSArray arrayWithObjects:@"ky.lproj", @"Kirghiz.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"la"]],    @"enabled", NSLocalizedString(@"Latin", @""),                @"displayName", [NSArray arrayWithObjects:@"la.lproj", @"Latin.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"lo"]],    @"enabled", NSLocalizedString(@"Lao", @""),                  @"displayName", [NSArray arrayWithObjects:@"lo.lproj", @"Lao.lproj", nil],                       @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"lt"]],    @"enabled", NSLocalizedString(@"Lithuanian", @""),           @"displayName", [NSArray arrayWithObjects:@"lt.lproj", @"Lithuanian.lproj", nil],                @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"lv"]],    @"enabled", NSLocalizedString(@"Latvian", @""),              @"displayName", [NSArray arrayWithObjects:@"lv.lproj", @"Latvian.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mg"]],    @"enabled", NSLocalizedString(@"Malagasy", @""),             @"displayName", [NSArray arrayWithObjects:@"mg.lproj", @"Malagasy.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mk"]],    @"enabled", NSLocalizedString(@"Macedonian", @""),           @"displayName", [NSArray arrayWithObjects:@"mk.lproj", @"Macedonian.lproj", nil],                @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ml"]],    @"enabled", NSLocalizedString(@"Malayalam", @""),            @"displayName", [NSArray arrayWithObjects:@"ml.lproj", @"Malayalam.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mn"]],    @"enabled", NSLocalizedString(@"Mongolian", @""),            @"displayName", [NSArray arrayWithObjects:@"mn.lproj", @"Mongolian.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mo"]],    @"enabled", NSLocalizedString(@"Moldavian", @""),            @"displayName", [NSArray arrayWithObjects:@"mo.lproj", @"Moldavian.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mr"]],    @"enabled", NSLocalizedString(@"Marathi", @""),              @"displayName", [NSArray arrayWithObjects:@"mr.lproj", @"Marathi.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ms"]],    @"enabled", NSLocalizedString(@"Malay", @""),                @"displayName", [NSArray arrayWithObjects:@"ms.lproj", @"Malay.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"mt"]],    @"enabled", NSLocalizedString(@"Maltese", @""),              @"displayName", [NSArray arrayWithObjects:@"mt.lproj", @"Maltese.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"my"]],    @"enabled", NSLocalizedString(@"Burmese", @""),              @"displayName", [NSArray arrayWithObjects:@"my.lproj", @"Burmese.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ne"]],    @"enabled", NSLocalizedString(@"Nepali", @""),               @"displayName", [NSArray arrayWithObjects:@"ne.lproj", @"Nepali.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nl"]],    @"enabled", NSLocalizedString(@"Dutch", @""),                @"displayName", [NSArray arrayWithObjects:@"nl.lproj", @"nl_NL.lproj", @"Dutch.lproj", nil],     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nl_BE"]], @"enabled", NSLocalizedString(@"Flemish", @""),              @"displayName", [NSArray arrayWithObjects:@"nl_BE.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"no"]],    @"enabled", NSLocalizedString(@"Norwegian", @""),            @"displayName", [NSArray arrayWithObjects:@"no.lproj", @"no_NO.lproj", @"Norwegian.lproj", nil], @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nb"]],    @"enabled", NSLocalizedString(@"Norwegian Bokmal", @""),     @"displayName", [NSArray arrayWithObjects:@"nb.lproj", nil],                                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"nn"]],    @"enabled", NSLocalizedString(@"Norwegian Nynorsk", @""),    @"displayName", [NSArray arrayWithObjects:@"nn.lproj", nil],                                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"om"]],    @"enabled", NSLocalizedString(@"Oromo", @""),                @"displayName", [NSArray arrayWithObjects:@"om.lproj", @"Oromo.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"or"]],    @"enabled", NSLocalizedString(@"Oriya", @""),                @"displayName", [NSArray arrayWithObjects:@"or.lproj", @"Oriya.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pa"]],    @"enabled", NSLocalizedString(@"Punjabi", @""),              @"displayName", [NSArray arrayWithObjects:@"pa.lproj", @"Punjabi.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pl"]],    @"enabled", NSLocalizedString(@"Polish", @""),               @"displayName", [NSArray arrayWithObjects:@"pl.lproj", @"pl_PL.lproj", @"Polish.lproj", nil],    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ps"]],    @"enabled", NSLocalizedString(@"Pashto", @""),               @"displayName", [NSArray arrayWithObjects:@"ps.lproj", @"Pashto.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pt"]],    @"enabled", NSLocalizedString(@"Portuguese", @""),           @"displayName", [NSArray arrayWithObjects:@"pt.lproj", @"Portuguese.lproj", nil],                @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"pt_BR"]], @"enabled", NSLocalizedString(@"Brazilian Portoguese", @""), @"displayName", [NSArray arrayWithObjects:@"pt_BR.lproj", nil],                                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"qu"]],    @"enabled", NSLocalizedString(@"Quechua", @""),              @"displayName", [NSArray arrayWithObjects:@"qu.lproj", @"Quechua.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"rn"]],    @"enabled", NSLocalizedString(@"Rundi", @""),                @"displayName", [NSArray arrayWithObjects:@"rn.lproj", @"Rundi.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ro"]],    @"enabled", NSLocalizedString(@"Romanian", @""),             @"displayName", [NSArray arrayWithObjects:@"ro.lproj", @"Romanian.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ru"]],    @"enabled", NSLocalizedString(@"Russian", @""),              @"displayName", [NSArray arrayWithObjects:@"ru.lproj", @"Russian.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"rw"]],    @"enabled", NSLocalizedString(@"Kinyarwanda", @""),          @"displayName", [NSArray arrayWithObjects:@"rw.lproj", @"Kinyarwanda.lproj", nil],               @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sa"]],    @"enabled", NSLocalizedString(@"Sanskrit", @""),             @"displayName", [NSArray arrayWithObjects:@"sa.lproj", @"Sanskrit.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sd"]],    @"enabled", NSLocalizedString(@"Sindhi", @""),               @"displayName", [NSArray arrayWithObjects:@"sd.lproj", @"Sindhi.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"se"]],    @"enabled", NSLocalizedString(@"Sami", @""),                 @"displayName", [NSArray arrayWithObjects:@"se.lproj", @"Sami.lproj", nil],                      @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"si"]],    @"enabled", NSLocalizedString(@"Sinhalese", @""),            @"displayName", [NSArray arrayWithObjects:@"si.lproj", @"Sinhalese.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sk"]],    @"enabled", NSLocalizedString(@"Slovak", @""),               @"displayName", [NSArray arrayWithObjects:@"sk.lproj", @"Slovak.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sl"]],    @"enabled", NSLocalizedString(@"Slovenian", @""),            @"displayName", [NSArray arrayWithObjects:@"sl.lproj", @"Slovenian.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"so"]],    @"enabled", NSLocalizedString(@"Somali", @""),               @"displayName", [NSArray arrayWithObjects:@"so.lproj", @"Somali.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sq"]],    @"enabled", NSLocalizedString(@"Albanian", @""),             @"displayName", [NSArray arrayWithObjects:@"sq.lproj", @"Albanian.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sr"]],    @"enabled", NSLocalizedString(@"Serbian", @""),              @"displayName", [NSArray arrayWithObjects:@"sr.lproj", @"Serbian.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"su"]],    @"enabled", NSLocalizedString(@"Sundanese", @""),            @"displayName", [NSArray arrayWithObjects:@"su.lproj", @"Sundanese.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sv"]],    @"enabled", NSLocalizedString(@"Swedish", @""),              @"displayName", [NSArray arrayWithObjects:@"sv.lproj", @"sv_SE.lproj", @"Swedish.lproj", nil],   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"sw"]],    @"enabled", NSLocalizedString(@"Swahili", @""),              @"displayName", [NSArray arrayWithObjects:@"sw.lproj", @"Swahili.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ta"]],    @"enabled", NSLocalizedString(@"Tamil", @""),                @"displayName", [NSArray arrayWithObjects:@"ta.lproj", @"Tamil.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"te"]],    @"enabled", NSLocalizedString(@"Telugu", @""),               @"displayName", [NSArray arrayWithObjects:@"te.lproj", @"Telugu.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tg"]],    @"enabled", NSLocalizedString(@"Tajiki", @""),               @"displayName", [NSArray arrayWithObjects:@"tg.lproj", @"Tajiki.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"th"]],    @"enabled", NSLocalizedString(@"Thai", @""),                 @"displayName", [NSArray arrayWithObjects:@"th.lproj", @"Thai.lproj", nil],                      @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ti"]],    @"enabled", NSLocalizedString(@"Tigrinya", @""),             @"displayName", [NSArray arrayWithObjects:@"ti.lproj", @"Tigrinya.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tk"]],    @"enabled", NSLocalizedString(@"Turkmen", @""),              @"displayName", [NSArray arrayWithObjects:@"tk.lproj", @"Turkmen.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tl"]],    @"enabled", NSLocalizedString(@"Tagalog", @""),              @"displayName", [NSArray arrayWithObjects:@"tl.lproj", @"Tagalog.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tr"]],    @"enabled", NSLocalizedString(@"Turkish", @""),              @"displayName", [NSArray arrayWithObjects:@"tr.lproj", @"tr_TR.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"tt"]],    @"enabled", NSLocalizedString(@"Tatar", @""),                @"displayName", [NSArray arrayWithObjects:@"tt.lproj", @"Tatar.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"to"]],    @"enabled", NSLocalizedString(@"Tongan", @""),               @"displayName", [NSArray arrayWithObjects:@"to.lproj", @"Tongan.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ug"]],    @"enabled", NSLocalizedString(@"Uighur", @""),               @"displayName", [NSArray arrayWithObjects:@"ug.lproj", @"Uighur.lproj", nil],                    @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"uk"]],    @"enabled", NSLocalizedString(@"Ukrainian", @""),            @"displayName", [NSArray arrayWithObjects:@"uk.lproj", @"Ukrainian.lproj", nil],                 @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ur"]],    @"enabled", NSLocalizedString(@"Urdu", @""),                 @"displayName", [NSArray arrayWithObjects:@"ur.lproj", @"Urdu.lproj", nil],                      @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"uz"]],    @"enabled", NSLocalizedString(@"Uzbek", @""),                @"displayName", [NSArray arrayWithObjects:@"uz.lproj", @"Uzbek.lproj", nil],                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"vi"]],    @"enabled", NSLocalizedString(@"Vietnamese", @""),           @"displayName", [NSArray arrayWithObjects:@"vi.lproj", @"Vietnamese.lproj", nil],                @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"yi"]],    @"enabled", NSLocalizedString(@"Yiddish", @""),              @"displayName", [NSArray arrayWithObjects:@"yi.lproj", @"Yiddish.lproj", nil],                   @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh"]],    @"enabled", NSLocalizedString(@"Chinese", @""),              @"displayName", [NSArray arrayWithObjects:@"zh.lproj", nil],                                     @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_CN"]], @"enabled", NSLocalizedString(@"Simplified Chinese", @""),   @"displayName", [NSArray arrayWithObjects:@"zh_CN.lproj", @"zh_SC.lproj", nil],                  @"folders", nil],
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_TW"]], @"enabled", NSLocalizedString(@"Traditional Chinese", @""),  @"displayName", [NSArray arrayWithObjects:@"zh_TW.lproj", nil],                                  @"folders", nil],
+		nil]];
 	[userLanguagesSet release];
 
-	nameColumn = [languageView tableColumnWithIdentifier:@"Name"];
-	languageSort.sortAscending = YES;
-	languageSort.sortColumn = [nameColumn retain];
-	[languages sortUsingFunction: sortNames context: (void *)languageSort.sortAscending];
-	[languageView setHighlightedTableColumn: nameColumn];
-	[languageView setIndicatorImage: [NSImage imageNamed: @"NSAscendingSortIndicator"] inTableColumn: nameColumn];
-	[languageView reloadData];
-
-	layouts = [[NSMutableArray alloc] initWithCapacity:14];
 	[self scanLayouts];
-
-	nameColumn = [layoutView tableColumnWithIdentifier:@"Name"];
-	layoutSort.sortAscending = YES;
-	layoutSort.sortColumn = [nameColumn retain];
-	[layouts sortUsingFunction: sortNames context: (void *)layoutSort.sortAscending];
-	[layoutView setHighlightedTableColumn: nameColumn];
-	[layoutView setIndicatorImage: [NSImage imageNamed: @"NSAscendingSortIndicator"] inTableColumn: nameColumn];
 
 	// set ourself as the Growl delegate
 	[GrowlApplicationBridge setGrowlDelegate:self];
@@ -949,6 +773,28 @@ static NSComparisonResult sortTypes( NSArray *l1, NSArray *l2, void *context )
 		finishedNotificationName, GROWL_NOTIFICATION_TITLE,
 		NSLocalizedString(@"Finished removing language files",@""), GROWL_NOTIFICATION_DESCRIPTION,
 		nil];
+}
+
+- (NSMutableArray *) languages {
+	return languages;
+}
+
+- (void) setLanguages:(NSMutableArray *)inArray {
+	if (inArray != languages) {
+		[languages release];
+		languages = [inArray retain];
+	}
+}
+
+- (NSMutableArray *) layouts {
+	return layouts;
+}
+
+- (void) setLayouts:(NSMutableArray *)inArray {
+	if (inArray != layouts) {
+		[layouts release];
+		layouts = [inArray retain];
+	}
 }
 
 @end

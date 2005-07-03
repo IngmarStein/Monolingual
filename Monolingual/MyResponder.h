@@ -25,8 +25,6 @@
 
 @interface MyResponder : NSWindowController
 {
-	IBOutlet NSTableView *languageView;
-	IBOutlet NSTableView *layoutView;
 }
 + (void) initialize;
 - (IBAction) documentationBundler: (id)sender;
@@ -35,10 +33,6 @@
 - (IBAction) removeLayouts: (id)sender;
 - (IBAction) showPreferences: (id)sender;
 - (void) scanLayouts;
-- (int) numberOfRowsInTableView: (NSTableView *)aTableView;
-- (id) tableView: (NSTableView *)aTableView objectValueForTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex;
-- (void) tableView: (NSTableView *)aTableView setObjectValue: (id)anObject forTableColumn: (NSTableColumn *)aTableColumn row: (int) rowIndex;
-- (void) tableView: (NSTableView *)tableView mouseDownInHeaderOfTableColumn: (NSTableColumn *)tableColumn;
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication;
 - (void) cancelRemove;
 - (id) init;
@@ -48,5 +42,10 @@
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
 - (NSDictionary *) registrationDictionaryForGrowl;
+
+- (NSMutableArray *) languages;
+- (void) setLanguages:(NSMutableArray *)inArray;
+- (NSMutableArray *) layouts;
+- (void) setLayouts:(NSMutableArray *)inArray;
 
 @end

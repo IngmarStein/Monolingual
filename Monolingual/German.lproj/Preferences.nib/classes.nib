@@ -2,10 +2,10 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {add = id; changeTrash = id; remove = id; }; 
+            ACTIONS = {add = id; }; 
             CLASS = PreferencesController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {moveToTrash = NSButton; removeButton = NSButton; rootDirView = NSTableView; }; 
+            OUTLETS = {roots = NSArrayController; }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 
