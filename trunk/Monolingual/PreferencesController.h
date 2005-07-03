@@ -9,17 +9,8 @@
 #import <AppKit/AppKit.h>
 
 @interface PreferencesController : NSWindowController {
-	IBOutlet NSTableView *rootDirView;
-	IBOutlet NSButton *removeButton;
-	IBOutlet NSButton *moveToTrash;
-	NSMutableArray *roots;
+	IBOutlet NSArrayController *roots;
 }
 - (IBAction) add: (id)sender;
-- (IBAction) remove: (id)sender;
-- (IBAction) changeTrash: (id)sender;
 - (id) init;
-- (void) update;
-- (void) awakeFromNib;
-- (int) numberOfRowsInTableView: (NSTableView *)aTableView;
-- (id) tableView: (NSTableView *)aTableView objectValueForTableColumn: (NSTableColumn *)aTableColumn row: (int)rowIndex;
 @end
