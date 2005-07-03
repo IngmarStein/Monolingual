@@ -1,0 +1,835 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
+		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
+		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
+		9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = F5A6E37F01A07759016596AB /* COPYING.txt */; };
+		9595189A07E48934004A4471 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
+		9595190107E48C30004A4471 /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
+		95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A0BEA206346AD3007510F1 /* PreferencesController.m */; };
+		95A1302D0608F92F00D8E30C /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
+		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		95A130300608F92F00D8E30C /* ProgressWindow.nib in Resources */ = {isa = PBXBuildFile; fileRef = 10400F4C01643A4D7F000001 /* ProgressWindow.nib */; };
+		95A130350608F92F00D8E30C /* Monolingual.icns in Resources */ = {isa = PBXBuildFile; fileRef = F585B20B01E4DA180100012D /* Monolingual.icns */; };
+		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
+		95A130380608F92F00D8E30C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
+		95A130390608F92F00D8E30C /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ECF788010242A17F000001 /* MyResponder.m */; };
+		95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 10400F490164385C7F000001 /* ProgressWindowController.m */; };
+		95A1303D0608F92F00D8E30C /* VersionCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = F54BC88102DA668D0100012F /* VersionCheck.m */; };
+		95A1303F0608F92F00D8E30C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		95C3C96A0610145C00D417BC /* helper.m in Sources */ = {isa = PBXBuildFile; fileRef = 95C3C93A06100B0C00D417BC /* helper.m */; };
+		95C3CB9C0610277A00D417BC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		95CC53A40635449F006A4D12 /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 95CC53A30635449F006A4D12 /* Preferences.nib */; };
+		95D17F180610B00900633B04 /* DeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 95D17F160610B00900633B04 /* DeleteHelper.m */; };
+		95D17FE10610CB9500633B04 /* Helper in Resources */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* Helper */; };
+		95D180030610CBDD00633B04 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95C3C9F7061014ED00D417BC /* Security.framework */; };
+		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		4A9504CCFFE6A4B311CA0CBA /* Development */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.2;
+				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		4A9504CDFFE6A4B311CA0CBA /* Deployment */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.2;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		95E7A46D06115DA5009E5926 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95C3C95F0610144300D417BC;
+			remoteInfo = Helper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		959518FF07E48C1F004A4471 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9595190107E48C30004A4471 /* Growl.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		00ECF787010242A17F000001 /* MyResponder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = MyResponder.h; sourceTree = "<group>"; };
+		00ECF788010242A17F000001 /* MyResponder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = MyResponder.m; sourceTree = "<group>"; };
+		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		10400F480164385C7F000001 /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
+		10400F490164385C7F000001 /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
+		10400F4D01643A4D7F000001 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		950C126D0636EA5A0007DD3D /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/Preferences.nib; sourceTree = "<group>"; };
+		950C126E0636EA600007DD3D /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Swedish; path = Swedish.lproj/Preferences.nib; sourceTree = "<group>"; };
+		950C126F0636EA620007DD3D /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/Preferences.nib; sourceTree = "<group>"; };
+		950C12700636EA680007DD3D /* Polish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Polish; path = Polish.lproj/Preferences.nib; sourceTree = "<group>"; };
+		9534F842072707D200CAB28E /* GrowlDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GrowlDefines.h; sourceTree = "<group>"; };
+		9558F75E0615904700F6DE23 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = English; path = English.lproj/Credits.html; sourceTree = "<group>"; };
+		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = German.lproj/Credits.html; sourceTree = "<group>"; };
+		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
+		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
+		95833CC906ED88A900238761 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Italian; path = Italian.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		95833CCA06ED88B700238761 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Italian; path = Italian.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		95833CCB06ED88F800238761 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Italian; path = Italian.lproj/Preferences.nib; sourceTree = "<group>"; };
+		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
+		95A0BE9D06346795007510F1 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Preferences.nib; sourceTree = "<group>"; };
+		95A0BEA106346AD3007510F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
+		95A0BEA206346AD3007510F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
+		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
+		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		95C3C93A06100B0C00D417BC /* helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = helper.m; sourceTree = "<group>"; };
+		95C3C9600610144300D417BC /* Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		95C3C9F7061014ED00D417BC /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
+		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95CC53AF063544A6006A4D12 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/Preferences.nib; sourceTree = "<group>"; };
+		95D17F150610B00900633B04 /* DeleteHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteHelper.h; sourceTree = "<group>"; };
+		95D17F160610B00900633B04 /* DeleteHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeleteHelper.m; sourceTree = "<group>"; };
+		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95EDCC85062C4092007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		95EDCC86062C40E9007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LisezMoi.rtfd; sourceTree = "<group>"; };
+		95EDCC8B062C4393007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F505F4E90300C27901E3DC1E /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		F505F4EB0300C28A01E3DC1E /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		F505F4EC0300C29D01E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F505F4ED0300C2B001E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F51C1B3501F29B1C0120C6FA /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F51C1B3701F2ACAC0120C6FA /* Japanese */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F5230A69028CE07101D970AB /* Swedish */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Swedish; path = Swedish.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F5230A6B028CE07101D970AB /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Swedish; path = Swedish.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		F5230A6C028CE07101D970AB /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Swedish; path = Swedish.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		F5230A6E028CE07101D970AB /* Swedish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Swedish; path = Swedish.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F52C8EEB02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Polish; path = Polish.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F52C8EEC02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Polish; path = Polish.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F52C8EED02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Polish; path = Polish.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		F52C8EEF02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Polish; path = Polish.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		F54BC88002DA668D0100012F /* VersionCheck.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = VersionCheck.h; sourceTree = "<group>"; };
+		F54BC88102DA668D0100012F /* VersionCheck.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = VersionCheck.m; sourceTree = "<group>"; };
+		F585B20B01E4DA180100012D /* Monolingual.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Monolingual.icns; sourceTree = "<group>"; };
+		F5A6E37F01A07759016596AB /* COPYING.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = COPYING.txt; sourceTree = "<group>"; };
+		F5DF00D501EC02150120C6FA /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		F5DF00D601EC02150120C6FA /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
+		F5DF00D801EC02150120C6FA /* Japanese */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		95A1303E0608F92F00D8E30C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95D180030610CBDD00633B04 /* Security.framework in Frameworks */,
+				95A1303F0608F92F00D8E30C /* Cocoa.framework in Frameworks */,
+				9595189A07E48934004A4471 /* Growl.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95C3C95E0610144300D417BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95C3CB9C0610277A00D417BC /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				9534F842072707D200CAB28E /* GrowlDefines.h */,
+				00ECF787010242A17F000001 /* MyResponder.h */,
+				00ECF788010242A17F000001 /* MyResponder.m */,
+				10400F480164385C7F000001 /* ProgressWindowController.h */,
+				10400F490164385C7F000001 /* ProgressWindowController.m */,
+				F54BC88002DA668D0100012F /* VersionCheck.h */,
+				F54BC88102DA668D0100012F /* VersionCheck.m */,
+				95D17F150610B00900633B04 /* DeleteHelper.h */,
+				95D17F160610B00900633B04 /* DeleteHelper.m */,
+				95A0BEA106346AD3007510F1 /* PreferencesController.h */,
+				95A0BEA206346AD3007510F1 /* PreferencesController.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9595189907E48934004A4471 /* Growl.framework */,
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				95C3C9F7061014ED00D417BC /* Security.framework */,
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FACFE9D520D11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				95A130430608F93000D8E30C /* Monolingual.app */,
+				95C3C9600610144300D417BC /* Helper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* Monolingual */ = {
+			isa = PBXGroup;
+			children = (
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+				95A130420608F92F00D8E30C /* Info.plist */,
+			);
+			name = Monolingual;
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				29B97316FDCFA39411CA2CEA /* main.m */,
+				95C3C93A06100B0C00D417BC /* helper.m */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				95CC53A30635449F006A4D12 /* Preferences.nib */,
+				95EDCC87062C4264007229A3 /* LisezMoi.rtfd */,
+				9558F813061598BA00F6DE23 /* Lies-mich.rtfd */,
+				9558F814061598BA00F6DE23 /* README.rtfd */,
+				F51C1B3401F29B1C0120C6FA /* Localizable.strings */,
+				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				10400F4C01643A4D7F000001 /* ProgressWindow.nib */,
+				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				F5A6E37F01A07759016596AB /* COPYING.txt */,
+				F585B20B01E4DA180100012D /* Monolingual.icns */,
+				9558F78F0615953200F6DE23 /* Credits.html */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
+				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		95A130250608F92F00D8E30C /* Monolingual */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */;
+			buildPhases = (
+				959518FF07E48C1F004A4471 /* CopyFiles */,
+				95A1302C0608F92F00D8E30C /* Resources */,
+				95A130370608F92F00D8E30C /* Sources */,
+				95A1303E0608F92F00D8E30C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				PRODUCT_NAME = Monolingual;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+				WRAPPER_EXTENSION = app;
+			};
+			dependencies = (
+				95E7A46E06115DA5009E5926 /* PBXTargetDependency */,
+			);
+			name = Monolingual;
+			productName = Monolingual;
+			productReference = 95A130430608F93000D8E30C /* Monolingual.app */;
+			productType = "com.apple.product-type.application";
+		};
+		95C3C95F0610144300D417BC /* Helper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */;
+			buildPhases = (
+				95C3C95D0610144300D417BC /* Sources */,
+				95C3C95E0610144300D417BC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = Helper;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+			};
+			dependencies = (
+			);
+			name = Helper;
+			productName = Helper;
+			productReference = 95C3C9600610144300D417BC /* Helper */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 95AAF5680856C2DC007CEE36 /* Build configuration list for PBXProject "Monolingual" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				4A9504CCFFE6A4B311CA0CBA /* Development */,
+				4A9504CDFFE6A4B311CA0CBA /* Deployment */,
+			);
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				Swedish,
+				Polish,
+				Italian,
+			);
+			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
+			projectDirPath = "";
+			targets = (
+				95A130250608F92F00D8E30C /* Monolingual */,
+				95C3C95F0610144300D417BC /* Helper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		95A1302C0608F92F00D8E30C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */,
+				9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */,
+				9558F816061598BA00F6DE23 /* README.rtfd in Resources */,
+				95D17FE10610CB9500633B04 /* Helper in Resources */,
+				95A1302D0608F92F00D8E30C /* MainMenu.nib in Resources */,
+				95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */,
+				95A130300608F92F00D8E30C /* ProgressWindow.nib in Resources */,
+				95A130350608F92F00D8E30C /* Monolingual.icns in Resources */,
+				95A130360608F92F00D8E30C /* Localizable.strings in Resources */,
+				9558F7900615953200F6DE23 /* Credits.html in Resources */,
+				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
+				95CC53A40635449F006A4D12 /* Preferences.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		95A130370608F92F00D8E30C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95A130380608F92F00D8E30C /* main.m in Sources */,
+				95A130390608F92F00D8E30C /* MyResponder.m in Sources */,
+				95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */,
+				95A1303D0608F92F00D8E30C /* VersionCheck.m in Sources */,
+				95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95C3C95D0610144300D417BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95C3C96A0610145C00D417BC /* helper.m in Sources */,
+				95D17F180610B00900633B04 /* DeleteHelper.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		95E7A46E06115DA5009E5926 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 95C3C95F0610144300D417BC /* Helper */;
+			targetProxy = 95E7A46D06115DA5009E5926 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C165DFE840E0CC02AAC07 /* English */,
+				F5DF00D801EC02150120C6FA /* Japanese */,
+				F5230A6E028CE07101D970AB /* Swedish */,
+				F52C8EEB02C5606B01250A50 /* Polish */,
+				F505F4EC0300C29D01E3DC1E /* German */,
+				95EDCC8B062C4393007229A3 /* French */,
+				95833CDF06ED8C2D00238761 /* Italian */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		10400F4C01643A4D7F000001 /* ProgressWindow.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				10400F4D01643A4D7F000001 /* English */,
+				F5DF00D601EC02150120C6FA /* Japanese */,
+				F5230A6C028CE07101D970AB /* Swedish */,
+				F52C8EEF02C5606B01250A50 /* Polish */,
+				F505F4EB0300C28A01E3DC1E /* German */,
+				95EDCC86062C40E9007229A3 /* French */,
+				95833CCA06ED88B700238761 /* Italian */,
+			);
+			name = ProgressWindow.nib;
+			sourceTree = "<group>";
+		};
+		29B97318FDCFA39411CA2CEA /* MainMenu.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				29B97319FDCFA39411CA2CEA /* English */,
+				F5DF00D501EC02150120C6FA /* Japanese */,
+				F5230A6B028CE07101D970AB /* Swedish */,
+				F52C8EED02C5606B01250A50 /* Polish */,
+				F505F4E90300C27901E3DC1E /* German */,
+				95EDCC85062C4092007229A3 /* French */,
+				95833CC906ED88A900238761 /* Italian */,
+			);
+			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		9558F78F0615953200F6DE23 /* Credits.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9558F75E0615904700F6DE23 /* English */,
+				9558F7940615953D00F6DE23 /* German */,
+			);
+			name = Credits.html;
+			sourceTree = "<group>";
+		};
+		95CC53A30635449F006A4D12 /* Preferences.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				95A0BE9D06346795007510F1 /* English */,
+				95CC53AF063544A6006A4D12 /* German */,
+				950C126D0636EA5A0007DD3D /* French */,
+				950C126E0636EA600007DD3D /* Swedish */,
+				950C126F0636EA620007DD3D /* Japanese */,
+				950C12700636EA680007DD3D /* Polish */,
+				95833CCB06ED88F800238761 /* Italian */,
+			);
+			name = Preferences.nib;
+			sourceTree = "<group>";
+		};
+		F51C1B3401F29B1C0120C6FA /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F51C1B3501F29B1C0120C6FA /* English */,
+				F51C1B3701F2ACAC0120C6FA /* Japanese */,
+				F5230A69028CE07101D970AB /* Swedish */,
+				F52C8EEC02C5606B01250A50 /* Polish */,
+				F505F4ED0300C2B001E3DC1E /* German */,
+				95EDCC84062C3B83007229A3 /* French */,
+				95CB1AFE06E8DDDD00293B60 /* Italian */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		95AAF5610856C2DC007CEE36 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				INSTALL_PATH = /usr/local/bin;
+				OPTIMIZATION_CFLAGS = "-O0";
+				PRODUCT_NAME = Helper;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+			};
+			name = Development;
+		};
+		95AAF5620856C2DC007CEE36 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = Helper;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+			};
+			name = Deployment;
+		};
+		95AAF5630856C2DC007CEE36 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = Helper;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+			};
+			name = Default;
+		};
+		95AAF5650856C2DC007CEE36 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				OPTIMIZATION_CFLAGS = "-O0";
+				PRODUCT_NAME = Monolingual;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+				WRAPPER_EXTENSION = app;
+			};
+			name = Development;
+		};
+		95AAF5660856C2DC007CEE36 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				PRODUCT_NAME = Monolingual;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+				WRAPPER_EXTENSION = app;
+			};
+			name = Deployment;
+		};
+		95AAF5670856C2DC007CEE36 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				PRODUCT_NAME = Monolingual;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
+				WRAPPER_EXTENSION = app;
+			};
+			name = Default;
+		};
+		95AAF5690856C2DC007CEE36 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ZERO_LINK = NO;
+			};
+			name = Development;
+		};
+		95AAF56A0856C2DC007CEE36 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		95AAF56B0856C2DC007CEE36 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ZERO_LINK = NO;
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95AAF5610856C2DC007CEE36 /* Development */,
+				95AAF5620856C2DC007CEE36 /* Deployment */,
+				95AAF5630856C2DC007CEE36 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95AAF5650856C2DC007CEE36 /* Development */,
+				95AAF5660856C2DC007CEE36 /* Deployment */,
+				95AAF5670856C2DC007CEE36 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		95AAF5680856C2DC007CEE36 /* Build configuration list for PBXProject "Monolingual" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95AAF5690856C2DC007CEE36 /* Development */,
+				95AAF56A0856C2DC007CEE36 /* Deployment */,
+				95AAF56B0856C2DC007CEE36 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}
