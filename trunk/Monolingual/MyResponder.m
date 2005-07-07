@@ -623,7 +623,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 						displayText: NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
 						downloadURL: [NSURL URLWithString:@"http://monolingual.sourceforge.net"]];
 
-	[self setLanguages:[[NSMutableArray alloc] initWithObjects:
+	NSMutableArray *knownLanguages = [[NSMutableArray alloc] initWithObjects:
 		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"af"]],    @"enabled", NSLocalizedString(@"Afrikaans", @""),            @"displayName", [NSArray arrayWithObjects:@"af.lproj", @"Afrikaans.lproj", nil],                 @"folders", nil],
 		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"am"]],    @"enabled", NSLocalizedString(@"Amharic", @""),              @"displayName", [NSArray arrayWithObjects:@"am.lproj", @"Amharic.lproj", nil],                   @"folders", nil],
 		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"ar"]],    @"enabled", NSLocalizedString(@"Arabic", @""),               @"displayName", [NSArray arrayWithObjects:@"ar.lproj", @"Arabic.lproj", nil],                    @"folders", nil],
@@ -749,8 +749,15 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh"]],    @"enabled", NSLocalizedString(@"Chinese", @""),              @"displayName", [NSArray arrayWithObjects:@"zh.lproj", nil],                                     @"folders", nil],
 		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_CN"]], @"enabled", NSLocalizedString(@"Simplified Chinese", @""),   @"displayName", [NSArray arrayWithObjects:@"zh_CN.lproj", @"zh_SC.lproj", nil],                  @"folders", nil],
 		[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool: ![userLanguagesSet containsObject:@"zh_TW"]], @"enabled", NSLocalizedString(@"Traditional Chinese", @""),  @"displayName", [NSArray arrayWithObjects:@"zh_TW.lproj", nil],                                  @"folders", nil],
-		nil]];
+		nil];
 	[userLanguagesSet release];
+	NSSortDescriptor *defaultSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"displayName" ascending:YES];
+	NSArray *defaultSortDescriptors = [[NSArray alloc] initWithObjects:defaultSortDescriptor, nil];
+	[defaultSortDescriptor release];
+	[knownLanguages sortUsingDescriptors:defaultSortDescriptors];
+	[defaultSortDescriptors release];
+	[self setLanguages:knownLanguages];
+	[knownLanguages release];
 
 	[self scanLayouts];
 
