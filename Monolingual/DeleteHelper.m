@@ -23,15 +23,14 @@
 #import "DeleteHelper.h"
 
 @implementation DeleteHelper
-//NSLock *statusLock;
-BOOL removeTaskStatus;
-NSSet *directories;
+BOOL    removeTaskStatus;
+NSSet   *directories;
 NSArray *roots;
 NSArray *excludes;
 NSArray *files;
-BOOL trash;
+BOOL    trash;
 
-- (id) initWithDirectories: (NSSet *)dirs roots: (NSArray *)r excludes: (NSArray *)e files: (NSArray *)f moveToTrash: (BOOL)t
+- (id) initWithDirectories:(NSSet *)dirs roots:(NSArray *)r excludes:(NSArray *)e files:(NSArray *)f moveToTrash: (BOOL)t
 {
 	if( (self = [super init]) ) {
 		NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -50,7 +49,6 @@ BOOL trash;
 		excludes = e;
 		files = f;
 		trash = t;
-		//statusLock = [[NSLock alloc] init];
 	}
 	return self;
 }
@@ -58,41 +56,38 @@ BOOL trash;
 - (void) finishedTask: (NSNotification *)aNotification
 {
 #pragma unused(aNotification)
-	//[statusLock release];
-	[files release];
-	[roots release];
+	[files       release];
+	[roots       release];
 	[directories release];
-	[NSApp terminate: self];
+	[NSApp terminate:self];
 }
 
 - (void) cancelRemoval: (NSNotification *)aNotification
 {
 #pragma unused(aNotification)
-	//while( ![statusLock tryLock] ) {}
 	removeTaskStatus = FALSE;
-	//[statusLock unlock];
 }
 
 - (void) applicationDidFinishLaunching: (NSNotification *)notification
 {
 #pragma unused(notification)
 	removeTaskStatus = TRUE;
-	[NSThread detachNewThreadSelector: @selector(removeDirectories) toTarget: self withObject: nil];
+	[NSThread detachNewThreadSelector:@selector(removeDirectories) toTarget:self withObject:nil];
 }
 
-- (void) fileManager: (NSFileManager *)manager willProcessPath: (NSString *)path
+- (void) fileManager:(NSFileManager *)manager willProcessPath:(NSString *)path
 {
-	NSDictionary *fattrs = [manager fileAttributesAtPath: path traverseLink: YES];
+	NSDictionary *fattrs = [manager fileAttributesAtPath:path traverseLink:YES];
 	if( fattrs ) {
 		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', [fattrs fileSize], '\0' );
 		fflush( stdout );
 	}
 }
 
-- (BOOL) fileManager: (NSFileManager *)manager shouldProceedAfterError: (NSDictionary *)errorInfo
+- (BOOL) fileManager:(NSFileManager *)manager shouldProceedAfterError:(NSDictionary *)errorInfo
 {
 #pragma unused(manager,errorInfo)
-	return( TRUE );
+	return TRUE;
 }
 
 - (void) removeFile: (NSString *)path
@@ -112,10 +107,8 @@ BOOL trash;
 		[filesToRecycle release];
 		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', 0ULL, '\0' );
 		fflush( stdout );
-	} else {
-		NSFileManager *fileManager = [NSFileManager defaultManager];
-		[fileManager removeFileAtPath:path handler:self];
-	}
+	} else
+		[[NSFileManager defaultManager] removeFileAtPath:path handler:self];
 }
 
 - (void) removeDirectories
@@ -129,46 +122,42 @@ BOOL trash;
 	// delete regular files
 	enumerator = [files objectEnumerator];
 	while( (file = [enumerator nextObject]) ) {
-		if( !removeTaskStatus ) {
+		if( !removeTaskStatus )
 			break;
-		}
-		[self removeFile: file];
+		[self removeFile:file];
 	}
 
 	// recursively delete directories
 	enumerator = [roots objectEnumerator];
 	while( (root = [enumerator nextObject]) ) {
-		if( removeTaskStatus ) {
-			NSDirectoryEnumerator *dirEnum = [fileManager enumeratorAtPath:root];
-			while( (file = [dirEnum nextObject]) ) {
-				//if( [statusLock tryLock] ) {
-				if( !removeTaskStatus ) {
-					//		[statusLock unlock];
-					break;
-				}
-				//	[statusLock unlock];
-				//}
-				if( [[[dirEnum fileAttributes] fileType] isEqualToString:NSFileTypeDirectory] ) {
-					NSString *exclude;
-					BOOL process = TRUE;
-					NSEnumerator *excludeEnum = [excludes objectEnumerator];
-					NSString *path = [root stringByAppendingPathComponent:file];
-					while( (exclude = [excludeEnum nextObject]) ) {
-						if( [path hasPrefix:exclude] ) {
-							process = FALSE;
-							[dirEnum skipDescendents];
-							break;
-						}
-					}
-					if( process && [directories containsObject: [file lastPathComponent]] ) {
+		if( !removeTaskStatus )
+			break;
+		NSDirectoryEnumerator *dirEnum = [fileManager enumeratorAtPath:root];
+		NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
+		while( (file = [dirEnum nextObject]) ) {
+			if( !removeTaskStatus )
+				break;
+			if( [[[dirEnum fileAttributes] fileType] isEqualToString:NSFileTypeDirectory] ) {
+				NSString *exclude;
+				BOOL process = TRUE;
+				NSEnumerator *excludeEnum = [excludes objectEnumerator];
+				NSString *path = [root stringByAppendingPathComponent:file];
+				while( (exclude = [excludeEnum nextObject]) ) {
+					if( [path hasPrefix:exclude] ) {
+						process = FALSE;
 						[dirEnum skipDescendents];
-						[self removeFile:path];
+						break;
 					}
+				}
+				if( process && [directories containsObject:[file lastPathComponent]] ) {
+					[dirEnum skipDescendents];
+					[self removeFile:path];
 				}
 			}
-		} else {
-			break;
+			[pool2 release];
+			pool2 = [[NSAutoreleasePool alloc] init];
 		}
+		[pool2 release];
 	}
 
 	[pool release];
