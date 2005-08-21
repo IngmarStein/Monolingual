@@ -133,10 +133,13 @@ BOOL    trash;
 		if( !removeTaskStatus )
 			break;
 		NSDirectoryEnumerator *dirEnum = [fileManager enumeratorAtPath:root];
-		NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
-		while( (file = [dirEnum nextObject]) ) {
-			if( !removeTaskStatus )
+		while( 1 ) {
+			NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
+			file = [dirEnum nextObject];
+			if( !(file && removeTaskStatus) ) {
+				[pool2 release];
 				break;
+			}
 			if( [[[dirEnum fileAttributes] fileType] isEqualToString:NSFileTypeDirectory] ) {
 				NSString *exclude;
 				BOOL process = TRUE;
@@ -155,9 +158,7 @@ BOOL    trash;
 				}
 			}
 			[pool2 release];
-			pool2 = [[NSAutoreleasePool alloc] init];
 		}
-		[pool2 release];
 	}
 
 	[pool release];
