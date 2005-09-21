@@ -20,6 +20,7 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include <stdlib.h>
 #import "DeleteHelper.h"
 
 int main( int argc, const char *argv[] )
@@ -27,33 +28,35 @@ int main( int argc, const char *argv[] )
 	int i;
 	BOOL trash;
 
-	if( argc <= 2 ) {
-		return( 1 );
-	}
+	if( argc <= 2 )
+		return EXIT_FAILURE;
 
 	trash = FALSE;
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	NSMutableSet *directories = [[NSMutableSet alloc] initWithCapacity: argc-1];
-	NSMutableArray *roots = [[NSMutableArray alloc] initWithCapacity: argc-1];
-	NSMutableArray *excludes = [[NSMutableArray alloc] initWithCapacity: argc-1];
-	NSMutableArray *files = [[NSMutableArray alloc] initWithCapacity: argc-1];
+	CFMutableSetRef directories = CFSetCreateMutable(kCFAllocatorDefault, argc-1, &kCFTypeSetCallBacks);
+	CFMutableArrayRef roots = CFArrayCreateMutable(kCFAllocatorDefault, argc-1, &kCFTypeArrayCallBacks);
+	CFMutableArrayRef excludes = CFArrayCreateMutable(kCFAllocatorDefault, argc-1, &kCFTypeArrayCallBacks);
+	CFMutableArrayRef files = CFArrayCreateMutable(kCFAllocatorDefault, argc-1, &kCFTypeArrayCallBacks);
 	for( i=1; i<argc; ++i ) {
 		if( !strcmp( argv[i], "-r" ) ) {
 			++i;
 			if( i == argc ) {
 				printf( "Argument expected for -r\n" );
-				return( 1 );
+				return EXIT_FAILURE;
 			} else {
-				[roots addObject: [NSString stringWithCString: argv[i]]];
+				CFStringRef dir = CFStringCreateWithCString(kCFAllocatorDefault, argv[i], kCFStringEncodingUTF8);
+				CFArrayAppendValue(roots, dir);
+				CFRelease(dir);
 			}
 		} else if( !strcmp( argv[i], "-x" ) ) {
 			++i;
 			if( i == argc ) {
 				printf( "Argument expected for -x\n" );
-				return( 1 );
+				return EXIT_FAILURE;
 			} else {
-				[excludes addObject: [NSString stringWithCString: argv[i]]];
+				CFStringRef dir = CFStringCreateWithCString(kCFAllocatorDefault, argv[i], kCFStringEncodingUTF8);
+				CFArrayAppendValue(excludes, dir);
+				CFRelease(dir);
 			}
 		} else if( !strcmp( argv[i], "-t" ) ) {
 			trash = TRUE;
@@ -61,15 +64,20 @@ int main( int argc, const char *argv[] )
 			++i;
 			if( i == argc ) {
 				printf( "Argument expected for -f\n" );
-				return( 1 );
+				return EXIT_FAILURE;
 			} else {
-				[files addObject: [NSString stringWithCString: argv[i]]];
+				CFStringRef dir = CFStringCreateWithCString(kCFAllocatorDefault, argv[i], kCFStringEncodingUTF8);
+				CFArrayAppendValue(files, dir);
+				CFRelease(dir);
 			}
 		} else {
-			[directories addObject: [NSString stringWithCString: argv[i]]];
+			CFStringRef dir = CFStringCreateWithCString(kCFAllocatorDefault, argv[i], kCFStringEncodingUTF8);
+			CFSetAddValue(directories, dir);
+			CFRelease(dir);
 		}
 	}
 
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories
 																	 roots: roots
 																  excludes: excludes
@@ -80,5 +88,5 @@ int main( int argc, const char *argv[] )
 	[pool release];
 	[NSApp run];
 
-	return( 0 );
+	return EXIT_SUCCESS;
 }

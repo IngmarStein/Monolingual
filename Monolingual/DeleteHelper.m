@@ -23,14 +23,14 @@
 #import "DeleteHelper.h"
 
 @implementation DeleteHelper
-BOOL    removeTaskStatus;
-NSSet   *directories;
-NSArray *roots;
-NSArray *excludes;
-NSArray *files;
-BOOL    trash;
+BOOL       removeTaskStatus;
+CFSetRef   directories;
+CFArrayRef roots;
+CFArrayRef excludes;
+CFArrayRef files;
+BOOL       trash;
 
-- (id) initWithDirectories:(NSSet *)dirs roots:(NSArray *)r excludes:(NSArray *)e files:(NSArray *)f moveToTrash: (BOOL)t
+- (id) initWithDirectories:(CFSetRef)dirs roots:(CFArrayRef)r excludes:(CFArrayRef)e files:(CFArrayRef)f moveToTrash: (BOOL)t
 {
 	if( (self = [super init]) ) {
 		NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -56,9 +56,9 @@ BOOL    trash;
 - (void) finishedTask: (NSNotification *)aNotification
 {
 #pragma unused(aNotification)
-	[files       release];
-	[roots       release];
-	[directories release];
+	CFRelease(files);
+	CFRelease(roots);
+	CFRelease(directories);
 	[NSApp terminate:self];
 }
 
@@ -97,14 +97,14 @@ BOOL    trash;
 	if( trash ) {
 		NSString *parent = [path stringByDeletingLastPathComponent];
 		NSString *file = [path lastPathComponent];
-		NSArray *filesToRecycle = [[NSArray alloc] initWithObjects: file, nil];
+		CFArrayRef filesToRecycle = CFArrayCreate(kCFAllocatorDefault, (const void **)&file, 1, &kCFTypeArrayCallBacks);
 		NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
 		[workspace performFileOperation: NSWorkspaceRecycleOperation
 								 source: parent
 							destination: @""
-								  files: filesToRecycle
+								  files: (NSArray *)filesToRecycle
 									tag: &tag];
-		[filesToRecycle release];
+		CFRelease(filesToRecycle);
 		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', 0ULL, '\0' );
 		fflush( stdout );
 	} else
@@ -115,23 +115,22 @@ BOOL    trash;
 {
 	NSString *root;
 	NSString *file;
-	NSEnumerator *enumerator;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 
 	// delete regular files
-	enumerator = [files objectEnumerator];
-	while( (file = [enumerator nextObject]) ) {
+	for (CFIndex i=0, count=CFArrayGetCount(files); i<count; ++i) {
 		if( !removeTaskStatus )
 			break;
+		file = (NSString *)CFArrayGetValueAtIndex(files, i);
 		[self removeFile:file];
 	}
 
 	// recursively delete directories
-	enumerator = [roots objectEnumerator];
-	while( (root = [enumerator nextObject]) ) {
+	for (CFIndex i=0, count=CFArrayGetCount(roots); i<count; ++i) {
 		if( !removeTaskStatus )
 			break;
+		root = (NSString *)CFArrayGetValueAtIndex(roots, i);
 		NSDirectoryEnumerator *dirEnum = [fileManager enumeratorAtPath:root];
 		while( 1 ) {
 			NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
@@ -141,20 +140,19 @@ BOOL    trash;
 				break;
 			}
 			if( [[[dirEnum fileAttributes] fileType] isEqualToString:NSFileTypeDirectory] ) {
-				NSString *exclude;
 				BOOL process = TRUE;
-				NSEnumerator *excludeEnum = [excludes objectEnumerator];
-				NSString *path = [root stringByAppendingPathComponent:file];
-				while( (exclude = [excludeEnum nextObject]) ) {
-					if( [path hasPrefix:exclude] ) {
+				CFStringRef path = (CFStringRef)[root stringByAppendingPathComponent:file];
+				for (CFIndex j=0, exclude_count=CFArrayGetCount(excludes); j<exclude_count; ++j) {
+					CFStringRef exclude = CFArrayGetValueAtIndex(excludes, j);
+					if( CFStringHasPrefix(path, exclude) ) {
 						process = FALSE;
 						[dirEnum skipDescendents];
 						break;
 					}
 				}
-				if( process && [directories containsObject:[file lastPathComponent]] ) {
+				if( process && CFSetContainsValue(directories, [file lastPathComponent]) ) {
 					[dirEnum skipDescendents];
-					[self removeFile:path];
+					[self removeFile:(NSString *)path];
 				}
 			}
 			[pool2 release];
