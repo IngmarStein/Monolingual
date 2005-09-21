@@ -22,8 +22,9 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <Growl/Growl.h>
 
-@interface MyResponder : NSWindowController
+@interface MyResponder : NSWindowController <GrowlApplicationBridgeDelegate>
 {
 }
 + (void) initialize;
@@ -35,7 +36,6 @@
 - (void) scanLayouts;
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication;
 - (void) cancelRemove;
-- (id) init;
 - (void) dealloc;
 - (void) readCompletion: (NSNotification *)aNotification;
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
