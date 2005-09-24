@@ -21,9 +21,22 @@
 //
 
 #import "DeleteHelper.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+static Boolean shouldExit(void)
+{
+	fd_set fdset;
+	struct timeval timeout = {0, 0};
+	
+	FD_ZERO(&fdset);
+	FD_SET(0, &fdset);
+	return select(1, &fdset, NULL, NULL, &timeout) == 1;
+}
 
 @implementation DeleteHelper
-BOOL       removeTaskStatus;
 CFSetRef   directories;
 CFArrayRef roots;
 CFArrayRef excludes;
@@ -33,17 +46,6 @@ BOOL       trash;
 - (id) initWithDirectories:(CFSetRef)dirs roots:(CFArrayRef)r excludes:(CFArrayRef)e files:(CFArrayRef)f moveToTrash: (BOOL)t
 {
 	if( (self = [super init]) ) {
-		NSFileHandle *inputHandle = [NSFileHandle fileHandleWithStandardInput];
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(cancelRemoval:) 
-													 name:NSFileHandleReadCompletionNotification 
-												   object:inputHandle];
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(finishedTask:) 
-													 name:NSThreadWillExitNotification 
-												   object:nil];
-		[inputHandle readInBackgroundAndNotify];
-		removeTaskStatus = FALSE;
 		directories = dirs;
 		roots = r;
 		excludes = e;
@@ -53,33 +55,21 @@ BOOL       trash;
 	return self;
 }
 
-- (void) finishedTask: (NSNotification *)aNotification
+- (void) dealloc
 {
-#pragma unused(aNotification)
 	CFRelease(files);
 	CFRelease(roots);
 	CFRelease(directories);
-	[NSApp terminate:self];
-}
-
-- (void) cancelRemoval: (NSNotification *)aNotification
-{
-#pragma unused(aNotification)
-	removeTaskStatus = FALSE;
-}
-
-- (void) applicationDidFinishLaunching: (NSNotification *)notification
-{
-#pragma unused(notification)
-	removeTaskStatus = TRUE;
-	[NSThread detachNewThreadSelector:@selector(removeDirectories) toTarget:self withObject:nil];
+	[super dealloc];
 }
 
 - (void) fileManager:(NSFileManager *)manager willProcessPath:(NSString *)path
 {
-	NSDictionary *fattrs = [manager fileAttributesAtPath:path traverseLink:YES];
-	if( fattrs ) {
-		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', [fattrs fileSize], '\0' );
+#pragma unused(manager)
+	struct stat st;
+	const char *filename = [path fileSystemRepresentation];
+	if( stat(filename, &st) != -1 ) {
+		printf( "%s%c%llu%c", filename, '\0', st.st_size, '\0' );
 		fflush( stdout );
 	}
 }
@@ -90,20 +80,19 @@ BOOL       trash;
 	return TRUE;
 }
 
-- (void) removeFile: (NSString *)path
+- (void) removeFile:(NSString *)path
 {
-	int tag;
-
 	if( trash ) {
+		int tag;
 		NSString *parent = [path stringByDeletingLastPathComponent];
 		NSString *file = [path lastPathComponent];
 		CFArrayRef filesToRecycle = CFArrayCreate(kCFAllocatorDefault, (const void **)&file, 1, &kCFTypeArrayCallBacks);
 		NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
-		[workspace performFileOperation: NSWorkspaceRecycleOperation
-								 source: parent
-							destination: @""
-								  files: (NSArray *)filesToRecycle
-									tag: &tag];
+		[workspace performFileOperation:NSWorkspaceRecycleOperation
+								 source:parent
+							destination:@""
+								  files:(NSArray *)filesToRecycle
+									tag:&tag];
 		CFRelease(filesToRecycle);
 		printf( "%s%c%llu%c", [path fileSystemRepresentation], '\0', 0ULL, '\0' );
 		fflush( stdout );
@@ -120,7 +109,7 @@ BOOL       trash;
 
 	// delete regular files
 	for (CFIndex i=0, count=CFArrayGetCount(files); i<count; ++i) {
-		if( !removeTaskStatus )
+		if (shouldExit())
 			break;
 		file = (NSString *)CFArrayGetValueAtIndex(files, i);
 		[self removeFile:file];
@@ -128,14 +117,14 @@ BOOL       trash;
 
 	// recursively delete directories
 	for (CFIndex i=0, count=CFArrayGetCount(roots); i<count; ++i) {
-		if( !removeTaskStatus )
+		if (shouldExit())
 			break;
 		root = (NSString *)CFArrayGetValueAtIndex(roots, i);
 		NSDirectoryEnumerator *dirEnum = [fileManager enumeratorAtPath:root];
 		while( 1 ) {
 			NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
 			file = [dirEnum nextObject];
-			if( !(file && removeTaskStatus) ) {
+			if( !file || shouldExit() ) {
 				[pool2 release];
 				break;
 			}
