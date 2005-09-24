@@ -25,10 +25,8 @@
 @interface DeleteHelper : NSObject {
 }
 - (id) initWithDirectories: (CFSetRef)dirs roots: (CFArrayRef)r excludes: (CFArrayRef)e files: (CFArrayRef)f moveToTrash: (BOOL)t;
-- (void) finishedTask: (NSNotification *)aNotification;
-- (void) cancelRemoval: (NSNotification *)aNotification;
-- (void) fileManager: (NSFileManager *)manager willProcessPath: (NSString *)path;
-- (BOOL) fileManager: (NSFileManager *)manager shouldProceedAfterError: (NSDictionary *)errorInfo;
+- (void) fileManager:(NSFileManager *)manager willProcessPath:(NSString *)path;
+- (BOOL) fileManager:(NSFileManager *)manager shouldProceedAfterError:(NSDictionary *)errorInfo;
 - (void) removeDirectories;
 
 @end

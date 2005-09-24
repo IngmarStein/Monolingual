@@ -77,16 +77,13 @@ int main( int argc, const char *argv[] )
 		}
 	}
 
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories: directories
-																	 roots: roots
-																  excludes: excludes
-																	 files: files
-																	 moveToTrash: trash];
-	NSApp = [NSApplication sharedApplication];
-	[NSApp setDelegate: deleteHelper];
-	[pool release];
-	[NSApp run];
+	DeleteHelper *deleteHelper = [[DeleteHelper alloc] initWithDirectories:directories
+																	 roots:roots
+																  excludes:excludes
+																	 files:files
+															   moveToTrash:trash];
+	[deleteHelper removeDirectories];
+	[deleteHelper release];
 
 	return EXIT_SUCCESS;
 }
