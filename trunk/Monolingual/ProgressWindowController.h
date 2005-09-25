@@ -33,8 +33,8 @@
 - (IBAction) cancelButton: (id)sender;
 - (void) start;
 - (void) stop;
-- (void) setText: (NSString *)text;
-- (void) setFile: (NSString *)file;
+- (void) setText:(CFStringRef)text;
+- (void) setFile:(CFStringRef)file;
 - (void) windowDidLoad;
 + (id) sharedProgressWindowController: (id)sender;
 - (id) init;
