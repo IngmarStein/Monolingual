@@ -3,6 +3,7 @@
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             ACTIONS = {
+                checkVersion = id; 
                 documentationBundler = id; 
                 openWebsite = id; 
                 removeLanguages = id; 
@@ -11,7 +12,6 @@
             }; 
             CLASS = MyResponder; 
             LANGUAGE = ObjC; 
-            OUTLETS = {languageView = NSTableView; layoutView = NSTableView; }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

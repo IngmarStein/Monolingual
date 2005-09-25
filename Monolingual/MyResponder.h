@@ -28,15 +28,15 @@
 {
 }
 + (void) initialize;
-- (IBAction) documentationBundler: (id)sender;
-- (IBAction) openWebsite: (id)sender;
-- (IBAction) removeLanguages: (id)sender;
-- (IBAction) removeLayouts: (id)sender;
-- (IBAction) showPreferences: (id)sender;
+- (IBAction) documentationBundler:(id)sender;
+- (IBAction) openWebsite:(id)sender;
+- (IBAction) removeLanguages:(id)sender;
+- (IBAction) removeLayouts:(id)sender;
+- (IBAction) showPreferences:(id)sender;
+- (IBAction) checkVersion:(id)sender;
 - (void) scanLayouts;
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication;
 - (void) cancelRemove;
-- (void) dealloc;
 - (void) readCompletion: (NSNotification *)aNotification;
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;

@@ -10,13 +10,15 @@
 @implementation ProgressWindowController
 id parent;
 NSMutableParagraphStyle *fileParagraphStyle;
-NSDictionary *fileAttributes;
+CFDictionaryRef fileAttributes;
 
 - (IBAction) cancelButton: (id)sender
 {
 #pragma unused(sender)
-	[applicationText setStringValue: NSLocalizedString(@"Canceling operation...",@"")];
-	[fileText setStringValue: @""];
+	CFStringRef value = CFCopyLocalizedString(CFSTR("Canceling operation..."),"");
+	[applicationText setStringValue:(NSString *)value];
+	CFRelease(value);
+	[fileText setStringValue:@""];
 	[NSApp updateWindows];
 	[parent cancelRemove];
 }
@@ -26,14 +28,14 @@ NSDictionary *fileAttributes;
 	if( (self = [self initWithWindowNibName:@"ProgressWindow"]) ) {
 		fileParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
 		[fileParagraphStyle setLineBreakMode:NSLineBreakByTruncatingMiddle];
-		fileAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:fileParagraphStyle, NSParagraphStyleAttributeName, nil];
+		fileAttributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&NSParagraphStyleAttributeName, (const void **)&fileParagraphStyle, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[fileAttributes release];
+	CFRelease(fileAttributes);
 	[fileParagraphStyle release];
 	[super dealloc];
 }
@@ -57,28 +59,30 @@ NSDictionary *fileAttributes;
 
 - (void) start
 {
-	[progressBar startAnimation: self];
-	[applicationText setStringValue: NSLocalizedString(@"Removing language resources...",@"")];
-	[self setFile: @""];
+	[progressBar startAnimation:self];
+	CFStringRef value = CFCopyLocalizedString(CFSTR("Removing language resources..."),"");
+	[applicationText setStringValue:(NSString *)value];
+	CFRelease(value);
+	[self setFile:CFSTR("")];
 }
 
 - (void) stop
 {
-	[progressBar stopAnimation: self];
+	[progressBar stopAnimation:self];
 }
 
-- (void) setFile: (NSString *)file
+- (void) setFile:(CFStringRef)file
 {
-	NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:file attributes:fileAttributes];
+	NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:(NSString *)file attributes:(NSDictionary *)fileAttributes];
 	[[fileText cell] setAttributedStringValue:attrStr];
 	[fileText updateCell:[fileText cell]];
 	[attrStr release];
-	//[fileText setStringValue: file];
+	//[fileText setStringValue:file];
 }
 
-- (void) setText: (NSString *)text
+- (void) setText:(CFStringRef)text
 {
-	[applicationText setStringValue: text];
+	[applicationText setStringValue:(NSString *)text];
 }
 
 @end

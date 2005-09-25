@@ -71,13 +71,13 @@ BOOL                     cancelled;
 			NSLocalizedString(@"You cancelled the removal.  Some files were erased, some were not.",@""), nil);
 }
 
-- (IBAction) documentationBundler: (id)sender
+- (IBAction) documentationBundler:(id)sender
 {
 	NSString *myPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[sender title]];
 	[[NSWorkspace sharedWorkspace] openFile: myPath];
 }
 
-- (IBAction) openWebsite: (id)sender
+- (IBAction) openWebsite:(id)sender
 {
 #pragma unused(sender)
 	CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/"), NULL);
@@ -104,65 +104,79 @@ BOOL                     cancelled;
 			CFRelease(layout);
 		}
 	}
+	CFStringRef inputMethod = CFCopyLocalizedString(CFSTR("Input Method"),"");
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/Kotoeri.component"] ) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString(@"Kotoeri",@""));
-		CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Input Method",@""));
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
 		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/Kotoeri.component"));
+		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/XPIM.component"] ) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString(@"Hangul",@""));
-		CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Input Method",@""));
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
 		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/XPIM.component"));
+		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/TCIM.component"] ) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString(@"Traditional Chinese",@""));
-		CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Input Method",@""));
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
 		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/TCIM.component"));
+		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/SCIM.component"] ) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString(@"Simplified Chinese",@""));
-		CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Input Method",@""));
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
 		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/SCIM.component"));
+		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/AnjalIM.component"] ) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Murasu Anjal Tamil"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString(@"Murasu Anjal Tamil",@""));
-		CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Input Method",@""));
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
 		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/AnjalIM.component"));
+		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
 	if( [fileManager fileExistsAtPath:@"/System/Library/Components/HangulIM.component"] ) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString(@"Hangul",@""));
-		CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Input Method",@""));
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
 		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/HangulIM.component"));
+		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
+	CFRelease(inputMethod);
 	[self setLayouts:(NSMutableArray *)scannedLayouts];
 	CFRelease(scannedLayouts);
 }
 
-- (IBAction) showPreferences: (id)sender
+- (IBAction) showPreferences:(id)sender
 {
 #pragma unused(sender)
 	if( !myPreferences )
@@ -170,7 +184,14 @@ BOOL                     cancelled;
 	[myPreferences showWindow: self];
 }
 
-- (IBAction) removeLanguages: (id)sender
+- (IBAction) checkVersion:(id)sender {
+#pragma unused(sender)
+	[VersionCheck checkVersionAtURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net/version.xml"]
+						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
+						downloadURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net"]];
+}
+
+- (IBAction) removeLanguages:(id)sender
 {
 #pragma unused(sender)
 	//Display a warning first
@@ -179,7 +200,7 @@ BOOL                     cancelled;
 					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
 }
 
-- (IBAction) removeLayouts: (id)sender
+- (IBAction) removeLayouts:(id)sender
 {
 #pragma unused(sender)
 	//Display a warning first
@@ -365,8 +386,8 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 					else
 						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing", @""), file, NSLocalizedString(@"...",@""));
 
-					[myProgress setText:(NSString *)message];
-					[myProgress setFile:(NSString *)file];
+					[myProgress setText:message];
+					[myProgress setFile:file];
 					[NSApp updateWindows];
 					CFRelease(message);
 					CFRelease(file);
@@ -638,6 +659,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 {
 #pragma unused(aNotification)
 	[VersionCheck checkVersionAtURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net/version.xml"]
+					withDayInterval:7
 						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
 						downloadURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net"]];
 }
