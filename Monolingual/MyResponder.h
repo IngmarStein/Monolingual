@@ -32,6 +32,7 @@
 - (IBAction) openWebsite:(id)sender;
 - (IBAction) removeLanguages:(id)sender;
 - (IBAction) removeLayouts:(id)sender;
+- (IBAction) removeArchitectures:(id)sender;
 - (IBAction) showPreferences:(id)sender;
 - (IBAction) checkVersion:(id)sender;
 - (void) scanLayouts;
@@ -42,10 +43,13 @@
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
 - (NSDictionary *) registrationDictionaryForGrowl;
+- (void) runDeleteHelperWithArgs: (const char **)argv;
 
 - (NSMutableArray *) languages;
 - (void) setLanguages:(NSMutableArray *)inArray;
 - (NSMutableArray *) layouts;
 - (void) setLayouts:(NSMutableArray *)inArray;
+- (NSMutableArray *) architectures;
+- (void) setArchitectures:(NSMutableArray *)inArray;
 
 @end
