@@ -27,7 +27,6 @@
 		95C3C96A0610145C00D417BC /* helper.m in Sources */ = {isa = PBXBuildFile; fileRef = 95C3C93A06100B0C00D417BC /* helper.m */; };
 		95C3CB9C0610277A00D417BC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		95CC53A40635449F006A4D12 /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 95CC53A30635449F006A4D12 /* Preferences.nib */; };
-		95D17F180610B00900633B04 /* DeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 95D17F160610B00900633B04 /* DeleteHelper.m */; };
 		95D17FE10610CB9500633B04 /* Helper in Resources */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* Helper */; };
 		95D180030610CBDD00633B04 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95C3C9F7061014ED00D417BC /* Security.framework */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
@@ -125,8 +124,6 @@
 		95C3C9F7061014ED00D417BC /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CC53AF063544A6006A4D12 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/Preferences.nib; sourceTree = "<group>"; };
-		95D17F150610B00900633B04 /* DeleteHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteHelper.h; sourceTree = "<group>"; };
-		95D17F160610B00900633B04 /* DeleteHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeleteHelper.m; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95EDCC85062C4092007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		95EDCC86062C40E9007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
@@ -187,8 +184,6 @@
 				10400F490164385C7F000001 /* ProgressWindowController.m */,
 				F54BC88002DA668D0100012F /* VersionCheck.h */,
 				F54BC88102DA668D0100012F /* VersionCheck.m */,
-				95D17F150610B00900633B04 /* DeleteHelper.h */,
-				95D17F160610B00900633B04 /* DeleteHelper.m */,
 				95A0BEA106346AD3007510F1 /* PreferencesController.h */,
 				95A0BEA206346AD3007510F1 /* PreferencesController.m */,
 			);
@@ -439,7 +434,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				95C3C96A0610145C00D417BC /* helper.m in Sources */,
-				95D17F180610B00900633B04 /* DeleteHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

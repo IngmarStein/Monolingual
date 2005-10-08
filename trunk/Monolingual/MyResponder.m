@@ -13,6 +13,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define MODE_LANGUAGES		0
+#define MODE_LAYOUTS		1
+#define MODE_ARCHITECTURES	2
+
 @implementation MyResponder
 ProgressWindowController *myProgress;
 PreferencesController    *myPreferences;
@@ -21,10 +25,12 @@ NSFileHandle             *pipeHandle;
 CFMutableDataRef         pipeBuffer;
 CFMutableArrayRef        languages;
 CFMutableArrayRef        layouts;
+CFMutableArrayRef        architectures;
 CFDictionaryRef          startedNotificationInfo;
 CFDictionaryRef          finishedNotificationInfo;
 unsigned long long       bytesSaved;
 BOOL                     cancelled;
+int                      mode;
 
 + (void) initialize
 {
@@ -73,8 +79,8 @@ BOOL                     cancelled;
 
 - (IBAction) documentationBundler:(id)sender
 {
-	NSString *myPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[sender title]];
-	[[NSWorkspace sharedWorkspace] openFile: myPath];
+	NSString *myPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:nil];
+	[[NSWorkspace sharedWorkspace] openFile:myPath];
 }
 
 - (IBAction) openWebsite:(id)sender
@@ -194,6 +200,7 @@ BOOL                     cancelled;
 - (IBAction) removeLanguages:(id)sender
 {
 #pragma unused(sender)
+	mode = MODE_LANGUAGES;
 	//Display a warning first
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 					  @selector(warningSelector:returnCode:contextInfo:),self,
@@ -203,10 +210,67 @@ BOOL                     cancelled;
 - (IBAction) removeLayouts:(id)sender
 {
 #pragma unused(sender)
+	mode = MODE_LAYOUTS;
 	//Display a warning first
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 					  @selector(removeLayoutsWarning:returnCode:contextInfo:),self,
 					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
+}
+
+- (IBAction) removeArchitectures:(id)sender
+{
+#pragma unused(sender)
+	NSArray			*roots;
+	unsigned int	roots_count;
+	CFIndex			archs_count;
+	const char		**argv;
+
+	mode = MODE_ARCHITECTURES;
+
+	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	roots_count = [roots count];
+	archs_count = CFArrayGetCount(architectures);
+	argv = (const char **)malloc( (2+archs_count+archs_count+roots_count+roots_count)*sizeof(char *) );
+	int idx = 1;
+
+	for( unsigned i=0U; i<roots_count; ++i ) {
+		NSDictionary *root = [roots objectAtIndex: i];
+		int enabled = [[root objectForKey: @"Enabled"] intValue];
+		if( enabled > 0 ) {
+			NSString *path = [root objectForKey: @"Path"];
+			NSLog( @"Adding root %@", path);
+			argv[idx++] = "-r";
+			argv[idx++] = [path fileSystemRepresentation];
+		} else if( !enabled ) {
+			NSString *path = [root objectForKey: @"Path"];
+			NSLog( @"Excluding root %@", path);
+			argv[idx++] = "-x";
+			argv[idx++] = [path fileSystemRepresentation];
+		}
+	}
+	CFIndex remove_count = 0;
+	for( CFIndex i=0; i<archs_count; ++i ) {
+		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
+		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("enabled")))) {
+			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
+			NSLog(@"Will remove architecture %@", name);
+			argv[idx++] = "--thin";
+			argv[idx++] = [(NSString *)name cStringUsingEncoding:NSUTF8StringEncoding];
+			++remove_count;
+		}
+	}
+
+	if( remove_count == archs_count )  {
+		NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all architectures",@""),
+						  @"OK", nil, nil, [NSApp mainWindow], self, NULL,
+						  NULL, nil,
+						  NSLocalizedString(@"Removing all architectures will make OS X inoperable.  Please keep at least one architecture and try again.",@""),nil);
+	} else if( remove_count ) {
+		// start things off if we have something to remove!
+		argv[idx] = NULL;
+		[self runDeleteHelperWithArgs: argv];
+	}
+	free( argv );
 }
 
 static const char suffixes[9] =
@@ -343,48 +407,52 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 					i += j + 1;
 					num -= 2;
 
-					// parse file name
-					NSArray *pathComponents = [(NSString *)file pathComponents];
-					NSString *lang = nil;
-					NSString *app = nil;
-					NSString *layout = nil;
-					NSString *im = nil;
-					BOOL cache = NO;
-					for( j=0; j<[pathComponents count]; ++j ) {
-						NSString *pathComponent = [pathComponents objectAtIndex: j];
-						NSString *pathExtension = [pathComponent pathExtension];
-						if( [pathExtension isEqualToString: @"app"] ) {
-							app = [pathComponent stringByDeletingPathExtension];
-						} else if( [pathExtension isEqualToString: @"bundle"] ) {
-							layout = [pathComponent stringByDeletingPathExtension];
-						} else if( [pathExtension isEqualToString: @"component"] ) {
-							im = [pathComponent stringByDeletingPathExtension];
-						} else if( [pathExtension isEqualToString: @"lproj"] ) {
-							CFIndex count = CFArrayGetCount(languages);
-							for( CFIndex k=0; k<count; ++k ) {
-								CFDictionaryRef language = CFArrayGetValueAtIndex(languages, k);
-								if( NSNotFound != [(NSArray *)CFDictionaryGetValue(language, CFSTR("folders")) indexOfObject:pathComponent] ) {
-									lang = (NSString *)CFDictionaryGetValue(language, CFSTR("displayName"));
-									break;
-								}
-							}
-						} else if( [pathExtension hasPrefix: @"com.apple.IntlDataCache"] ) {
-							cache = YES;
-						}
-					}
 					CFStringRef message;
-					if( layout && CFStringHasPrefix(file, CFSTR("/System/Library/")) )
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing keyboard layout", @""), layout, NSLocalizedString(@"...",@""));
-					else if( im && CFStringHasPrefix(file, CFSTR("/System/Library/")) )
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing input method", @""), layout, NSLocalizedString(@"...",@""));
-					else if( cache )
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%@"), NSLocalizedString(@"Clearing cache", @""), NSLocalizedString(@"...",@""));
-					else if( app )
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"from", @""), app, NSLocalizedString(@"...",@""));
-					else if( lang )
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"...",@""));
-					else
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing", @""), file, NSLocalizedString(@"...",@""));
+					if (mode == MODE_ARCHITECTURES) {
+						message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
+					} else {
+						// parse file name
+						NSArray *pathComponents = [(NSString *)file pathComponents];
+						NSString *lang = nil;
+						NSString *app = nil;
+						NSString *layout = nil;
+						NSString *im = nil;
+						BOOL cache = NO;
+						for( j=0; j<[pathComponents count]; ++j ) {
+							NSString *pathComponent = [pathComponents objectAtIndex: j];
+							NSString *pathExtension = [pathComponent pathExtension];
+							if( [pathExtension isEqualToString: @"app"] ) {
+								app = [pathComponent stringByDeletingPathExtension];
+							} else if( [pathExtension isEqualToString: @"bundle"] ) {
+								layout = [pathComponent stringByDeletingPathExtension];
+							} else if( [pathExtension isEqualToString: @"component"] ) {
+								im = [pathComponent stringByDeletingPathExtension];
+							} else if( [pathExtension isEqualToString: @"lproj"] ) {
+								CFIndex count = CFArrayGetCount(languages);
+								for( CFIndex k=0; k<count; ++k ) {
+									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, k);
+									if( NSNotFound != [(NSArray *)CFDictionaryGetValue(language, CFSTR("folders")) indexOfObject:pathComponent] ) {
+										lang = (NSString *)CFDictionaryGetValue(language, CFSTR("displayName"));
+										break;
+									}
+								}
+							} else if( [pathExtension hasPrefix: @"com.apple.IntlDataCache"] ) {
+								cache = YES;
+							}
+						}
+						if( layout && CFStringHasPrefix(file, CFSTR("/System/Library/")) )
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing keyboard layout", @""), layout, NSLocalizedString(@"...",@""));
+						else if( im && CFStringHasPrefix(file, CFSTR("/System/Library/")) )
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing input method", @""), layout, NSLocalizedString(@"...",@""));
+						else if( cache )
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%@"), NSLocalizedString(@"Clearing cache", @""), NSLocalizedString(@"...",@""));
+						else if( app )
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"from", @""), app, NSLocalizedString(@"...",@""));
+						else if( lang )
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"...",@""));
+						else
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing", @""), file, NSLocalizedString(@"...",@""));
+					}
 
 					[myProgress setText:message];
 					[myProgress setFile:file];
@@ -428,7 +496,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	OSStatus status;
 	FILE *fp_pipe;
 
-	NSString *myPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @"Helper"];
+	NSString *myPath = [[NSBundle mainBundle] pathForResource:@"Helper" ofType:nil];
 	const char *path = [myPath fileSystemRepresentation];
 	AuthorizationItem right = {kAuthorizationRightExecute, strlen(path)+1, (char *)path, 0};
 	AuthorizationRights rights = {1, &right};
@@ -580,7 +648,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	} else {
 		rCount = 0U;
 		lCount = CFArrayGetCount(languages);
-		argv = (const char **)malloc( (3+3*lCount+roots_count+roots_count)*sizeof(char *) );
+		argv = (const char **)malloc( (3+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *) );
 		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if( trash )
@@ -867,6 +935,19 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 	[self scanLayouts];
 
+	CFStringRef archs[8] = { CFSTR("ppc"), CFSTR("ppc750"), CFSTR("ppc7400"),
+		CFSTR("ppc7450"), CFSTR("ppc970"), CFSTR("ppc64"), CFSTR("ppc970-64"),
+		CFSTR("i386") };
+	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 8, &kCFTypeArrayCallBacks);
+	for (unsigned i=0U; i<8U; ++i) {
+		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(architecture, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(architecture, CFSTR("name"), archs[i]);
+		CFArrayAppendValue(knownArchitectures, architecture);
+	}
+	[self setArchitectures:(NSMutableArray *)knownArchitectures];
+	CFRelease(knownArchitectures);
+
 	// set ourself as the Growl delegate
 	[GrowlApplicationBridge setGrowlDelegate:self];
 
@@ -922,6 +1003,19 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 			CFRelease(layouts);
 		layouts = (CFMutableArrayRef)inArray;
 		CFRetain(layouts);
+	}
+}
+
+- (NSMutableArray *) architectures {
+	return (NSMutableArray *)architectures;
+}
+
+- (void) setArchitectures:(NSMutableArray *)inArray {
+	if ((CFMutableArrayRef)inArray != architectures) {
+		if (architectures)
+			CFRelease(architectures);
+		architectures = (CFMutableArrayRef)inArray;
+		CFRetain(architectures);
 	}
 }
 
