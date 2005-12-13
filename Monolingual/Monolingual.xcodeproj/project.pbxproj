@@ -560,7 +560,6 @@
 				INSTALL_PATH = /usr/local/bin;
 				OPTIMIZATION_CFLAGS = "-O0";
 				PRODUCT_NAME = Helper;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-W",
 					"-Wall",
@@ -599,7 +598,6 @@
 				GCC_WARN_UNUSED_VALUE = YES;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = Helper;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-W",
 					"-Wall",
@@ -631,7 +629,6 @@
 				GCC_WARN_UNUSED_VALUE = YES;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = Helper;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-W",
 					"-Wall",
@@ -688,7 +685,7 @@
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -709,6 +706,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = Monolingual;
+				SEPARATE_STRIP = YES;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WARNING_CFLAGS = (
 					"-W",
 					"-Wall",
@@ -758,7 +757,8 @@
 					i386,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
+				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				ZERO_LINK = NO;
 			};
 			name = Development;
@@ -771,7 +771,8 @@
 					i386,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
+				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -784,7 +785,8 @@
 					i386,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
+				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				ZERO_LINK = NO;
 			};
 			name = Default;
