@@ -278,6 +278,7 @@
 				95A1302C0608F92F00D8E30C /* Resources */,
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
+				952195BA097C39EE0072E288 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -415,6 +416,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		952195BA097C39EE0072E288 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "find $BUILT_PRODUCTS_DIR \\( -name info.nib -or -name classes.nib \\) -type f -delete";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		95A130370608F92F00D8E30C /* Sources */ = {
