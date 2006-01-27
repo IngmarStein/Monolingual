@@ -2,6 +2,12 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
+            CLASS = ISTableView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {arrayController = NSArrayController; }; 
+            SUPERCLASS = NSTableView; 
+        }, 
+        {
             ACTIONS = {
                 checkVersion = id; 
                 documentationBundler = id; 
