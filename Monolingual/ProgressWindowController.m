@@ -1,6 +1,6 @@
 /* 
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *  2004 Ingmar Stein
+ *  2004-2006 Ingmar Stein
  *  Released under the GNU GPL.  For more information, see the header file.
  */
 
@@ -9,7 +9,6 @@
 
 @implementation ProgressWindowController
 id parent;
-NSMutableParagraphStyle *fileParagraphStyle;
 CFDictionaryRef fileAttributes;
 
 - (IBAction) cancelButton: (id)sender
@@ -26,9 +25,11 @@ CFDictionaryRef fileAttributes;
 - (id) init
 {
 	if( (self = [self initWithWindowNibName:@"ProgressWindow"]) ) {
+		NSMutableParagraphStyle *fileParagraphStyle;
 		fileParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
 		[fileParagraphStyle setLineBreakMode:NSLineBreakByTruncatingMiddle];
 		fileAttributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&NSParagraphStyleAttributeName, (const void **)&fileParagraphStyle, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		[fileParagraphStyle release];
 	}
 	return self;
 }
@@ -36,7 +37,6 @@ CFDictionaryRef fileAttributes;
 - (void) dealloc
 {
 	CFRelease(fileAttributes);
-	[fileParagraphStyle release];
 	[super dealloc];
 }
 
@@ -60,7 +60,7 @@ CFDictionaryRef fileAttributes;
 - (void) start
 {
 	[progressBar startAnimation:self];
-	CFStringRef value = CFCopyLocalizedString(CFSTR("Removing language resources..."),"");
+	CFStringRef value = CFCopyLocalizedString(CFSTR("Removing..."),"");
 	[applicationText setStringValue:(NSString *)value];
 	CFRelease(value);
 	[self setFile:CFSTR("")];

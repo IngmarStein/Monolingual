@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *  2004 Ingmar Stein
+ *  2004-2006 Ingmar Stein
  *  Released under the GNU GPL.  For more information, see the header file.
  */
 
@@ -756,8 +756,8 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
-	// XXX: size
-	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+#define NUM_KNOWN_LANGUAGES	125
+	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, NUM_KNOWN_LANGUAGES, &kCFTypeArrayCallBacks);
 #define ADD_LANGUAGE_BEGIN(code, name) \
 	do { \
 		CFMutableDictionaryRef language = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks); \
@@ -802,6 +802,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 		folders[1] = CFSTR(folder ".lproj"); \
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 2, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
+#define NUM_KNOWN_LANGUAGES	125
 
 	ADD_LANGUAGE_1("af",    "Afrikaans",            "Afrikaans");
 	ADD_LANGUAGE_1("am",    "Amharic",              "Amharic");
@@ -929,7 +930,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	ADD_LANGUAGE_1("zh_CN", "Simplified Chinese",   "zh_SC");
 	ADD_LANGUAGE_0("zh_TW", "Traditional Chinese");
 	CFRelease(userLanguages);
-	CFArraySortValues(knownLanguages, CFRangeMake(0, CFArrayGetCount(knownLanguages)), languageCompare, NULL);
+	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
 	[self setLanguages:(NSMutableArray *)knownLanguages];
 	CFRelease(knownLanguages);
 
@@ -938,11 +939,15 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	CFStringRef archs[8] = { CFSTR("ppc"), CFSTR("ppc750"), CFSTR("ppc7400"),
 		CFSTR("ppc7450"), CFSTR("ppc970"), CFSTR("ppc64"), CFSTR("ppc970-64"),
 		CFSTR("i386") };
+	CFStringRef displayArchs[8] = { CFSTR("PowerPC"), CFSTR("PowerPC G3"), CFSTR("PowerPC G4"),
+		CFSTR("PowerPC G4+"), CFSTR("PowerPC G5"), CFSTR("PowerPC 64-bit"), CFSTR("PowerPC G5 64-bit"),
+		CFSTR("Intel") };
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 8, &kCFTypeArrayCallBacks);
 	for (unsigned i=0U; i<8U; ++i) {
-		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(architecture, CFSTR("enabled"), kCFBooleanFalse);
 		CFDictionarySetValue(architecture, CFSTR("name"), archs[i]);
+		CFDictionarySetValue(architecture, CFSTR("displayName"), displayArchs[i]);
 		CFArrayAppendValue(knownArchitectures, architecture);
 	}
 	[self setArchitectures:(NSMutableArray *)knownArchitectures];

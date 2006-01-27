@@ -3,7 +3,7 @@
 //  Monolingual
 //
 //  Created by Ingmar Stein on Mon Apr 19 2004.
-//  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2004-2006 Ingmar Stein. All rights reserved.
 //
 
 #import "PreferencesController.h"
@@ -29,7 +29,7 @@
 		NSEnumerator *filenameEnum = [[oPanel filenames] objectEnumerator];
 		NSString *filename;
 		while ((filename = [filenameEnum nextObject]))
-			[roots addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:filename, @"Path", [NSNumber numberWithBool: YES], @"Enabled", nil]];
+			[roots addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:filename, @"Path", kCFBooleanTrue, @"Enabled", nil]];
 	}
 }
 
