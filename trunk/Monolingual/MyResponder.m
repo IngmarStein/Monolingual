@@ -12,10 +12,19 @@
 #include <Security/AuthorizationTags.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <mach/mach_host.h>
+#include <mach/machine.h>
 
 #define MODE_LANGUAGES		0
 #define MODE_LAYOUTS		1
 #define MODE_ARCHITECTURES	2
+
+typedef struct arch_info_s {
+	CFStringRef   name;
+	CFStringRef   displayName;
+	cpu_type_t    cpu_type;
+	cpu_subtype_t cpu_subtype;
+} arch_info_t;
 
 @implementation MyResponder
 ProgressWindowController *myProgress;
@@ -34,21 +43,46 @@ int                      mode;
 
 + (void) initialize
 {
-	NSNumber *enabled = [[NSNumber alloc] initWithBool:YES];
-	NSDictionary *applications = [[NSDictionary alloc] initWithObjectsAndKeys:@"/Applications", @"Path", enabled, @"Enabled", nil];
-	NSDictionary *developer = [[NSDictionary alloc] initWithObjectsAndKeys:@"/Developer", @"Path", enabled, @"Enabled", nil];
-	NSDictionary *library = [[NSDictionary alloc] initWithObjectsAndKeys:@"/Library", @"Path", enabled, @"Enabled", nil];
-	NSDictionary *systemPath = [[NSDictionary alloc] initWithObjectsAndKeys:@"/System", @"Path", enabled, @"Enabled", nil];
-	NSArray *defaultRoots = [[NSArray alloc] initWithObjects:applications, developer, library, systemPath, nil];
-	NSDictionary *defaultValues = [[NSDictionary alloc] initWithObjectsAndKeys:defaultRoots, @"Roots", nil];
-	[[NSUserDefaults standardUserDefaults] registerDefaults: defaultValues];
-	[defaultValues release];
-	[defaultRoots release];
-	[systemPath release];
-	[library release];
-	[developer release];
-	[applications release];
-	[enabled release];
+	CFTypeRef keys[2] = {
+		CFSTR("Path"),
+		CFSTR("Enabled")
+	};
+	CFTypeRef applicationsValues[2] = {
+		CFSTR("/Applications"),
+		kCFBooleanTrue
+	};
+	CFTypeRef developerValues[2] = {
+		CFSTR("/Developer"),
+		kCFBooleanTrue
+	};
+	CFTypeRef libraryValues[2] = {
+		CFSTR("/Library"),
+		kCFBooleanTrue
+	};
+	CFTypeRef systemValues[2] = {
+		CFSTR("/System"),
+		kCFBooleanTrue
+	};
+	CFDictionaryRef applications = CFDictionaryCreate(kCFAllocatorDefault, keys, applicationsValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef developer = CFDictionaryCreate(kCFAllocatorDefault, keys, developerValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef library = CFDictionaryCreate(kCFAllocatorDefault, keys, libraryValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef systemPath = CFDictionaryCreate(kCFAllocatorDefault, keys, systemValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFTypeRef roots[4] = {
+		applications,
+		developer,
+		library,
+		systemPath
+	};
+	CFArrayRef defaultRoots = CFArrayCreate(kCFAllocatorDefault, roots, 4, &kCFTypeArrayCallBacks);
+	CFRelease(applications);
+	CFRelease(developer);
+	CFRelease(library);
+	CFRelease(systemPath);
+	CFStringRef rootsKey = CFSTR("Roots");
+	CFDictionaryRef defaultValues = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&rootsKey, (const void **)&defaultRoots, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultValues];
+	CFRelease(defaultValues);
+	CFRelease(defaultRoots);
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication
@@ -698,8 +732,8 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 - (void) dealloc
 {
-	[myProgress               release];
-	[myPreferences            release];
+	[myProgress    release];
+	[myPreferences release];
 	CFRelease(layouts);
 	CFRelease(languages);
 	CFRelease(startedNotificationInfo);
@@ -709,16 +743,18 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 - (NSDictionary *) registrationDictionaryForGrowl
 {
-	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", @"");
-	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", @"");
+	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
+	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
+	CFTypeRef notificationNames[2] = { startedNotificationName, finishedNotificationName };
 
-	NSArray *defaultAndAllNotifications = [[NSArray alloc] initWithObjects:
-		startedNotificationName, finishedNotificationName, nil];
+	CFArrayRef defaultAndAllNotifications = CFArrayCreate(kCFAllocatorDefault, notificationNames, 2, &kCFTypeArrayCallBacks);
+	CFRelease(startedNotificationName);
+	CFRelease(finishedNotificationName);
 	NSDictionary *registrationDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-		defaultAndAllNotifications, GROWL_NOTIFICATIONS_ALL,
-		defaultAndAllNotifications, GROWL_NOTIFICATIONS_DEFAULT,
+		(NSArray *)defaultAndAllNotifications, GROWL_NOTIFICATIONS_ALL,
+		(NSArray *)defaultAndAllNotifications, GROWL_NOTIFICATIONS_DEFAULT,
 		nil];
-	[defaultAndAllNotifications release];
+	CFRelease(defaultAndAllNotifications);
 
 	return registrationDictionary;
 }
@@ -936,18 +972,27 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 	[self scanLayouts];
 
-	CFStringRef archs[8] = { CFSTR("ppc"), CFSTR("ppc750"), CFSTR("ppc7400"),
-		CFSTR("ppc7450"), CFSTR("ppc970"), CFSTR("ppc64"), CFSTR("ppc970-64"),
-		CFSTR("i386") };
-	CFStringRef displayArchs[8] = { CFSTR("PowerPC"), CFSTR("PowerPC G3"), CFSTR("PowerPC G4"),
-		CFSTR("PowerPC G4+"), CFSTR("PowerPC G5"), CFSTR("PowerPC 64-bit"), CFSTR("PowerPC G5 64-bit"),
-		CFSTR("Intel") };
+	const arch_info_t archs[8] = {
+		{ CFSTR("ppc"),       CFSTR("PowerPC"),           CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_ALL},
+		{ CFSTR("ppc750"),    CFSTR("PowerPC G3"),        CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_750},
+		{ CFSTR("ppc7400"),   CFSTR("PowerPC G4"),        CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_7400},
+		{ CFSTR("ppc7450"),   CFSTR("PowerPC G4+"),       CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_7450},
+		{ CFSTR("ppc970"),    CFSTR("PowerPC G5"),        CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_970},
+		{ CFSTR("ppc64"),     CFSTR("PowerPC 64-bit"),    CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_970},
+		{ CFSTR("ppc970-64"), CFSTR("PowerPC G5 64-bit"), CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_970},
+		{ CFSTR("i386"),      CFSTR("Intel"),             CPU_TYPE_X86,     CPU_SUBTYPE_INTEL_MODEL_ALL}
+	};
+
+	host_basic_info_data_t hostInfo;
+	mach_msg_type_number_t infoCount = HOST_BASIC_INFO_COUNT;
+	kern_return_t ret = host_info(mach_host_self(), HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
+
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 8, &kCFTypeArrayCallBacks);
 	for (unsigned i=0U; i<8U; ++i) {
 		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(architecture, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(architecture, CFSTR("name"), archs[i]);
-		CFDictionarySetValue(architecture, CFSTR("displayName"), displayArchs[i]);
+		CFDictionarySetValue(architecture, CFSTR("enabled"), (ret == KERN_SUCCESS && hostInfo.cpu_type == archs[i].cpu_type && (!archs[i].cpu_subtype || hostInfo.cpu_subtype == archs[i].cpu_subtype)) ? kCFBooleanFalse : kCFBooleanTrue);
+		CFDictionarySetValue(architecture, CFSTR("name"), archs[i].name);
+		CFDictionarySetValue(architecture, CFSTR("displayName"), archs[i].displayName);
 		CFArrayAppendValue(knownArchitectures, architecture);
 	}
 	[self setArchitectures:(NSMutableArray *)knownArchitectures];
@@ -966,7 +1011,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	CFStringRef description;
 
 	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
-	description = CFCopyLocalizedString(CFSTR("Started removing language files"), "");
+	description = CFCopyLocalizedString(CFSTR("Started removing files"), "");
 	values[0] = CFSTR("Monolingual");
 	values[1] = startedNotificationName;
 	values[2] = startedNotificationName;
@@ -976,7 +1021,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	CFRelease(description);
 
 	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
-	description = CFCopyLocalizedString(CFSTR("Finished removing language files"), "");
+	description = CFCopyLocalizedString(CFSTR("Finished removing files"), "");
 	values[1] = finishedNotificationName;
 	values[2] = finishedNotificationName;
 	values[3] = description;
