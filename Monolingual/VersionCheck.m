@@ -9,9 +9,9 @@
 
 @implementation VersionCheck
 
-/* Implemented new version, after being inspired by 
+/* Implemented new version, after being inspired by
 http://www.cocoadevcentral.com/tutorials/showpage.php?show=00000047.php
-The old way used a perl script, curl, and a NSTask, and was quite ugly;  
+The old way used a perl script, curl, and a NSTask, and was quite ugly;
 see the Monolingual or Swap Cop source code for how this used to be
 */
 
@@ -22,7 +22,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 	NSCalendarDate *now = [NSCalendarDate calendarDate];
 
 	if (lastCheck)
-		[now years:NULL months:NULL days:&days hours:NULL minutes:NULL seconds:NULL sinceDate:lastCheck]; 
+		[now years:NULL months:NULL days:&days hours:NULL minutes:NULL seconds:NULL sinceDate:lastCheck];
 
 	if (!lastCheck || (days > minDays)) {
 		NSLog(@"Going online to check version...");
@@ -32,7 +32,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 
 		if (!productVersionDict)
 			return;
-		
+
 		CFStringRef latestVersionNumber = CFDictionaryGetValue(productVersionDict, CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleExecutableKey));
 
 		// do nothing--be quiet if there is no active connection or if the
@@ -40,9 +40,9 @@ see the Monolingual or Swap Cop source code for how this used to be
 		if( latestVersionNumber ) {
 			if (!CFEqual(latestVersionNumber, currVersionNumber)) {
 				NSBeginAlertSheet(NSLocalizedString(@"Update Available",@""),
-								  NSLocalizedString(@"OK",@""), 
+								  NSLocalizedString(@"OK",@""),
 								  NSLocalizedString(@"Cancel",@""), nil, nil,
-								  self, NULL, 
+								  self, NULL,
 								  @selector(downloadSelector:returnCode:contextInfo:),
 								  goURL, message, nil);
 				[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"lastVersionCheckDate"];
@@ -76,7 +76,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 	// version number could not be downloaded
 	if (latestVersionNumber && (!CFEqual(latestVersionNumber, currVersionNumber))) {
 		NSBeginAlertSheet(NSLocalizedString(@"Update Available",@""),
-						  NSLocalizedString(@"OK",@""), 
+						  nil,
 						  NSLocalizedString(@"Cancel",@""), nil, nil, self,
 						  NULL, 
 						  @selector(downloadSelector:returnCode:contextInfo:),
