@@ -6,29 +6,81 @@
  */
 
 #import "VersionCheck.h"
+#import <SystemConfiguration/SystemConfiguration.h>
+
+static CFPropertyListRef createPropertyListFromURL(CFURLRef url, u_int32_t mutability, CFPropertyListFormat *outFormat, CFStringRef *outErrorString) {
+	CFPropertyListRef plist = NULL;
+
+	if (!url)
+		NSLog(@"in createPropertyListFromURL: cannot read from a NULL URL");
+	else {
+		CFHTTPMessageRef httpRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("GET"), url, kCFHTTPVersion1_1);
+		if (!httpRequest)
+			NSLog(@"in createPropertyListFromURL: could not create request for URL %@", url);
+		else {
+			CFReadStreamRef stream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, httpRequest);
+			if (!stream)
+				NSLog(@"in createPropertyListFromURL: could not create stream for reading from URL %@", url);
+			else {
+				CFDictionaryRef proxyDict = SCDynamicStoreCopyProxies(NULL);
+				if (proxyDict) {
+					CFReadStreamSetProperty(stream, kCFStreamPropertyHTTPProxy, proxyDict);
+					CFRelease(proxyDict);
+				}
+				if (!CFReadStreamOpen(stream))
+					NSLog(@"in createPropertyListFromURL: could not open stream for reading from URL %@", url);
+				else {
+					CFPropertyListFormat format;
+					CFStringRef errorString = NULL;
+
+					plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+														   stream,
+														   /*streamLength*/ 0,
+														   mutability,
+														   &format,
+														   &errorString);
+					if (!plist)
+						NSLog(@"in createPropertyListFromURL: could not read property list from URL %@ (error string: %@)", url, errorString);
+				
+					if (outFormat) *outFormat = format;
+					if (errorString) {
+						if (outErrorString)
+							*outErrorString = errorString;
+						else
+							CFRelease(errorString);
+					}
+
+					CFReadStreamClose(stream);
+				}
+
+				CFRelease(stream);
+			}
+			CFRelease(httpRequest);
+		}
+	}
+	
+	return plist;
+}
 
 @implementation VersionCheck
 
-/* Implemented new version, after being inspired by
-http://www.cocoadevcentral.com/tutorials/showpage.php?show=00000047.php
-The old way used a perl script, curl, and a NSTask, and was quite ugly;
-see the Monolingual or Swap Cop source code for how this used to be
-*/
-
-+ (void) checkVersionAtURL:(NSURL *)url withDayInterval:(int)minDays displayText:(NSString *)message downloadURL:(NSURL *)goURL
++ (void) checkVersionAtURL:(CFURLRef)url withDayInterval:(int)minDays displayText:(NSString *)message downloadURL:(CFURLRef)goURL
 {
 	int days;
-	NSCalendarDate *lastCheck = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastVersionCheckDate"];
-	NSCalendarDate *now = [NSCalendarDate calendarDate];
+	CFDateRef lastCheck = CFPreferencesCopyAppValue(CFSTR("lastVersionCheckDate"), kCFPreferencesCurrentApplication);
+	CFDateRef now = CFDateCreate(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent());
 
-	if (lastCheck)
-		[now years:NULL months:NULL days:&days hours:NULL minutes:NULL seconds:NULL sinceDate:lastCheck];
+	if (lastCheck) {
+		days = (int)(CFDateGetTimeIntervalSinceDate(now, lastCheck) / 86400.0);
+		CFRelease(lastCheck);
+	} else
+		days = minDays;
 
-	if (!lastCheck || (days > minDays)) {
+	if (days >= minDays) {
 		NSLog(@"Going online to check version...");
 		CFBundleRef bundle = CFBundleGetMainBundle();
 		CFStringRef currVersionNumber = CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleVersionKey);
-		CFDictionaryRef productVersionDict = (CFDictionaryRef)[[NSDictionary alloc] initWithContentsOfURL:url];
+		CFDictionaryRef productVersionDict = createPropertyListFromURL((CFURLRef)url, kCFPropertyListImmutable, NULL, NULL);
 
 		if (!productVersionDict)
 			return;
@@ -38,28 +90,29 @@ see the Monolingual or Swap Cop source code for how this used to be
 		// do nothing--be quiet if there is no active connection or if the
 		// version number could not be downloaded
 		if( latestVersionNumber ) {
-			if (!CFEqual(latestVersionNumber, currVersionNumber)) {
+			if (CFEqual(latestVersionNumber, currVersionNumber)) {
+				// Everything is fine, update the counter
+				CFPreferencesSetAppValue(CFSTR("lastVersionCheckDate"), now, kCFPreferencesCurrentApplication);
+			} else {
 				NSBeginAlertSheet(NSLocalizedString(@"Update Available",@""),
-								  NSLocalizedString(@"OK",@""),
+								  nil,
 								  NSLocalizedString(@"Cancel",@""), nil, nil,
 								  self, NULL,
 								  @selector(downloadSelector:returnCode:contextInfo:),
-								  goURL, message, nil);
-				[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"lastVersionCheckDate"];
-			} else {
-				// Everything is fine, update the counter
-				[[NSUserDefaults standardUserDefaults] setObject:now forKey:@"lastVersionCheckDate"];
+								  (void *)goURL, message, nil);
+				CFPreferencesSetAppValue(CFSTR("lastVersionCheckDate"), NULL, kCFPreferencesCurrentApplication);
 			}
 		}
 		CFRelease(productVersionDict);
 	}
+	CFRelease(now);
 }
 
-+ (void) checkVersionAtURL: (NSURL *)url displayText: (NSString *)message downloadURL: (NSURL *)goURL
++ (void) checkVersionAtURL:(CFURLRef)url displayText: (NSString *)message downloadURL: (CFURLRef)goURL
 {
 	CFBundleRef bundle = CFBundleGetMainBundle();
 	CFStringRef currVersionNumber = CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleVersionKey);
-	CFDictionaryRef productVersionDict = (CFDictionaryRef)[[NSDictionary alloc] initWithContentsOfURL:url];
+	CFDictionaryRef productVersionDict = createPropertyListFromURL((CFURLRef)url, kCFPropertyListImmutable, NULL, NULL);
 
 	if (!productVersionDict)
 		return;
@@ -80,7 +133,7 @@ see the Monolingual or Swap Cop source code for how this used to be
 						  NSLocalizedString(@"Cancel",@""), nil, nil, self,
 						  NULL, 
 						  @selector(downloadSelector:returnCode:contextInfo:),
-						  goURL, message, nil);
+						  (void *)goURL, message, nil);
 	}
 	CFRelease(productVersionDict);
 }

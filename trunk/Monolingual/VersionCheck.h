@@ -26,7 +26,7 @@
 }
 
 + (void) downloadSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (id)contextInfo;
-+ (void) checkVersionAtURL: (NSURL *)url displayText: (NSString *)message downloadURL: (NSURL *)goURL;
-+ (void) checkVersionAtURL: (NSURL *)url withDayInterval: (int)minDays displayText: (NSString *)message downloadURL: (NSURL *)goURL;
++ (void) checkVersionAtURL: (CFURLRef)url displayText: (NSString *)message downloadURL: (CFURLRef)goURL;
++ (void) checkVersionAtURL: (CFURLRef)url withDayInterval: (int)minDays displayText: (NSString *)message downloadURL: (CFURLRef)goURL;
 
 @end
