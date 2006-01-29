@@ -669,7 +669,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Users/ingmar/Devel/Monolingual,
+					"$(SRCROOT)/../Library/Frameworks",
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -709,7 +712,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Users/ingmar/Devel/Monolingual,
+					"$(SRCROOT)/../Library/Frameworks",
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = YES;
@@ -748,7 +754,10 @@
 		95AAF5670856C2DC007CEE36 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = /Users/ingmar/Devel/Monolingual;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Users/ingmar/Devel/Monolingual,
+					"$(SRCROOT)/../Library/Frameworks",
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
