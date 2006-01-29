@@ -21,11 +21,16 @@
 //
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <pwd.h>
 
 static int trash;
 static unsigned num_directories;
@@ -147,22 +152,56 @@ static int delete_recursively(const char *path)
 static void remove_file(const char *path)
 {
 	if (trash) {
-		int tag;
-		CFStringRef pathname = CFStringCreateWithCString(kCFAllocatorDefault, path, kCFStringEncodingUTF8);
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSString *parent = [(NSString *)pathname stringByDeletingLastPathComponent];
-		NSString *file = [(NSString *)pathname lastPathComponent];
-		CFRelease(pathname);
-		CFArrayRef filesToRecycle = CFArrayCreate(kCFAllocatorDefault, (const void **)&file, 1, &kCFTypeArrayCallBacks);
-		[[NSWorkspace sharedWorkspace] performFileOperation:NSWorkspaceRecycleOperation
-													 source:parent
-												destination:@""
-													  files:(NSArray *)filesToRecycle
-														tag:&tag];
-		[pool release];
-		CFRelease(filesToRecycle);
-		printf("%s%c0%c", path, '\0', '\0');
-		fflush(stdout);
+		char resolved_path[PATH_MAX];
+		if (realpath(path, resolved_path)) {
+			char userTrash[PATH_MAX];
+			int validTrash = 0;
+			if (!strncmp(path, "/Volumes/", 9)) {
+				strncpy(userTrash, path, sizeof(userTrash));
+				char *sep_pos = strchr(&userTrash[9], '/');
+				if (sep_pos) {
+					sep_pos[1] = '\0';
+					strncat(userTrash, ".Trashes", sizeof(userTrash));
+					mkdir(userTrash, 0700);
+					snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", getuid());
+					validTrash = 1;
+				}
+			} else {
+				struct passwd *pwd = getpwuid(getuid());
+				if (pwd) {
+					strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
+					strncat(userTrash, "/.Trash", sizeof(userTrash));
+					validTrash = 1;
+				}
+			}
+			if (validTrash) {
+				char destination[PATH_MAX];
+				mkdir(userTrash, 0700);
+				char *filename = strrchr(path, '/');
+				if (filename) {
+					struct stat sb;
+					filename = strdup(filename);
+					char *extension = strrchr(filename, '.');
+					strncpy(destination, userTrash, sizeof(destination));
+					strncat(destination, filename, sizeof(destination));
+					while (1) {
+						if (stat(destination, &sb)) {
+							if (!rename(path, destination)) {
+								printf("%s%c0%c", path, '\0', '\0');
+								fflush(stdout);
+								break;
+							}
+						}
+						if (extension)
+							*extension = '\0';
+						time_t now = time(NULL);
+						struct tm *lt = localtime(&now);
+						snprintf(destination, sizeof(destination), "%s%s %d-%d-%d.%s", userTrash, filename, lt->tm_hour, lt->tm_min, lt->tm_sec, extension+1);
+					}
+					free(filename);
+				}
+			}
+		}
 	} else {
 		delete_recursively(path);
 	}
