@@ -26,11 +26,11 @@
 		95A1303D0608F92F00D8E30C /* VersionCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = F54BC88102DA668D0100012F /* VersionCheck.m */; };
 		95A1303F0608F92F00D8E30C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		95B4BCFC098A542E00251F45 /* ISTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 95B4BCFA098A542E00251F45 /* ISTableView.m */; };
-		95C3C96A0610145C00D417BC /* helper.m in Sources */ = {isa = PBXBuildFile; fileRef = 95C3C93A06100B0C00D417BC /* helper.m */; };
-		95C3CB9C0610277A00D417BC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		95CC53A40635449F006A4D12 /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 95CC53A30635449F006A4D12 /* Preferences.nib */; };
 		95D17FE10610CB9500633B04 /* Helper in Resources */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* Helper */; };
 		95D180030610CBDD00633B04 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95C3C9F7061014ED00D417BC /* Security.framework */; };
+		95D7A8AD098D42F800DCE08D /* helper.c in Sources */ = {isa = PBXBuildFile; fileRef = 95D7A8AC098D42F800DCE08D /* helper.c */; };
+		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 /* End PBXBuildFile section */
 
@@ -124,11 +124,12 @@
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95B4BCF9098A542E00251F45 /* ISTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISTableView.h; sourceTree = "<group>"; };
 		95B4BCFA098A542E00251F45 /* ISTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISTableView.m; sourceTree = "<group>"; };
-		95C3C93A06100B0C00D417BC /* helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = helper.m; sourceTree = "<group>"; };
 		95C3C9600610144300D417BC /* Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		95C3C9F7061014ED00D417BC /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CC53AF063544A6006A4D12 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/Preferences.nib; sourceTree = "<group>"; };
+		95D7A8AC098D42F800DCE08D /* helper.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = helper.c; sourceTree = "<group>"; };
+		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = Leggimi.rtfd; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95EDCC85062C4092007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		95EDCC86062C40E9007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/ProgressWindow.nib; sourceTree = "<group>"; };
@@ -174,7 +175,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95C3CB9C0610277A00D417BC /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,8 +243,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				95D7A8AC098D42F800DCE08D /* helper.c */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
-				95C3C93A06100B0C00D417BC /* helper.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -253,6 +253,7 @@
 			isa = PBXGroup;
 			children = (
 				95CC53A30635449F006A4D12 /* Preferences.nib */,
+				95D7A921098D48B700DCE08D /* Leggimi.rtfd */,
 				95EDCC87062C4264007229A3 /* LisezMoi.rtfd */,
 				9558F813061598BA00F6DE23 /* Lies-mich.rtfd */,
 				9558F814061598BA00F6DE23 /* README.rtfd */,
@@ -422,6 +423,7 @@
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
 				95CC53A40635449F006A4D12 /* Preferences.nib in Resources */,
+				95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -461,7 +463,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95C3C96A0610145C00D417BC /* helper.m in Sources */,
+				95D7A8AD098D42F800DCE08D /* helper.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,7 +571,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_PREFIX_HEADER = "";
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -608,7 +610,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_PREFIX_HEADER = "";
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -639,7 +641,7 @@
 			buildSettings = {
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_PREFIX_HEADER = "";
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -669,10 +671,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					/Users/ingmar/Devel/Monolingual,
-					"$(SRCROOT)/../Library/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -712,10 +711,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					/Users/ingmar/Devel/Monolingual,
-					"$(SRCROOT)/../Library/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = YES;
@@ -754,10 +750,7 @@
 		95AAF5670856C2DC007CEE36 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					/Users/ingmar/Devel/Monolingual,
-					"$(SRCROOT)/../Library/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
