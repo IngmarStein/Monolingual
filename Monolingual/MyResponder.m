@@ -37,6 +37,8 @@ CFMutableArrayRef        layouts;
 CFMutableArrayRef        architectures;
 CFDictionaryRef          startedNotificationInfo;
 CFDictionaryRef          finishedNotificationInfo;
+CFURLRef                 versionURL;
+CFURLRef                 downloadURL;
 unsigned long long       bytesSaved;
 BOOL                     cancelled;
 int                      mode;
@@ -106,7 +108,7 @@ int                      mode;
 
 	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
-	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled",@""),@"OK",nil,nil,
+	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled",@""),nil,nil,nil,
 			[NSApp mainWindow],self,NULL,NULL,self,
 			NSLocalizedString(@"You cancelled the removal.  Some files were erased, some were not.",@""), nil);
 }
@@ -226,9 +228,9 @@ int                      mode;
 
 - (IBAction) checkVersion:(id)sender {
 #pragma unused(sender)
-	[VersionCheck checkVersionAtURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net/version.xml"]
+	[VersionCheck checkVersionAtURL:versionURL
 						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
-						downloadURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net"]];
+						downloadURL:downloadURL];
 }
 
 - (IBAction) removeLanguages:(id)sender
@@ -296,7 +298,7 @@ int                      mode;
 
 	if( remove_count == archs_count )  {
 		NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all architectures",@""),
-						  @"OK", nil, nil, [NSApp mainWindow], self, NULL,
+						  nil, nil, nil, [NSApp mainWindow], self, NULL,
 						  NULL, nil,
 						  NSLocalizedString(@"Removing all architectures will make OS X inoperable.  Please keep at least one architecture and try again.",@""),nil);
 	} else if( remove_count ) {
@@ -516,7 +518,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
 			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
-							  @"OK", nil, nil, parentWindow, self, NULL, NULL,
+							  nil, nil, nil, parentWindow, self, NULL, NULL,
 							  self,
 							  [NSString stringWithFormat: NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable( bytesSaved, hbuf, 1024 )],
 							  nil);
@@ -542,16 +544,16 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			break;
 		case errAuthorizationDenied:
 			//If you can't do it because you're not administrator, then let the user know!
-			NSBeginAlertSheet(NSLocalizedString(@"Permission Error",@""),@"OK",nil,nil,[NSApp mainWindow],self, NULL,
+			NSBeginAlertSheet(NSLocalizedString(@"Permission Error",@""),nil,nil,nil,[NSApp mainWindow],self, NULL,
 							  NULL,self,NSLocalizedString(@"You entered an incorrect administrator password.",@""),nil);
 			return;
 		case errAuthorizationCanceled:
-			NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),@"OK",nil,nil,[NSApp mainWindow],self,
+			NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
 							  NULL,NULL,NULL,
 							  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 			return;
 		default:
-			NSBeginAlertSheet(NSLocalizedString(@"Authorization Error",@""),@"OK",nil,nil,[NSApp mainWindow],self, NULL,
+			NSBeginAlertSheet(NSLocalizedString(@"Authorization Error",@""),nil,nil,nil,[NSApp mainWindow],self, NULL,
 							  NULL,self,NSLocalizedString(@"Failed to authorize as an administrator.",@""),nil);
 			return;
 	}
@@ -598,7 +600,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	const char		**argv;
 
 	if( NSAlertDefaultReturn == returnCode ) {
-		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),@"OK",nil,nil,[NSApp mainWindow],self,
+		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
 						  NULL,NULL,contextInfo,
 						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 	} else {
@@ -676,7 +678,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		roots_count = 0U;
 
 	if( NSAlertDefaultReturn == returnCode || !roots_count ) {
-		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),@"OK",nil,nil,[NSApp mainWindow],self,
+		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
 						  NULL,NULL,contextInfo,
 						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 	} else {
@@ -718,7 +720,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 		if( rCount == lCount )  {
 			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),
-							  @"OK", nil, nil, [NSApp mainWindow], self, NULL,
+							  nil, nil, nil, [NSApp mainWindow], self, NULL,
 							  NULL, nil,
 							  NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
 		} else if( rCount ) {
@@ -734,6 +736,8 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 {
 	[myProgress    release];
 	[myPreferences release];
+	CFRelease(versionURL);
+	CFRelease(downloadURL);
 	CFRelease(layouts);
 	CFRelease(languages);
 	CFRelease(startedNotificationInfo);
@@ -762,10 +766,10 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 #pragma unused(aNotification)
-	[VersionCheck checkVersionAtURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net/version.xml"]
+	[VersionCheck checkVersionAtURL:versionURL
 					withDayInterval:7
 						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
-						downloadURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net"]];
+						downloadURL:downloadURL];
 }
 
 static CFComparisonResult languageCompare(const void *val1, const void *val2, void *context)
@@ -776,6 +780,9 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 - (void) awakeFromNib
 {
+	versionURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/version.xml"), NULL);
+	downloadURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net"), NULL);
+
 	CFArrayRef languagePref = (CFArrayRef)[[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 	CFIndex count = CFArrayGetCount(languagePref);
 	CFMutableSetRef userLanguages = CFSetCreateMutable(kCFAllocatorDefault, count, &kCFTypeSetCallBacks);
