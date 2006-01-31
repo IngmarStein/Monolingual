@@ -40,6 +40,16 @@ static const char **directories;
 static const char **excludes;
 static const char **archs;
 
+static int string_compare(const void *s1, const void *s2)
+{
+	return strcmp(*(const char **)s1, *(const char **)s2);
+}
+
+static int string_search(const void *s1, const void *s2)
+{
+	return strcmp((const char *)s1, *(const char **)s2);
+}
+
 static int should_exit(void)
 {
 	fd_set fdset;
@@ -221,12 +231,8 @@ static void process_directory(const char *path)
 	char *last_component = strrchr(path, '/');
 	if (last_component) {
 		++last_component;
-		for (unsigned i=0U; i<num_directories; ++i) {
-			if (!strcmp(last_component, directories[i])) {
-				remove_file(path);
-				return;
-			}
-		}
+		if (bsearch(last_component, directories, num_directories, sizeof(char *), string_search))
+			remove_file(path);
 	}
 
 	dir = opendir(path);
@@ -241,7 +247,7 @@ static void process_directory(const char *path)
 				strcat(subdir, "/");
 				strcat(subdir, ent->d_name);
 
-				if (stat(subdir, &st) != -1 && ((st.st_mode & S_IFMT) == S_IFDIR))
+				if (lstat(subdir, &st) != -1 && ((st.st_mode & S_IFMT) == S_IFDIR))
 					process_directory(subdir);
 
 				free(subdir);
@@ -372,6 +378,9 @@ int main(int argc, const char *argv[])
 			directories[num_directories++] = arg;
 		}
 	}
+
+	if (num_directories)
+		qsort(directories, num_directories, sizeof(char *), string_compare);
 
 	// delete regular files
 	for (unsigned i=0U; i<num_files && !should_exit(); ++i)
