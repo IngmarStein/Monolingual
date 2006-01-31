@@ -799,7 +799,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
-#define NUM_KNOWN_LANGUAGES	125
+#define NUM_KNOWN_LANGUAGES	130
 	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, NUM_KNOWN_LANGUAGES, &kCFTypeArrayCallBacks);
 #define ADD_LANGUAGE_BEGIN(code, name) \
 	do { \
@@ -845,7 +845,6 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 		folders[1] = CFSTR(folder ".lproj"); \
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 2, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
-#define NUM_KNOWN_LANGUAGES	125
 
 	ADD_LANGUAGE_1("af",    "Afrikaans",            "Afrikaans");
 	ADD_LANGUAGE_1("am",    "Amharic",              "Amharic");
@@ -860,6 +859,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	ADD_LANGUAGE_1("bo",    "Tibetan",              "Tibetan");
 	ADD_LANGUAGE_1("br",    "Breton",               "Breton");
 	ADD_LANGUAGE_1("ca",    "Catalan",              "Catalan");
+	ADD_LANGUAGE_1("chr",   "Cherokee",             "Cherokee");
 	ADD_LANGUAGE_2("cs",    "Czech",                "cs_CZ", "Czech");
 	ADD_LANGUAGE_1("cy",    "Welsh",                "Welsh");
 	ADD_LANGUAGE_2("da",    "Danish",               "da_DK", "Danish");
@@ -909,13 +909,16 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	ADD_LANGUAGE_2("ko",    "Korean",               "ko_KR", "Korean");
 	ADD_LANGUAGE_1("ks",    "Kashmiri",             "Kashmiri");
 	ADD_LANGUAGE_1("ku",    "Kurdish",              "Kurdish");
+	ADD_LANGUAGE_1("kw",    "Kernowek",             "Kernowek");
 	ADD_LANGUAGE_1("ky",    "Kirghiz",              "Kirghiz");
 	ADD_LANGUAGE_1("la",    "Latin",                "Latin");
 	ADD_LANGUAGE_1("lo",    "Lao",                  "Lao");
 	ADD_LANGUAGE_1("lt",    "Lithuanian",           "Lithuanian");
 	ADD_LANGUAGE_1("lv",    "Latvian",              "Latvian");
 	ADD_LANGUAGE_1("mg",    "Malagasy",             "Malagasy");
+	ADD_LANGUAGE_1("mi",    "Maori",                "Maori");
 	ADD_LANGUAGE_1("mk",    "Macedonian",           "Macedonian");
+	ADD_LANGUAGE_1("mr",    "Marathi",              "Marathi");
 	ADD_LANGUAGE_1("ml",    "Malayalam",            "Malayalam");
 	ADD_LANGUAGE_1("mn",    "Mongolian",            "Mongolian");
 	ADD_LANGUAGE_1("mo",    "Moldavian",            "Moldavian");
@@ -934,7 +937,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	ADD_LANGUAGE_1("pa",    "Punjabi",              "Punjabi");
 	ADD_LANGUAGE_2("pl",    "Polish",               "pl_PL", "Polish");
 	ADD_LANGUAGE_1("ps",    "Pashto",               "Pashto");
-	ADD_LANGUAGE_1("pt",    "Portuguese",           "Portuguese");
+	ADD_LANGUAGE_2("pt",    "Portuguese",           "pt_PT", "Portuguese");
 	ADD_LANGUAGE_0("pt_BR", "Brazilian Portoguese");
 	ADD_LANGUAGE_1("qu",    "Quechua",              "Quechua");
 	ADD_LANGUAGE_1("rn",    "Rundi",                "Rundi");
@@ -960,6 +963,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	ADD_LANGUAGE_1("ti",    "Tigrinya",             "Tigrinya");
 	ADD_LANGUAGE_1("tk",    "Turkmen",              "Turkmen");
 	ADD_LANGUAGE_1("tl",    "Tagalog",              "Tagalog");
+	ADD_LANGUAGE_1("tlh",   "Klingon",              "Klingon");
 	ADD_LANGUAGE_1("tr",    "Turkish",              "tr_TR");
 	ADD_LANGUAGE_1("tt",    "Tatar",                "Tatar");
 	ADD_LANGUAGE_1("to",    "Tongan",               "Tongan");
