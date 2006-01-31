@@ -231,8 +231,10 @@ static void process_directory(const char *path)
 	char *last_component = strrchr(path, '/');
 	if (last_component) {
 		++last_component;
-		if (bsearch(last_component, directories, num_directories, sizeof(char *), string_search))
+		if (bsearch(last_component, directories, num_directories, sizeof(char *), string_search)) {
 			remove_file(path);
+			return;
+		}
 	}
 
 	dir = opendir(path);
