@@ -113,7 +113,6 @@ static void thin_file(const char *path)
 static int delete_recursively(const char *path)
 {
 	struct stat st;
-	int type;
 	int result;
 
 	if (should_exit())
@@ -122,8 +121,7 @@ static int delete_recursively(const char *path)
 	if (lstat(path, &st) == -1)
 		return 1;
 
-	type = st.st_mode & S_IFMT;
-	switch (type) {
+	switch (st.st_mode & S_IFMT) {
 		case S_IFDIR: {
 			DIR *dir;
 			struct dirent *ent;
