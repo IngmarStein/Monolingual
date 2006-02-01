@@ -28,8 +28,13 @@
 	if( NSOKButton == [oPanel runModalForDirectory:nil file:nil types:nil] ) {
 		NSEnumerator *filenameEnum = [[oPanel filenames] objectEnumerator];
 		NSString *filename;
-		while ((filename = [filenameEnum nextObject]))
-			[roots addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:filename, @"Path", kCFBooleanTrue, @"Enabled", nil]];
+		while ((filename = [filenameEnum nextObject])) {
+			CFMutableDictionaryRef root = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+			CFDictionarySetValue(root, CFSTR("Path"), filename);
+			CFDictionarySetValue(root, CFSTR("Enabled"), kCFBooleanTrue);
+			[roots addObject:(NSMutableDictionary *)root];
+			CFRelease(root);
+		}
 	}
 }
 
