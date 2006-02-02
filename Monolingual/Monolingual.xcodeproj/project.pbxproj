@@ -26,6 +26,7 @@
 		95A1303D0608F92F00D8E30C /* VersionCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = F54BC88102DA668D0100012F /* VersionCheck.m */; };
 		95A1303F0608F92F00D8E30C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		95B4BCFC098A542E00251F45 /* ISTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 95B4BCFA098A542E00251F45 /* ISTableView.m */; };
+		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95CC53A40635449F006A4D12 /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 95CC53A30635449F006A4D12 /* Preferences.nib */; };
 		95D17FE10610CB9500633B04 /* Helper in Resources */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* Helper */; };
 		95D180030610CBDD00633B04 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95C3C9F7061014ED00D417BC /* Security.framework */; };
@@ -124,6 +125,8 @@
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95B4BCF9098A542E00251F45 /* ISTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISTableView.h; sourceTree = "<group>"; };
 		95B4BCFA098A542E00251F45 /* ISTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISTableView.m; sourceTree = "<group>"; };
+		95BC963D0991F2C9001DEF94 /* lipo.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = lipo.c; sourceTree = "<group>"; };
+		95BC989F099228D5001DEF94 /* lipo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lipo.h; sourceTree = "<group>"; };
 		95C3C9600610144300D417BC /* Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		95C3C9F7061014ED00D417BC /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -243,6 +246,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				95BC963D0991F2C9001DEF94 /* lipo.c */,
+				95BC989F099228D5001DEF94 /* lipo.h */,
 				95D7A8AC098D42F800DCE08D /* helper.c */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
@@ -464,6 +469,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				95D7A8AD098D42F800DCE08D /* helper.c in Sources */,
+				95BC963E0991F2C9001DEF94 /* lipo.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

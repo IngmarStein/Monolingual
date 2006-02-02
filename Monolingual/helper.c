@@ -31,6 +31,16 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
+#ifndef LIPO_EXTERNAL
+#include "lipo.h"
+#endif
+
+#ifndef FAT_MAGIC
+#define FAT_MAGIC	0xcafebabe
+#endif
+#ifndef FAT_CIGAM
+#define FAT_CIGAM	0xbebafeca
+#endif
 
 static int trash;
 static unsigned num_directories;
@@ -64,9 +74,9 @@ static void thin_file(const char *path)
 {
 	struct stat st;
 	if (stat(path, &st) != -1) {
+#ifdef LIPO_EXTERNAL
 		int status = EXIT_FAILURE;
 		int child_status;
-		off_t old_size = st.st_size;
 		for (unsigned i=0U; i<num_archs; ++i) {
 			switch (fork()) {
 				case 0: // child
@@ -99,6 +109,10 @@ static void thin_file(const char *path)
 			}
 		}
 		if (status == EXIT_SUCCESS) {
+#else
+		if (!run_lipo(path, archs, num_archs)) {
+#endif
+			off_t old_size = st.st_size;
 			// restore the original owner and permissions
 			chown(path, st.st_uid, st.st_gid);
 			chmod(path, st.st_mode & ~S_IFMT);
@@ -294,19 +308,16 @@ static int thin_recursively(const char *path)
 			break;
 		}
 		case S_IFREG:
-			if (st.st_mode & S_IXUSR) {
-				FILE *fp = fopen(path, "r");
-				if (fp) {
-					unsigned char magic[4];
-					size_t num;
-					num = fread(magic, 1, sizeof(magic), fp);
-					fclose(fp);
+			if (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)) {
+				int fd = open(path, O_RDONLY, 0);
+				if (fd >= 0) {
+					unsigned int magic;
+					ssize_t num;
+					num = read(fd, &magic, sizeof(magic));
+					close(fd);
 
-					if (num == 4
-						&& ((magic[0] == 0xca && magic[1] == 0xfe && magic[2] == 0xba && magic[3] == 0xbe)
-							|| (magic[0] == 0xbe && magic[1] == 0xba && magic[2] == 0xfe && magic[3] == 0xca))) {
+					if (num == sizeof(magic) && (magic == FAT_MAGIC || magic == FAT_CIGAM))
 						thin_file(path);
-					}
 				}
 			}
 			break;
