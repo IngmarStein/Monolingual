@@ -35,6 +35,7 @@
 - (IBAction) removeArchitectures:(id)sender;
 - (IBAction) showPreferences:(id)sender;
 - (IBAction) checkVersion:(id)sender;
+- (IBAction) donate:(id)sender;
 - (void) scanLayouts;
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication;
 - (void) cancelRemove;

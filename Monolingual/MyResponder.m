@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <mach/mach_host.h>
+#include <mach/mach_port.h>
 #include <mach/machine.h>
 
 #define MODE_LANGUAGES		0
@@ -39,6 +40,7 @@ CFDictionaryRef          startedNotificationInfo;
 CFDictionaryRef          finishedNotificationInfo;
 CFURLRef                 versionURL;
 CFURLRef                 downloadURL;
+CFURLRef                 donateURL;
 unsigned long long       bytesSaved;
 BOOL                     cancelled;
 int                      mode;
@@ -231,6 +233,11 @@ int                      mode;
 	[VersionCheck checkVersionAtURL:versionURL
 						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
 						downloadURL:downloadURL];
+}
+
+- (IBAction) donate:(id)sender {
+#pragma unused(sender)
+	[[NSWorkspace sharedWorkspace] openURL:(NSURL *)donateURL];
 }
 
 - (IBAction) removeLanguages:(id)sender
@@ -738,6 +745,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	[myPreferences release];
 	CFRelease(versionURL);
 	CFRelease(downloadURL);
+	CFRelease(donateURL);
 	CFRelease(layouts);
 	CFRelease(languages);
 	CFRelease(startedNotificationInfo);
@@ -782,6 +790,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 {
 	versionURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/version.xml"), NULL);
 	downloadURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net"), NULL);
+	donateURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://sourceforge.net/donate/index.php?group_id=106424"), NULL);
 
 	CFArrayRef languagePref = (CFArrayRef)[[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 	CFIndex count = CFArrayGetCount(languagePref);
