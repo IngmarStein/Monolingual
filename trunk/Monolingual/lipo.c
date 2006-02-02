@@ -120,36 +120,35 @@ static const struct arch_flag arch_flags[] = {
 	{ NULL,	0,		  0 }
 };
 
-/* names and types (if any) of input file specified on the commmand line */
+/* name of input file */
 struct input_file {
-	const char *name;
-	unsigned long size;
+	const char        *name;
+	off_t             size;
 	struct fat_header *fat_header;
-	struct fat_arch *fat_arches;
+	struct fat_arch   *fat_arches;
 };
 static struct input_file input_file;
 
 /* Thin files from the input files to operate on */
 struct thin_file {
-	const char *name;
-	char *addr;
+	const char      *name;
+	char            *addr;
 	struct fat_arch fat_arch;
-	int from_fat;
-	int remove;
+	int             remove;
 };
 static struct thin_file *thin_files = NULL;
-static unsigned long nthin_files = 0;
+static unsigned long nthin_files = 0UL;
 
 /* The specified output file */
 static const char *output_file = NULL;
-static unsigned long output_filemode = 0;
+static mode_t output_filemode = 0;
+static uid_t output_uid;
+static gid_t output_gid;
 static struct utimbuf output_timep;
 static int archives_in_input = 0;
 
 static struct arch_flag *remove_arch_flags = NULL;
-static unsigned long nremove_arch_flags = 0;
-
-static struct fat_header fat_header;
+static unsigned long nremove_arch_flags = 0UL;
 
 /*
  * get_arch_from_flag() is passed a name of an architecture flag and returns
@@ -161,7 +160,7 @@ static int get_arch_from_flag(const char *name, struct arch_flag *arch_flag)
 {
 	unsigned long i;
 
-	for (i = 0; arch_flags[i].name; i++) {
+	for (i = 0; arch_flags[i].name; ++i) {
 		if (!strcmp(arch_flags[i].name, name)) {
 			if (arch_flag)
 				*arch_flag = arch_flags[i];
@@ -221,7 +220,7 @@ static int cmp_qsort(const struct thin_file *thin1, const struct thin_file *thin
  */
 static unsigned long myround(unsigned long v, unsigned long r)
 {
-	r--;
+	--r;
 	v += r;
 	v &= ~(long)r;
 	return v;
@@ -229,17 +228,11 @@ static unsigned long myround(unsigned long v, unsigned long r)
 
 
 #ifdef __LITTLE_ENDIAN__
-static void swap_fat_header(struct fat_header *p_fat_header)
-{
-	p_fat_header->magic 	= SWAP_LONG(p_fat_header->magic);
-	p_fat_header->nfat_arch = SWAP_LONG(p_fat_header->nfat_arch);
-}
-
 static void swap_fat_arch(struct fat_arch *fat_archs, unsigned long nfat_arch)
 {
 	unsigned long i;
 
-	for (i = 0; i < nfat_arch; i++) {
+	for (i = 0; i < nfat_arch; ++i) {
 		fat_archs[i].cputype	= SWAP_LONG(fat_archs[i].cputype);
 		fat_archs[i].cpusubtype = SWAP_LONG(fat_archs[i].cpusubtype);
 		fat_archs[i].offset 	= SWAP_LONG(fat_archs[i].offset);
@@ -252,10 +245,11 @@ static void swap_fat_arch(struct fat_arch *fat_archs, unsigned long nfat_arch)
 /*
  * create_fat() creates a fat output file from the thin files.
  */
-static void create_fat(void)
+static int create_fat(off_t *newsize)
 {
 	unsigned long i, offset;
 	int fd;
+	off_t output_size = 0ULL;
 
 	/*
 	 * Create the output file.  The unlink() is done to handle the
@@ -263,74 +257,85 @@ static void create_fat(void)
 	 * allows the file to be removed and thus created (since the file
 	 * may not be there the return code of the unlink() is ignored).
 	 */
-	(void)unlink(output_file);
+	unlink(output_file);
 	if ((fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, output_filemode)) == -1) {
 		fprintf(stderr, "can't create output file: %s", output_file);
-		return;
+		return 1;
 	}
+
+	// restore the original owner and permissions
+	fchown(fd, output_uid, output_gid);
 
 	/* sort the files by alignment to save space in the output file */
 	if (nthin_files > 1)
 		qsort(thin_files, nthin_files, sizeof(struct thin_file),
 			  (int (*)(const void *, const void *))cmp_qsort);
 
-	/* Fill in the fat header and the fat_arch's offsets. */
-	fat_header.magic = FAT_MAGIC;
-	fat_header.nfat_arch = nthin_files;
+	/* Fill in the fat_arch's offsets. */
 	offset = sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch);
-	for (i = 0; i < nthin_files; i++) {
+	for (i = 0; i < nthin_files; ++i) {
 		offset = myround(offset, 1 << thin_files[i].fat_arch.align);
 		thin_files[i].fat_arch.offset = offset;
 		offset += thin_files[i].fat_arch.size;
 	}
 
 	/*
-	 * If there is just one thin file on the list don't create a fat file.
+	 * Create a fat file only if there is more than one thin file on the list.
 	 */
 	if (nthin_files != 1) {
+		struct fat_header fat_header;
+
+		output_size += sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch);
+
+		/* Fill in the fat header */
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_header(&fat_header);
+		fat_header.magic = SWAP_LONG(FAT_MAGIC);
+		fat_header.nfat_arch = SWAP_LONG(nthin_files);
+#else
+		fat_header.magic = FAT_MAGIC;
+		fat_header.nfat_arch = nthin_files;
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &fat_header, sizeof(struct fat_header)) != sizeof(struct fat_header)) {
 			fprintf(stderr, "can't write fat header to output file: %s", output_file);
 			close(fd);
-			return;
+			return 1;
 		}
-#ifdef __LITTLE_ENDIAN__
-		swap_fat_header(&fat_header);
-#endif /* __LITTLE_ENDIAN__ */
-		for (i = 0; i < nthin_files; i++) {
+		for (i = 0; i < nthin_files; ++i) {
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_arch(&(thin_files[i].fat_arch), 1);
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &(thin_files[i].fat_arch), sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
 			fprintf(stderr, "can't write fat arch to output file: %s", output_file);
 			close(fd);
-			return;
+			return 1;
 		}
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_arch(&(thin_files[i].fat_arch), 1);
-	#endif /* __LITTLE_ENDIAN__ */
+#endif /* __LITTLE_ENDIAN__ */
 		}
 	}
-	for (i = 0; i < nthin_files; i++) {
+	for (i = 0; i < nthin_files; ++i) {
 		if (nthin_files != 1)
 			if (lseek(fd, thin_files[i].fat_arch.offset, L_SET) == -1) {
 				fprintf(stderr, "can't lseek in output file: %s", output_file);
 				close(fd);
-				return;
+				return 1;
 			}
+		output_size += thin_files[i].fat_arch.size;
 		if (write(fd, thin_files[i].addr, thin_files[i].fat_arch.size) != (int)(thin_files[i].fat_arch.size)) {
 			fprintf(stderr, "can't write to output file: %s", output_file);
 			close(fd);
-			return;
+			return 1;
 		}
 	}
+	*newsize = output_size;
 	if (close(fd) == -1)
 		fprintf(stderr, "can't close output file: %s", output_file);
 	if (archives_in_input)
 		if (utime(output_file, &output_timep) == -1)
-			fprintf(stderr, "can't set the modifiy times for output file: %s", output_file);
+			fprintf(stderr, "can't set the modify times for output file: %s", output_file);
+
+	return 0;
 }
 
 /*
@@ -360,8 +365,10 @@ static void process_input_file(struct input_file *input)
 	input->size = size;
 	/* pick up set uid, set gid and sticky text bits */
 	output_filemode = stat_buf.st_mode & 07777;
+	output_uid = stat_buf.st_uid;
+	output_gid = stat_buf.st_gid;
 	/*
-	 * Select the eariliest modifiy time so that if the output file
+	 * Select the earliest modifiy time so that if the output file
 	 * contains archives with table of contents lipo will not make them
 	 * out of date.  This logic however could make an out of date table of
 	 * contents appear up todate if another file is combined with it that
@@ -391,7 +398,8 @@ static void process_input_file(struct input_file *input)
 	{
 		input->fat_header = (struct fat_header *)addr;
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_header(input->fat_header);
+		input->fat_header->magic 	 = SWAP_LONG(input->fat_header->magic);
+		input->fat_header->nfat_arch = SWAP_LONG(input->fat_header->nfat_arch);
 #endif /* __LITTLE_ENDIAN__ */
 		if (sizeof(struct fat_header) + input->fat_header->nfat_arch * sizeof(struct fat_arch) > size) {
 			fprintf(stderr, "truncated or malformed fat file (fat_arch structs would "
@@ -404,7 +412,7 @@ static void process_input_file(struct input_file *input)
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_arch(input->fat_arches, input->fat_header->nfat_arch);
 #endif /* __LITTLE_ENDIAN__ */
-		for (i = 0; i < input->fat_header->nfat_arch; i++) {
+		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
 			if (input->fat_arches[i].offset + input->fat_arches[i].size > size) {
 				fprintf(stderr, "truncated or malformed fat file (offset plus size "
 						"of cputype (%d) cpusubtype (%d) extends past the "
@@ -436,8 +444,8 @@ static void process_input_file(struct input_file *input)
 				return;
 			}
 		}
-		for (i = 0; i < input->fat_header->nfat_arch; i++) {
-			for (j = i + 1; j < input->fat_header->nfat_arch; j++) {
+		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
+			for (j = i + 1; j < input->fat_header->nfat_arch; ++j) {
 				if (input->fat_arches[i].cputype == input->fat_arches[j].cputype &&
 				   input->fat_arches[i].cpusubtype == input->fat_arches[j].cpusubtype) {
 					fprintf(stderr, "fat file %s contains two of the same architecture "
@@ -452,13 +460,12 @@ static void process_input_file(struct input_file *input)
 		}
 
 		/* create a thin file struct for each arch in the fat file */
-		for (i = 0; i < input->fat_header->nfat_arch; i++) {
+		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
 			thin = new_thin();
 			thin->name = input->name;
 			thin->addr = addr + input->fat_arches[i].offset;
 			thin->fat_arch = input->fat_arches[i];
-			thin->from_fat = 1;
-			if (input->fat_arches[i].size >= SARMAG && strncmp(thin->addr, ARMAG, SARMAG) == 0)
+			if (input->fat_arches[i].size >= SARMAG && !strncmp(thin->addr, ARMAG, SARMAG))
 				archives_in_input = 1;
 		}
 	} else {
@@ -468,11 +475,13 @@ static void process_input_file(struct input_file *input)
 	}
 }
 
-int run_lipo(const char *path, const char *archs[], unsigned num_archs)
+int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *size_diff)
 {
 	unsigned a;
 	unsigned long i, j;
 	struct arch_flag *arch_flag;
+	int err;
+	off_t newsize;
 
 	/*
 	 * Check to see the specified arguments are valid.
@@ -482,13 +491,11 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs)
 
 	/* reset static variables */
 	thin_files = NULL;
-	nthin_files = 0;
-	output_filemode = 0;
+	nthin_files = 0UL;
 	memset(&output_timep, 0, sizeof(output_timep));
-	memset(&fat_header, 0, sizeof(fat_header));
 	archives_in_input = 0;
 	remove_arch_flags = NULL;
-	nremove_arch_flags = 0;
+	nremove_arch_flags = 0UL;
 
 	/*
 	 * Process the arguments.
@@ -523,16 +530,16 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs)
 			free(remove_arch_flags);
 		return 1;
 	}
-	for (i = 0; i < nremove_arch_flags; i++) {
-		for (j = i + 1; j < nremove_arch_flags; j++) {
+	for (i = 0; i < nremove_arch_flags; ++i) {
+		for (j = i + 1; j < nremove_arch_flags; ++j) {
 			if (remove_arch_flags[i].cputype == remove_arch_flags[j].cputype &&
 			   remove_arch_flags[i].cpusubtype == remove_arch_flags[j].cpusubtype)
 				fprintf(stderr, "-remove %s specified multiple times", remove_arch_flags[i].name);
 		}
 	}
 	/* mark those thin files for removal */
-	for (i = 0; i < nremove_arch_flags; i++) {
-		for (j = 0; j < nthin_files; j++) {
+	for (i = 0; i < nremove_arch_flags; ++i) {
+		for (j = 0; j < nthin_files; ++j) {
 			if (remove_arch_flags[i].cputype == thin_files[j].fat_arch.cputype &&
 			   remove_arch_flags[i].cpusubtype == thin_files[j].fat_arch.cpusubtype) {
 				thin_files[j].remove = 1;
@@ -543,16 +550,23 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs)
 	/* remove those thin files marked for removal */
 	for (i = 0; i < nthin_files; ) {
 		if (thin_files[i].remove) {
-			for (j = i; j < nthin_files; j++)
+			for (j = i; j < nthin_files; ++j)
 				thin_files[j] = thin_files[j + 1];
-			nthin_files--;
+			--nthin_files;
 		} else
-			i++;
+			++i;
 	}
-	if (nthin_files)
-		create_fat();
-	else
+
+	/* write output file */
+	err = 0;
+	if (nthin_files) {
+		err = create_fat(&newsize);
+		if (!err)
+			*size_diff = input_file.size - newsize;
+	} else {
 		fprintf(stderr, "-remove's specified would result in an empty fat file");
+		err = 1;
+	}
 
 	kern_return_t ret = vm_deallocate(mach_task_self(), (vm_offset_t)input_file.fat_header, (vm_size_t)input_file.size);
 	if (ret != KERN_SUCCESS)
@@ -563,5 +577,5 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs)
 	if (thin_files)
 		free(thin_files);
 
-	return 0;
+	return err;
 }

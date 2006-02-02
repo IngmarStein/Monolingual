@@ -31,9 +31,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
-#ifndef LIPO_EXTERNAL
 #include "lipo.h"
-#endif
 
 #ifndef FAT_MAGIC
 #define FAT_MAGIC	0xcafebabe
@@ -72,55 +70,10 @@ static int should_exit(void)
 
 static void thin_file(const char *path)
 {
-	struct stat st;
-	if (stat(path, &st) != -1) {
-#ifdef LIPO_EXTERNAL
-		int status = EXIT_FAILURE;
-		int child_status;
-		for (unsigned i=0U; i<num_archs; ++i) {
-			switch (fork()) {
-				case 0: // child
-				{
-					char *const env[1] = { NULL };
-					char *argv[7];
-					argv[0] = "lipo";
-					argv[1] = "-remove";
-					argv[2] = (char *)archs[i];
-					argv[3] = (char *)path;
-					argv[4] = "-o";
-					argv[5] = (char *)path;
-					argv[6] = NULL;
-					int nulldev = open("/dev/null", O_WRONLY, 0);
-					dup2(nulldev, 1);
-					dup2(nulldev, 2);
-					if (execve("/usr/bin/lipo", (char * const *)argv, env) == -1)
-						exit(EXIT_FAILURE);
-					break;
-				}
-				case -1: // error
-					status = EXIT_FAILURE;
-					fprintf(stderr, "could not fork()\n");
-					break;
-				default: // parent
-					wait(&child_status);
-					if (child_status == EXIT_SUCCESS)
-						status = EXIT_SUCCESS;
-					break;
-			}
-		}
-		if (status == EXIT_SUCCESS) {
-#else
-		if (!run_lipo(path, archs, num_archs)) {
-#endif
-			off_t old_size = st.st_size;
-			// restore the original owner and permissions
-			chown(path, st.st_uid, st.st_gid);
-			chmod(path, st.st_mode & ~S_IFMT);
-			if (stat(path, &st) != -1) {
-				printf("%s%c%llu%c", path, '\0', old_size - st.st_size, '\0');
-				fflush(stdout);
-			}
-		}
+	off_t size_diff;
+	if (!run_lipo(path, archs, num_archs, &size_diff)) {
+		printf("%s%c%llu%c", path, '\0', size_diff, '\0');
+		fflush(stdout);
 	}
 }
 

@@ -7,4 +7,11 @@
  *
  */
 
-int run_lipo(const char *path, const char *archs[], unsigned num_archs);
+#ifndef LIPO_H_INCLUDED
+#define LIPO_H_INCLUDED
+
+#include <unistd.h>
+
+int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *size_diff);
+
+#endif
