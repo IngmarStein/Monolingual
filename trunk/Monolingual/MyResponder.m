@@ -996,7 +996,10 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 	host_basic_info_data_t hostInfo;
 	mach_msg_type_number_t infoCount = HOST_BASIC_INFO_COUNT;
-	kern_return_t ret = host_info(mach_host_self(), HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
+	mach_port_t my_mach_host_self;
+	my_mach_host_self = mach_host_self();
+	kern_return_t ret = host_info(my_mach_host_self, HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
+	mach_port_deallocate(mach_task_self(), my_mach_host_self);
 
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 8, &kCFTypeArrayCallBacks);
 	for (unsigned i=0U; i<8U; ++i) {
