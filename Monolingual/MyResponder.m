@@ -11,6 +11,7 @@
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <mach/mach_host.h>
 #include <mach/mach_port.h>
@@ -42,7 +43,6 @@ CFURLRef                 versionURL;
 CFURLRef                 downloadURL;
 CFURLRef                 donateURL;
 unsigned long long       bytesSaved;
-BOOL                     cancelled;
 int                      mode;
 
 + (void) initialize
@@ -108,6 +108,10 @@ int                      mode;
 	[[myProgress window] orderOut:self];
 	[myProgress stop];
 
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:NSFileHandleReadCompletionNotification
+												  object:nil];
+
 	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
 	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled",@""),nil,nil,nil,
@@ -117,8 +121,9 @@ int                      mode;
 
 - (IBAction) documentationBundler:(id)sender
 {
-	NSString *myPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:nil];
-	[[NSWorkspace sharedWorkspace] openFile:myPath];
+	CFURLRef docURL = CFBundleCopyResourceURL(CFBundleGetMainBundle(), (CFStringRef)[sender title], NULL, NULL);
+	[[NSWorkspace sharedWorkspace] openURL:(NSURL *)docURL];
+	CFRelease(docURL);
 }
 
 - (IBAction) openWebsite:(id)sender
@@ -131,14 +136,14 @@ int                      mode;
 
 - (void) scanLayouts
 {
-	NSFileManager *fileManager = [NSFileManager defaultManager];
+	struct stat st;
 	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
-	CFArrayRef files = (CFArrayRef)[fileManager directoryContentsAtPath: layoutPath];
+	CFArrayRef files = (CFArrayRef)[[NSFileManager defaultManager] directoryContentsAtPath:layoutPath];
 	CFIndex length = CFArrayGetCount(files);
 	CFMutableArrayRef scannedLayouts = CFArrayCreateMutable(kCFAllocatorDefault, length+6, &kCFTypeArrayCallBacks);
-	for( CFIndex i=0; i<length; ++i ) {
+	for (CFIndex i=0; i<length; ++i) {
 		CFStringRef file = CFArrayGetValueAtIndex(files, i);
-		if( CFStringHasSuffix(file, CFSTR(".bundle")) && !CFEqual(file, CFSTR("Roman.bundle")) ) {
+		if (CFStringHasSuffix(file, CFSTR(".bundle")) && !CFEqual(file, CFSTR("Roman.bundle"))) {
 			CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 			CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
 			CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString([(NSString *)file stringByDeletingPathExtension],@""));
@@ -149,7 +154,7 @@ int                      mode;
 		}
 	}
 	CFStringRef inputMethod = CFCopyLocalizedString(CFSTR("Input Method"),"");
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/Kotoeri.component"] ) {
+	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
@@ -160,7 +165,7 @@ int                      mode;
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/XPIM.component"] ) {
+	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
@@ -171,7 +176,7 @@ int                      mode;
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/TCIM.component"] ) {
+	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
@@ -182,7 +187,7 @@ int                      mode;
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/SCIM.component"] ) {
+	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
@@ -193,7 +198,7 @@ int                      mode;
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/AnjalIM.component"] ) {
+	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Murasu Anjal Tamil"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
@@ -204,7 +209,7 @@ int                      mode;
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
-	if( [fileManager fileExistsAtPath:@"/System/Library/Components/HangulIM.component"] ) {
+	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
@@ -276,23 +281,21 @@ int                      mode;
 	argv = (const char **)malloc( (2+archs_count+archs_count+roots_count+roots_count)*sizeof(char *) );
 	int idx = 1;
 
-	for( unsigned i=0U; i<roots_count; ++i ) {
+	for (unsigned i=0U; i<roots_count; ++i) {
 		NSDictionary *root = [roots objectAtIndex: i];
-		int enabled = [[root objectForKey: @"Enabled"] intValue];
-		if( enabled > 0 ) {
-			NSString *path = [root objectForKey: @"Path"];
+		BOOL enabled = [[root objectForKey: @"Enabled"] boolValue];
+		NSString *path = [root objectForKey: @"Path"];
+		if (enabled) {
 			NSLog( @"Adding root %@", path);
 			argv[idx++] = "-r";
-			argv[idx++] = [path fileSystemRepresentation];
-		} else if( !enabled ) {
-			NSString *path = [root objectForKey: @"Path"];
+		} else {
 			NSLog( @"Excluding root %@", path);
 			argv[idx++] = "-x";
-			argv[idx++] = [path fileSystemRepresentation];
 		}
+		argv[idx++] = [path fileSystemRepresentation];
 	}
 	CFIndex remove_count = 0;
-	for( CFIndex i=0; i<archs_count; ++i ) {
+	for (CFIndex i=0; i<archs_count; ++i) {
 		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
 		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("enabled")))) {
 			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
@@ -419,10 +422,10 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 	NSDictionary *userInfo = [aNotification userInfo];
 	NSNumber *error = (NSNumber *)[userInfo objectForKey:@"NSFileHandleError"];
-	if( ![error intValue] ) {
+	if (!error || ![error intValue]) {
 		CFDataRef data = (CFDataRef)[userInfo objectForKey:@"NSFileHandleNotificationDataItem"];
 		length = CFDataGetLength(data);
-		if( length ) {
+		if (length) {
 			// append new data
 			CFDataAppendBytes(pipeBuffer, CFDataGetBytePtr(data), length);
 			bytes = CFDataGetBytePtr(pipeBuffer);
@@ -430,18 +433,18 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 			// count number of '\0' characters
 			num = 0;
-			for( i=0; i<length; ++i )
+			for (i=0; i<length; ++i)
 				if( !bytes[i] )
 					++num;
 
-			for( i=0, j=0; num > 1 && i<length; ++i, ++j ) {
-				if( !bytes[j] ) {
+			for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
+				if (!bytes[j]) {
 					// read file name
 					CFStringRef file = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
 					bytes += j + 1;
 
 					// skip to next zero character
-					for( j=0; bytes[j]; ++j ) {}
+					for (j=0; bytes[j]; ++j) {}
 
 					// read file size
 					CFStringRef size = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
@@ -461,7 +464,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 						NSString *layout = nil;
 						NSString *im = nil;
 						BOOL cache = NO;
-						for( j=0; j<[pathComponents count]; ++j ) {
+						for (j=0; j<[pathComponents count]; ++j) {
 							NSString *pathComponent = [pathComponents objectAtIndex: j];
 							NSString *pathExtension = [pathComponent pathExtension];
 							if( [pathExtension isEqualToString: @"app"] ) {
@@ -472,7 +475,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 								im = [pathComponent stringByDeletingPathExtension];
 							} else if( [pathExtension isEqualToString: @"lproj"] ) {
 								CFIndex count = CFArrayGetCount(languages);
-								for( CFIndex k=0; k<count; ++k ) {
+								for (CFIndex k=0; k<count; ++k) {
 									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, k);
 									if( NSNotFound != [(NSArray *)CFDictionaryGetValue(language, CFSTR("folders")) indexOfObject:pathComponent] ) {
 										lang = (NSString *)CFDictionaryGetValue(language, CFSTR("displayName"));
@@ -483,15 +486,15 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 								cache = YES;
 							}
 						}
-						if( layout && CFStringHasPrefix(file, CFSTR("/System/Library/")) )
+						if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/")))
 							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing keyboard layout", @""), layout, NSLocalizedString(@"...",@""));
-						else if( im && CFStringHasPrefix(file, CFSTR("/System/Library/")) )
+						else if (im && CFStringHasPrefix(file, CFSTR("/System/Library/")))
 							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing input method", @""), layout, NSLocalizedString(@"...",@""));
-						else if( cache )
+						else if (cache)
 							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%@"), NSLocalizedString(@"Clearing cache", @""), NSLocalizedString(@"...",@""));
-						else if( app )
+						else if (app)
 							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"from", @""), app, NSLocalizedString(@"...",@""));
-						else if( lang )
+						else if (lang)
 							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"...",@""));
 						else
 							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing", @""), file, NSLocalizedString(@"...",@""));
@@ -509,7 +512,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			// delete processed bytes
 			CFDataDeleteBytes(pipeBuffer, CFRangeMake(0, i));
 			[pipeHandle readInBackgroundAndNotify];
-		} else if( pipeHandle ) {
+		} else if (pipeHandle) {
 			// EOF
 			[pipeHandle closeFile];
 			[pipeHandle release];
@@ -538,15 +541,22 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 {
 	OSStatus status;
 	FILE *fp_pipe;
+	char path[PATH_MAX];
 
-	NSString *myPath = [[NSBundle mainBundle] pathForResource:@"Helper" ofType:nil];
-	const char *path = [myPath fileSystemRepresentation];
-	AuthorizationItem right = {kAuthorizationRightExecute, strlen(path)+1, (char *)path, 0};
+	CFURLRef helperPath = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("Helper"), NULL, NULL);
+	if (!CFURLGetFileSystemRepresentation(helperPath, false, (UInt8 *)path, sizeof(path))) {
+		NSLog(@"Could not get file system representation of %@", helperPath);
+		// TODO
+		NSBeep();
+		return;
+	}
+	CFRelease(helperPath);
+	AuthorizationItem right = {kAuthorizationRightExecute, strlen(path)+1, path, 0};
 	AuthorizationRights rights = {1, &right};
 	AuthorizationRef authorizationRef;
 
-	status = AuthorizationCreate( &rights, kAuthorizationEmptyEnvironment, kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed, &authorizationRef );
-	switch( status ) {
+	status = AuthorizationCreate(&rights, kAuthorizationEmptyEnvironment, kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed, &authorizationRef);
+	switch (status) {
 		case errAuthorizationSuccess:
 			break;
 		case errAuthorizationDenied:
@@ -577,7 +587,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		  contextInfo:nil];
 
 	status = AuthorizationExecuteWithPrivileges( authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &fp_pipe );
-	if( errAuthorizationSuccess == status ) {
+	if (errAuthorizationSuccess == status) {
 		[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)startedNotificationInfo];
 
 		bytesSaved = 0ULL;
@@ -593,7 +603,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		NSBeep();
 	}
 
-	AuthorizationFree( authorizationRef, kAuthorizationFlagDefaults );
+	AuthorizationFree(authorizationRef, kAuthorizationFlagDefaults);
 }
 
 - (void) removeLayoutsWarning: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
@@ -606,7 +616,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	BOOL			trash;
 	const char		**argv;
 
-	if( NSAlertDefaultReturn == returnCode ) {
+	if (NSAlertDefaultReturn == returnCode) {
 		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
 						  NULL,NULL,contextInfo,
 						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
@@ -623,20 +633,20 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		argv[8] = "/System/Library/Caches/com.apple.IntlDataCache.tecx";
 		idx = 9;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
-		if( trash )
+		if (trash)
 			argv[idx++] = "-t";
-		for( i=0; i<count; ++i ) {
+		for (i=0; i<count; ++i) {
 			row = CFArrayGetValueAtIndex(layouts, i);
-			if( CFBooleanGetValue(CFDictionaryGetValue(row, CFSTR("enabled"))) ) {
+			if (CFBooleanGetValue(CFDictionaryGetValue(row, CFSTR("enabled")))) {
 				argv[idx++] = "-f";
 				argv[idx++] = [(NSString *)CFDictionaryGetValue(row, CFSTR("path")) fileSystemRepresentation];
 			}
 		}
-		if( idx != 9 ) {
+		if (idx != 9) {
 			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs: argv];
 		}
-		free( argv );
+		free(argv);
 	}
 }
 
@@ -646,11 +656,11 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	unsigned int i;
 	unsigned int lCount;
 
-	if( NSAlertDefaultReturn != returnCode ) {
+	if (NSAlertDefaultReturn != returnCode) {
 		lCount = CFArrayGetCount(languages);
-		for( i=0; i<lCount; ++i ) {
+		for (i=0; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
-			if( CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("folders")), 0U), CFSTR("en.lproj")) ) {
+			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("folders")), 0U), CFSTR("en.lproj"))) {
 				//Display a warning
 				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
@@ -677,10 +687,10 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = [roots count];
 
-	for( i=0U; i<roots_count; ++i )
-		if( [[[roots objectAtIndex: i] objectForKey:@"Enabled"] boolValue] )
+	for (i=0U; i<roots_count; ++i)
+		if ([[[roots objectAtIndex: i] objectForKey:@"Enabled"] boolValue])
 			break;
-	if( i==roots_count )
+	if (i==roots_count)
 		// No active roots
 		roots_count = 0U;
 
@@ -694,26 +704,24 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		argv = (const char **)malloc( (3+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *) );
 		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
-		if( trash )
+		if (trash)
 			argv[idx++] = "-t";
-		for( i=0U; i<roots_count; ++i ) {
+		for (i=0U; i<roots_count; ++i) {
 			NSDictionary *root = [roots objectAtIndex: i];
-			int enabled = [[root objectForKey: @"Enabled"] intValue];
-			if( enabled > 0 ) {
-				NSString *path = [root objectForKey: @"Path"];
+			BOOL enabled = [[root objectForKey: @"Enabled"] boolValue];
+			NSString *path = [root objectForKey: @"Path"];
+			if (enabled) {
 				NSLog( @"Adding root %@", path);
 				argv[idx++] = "-r";
-				argv[idx++] = [path fileSystemRepresentation];
-			} else if( !enabled ) {
-				NSString *path = [root objectForKey: @"Path"];
+			} else {
 				NSLog( @"Excluding root %@", path);
 				argv[idx++] = "-x";
-				argv[idx++] = [path fileSystemRepresentation];
 			}
+			argv[idx++] = [path fileSystemRepresentation];
 		}
-		for( i=0U; i<lCount; ++i ) {
+		for (i=0U; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
-			if( CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled"))) ) {
+			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled")))) {
 				CFArrayRef paths = CFDictionaryGetValue(language, CFSTR("folders"));
 				CFIndex paths_count = CFArrayGetCount(paths);
 				for (CFIndex j=0; j<paths_count; ++j) {
@@ -725,12 +733,12 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			}
 		}
 
-		if( rCount == lCount )  {
+		if (rCount == lCount)  {
 			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),
 							  nil, nil, nil, [NSApp mainWindow], self, NULL,
 							  NULL, nil,
 							  NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
-		} else if( rCount ) {
+		} else if (rCount) {
 			// start things off if we have something to remove!
 			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs: argv];
