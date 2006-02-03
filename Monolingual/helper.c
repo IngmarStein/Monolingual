@@ -224,23 +224,21 @@ static void process_directory(const char *path)
 	}
 }
 
-static int thin_recursively(const char *path)
+static void thin_recursively(const char *path)
 {
 	struct stat st;
-	int type;
 
 	if (should_exit())
-		return 0;
+		return;
 
 	for (unsigned i=0U; i<num_excludes; ++i)
 		if (!strncmp(path, excludes[i], strlen(excludes[i])))
-			return 0;
+			return;
 
 	if (lstat(path, &st) == -1)
-		return 1;
+		return;
 
-	type = st.st_mode & S_IFMT;
-	switch (type) {
+	switch (st.st_mode & S_IFMT) {
 		case S_IFDIR: {
 			DIR *dir;
 			struct dirent *ent;
@@ -278,7 +276,7 @@ static int thin_recursively(const char *path)
 			break;
 	}
 
-	return 0;
+	return;
 }
 
 int main(int argc, const char *argv[])

@@ -458,46 +458,75 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 						message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
 					} else {
 						// parse file name
-						NSArray *pathComponents = [(NSString *)file pathComponents];
-						NSString *lang = nil;
-						NSString *app = nil;
-						NSString *layout = nil;
-						NSString *im = nil;
+						CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
+						CFIndex componentCount = CFArrayGetCount(pathComponents);
+						CFStringRef lang = NULL;
+						CFStringRef app = NULL;
+						CFStringRef layout = NULL;
+						CFStringRef im = NULL;
 						BOOL cache = NO;
-						for (j=0; j<[pathComponents count]; ++j) {
-							NSString *pathComponent = [pathComponents objectAtIndex: j];
-							NSString *pathExtension = [pathComponent pathExtension];
-							if( [pathExtension isEqualToString: @"app"] ) {
-								app = [pathComponent stringByDeletingPathExtension];
-							} else if( [pathExtension isEqualToString: @"bundle"] ) {
-								layout = [pathComponent stringByDeletingPathExtension];
-							} else if( [pathExtension isEqualToString: @"component"] ) {
-								im = [pathComponent stringByDeletingPathExtension];
-							} else if( [pathExtension isEqualToString: @"lproj"] ) {
+						for (CFIndex k=0; k<componentCount; ++k) {
+							CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
+							if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
+								if (app)
+									CFRelease(app);
+								app = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-4));
+							} else if (CFStringHasSuffix(pathComponent, CFSTR(".bundle"))) {
+								if (layout)
+									CFRelease(layout);
+								layout = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-7));
+							} else if (CFStringHasSuffix(pathComponent, CFSTR(".component"))) {
+								if (im)
+									CFRelease(im);
+								im = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-10));
+							} else if (CFStringHasSuffix(pathComponent, CFSTR(".lproj"))) {
 								CFIndex count = CFArrayGetCount(languages);
-								for (CFIndex k=0; k<count; ++k) {
-									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, k);
-									if( NSNotFound != [(NSArray *)CFDictionaryGetValue(language, CFSTR("folders")) indexOfObject:pathComponent] ) {
-										lang = (NSString *)CFDictionaryGetValue(language, CFSTR("displayName"));
+								for (CFIndex l=0; l<count; ++l) {
+									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
+									CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("folders"));
+									if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
+										lang = CFDictionaryGetValue(language, CFSTR("displayName"));
 										break;
 									}
 								}
-							} else if( [pathExtension hasPrefix: @"com.apple.IntlDataCache"] ) {
+							} else if (CFStringHasPrefix(pathComponent, CFSTR("com.apple.IntlDataCache"))) {
 								cache = YES;
 							}
 						}
-						if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/")))
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing keyboard layout", @""), layout, NSLocalizedString(@"...",@""));
-						else if (im && CFStringHasPrefix(file, CFSTR("/System/Library/")))
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing input method", @""), layout, NSLocalizedString(@"...",@""));
-						else if (cache)
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%@"), NSLocalizedString(@"Clearing cache", @""), NSLocalizedString(@"...",@""));
-						else if (app)
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"from", @""), app, NSLocalizedString(@"...",@""));
-						else if (lang)
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing language", @""), lang, NSLocalizedString(@"...",@""));
-						else
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%@"), NSLocalizedString(@"Removing", @""), file, NSLocalizedString(@"...",@""));
+						CFRelease(pathComponents);
+						if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
+							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing keyboard layout"), "");
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
+							CFRelease(description);
+						} else if (im && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
+							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing input method"), "");
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
+							CFRelease(description);
+						} else if (cache) {
+							CFStringRef description = CFCopyLocalizedString(CFSTR("Clearing cache"), "");
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%C"), description, 0x2026);
+							CFRelease(description);
+						} else if (app) {
+							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
+							CFStringRef from = CFCopyLocalizedString(CFSTR("from"), "");
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%C"), description, lang, from, app, 0x2026);
+							CFRelease(from);
+							CFRelease(description);
+						} else if (lang) {
+							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, lang, 0x2026);
+							CFRelease(description);
+						} else {
+							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing"), "");
+							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, file, 0x2026);
+							CFRelease(description);
+						}
+						if (app)
+							CFRelease(app);
+						if (layout)
+							CFRelease(layout);
+						if (im)
+							CFRelease(im);
 					}
 
 					[myProgress setText:message];
