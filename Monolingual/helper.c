@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
+#include <syslog.h>
 #include "lipo.h"
 
 #ifndef FAT_MAGIC
@@ -94,11 +95,15 @@ static int delete_recursively(const char *path)
 			struct dirent *ent;
 			dir = opendir(path);
 			if (dir) {
+				size_t pathlen = strlen(path);
 				while ((ent = readdir(dir))) {
 					if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
-						char *subdir = malloc(strlen(path) + ent->d_namlen + 2);
+						char *subdir = malloc(pathlen + ent->d_namlen + 2);
 						strcpy(subdir, path);
-						strcat(subdir, "/");
+						if (path[pathlen-1] != '/') {
+							subdir[pathlen] = '/';
+							subdir[pathlen+1] = '\0';
+						}
 						strcat(subdir, ent->d_name);
 						delete_recursively(subdir);
 						free(subdir);
@@ -154,23 +159,28 @@ static void remove_file(const char *path)
 				mkdir(userTrash, 0700);
 				char *filename = strrchr(path, '/');
 				if (filename) {
-					struct stat sb;
 					filename = strdup(filename);
 					char *extension = strrchr(filename, '.');
 					strncpy(destination, userTrash, sizeof(destination));
 					strncat(destination, filename, sizeof(destination));
 					while (1) {
+						struct stat sb;
+						struct tm *lt;
+						time_t now;
+
 						if (stat(destination, &sb)) {
-							if (!rename(path, destination)) {
+							if (rename(path, destination)) {
+								syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
+							} else {
 								printf("%s%c0%c", path, '\0', '\0');
 								fflush(stdout);
-								break;
 							}
+							break;
 						}
 						if (extension)
 							*extension = '\0';
-						time_t now = time(NULL);
-						struct tm *lt = localtime(&now);
+						now = time(NULL);
+						lt = localtime(&now);
 						snprintf(destination, sizeof(destination), "%s%s %d-%d-%d.%s", userTrash, filename, lt->tm_hour, lt->tm_min, lt->tm_sec, extension+1);
 					}
 					free(filename);
@@ -184,16 +194,20 @@ static void remove_file(const char *path)
 
 static void process_directory(const char *path)
 {
-	DIR *dir;
+	DIR  *dir;
+	char *last_component;
 
 	if (should_exit())
+		return;
+
+	if (!strcmp(path, "/dev"))
 		return;
 
 	for (unsigned i=0U; i<num_excludes; ++i)
 		if (!strncmp(path, excludes[i], strlen(excludes[i])))
 			return;
 
-	char *last_component = strrchr(path, '/');
+	last_component = strrchr(path, '/');
 	if (last_component) {
 		++last_component;
 		if (bsearch(last_component, directories, num_directories, sizeof(char *), string_search)) {
@@ -205,13 +219,17 @@ static void process_directory(const char *path)
 	dir = opendir(path);
 	if (dir) {
 		struct dirent *ent;
+		size_t pathlen = strlen(path);
 		while ((ent = readdir(dir))) {
 			if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
 				struct stat st;
 
-				char *subdir = malloc(strlen(path) + ent->d_namlen + 2);
+				char *subdir = malloc(pathlen + ent->d_namlen + 2);
 				strcpy(subdir, path);
-				strcat(subdir, "/");
+				if (path[pathlen-1] != '/') {
+					subdir[pathlen] = '/';
+					subdir[pathlen+1] = '\0';
+				}
 				strcat(subdir, ent->d_name);
 
 				if (lstat(subdir, &st) != -1 && ((st.st_mode & S_IFMT) == S_IFDIR))
@@ -244,11 +262,15 @@ static void thin_recursively(const char *path)
 			struct dirent *ent;
 			dir = opendir(path);
 			if (dir) {
+				size_t pathlen = strlen(path);
 				while ((ent = readdir(dir))) {
 					if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
-						char *subdir = malloc(strlen(path) + ent->d_namlen + 2);
+						char *subdir = malloc(pathlen + ent->d_namlen + 2);
 						strcpy(subdir, path);
-						strcat(subdir, "/");
+						if (path[pathlen-1] != '/') {
+							subdir[pathlen] = '/';
+							subdir[pathlen+1] = '\0';
+						}
 						strcat(subdir, ent->d_name);
 						thin_recursively(subdir);
 						free(subdir);

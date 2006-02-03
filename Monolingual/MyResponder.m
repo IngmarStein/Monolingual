@@ -89,7 +89,7 @@ int                      mode;
 	CFRelease(defaultRoots);
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
 {
 #pragma unused(theApplication)
 	return YES;
@@ -228,9 +228,9 @@ int                      mode;
 - (IBAction) showPreferences:(id)sender
 {
 #pragma unused(sender)
-	if( !myPreferences )
+	if (!myPreferences)
 		myPreferences = [[PreferencesController alloc] init];
-	[myPreferences showWindow: self];
+	[myPreferences showWindow:self];
 }
 
 - (IBAction) checkVersion:(id)sender {
@@ -278,18 +278,18 @@ int                      mode;
 	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = [roots count];
 	archs_count = CFArrayGetCount(architectures);
-	argv = (const char **)malloc( (2+archs_count+archs_count+roots_count+roots_count)*sizeof(char *) );
+	argv = (const char **)malloc((2+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
 	int idx = 1;
 
 	for (unsigned i=0U; i<roots_count; ++i) {
-		NSDictionary *root = [roots objectAtIndex: i];
-		BOOL enabled = [[root objectForKey: @"Enabled"] boolValue];
-		NSString *path = [root objectForKey: @"Path"];
+		NSDictionary *root = [roots objectAtIndex:i];
+		BOOL enabled = [[root objectForKey:@"Enabled"] boolValue];
+		NSString *path = [root objectForKey:@"Path"];
 		if (enabled) {
-			NSLog( @"Adding root %@", path);
+			NSLog(@"Adding root %@", path);
 			argv[idx++] = "-r";
 		} else {
-			NSLog( @"Excluding root %@", path);
+			NSLog(@"Excluding root %@", path);
 			argv[idx++] = "-x";
 		}
 		argv[idx++] = [path fileSystemRepresentation];
@@ -306,17 +306,17 @@ int                      mode;
 		}
 	}
 
-	if( remove_count == archs_count )  {
+	if (remove_count == archs_count)  {
 		NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all architectures",@""),
 						  nil, nil, nil, [NSApp mainWindow], self, NULL,
 						  NULL, nil,
 						  NSLocalizedString(@"Removing all architectures will make OS X inoperable.  Please keep at least one architecture and try again.",@""),nil);
-	} else if( remove_count ) {
+	} else if (remove_count) {
 		// start things off if we have something to remove!
 		argv[idx] = NULL;
-		[self runDeleteHelperWithArgs: argv];
+		[self runDeleteHelperWithArgs:argv];
 	}
-	free( argv );
+	free(argv);
 }
 
 static const char suffixes[9] =
@@ -336,7 +336,7 @@ static const char suffixes[9] =
 								 * CHAR_BIT / 3)
 
 /* Convert AMT to a human readable format in BUF. */
-static char * human_readable( unsigned long long amt, char *buf, unsigned int base )
+static char * human_readable(unsigned long long amt, char *buf, unsigned int base)
 {
 	unsigned int tenths = 0U;
 	unsigned int power = 0U;
@@ -354,8 +354,8 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 
 	/* Use power of BASE notation if adjusted AMT is large enough.  */
 
-	if( base ) {
-		if( base <= amt ) {
+	if (base) {
+		if (base <= amt) {
 			power = 0U;
 
 			do {
@@ -393,10 +393,10 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		}
 	}
 
-	if( 5U < tenths + (2 < rounding + (amt & 1)) ) {
+	if (5U < tenths + (2 < rounding + (amt & 1))) {
 		amt++;
 
-		if( amt == base && power < sizeof suffixes - 1) {
+		if (amt == base && power < sizeof suffixes - 1) {
 			*p = suffixes[power + 1];
 			*--p = '0';
 			*--p = '.';
@@ -411,7 +411,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	return p;
 }
 
-- (void) readCompletion: (NSNotification *)aNotification
+- (void) readCompletion:(NSNotification *)aNotification
 {
 	unsigned int i;
 	unsigned int j;
@@ -434,7 +434,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			// count number of '\0' characters
 			num = 0;
 			for (i=0; i<length; ++i)
-				if( !bytes[i] )
+				if (!bytes[i])
 					++num;
 
 			for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
@@ -559,14 +559,14 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
 							  nil, nil, nil, parentWindow, self, NULL, NULL,
 							  self,
-							  [NSString stringWithFormat: NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable( bytesSaved, hbuf, 1024 )],
+							  [NSString stringWithFormat:NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable(bytesSaved, hbuf, 1024)],
 							  nil);
 			[self scanLayouts];
 		}
 	}
 }
 
-- (void) runDeleteHelperWithArgs: (const char **)argv
+- (void) runDeleteHelperWithArgs:(const char **)argv
 {
 	OSStatus status;
 	FILE *fp_pipe;
@@ -607,7 +607,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	argv[0] = path;
 
 	parentWindow = [NSApp mainWindow];
-	myProgress = [ProgressWindowController sharedProgressWindowController: self];
+	myProgress = [ProgressWindowController sharedProgressWindowController:self];
 	[myProgress start];
 	[NSApp beginSheet:[myProgress window]
 	   modalForWindow:parentWindow
@@ -615,13 +615,13 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	   didEndSelector:nil
 		  contextInfo:nil];
 
-	status = AuthorizationExecuteWithPrivileges( authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &fp_pipe );
+	status = AuthorizationExecuteWithPrivileges(authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &fp_pipe);
 	if (errAuthorizationSuccess == status) {
 		[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)startedNotificationInfo];
 
 		bytesSaved = 0ULL;
 		pipeBuffer = CFDataCreateMutable(kCFAllocatorDefault, 0);
-		pipeHandle = [[NSFileHandle alloc] initWithFileDescriptor: fileno(fp_pipe)];
+		pipeHandle = [[NSFileHandle alloc] initWithFileDescriptor:fileno(fp_pipe)];
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(readCompletion:)
 													 name:NSFileHandleReadCompletionNotification
@@ -635,7 +635,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	AuthorizationFree(authorizationRef, kAuthorizationFlagDefaults);
 }
 
-- (void) removeLayoutsWarning: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
+- (void) removeLayoutsWarning:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 #pragma unused(sheet)
 	unsigned int	i;
@@ -651,7 +651,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 	} else {
 		count = CFArrayGetCount(layouts);
-		argv = (const char **)malloc( (10+count+count)*sizeof(char *) );
+		argv = (const char **)malloc((10+count+count)*sizeof(char *));
 		argv[1] = "-f";
 		argv[2] = "/System/Library/Caches/com.apple.IntlDataCache";
 		argv[3] = "-f";
@@ -673,13 +673,13 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		}
 		if (idx != 9) {
 			argv[idx] = NULL;
-			[self runDeleteHelperWithArgs: argv];
+			[self runDeleteHelperWithArgs:argv];
 		}
 		free(argv);
 	}
 }
 
-- (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
+- (void) warningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 #pragma unused(sheet,contextInfo)
 	unsigned int i;
@@ -701,7 +701,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	}
 }
 
-- (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo
+- (void) englishWarningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 #pragma unused(sheet)
 	unsigned int i;
@@ -717,33 +717,33 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 	roots_count = [roots count];
 
 	for (i=0U; i<roots_count; ++i)
-		if ([[[roots objectAtIndex: i] objectForKey:@"Enabled"] boolValue])
+		if ([[[roots objectAtIndex:i] objectForKey:@"Enabled"] boolValue])
 			break;
 	if (i==roots_count)
 		// No active roots
 		roots_count = 0U;
 
-	if( NSAlertDefaultReturn == returnCode || !roots_count ) {
+	if (NSAlertDefaultReturn == returnCode || !roots_count) {
 		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
 						  NULL,NULL,contextInfo,
 						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
 	} else {
 		rCount = 0U;
 		lCount = CFArrayGetCount(languages);
-		argv = (const char **)malloc( (3+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *) );
+		argv = (const char **)malloc((3+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *));
 		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if (trash)
 			argv[idx++] = "-t";
 		for (i=0U; i<roots_count; ++i) {
-			NSDictionary *root = [roots objectAtIndex: i];
-			BOOL enabled = [[root objectForKey: @"Enabled"] boolValue];
-			NSString *path = [root objectForKey: @"Path"];
+			NSDictionary *root = [roots objectAtIndex:i];
+			BOOL enabled = [[root objectForKey:@"Enabled"] boolValue];
+			NSString *path = [root objectForKey:@"Path"];
 			if (enabled) {
-				NSLog( @"Adding root %@", path);
+				NSLog(@"Adding root %@", path);
 				argv[idx++] = "-r";
 			} else {
-				NSLog( @"Excluding root %@", path);
+				NSLog(@"Excluding root %@", path);
 				argv[idx++] = "-x";
 			}
 			argv[idx++] = [path fileSystemRepresentation];
@@ -755,7 +755,7 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 				CFIndex paths_count = CFArrayGetCount(paths);
 				for (CFIndex j=0; j<paths_count; ++j) {
 					NSString *path = (NSString *)CFArrayGetValueAtIndex(paths, j);
-					NSLog( @"Will remove %@", path );
+					NSLog(@"Will remove %@", path);
 					argv[idx++] = [path fileSystemRepresentation];
 				}
 				++rCount;
@@ -770,9 +770,9 @@ static char * human_readable( unsigned long long amt, char *buf, unsigned int ba
 		} else if (rCount) {
 			// start things off if we have something to remove!
 			argv[idx] = NULL;
-			[self runDeleteHelperWithArgs: argv];
+			[self runDeleteHelperWithArgs:argv];
 		}
-		free( argv );
+		free(argv);
 	}
 }
 
