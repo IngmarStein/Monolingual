@@ -1010,7 +1010,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	ADD_LANGUAGE_1("tk",    "Turkmen",              "Turkmen");
 	ADD_LANGUAGE_1("tl",    "Tagalog",              "Tagalog");
 	ADD_LANGUAGE_1("tlh",   "Klingon",              "Klingon");
-	ADD_LANGUAGE_1("tr",    "Turkish",              "tr_TR");
+	ADD_LANGUAGE_2("tr",    "Turkish",              "tr_TR", "Turkish");
 	ADD_LANGUAGE_1("tt",    "Tatar",                "Tatar");
 	ADD_LANGUAGE_1("to",    "Tongan",               "Tongan");
 	ADD_LANGUAGE_1("ug",    "Uighur",               "Uighur");
