@@ -249,7 +249,7 @@ int                      mode;
 {
 #pragma unused(sender)
 	mode = MODE_LANGUAGES;
-	//Display a warning first
+	/* Display a warning first */
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 					  @selector(warningSelector:returnCode:contextInfo:),self,
 					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
@@ -259,7 +259,7 @@ int                      mode;
 {
 #pragma unused(sender)
 	mode = MODE_LAYOUTS;
-	//Display a warning first
+	/* Display a warning first */
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 					  @selector(removeLayoutsWarning:returnCode:contextInfo:),self,
 					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
@@ -301,7 +301,8 @@ int                      mode;
 			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
 			NSLog(@"Will remove architecture %@", name);
 			argv[idx++] = "--thin";
-			argv[idx++] = [(NSString *)name cStringUsingEncoding:NSUTF8StringEncoding];
+			/* XXX: CFStringGetCStringPtr _might_ return NULL */
+			argv[idx++] = CFStringGetCStringPtr(name, kCFStringEncodingUTF8);
 			++remove_count;
 		}
 	}
@@ -312,7 +313,7 @@ int                      mode;
 						  NULL, nil,
 						  NSLocalizedString(@"Removing all architectures will make OS X inoperable.  Please keep at least one architecture and try again.",@""),nil);
 	} else if (remove_count) {
-		// start things off if we have something to remove!
+		/* start things off if we have something to remove! */
 		argv[idx] = NULL;
 		[self runDeleteHelperWithArgs:argv];
 	}
@@ -426,12 +427,12 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		CFDataRef data = (CFDataRef)[userInfo objectForKey:@"NSFileHandleNotificationDataItem"];
 		length = CFDataGetLength(data);
 		if (length) {
-			// append new data
+			/* append new data */
 			CFDataAppendBytes(pipeBuffer, CFDataGetBytePtr(data), length);
 			bytes = CFDataGetBytePtr(pipeBuffer);
 			length = CFDataGetLength(pipeBuffer);
 
-			// count number of '\0' characters
+			/* count number of '\0' characters */
 			num = 0;
 			for (i=0; i<length; ++i)
 				if (!bytes[i])
@@ -439,14 +440,14 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 			for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
 				if (!bytes[j]) {
-					// read file name
+					/* read file name */
 					CFStringRef file = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
 					bytes += j + 1;
 
-					// skip to next zero character
+					/* skip to next zero character */
 					for (j=0; bytes[j]; ++j) {}
 
-					// read file size
+					/* read file size */
 					CFStringRef size = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
 					bytesSaved += CFStringGetIntValue(size);
 					bytes += j + 1;
@@ -457,7 +458,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 					if (mode == MODE_ARCHITECTURES) {
 						message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
 					} else {
-						// parse file name
+						/* parse file name */
 						CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
 						CFIndex componentCount = CFArrayGetCount(pathComponents);
 						CFStringRef lang = NULL;
@@ -538,11 +539,11 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 					j = -1;
 				}
 			}
-			// delete processed bytes
+			/* delete processed bytes */
 			CFDataDeleteBytes(pipeBuffer, CFRangeMake(0, i));
 			[pipeHandle readInBackgroundAndNotify];
 		} else if (pipeHandle) {
-			// EOF
+			/* EOF */
 			[pipeHandle closeFile];
 			[pipeHandle release];
 			pipeHandle = nil;
@@ -575,7 +576,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	CFURLRef helperPath = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("Helper"), NULL, NULL);
 	if (!CFURLGetFileSystemRepresentation(helperPath, false, (UInt8 *)path, sizeof(path))) {
 		NSLog(@"Could not get file system representation of %@", helperPath);
-		// TODO
+		/* TODO */
 		NSBeep();
 		return;
 	}
@@ -589,7 +590,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		case errAuthorizationSuccess:
 			break;
 		case errAuthorizationDenied:
-			//If you can't do it because you're not administrator, then let the user know!
+			/* If you can't do it because you're not administrator, then let the user know! */
 			NSBeginAlertSheet(NSLocalizedString(@"Permission Error",@""),nil,nil,nil,[NSApp mainWindow],self, NULL,
 							  NULL,self,NSLocalizedString(@"You entered an incorrect administrator password.",@""),nil);
 			return;
@@ -628,7 +629,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 												   object:pipeHandle];
 		[pipeHandle readInBackgroundAndNotify];
 	} else {
-		// TODO
+		/* TODO */
 		NSBeep();
 	}
 
@@ -690,7 +691,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		for (i=0; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
 			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("folders")), 0U), CFSTR("en.lproj"))) {
-				//Display a warning
+				/* Display a warning */
 				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
 										  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?",@""),nil);
@@ -720,7 +721,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		if ([[[roots objectAtIndex:i] objectForKey:@"Enabled"] boolValue])
 			break;
 	if (i==roots_count)
-		// No active roots
+		/* No active roots */
 		roots_count = 0U;
 
 	if (NSAlertDefaultReturn == returnCode || !roots_count) {
@@ -768,7 +769,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 							  NULL, nil,
 							  NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
 		} else if (rCount) {
-			// start things off if we have something to remove!
+			/* start things off if we have something to remove! */
 			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs:argv];
 		}
@@ -833,7 +834,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	CFIndex count = CFArrayGetCount(languagePref);
 	CFMutableSetRef userLanguages = CFSetCreateMutable(kCFAllocatorDefault, count, &kCFTypeSetCallBacks);
 
-	// the localization variants have changed from en_US (<= 10.3) to en-US (>= 10.4)
+	/* the localization variants have changed from en_US (<= 10.3) to en-US (>= 10.4) */
 	for (CFIndex i=0; i<count; ++i) {
 		CFStringRef str = CFArrayGetValueAtIndex(languagePref, i);
 		CFIndex length = CFStringGetLength(str);
@@ -1058,7 +1059,7 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 	[self setArchitectures:(NSMutableArray *)knownArchitectures];
 	CFRelease(knownArchitectures);
 
-	// set ourself as the Growl delegate
+	/* set ourself as the Growl delegate */
 	[GrowlApplicationBridge setGrowlDelegate:self];
 
 	NSString *keys[4] = {
