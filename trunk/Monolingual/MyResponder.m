@@ -301,8 +301,7 @@ int                      mode;
 			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
 			NSLog(@"Will remove architecture %@", name);
 			argv[idx++] = "--thin";
-			/* XXX: CFStringGetCStringPtr _might_ return NULL */
-			argv[idx++] = CFStringGetCStringPtr(name, kCFStringEncodingUTF8);
+			argv[idx++] = [(NSString *)name UTF8String];
 			++remove_count;
 		}
 	}
