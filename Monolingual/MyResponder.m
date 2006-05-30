@@ -28,12 +28,15 @@ typedef struct arch_info_s {
 	cpu_subtype_t cpu_subtype;
 } arch_info_t;
 
+static int                pipeDescriptor;
+static CFSocketRef        pipeSocket;
+static CFMutableDataRef   pipeBuffer;
+static CFRunLoopSourceRef pipeRunLoopSource;
+
 @implementation MyResponder
 ProgressWindowController *myProgress;
 PreferencesController    *myPreferences;
 NSWindow                 *parentWindow;
-NSFileHandle             *pipeHandle;
-CFMutableDataRef         pipeBuffer;
 CFMutableArrayRef        languages;
 CFMutableArrayRef        layouts;
 CFMutableArrayRef        architectures;
@@ -98,19 +101,17 @@ int                      mode;
 - (void) cancelRemove
 {
 	const unsigned char bytes[1] = {'\0'};
-	write([pipeHandle fileDescriptor], bytes, sizeof(bytes));
-	[pipeHandle closeFile];
-	[pipeHandle release];
-	pipeHandle = nil;
+	write(pipeDescriptor, bytes, sizeof(bytes));
+	CFRunLoopRemoveSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
+	CFRelease(pipeRunLoopSource);
+	CFSocketInvalidate(pipeSocket);
+	CFRelease(pipeSocket);
 	CFRelease(pipeBuffer);
+	pipeSocket = NULL;
 
 	[NSApp endSheet:[myProgress window]];
 	[[myProgress window] orderOut:self];
 	[myProgress stop];
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:NSFileHandleReadCompletionNotification
-												  object:nil];
 
 	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
@@ -332,8 +333,7 @@ static const char suffixes[9] =
 	'Y'		/* Yotta */
 };
 
-# define LONGEST_HUMAN_READABLE ((sizeof (uintmax_t) + sizeof (int)) \
-								 * CHAR_BIT / 3)
+#define LONGEST_HUMAN_READABLE ((sizeof (uintmax_t) + sizeof (int)) * CHAR_BIT / 3)
 
 /* Convert AMT to a human readable format in BUF. */
 static char * human_readable(unsigned long long amt, char *buf, unsigned int base)
@@ -411,158 +411,154 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	return p;
 }
 
-- (void) readCompletion:(NSNotification *)aNotification
+static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType, 
+						 CFDataRef address, const void *data, void *info)
 {
-	unsigned int i;
+#pragma unused(s,callbackType,address)
+	CFIndex i;
 	unsigned int j;
 	unsigned int num;
-	unsigned int length;
+	CFIndex length;
 	const unsigned char *bytes;
 	char hbuf[LONGEST_HUMAN_READABLE + 1];
+	MyResponder *responder = (MyResponder *)info;
 
-	NSDictionary *userInfo = [aNotification userInfo];
-	NSNumber *error = (NSNumber *)[userInfo objectForKey:@"NSFileHandleError"];
-	if (!error || ![error intValue]) {
-		CFDataRef data = (CFDataRef)[userInfo objectForKey:@"NSFileHandleNotificationDataItem"];
-		length = CFDataGetLength(data);
-		if (length) {
-			/* append new data */
-			CFDataAppendBytes(pipeBuffer, CFDataGetBytePtr(data), length);
-			bytes = CFDataGetBytePtr(pipeBuffer);
-			length = CFDataGetLength(pipeBuffer);
+	length = CFDataGetLength((CFDataRef)data);
+	if (length) {
+		/* append new data */
+		CFDataAppendBytes(pipeBuffer, CFDataGetBytePtr((CFDataRef)data), length);
+		bytes = CFDataGetBytePtr(pipeBuffer);
+		length = CFDataGetLength(pipeBuffer);
 
-			/* count number of '\0' characters */
-			num = 0;
-			for (i=0; i<length; ++i)
-				if (!bytes[i])
-					++num;
+		/* count number of '\0' characters */
+		num = 0;
+		for (i=0; i<length; ++i)
+			if (!bytes[i])
+				++num;
 
-			for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
-				if (!bytes[j]) {
-					/* read file name */
-					CFStringRef file = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
-					bytes += j + 1;
+		for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
+			if (!bytes[j]) {
+				/* read file name */
+				CFStringRef file = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
+				bytes += j + 1;
 
-					/* skip to next zero character */
-					for (j=0; bytes[j]; ++j) {}
+				/* skip to next zero character */
+				for (j=0; bytes[j]; ++j) {}
 
-					/* read file size */
-					CFStringRef size = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
-					bytesSaved += CFStringGetIntValue(size);
-					bytes += j + 1;
-					i += j + 1;
-					num -= 2;
+				/* read file size */
+				CFStringRef size = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
+				bytesSaved += CFStringGetIntValue(size);
+				bytes += j + 1;
+				i += j + 1;
+				num -= 2;
 
-					CFStringRef message;
-					if (mode == MODE_ARCHITECTURES) {
-						message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
-					} else {
-						/* parse file name */
-						CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
-						CFIndex componentCount = CFArrayGetCount(pathComponents);
-						CFStringRef lang = NULL;
-						CFStringRef app = NULL;
-						CFStringRef layout = NULL;
-						CFStringRef im = NULL;
-						BOOL cache = NO;
-						for (CFIndex k=0; k<componentCount; ++k) {
-							CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
-							if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
-								if (app)
-									CFRelease(app);
-								app = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-4));
-							} else if (CFStringHasSuffix(pathComponent, CFSTR(".bundle"))) {
-								if (layout)
-									CFRelease(layout);
-								layout = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-7));
-							} else if (CFStringHasSuffix(pathComponent, CFSTR(".component"))) {
-								if (im)
-									CFRelease(im);
-								im = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-10));
-							} else if (CFStringHasSuffix(pathComponent, CFSTR(".lproj"))) {
-								CFIndex count = CFArrayGetCount(languages);
-								for (CFIndex l=0; l<count; ++l) {
-									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
-									CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("folders"));
-									if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
-										lang = CFDictionaryGetValue(language, CFSTR("displayName"));
-										break;
-									}
+				CFStringRef message;
+				if (mode == MODE_ARCHITECTURES) {
+					message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
+				} else {
+					/* parse file name */
+					CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
+					CFIndex componentCount = CFArrayGetCount(pathComponents);
+					CFStringRef lang = NULL;
+					CFStringRef app = NULL;
+					CFStringRef layout = NULL;
+					CFStringRef im = NULL;
+					BOOL cache = NO;
+					for (CFIndex k=0; k<componentCount; ++k) {
+						CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
+						if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
+							if (app)
+								CFRelease(app);
+							app = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-4));
+						} else if (CFStringHasSuffix(pathComponent, CFSTR(".bundle"))) {
+							if (layout)
+								CFRelease(layout);
+							layout = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-7));
+						} else if (CFStringHasSuffix(pathComponent, CFSTR(".component"))) {
+							if (im)
+								CFRelease(im);
+							im = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-10));
+						} else if (CFStringHasSuffix(pathComponent, CFSTR(".lproj"))) {
+							CFIndex count = CFArrayGetCount(languages);
+							for (CFIndex l=0; l<count; ++l) {
+								CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
+								CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("folders"));
+								if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
+									lang = CFDictionaryGetValue(language, CFSTR("displayName"));
+									break;
 								}
-							} else if (CFStringHasPrefix(pathComponent, CFSTR("com.apple.IntlDataCache"))) {
-								cache = YES;
 							}
+						} else if (CFStringHasPrefix(pathComponent, CFSTR("com.apple.IntlDataCache"))) {
+							cache = YES;
 						}
-						CFRelease(pathComponents);
-						if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
-							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing keyboard layout"), "");
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
-							CFRelease(description);
-						} else if (im && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
-							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing input method"), "");
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
-							CFRelease(description);
-						} else if (cache) {
-							CFStringRef description = CFCopyLocalizedString(CFSTR("Clearing cache"), "");
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%C"), description, 0x2026);
-							CFRelease(description);
-						} else if (app) {
-							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
-							CFStringRef from = CFCopyLocalizedString(CFSTR("from"), "");
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%C"), description, lang, from, app, 0x2026);
-							CFRelease(from);
-							CFRelease(description);
-						} else if (lang) {
-							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, lang, 0x2026);
-							CFRelease(description);
-						} else {
-							CFStringRef description = CFCopyLocalizedString(CFSTR("Removing"), "");
-							message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, file, 0x2026);
-							CFRelease(description);
-						}
-						if (app)
-							CFRelease(app);
-						if (layout)
-							CFRelease(layout);
-						if (im)
-							CFRelease(im);
 					}
-
-					[myProgress setText:message];
-					[myProgress setFile:file];
-					[NSApp updateWindows];
-					CFRelease(message);
-					CFRelease(file);
-					CFRelease(size);
-					j = -1;
+					CFRelease(pathComponents);
+					if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
+						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing keyboard layout"), "");
+						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
+						CFRelease(description);
+					} else if (im && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
+						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing input method"), "");
+						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
+						CFRelease(description);
+					} else if (cache) {
+						CFStringRef description = CFCopyLocalizedString(CFSTR("Clearing cache"), "");
+						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%C"), description, 0x2026);
+						CFRelease(description);
+					} else if (app) {
+						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
+						CFStringRef from = CFCopyLocalizedString(CFSTR("from"), "");
+						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%C"), description, lang, from, app, 0x2026);
+						CFRelease(from);
+						CFRelease(description);
+					} else if (lang) {
+						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
+						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, lang, 0x2026);
+						CFRelease(description);
+					} else {
+						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing"), "");
+						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, file, 0x2026);
+						CFRelease(description);
+					}
+					if (app)
+						CFRelease(app);
+					if (layout)
+						CFRelease(layout);
+					if (im)
+						CFRelease(im);
 				}
+
+				[myProgress setText:message];
+				[myProgress setFile:file];
+				[NSApp updateWindows];
+				CFRelease(message);
+				CFRelease(file);
+				CFRelease(size);
+				j = -1;
 			}
-			/* delete processed bytes */
-			CFDataDeleteBytes(pipeBuffer, CFRangeMake(0, i));
-			[pipeHandle readInBackgroundAndNotify];
-		} else if (pipeHandle) {
-			/* EOF */
-			[pipeHandle closeFile];
-			[pipeHandle release];
-			pipeHandle = nil;
-			CFRelease(pipeBuffer);
-			[NSApp endSheet:[myProgress window]];
-			[[myProgress window] orderOut:self];
-			[myProgress stop];
-
-			[[NSNotificationCenter defaultCenter] removeObserver:self
-															name:NSFileHandleReadCompletionNotification
-														  object:nil];
-			[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
-
-			NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
-							  nil, nil, nil, parentWindow, self, NULL, NULL,
-							  self,
-							  [NSString stringWithFormat:NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable(bytesSaved, hbuf, 1024)],
-							  nil);
-			[self scanLayouts];
 		}
+		/* delete processed bytes */
+		CFDataDeleteBytes(pipeBuffer, CFRangeMake(0, i));
+	} else if (pipeSocket) {
+		/* EOF */
+		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
+		CFRelease(pipeRunLoopSource);
+		CFSocketInvalidate(pipeSocket);
+		CFRelease(pipeSocket);
+		pipeSocket = NULL;
+		CFRelease(pipeBuffer);
+		[NSApp endSheet:[myProgress window]];
+		[[myProgress window] orderOut:responder];
+		[myProgress stop];
+
+		[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
+
+		NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
+						  nil, nil, nil, parentWindow, responder, NULL, NULL,
+						  responder,
+						  [NSString stringWithFormat:NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable(bytesSaved, hbuf, 1024)],
+						  nil);
+		[responder scanLayouts];
 	}
 }
 
@@ -617,16 +613,16 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 	status = AuthorizationExecuteWithPrivileges(authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &fp_pipe);
 	if (errAuthorizationSuccess == status) {
+		CFSocketContext context = { 0, self, NULL, NULL, NULL };
+
 		[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)startedNotificationInfo];
 
 		bytesSaved = 0ULL;
 		pipeBuffer = CFDataCreateMutable(kCFAllocatorDefault, 0);
-		pipeHandle = [[NSFileHandle alloc] initWithFileDescriptor:fileno(fp_pipe)];
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(readCompletion:)
-													 name:NSFileHandleReadCompletionNotification
-												   object:pipeHandle];
-		[pipeHandle readInBackgroundAndNotify];
+		pipeDescriptor = fileno(fp_pipe);
+		pipeSocket = CFSocketCreateWithNative(kCFAllocatorDefault, pipeDescriptor, kCFSocketDataCallBack, dataCallback, &context);
+		pipeRunLoopSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, pipeSocket, 0);
+		CFRunLoopAddSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
 	} else {
 		/* TODO */
 		NSBeep();
