@@ -22,9 +22,8 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import <Growl/Growl.h>
 
-@interface MyResponder : NSWindowController <GrowlApplicationBridgeDelegate>
+@interface MyResponder : NSWindowController
 {
 }
 + (void) initialize;
@@ -42,7 +41,6 @@
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
-- (NSDictionary *) registrationDictionaryForGrowl;
 - (void) runDeleteHelperWithArgs: (const char **)argv;
 
 - (NSMutableArray *) languages;
