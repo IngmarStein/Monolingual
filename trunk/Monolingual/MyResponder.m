@@ -35,294 +35,6 @@ static CFSocketRef        pipeSocket;
 static CFMutableDataRef   pipeBuffer;
 static CFRunLoopSourceRef pipeRunLoopSource;
 
-@implementation MyResponder
-struct Growl_Delegate    growlDelegate;
-ProgressWindowController *myProgress;
-PreferencesController    *myPreferences;
-NSWindow                 *parentWindow;
-CFMutableArrayRef        languages;
-CFMutableArrayRef        layouts;
-CFMutableArrayRef        architectures;
-CFDictionaryRef          startedNotificationInfo;
-CFDictionaryRef          finishedNotificationInfo;
-CFURLRef                 versionURL;
-CFURLRef                 downloadURL;
-CFURLRef                 donateURL;
-unsigned long long       bytesSaved;
-int                      mode;
-
-+ (void) initialize
-{
-	CFTypeRef keys[2] = {
-		CFSTR("Path"),
-		CFSTR("Enabled")
-	};
-	CFTypeRef applicationsValues[2] = {
-		CFSTR("/Applications"),
-		kCFBooleanTrue
-	};
-	CFTypeRef developerValues[2] = {
-		CFSTR("/Developer"),
-		kCFBooleanTrue
-	};
-	CFTypeRef libraryValues[2] = {
-		CFSTR("/Library"),
-		kCFBooleanTrue
-	};
-	CFTypeRef systemValues[2] = {
-		CFSTR("/System"),
-		kCFBooleanTrue
-	};
-	CFDictionaryRef applications = CFDictionaryCreate(kCFAllocatorDefault, keys, applicationsValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef developer = CFDictionaryCreate(kCFAllocatorDefault, keys, developerValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef library = CFDictionaryCreate(kCFAllocatorDefault, keys, libraryValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef systemPath = CFDictionaryCreate(kCFAllocatorDefault, keys, systemValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFTypeRef roots[4] = {
-		applications,
-		developer,
-		library,
-		systemPath
-	};
-	CFArrayRef defaultRoots = CFArrayCreate(kCFAllocatorDefault, roots, 4, &kCFTypeArrayCallBacks);
-	CFRelease(applications);
-	CFRelease(developer);
-	CFRelease(library);
-	CFRelease(systemPath);
-	CFStringRef rootsKey = CFSTR("Roots");
-	CFDictionaryRef defaultValues = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&rootsKey, (const void **)&defaultRoots, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultValues];
-	CFRelease(defaultValues);
-	CFRelease(defaultRoots);
-}
-
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
-{
-#pragma unused(theApplication)
-	return YES;
-}
-
-- (void) cancelRemove
-{
-	const unsigned char bytes[1] = {'\0'};
-	write(pipeDescriptor, bytes, sizeof(bytes));
-	CFRunLoopRemoveSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
-	CFRelease(pipeRunLoopSource);
-	CFSocketInvalidate(pipeSocket);
-	CFRelease(pipeSocket);
-	CFRelease(pipeBuffer);
-	pipeSocket = NULL;
-
-	[NSApp endSheet:[myProgress window]];
-	[[myProgress window] orderOut:self];
-	[myProgress stop];
-
-	Growl_PostNotificationWithDictionary(finishedNotificationInfo);
-
-	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled",@""),nil,nil,nil,
-			[NSApp mainWindow],self,NULL,NULL,self,
-			NSLocalizedString(@"You cancelled the removal.  Some files were erased, some were not.",@""), nil);
-}
-
-- (IBAction) documentationBundler:(id)sender
-{
-	CFURLRef docURL = CFBundleCopyResourceURL(CFBundleGetMainBundle(), (CFStringRef)[sender title], NULL, NULL);
-	[[NSWorkspace sharedWorkspace] openURL:(NSURL *)docURL];
-	CFRelease(docURL);
-}
-
-- (IBAction) openWebsite:(id)sender
-{
-#pragma unused(sender)
-	CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/"), NULL);
-	[[NSWorkspace sharedWorkspace] openURL:(NSURL *)url];
-	CFRelease(url);
-}
-
-- (void) scanLayouts
-{
-	struct stat st;
-	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
-	CFArrayRef files = (CFArrayRef)[[NSFileManager defaultManager] directoryContentsAtPath:layoutPath];
-	CFIndex length = CFArrayGetCount(files);
-	CFMutableArrayRef scannedLayouts = CFArrayCreateMutable(kCFAllocatorDefault, length+6, &kCFTypeArrayCallBacks);
-	for (CFIndex i=0; i<length; ++i) {
-		CFStringRef file = CFArrayGetValueAtIndex(files, i);
-		if (CFStringHasSuffix(file, CFSTR(".bundle")) && !CFEqual(file, CFSTR("Roman.bundle"))) {
-			CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-			CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-			CFDictionarySetValue(layout, CFSTR("displayName"), NSLocalizedString([(NSString *)file stringByDeletingPathExtension],@""));
-			CFDictionarySetValue(layout, CFSTR("type"), NSLocalizedString(@"Keyboard Layout",@""));
-			CFDictionarySetValue(layout, CFSTR("path"), [layoutPath stringByAppendingPathComponent:(NSString *)file]);
-			CFArrayAppendValue(scannedLayouts, layout);
-			CFRelease(layout);
-		}
-	}
-	CFStringRef inputMethod = CFCopyLocalizedString(CFSTR("Input Method"),"");
-	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/Kotoeri.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
-	}
-	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/XPIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
-	}
-	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/TCIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
-	}
-	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/SCIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
-	}
-	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Murasu Anjal Tamil"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/AnjalIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
-	}
-	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/HangulIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
-	}
-	CFRelease(inputMethod);
-	[self setLayouts:(NSMutableArray *)scannedLayouts];
-	CFRelease(scannedLayouts);
-}
-
-- (IBAction) showPreferences:(id)sender
-{
-#pragma unused(sender)
-	if (!myPreferences)
-		myPreferences = [[PreferencesController alloc] init];
-	[myPreferences showWindow:self];
-}
-
-- (IBAction) checkVersion:(id)sender {
-#pragma unused(sender)
-	[VersionCheck checkVersionAtURL:versionURL
-						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
-						downloadURL:downloadURL];
-}
-
-- (IBAction) donate:(id)sender {
-#pragma unused(sender)
-	[[NSWorkspace sharedWorkspace] openURL:(NSURL *)donateURL];
-}
-
-- (IBAction) removeLanguages:(id)sender
-{
-#pragma unused(sender)
-	mode = MODE_LANGUAGES;
-	/* Display a warning first */
-	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
-					  @selector(warningSelector:returnCode:contextInfo:),self,
-					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
-}
-
-- (IBAction) removeLayouts:(id)sender
-{
-#pragma unused(sender)
-	mode = MODE_LAYOUTS;
-	/* Display a warning first */
-	NSBeginAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
-					  @selector(removeLayoutsWarning:returnCode:contextInfo:),self,
-					  NSLocalizedString(@"Are you sure you want to remove these languages?  You will not be able to restore them without reinstalling OSX.",@""),nil);
-}
-
-- (IBAction) removeArchitectures:(id)sender
-{
-#pragma unused(sender)
-	NSArray			*roots;
-	unsigned int	roots_count;
-	CFIndex			archs_count;
-	const char		**argv;
-
-	mode = MODE_ARCHITECTURES;
-
-	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
-	roots_count = [roots count];
-	archs_count = CFArrayGetCount(architectures);
-	argv = (const char **)malloc((2+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
-	int idx = 1;
-
-	for (unsigned i=0U; i<roots_count; ++i) {
-		NSDictionary *root = [roots objectAtIndex:i];
-		BOOL enabled = [[root objectForKey:@"Enabled"] boolValue];
-		NSString *path = [root objectForKey:@"Path"];
-		if (enabled) {
-			NSLog(@"Adding root %@", path);
-			argv[idx++] = "-r";
-		} else {
-			NSLog(@"Excluding root %@", path);
-			argv[idx++] = "-x";
-		}
-		argv[idx++] = [path fileSystemRepresentation];
-	}
-	CFIndex remove_count = 0;
-	for (CFIndex i=0; i<archs_count; ++i) {
-		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
-		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("enabled")))) {
-			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
-			NSLog(@"Will remove architecture %@", name);
-			argv[idx++] = "--thin";
-			argv[idx++] = [(NSString *)name UTF8String];
-			++remove_count;
-		}
-	}
-
-	if (remove_count == archs_count)  {
-		NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all architectures",@""),
-						  nil, nil, nil, [NSApp mainWindow], self, NULL,
-						  NULL, nil,
-						  NSLocalizedString(@"Removing all architectures will make OS X inoperable.  Please keep at least one architecture and try again.",@""),nil);
-	} else if (remove_count) {
-		/* start things off if we have something to remove! */
-		argv[idx] = NULL;
-		[self runDeleteHelperWithArgs:argv];
-	}
-	free(argv);
-}
-
 static const char suffixes[9] =
 {
 	'B',	/* Byte */
@@ -412,6 +124,342 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	} while ((amt /= 10) != 0);
 
 	return p;
+}
+
+static CFComparisonResult languageCompare(const void *val1, const void *val2, void *context)
+{
+#pragma unused(context)
+	return CFStringCompare(CFDictionaryGetValue((CFDictionaryRef)val1, CFSTR("displayName")), CFDictionaryGetValue((CFDictionaryRef)val2, CFSTR("displayName")), kCFCompareLocalized);
+}
+
+@implementation MyResponder
+struct Growl_Delegate    growlDelegate;
+ProgressWindowController *myProgress;
+PreferencesController    *myPreferences;
+NSWindow                 *parentWindow;
+CFMutableArrayRef        languages;
+CFMutableArrayRef        layouts;
+CFMutableArrayRef        architectures;
+CFDictionaryRef          startedNotificationInfo;
+CFDictionaryRef          finishedNotificationInfo;
+CFURLRef                 versionURL;
+CFURLRef                 downloadURL;
+CFURLRef                 donateURL;
+unsigned long long       bytesSaved;
+int                      mode;
+
++ (void) initialize
+{
+	CFTypeRef keys[2] = {
+		CFSTR("Path"),
+		CFSTR("Enabled")
+	};
+	CFTypeRef applicationsValues[2] = {
+		CFSTR("/Applications"),
+		kCFBooleanTrue
+	};
+	CFTypeRef developerValues[2] = {
+		CFSTR("/Developer"),
+		kCFBooleanTrue
+	};
+	CFTypeRef libraryValues[2] = {
+		CFSTR("/Library"),
+		kCFBooleanTrue
+	};
+	CFTypeRef systemValues[2] = {
+		CFSTR("/System"),
+		kCFBooleanTrue
+	};
+	CFDictionaryRef applications = CFDictionaryCreate(kCFAllocatorDefault, keys, applicationsValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef developer = CFDictionaryCreate(kCFAllocatorDefault, keys, developerValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef library = CFDictionaryCreate(kCFAllocatorDefault, keys, libraryValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef systemPath = CFDictionaryCreate(kCFAllocatorDefault, keys, systemValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFTypeRef roots[4] = {
+		applications,
+		developer,
+		library,
+		systemPath
+	};
+	CFArrayRef defaultRoots = CFArrayCreate(kCFAllocatorDefault, roots, 4, &kCFTypeArrayCallBacks);
+	CFRelease(applications);
+	CFRelease(developer);
+	CFRelease(library);
+	CFRelease(systemPath);
+	CFStringRef rootsKey = CFSTR("Roots");
+	CFDictionaryRef defaultValues = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&rootsKey, (const void **)&defaultRoots, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultValues];
+	CFRelease(defaultValues);
+	CFRelease(defaultRoots);
+}
+
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
+{
+#pragma unused(theApplication)
+	return YES;
+}
+
+- (void) cancelRemove
+{
+	const unsigned char bytes[1] = {'\0'};
+	write(pipeDescriptor, bytes, sizeof(bytes));
+	CFRunLoopRemoveSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
+	CFRelease(pipeRunLoopSource);
+	CFSocketInvalidate(pipeSocket);
+	CFRelease(pipeSocket);
+	CFRelease(pipeBuffer);
+	pipeSocket = NULL;
+
+	[NSApp endSheet:[myProgress window]];
+	[[myProgress window] orderOut:self];
+	[myProgress stop];
+
+	Growl_PostNotificationWithDictionary(finishedNotificationInfo);
+
+	CFStringRef title = CFCopyLocalizedString(CFSTR("Removal cancelled"), "");
+	CFStringRef msg = CFCopyLocalizedString(CFSTR("You cancelled the removal. Some files were erased, some were not."), "");
+	NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+					  [NSApp mainWindow], self, NULL, NULL, self,
+					  (NSString *)msg);
+	CFRelease(msg);
+	CFRelease(title);
+}
+
+- (IBAction) documentationBundler:(id)sender
+{
+	CFURLRef docURL = CFBundleCopyResourceURL(CFBundleGetMainBundle(), (CFStringRef)[sender title], NULL, NULL);
+	LSOpenCFURLRef(docURL, NULL);
+	CFRelease(docURL);
+}
+
+- (IBAction) openWebsite:(id)sender
+{
+#pragma unused(sender)
+	CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/"), NULL);
+	LSOpenCFURLRef(url, NULL);
+	CFRelease(url);
+}
+
+- (void) scanLayouts
+{
+	struct stat st;
+	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
+	CFArrayRef files = (CFArrayRef)[[NSFileManager defaultManager] directoryContentsAtPath:layoutPath];
+	CFIndex length = CFArrayGetCount(files);
+	CFMutableArrayRef scannedLayouts = CFArrayCreateMutable(kCFAllocatorDefault, length+6, &kCFTypeArrayCallBacks);
+	for (CFIndex i=0; i<length; ++i) {
+		CFStringRef file = CFArrayGetValueAtIndex(files, i);
+		if (CFStringHasSuffix(file, CFSTR(".bundle")) && !CFEqual(file, CFSTR("Roman.bundle"))) {
+			CFStringRef displayName = CFCopyLocalizedString((CFStringRef)[(NSString *)file stringByDeletingPathExtension], "");
+			CFStringRef type = CFCopyLocalizedString(CFSTR("Keyboard Layout"), "");
+			CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+			CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+			CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+			CFDictionarySetValue(layout, CFSTR("type"), type);
+			CFDictionarySetValue(layout, CFSTR("path"), [layoutPath stringByAppendingPathComponent:(NSString *)file]);
+			CFArrayAppendValue(scannedLayouts, layout);
+			CFRelease(layout);
+			CFRelease(type);
+			CFRelease(displayName);
+		}
+	}
+	CFStringRef inputMethod = CFCopyLocalizedString(CFSTR("Input Method"),"");
+	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/Kotoeri.component"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/XPIM.component"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/TCIM.component"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/SCIM.component"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Murasu Anjal Tamil"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/AnjalIM.component"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/HangulIM.component"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	CFRelease(inputMethod);
+	[self setLayouts:(NSMutableArray *)scannedLayouts];
+	CFRelease(scannedLayouts);
+}
+
+- (IBAction) showPreferences:(id)sender
+{
+#pragma unused(sender)
+	if (!myPreferences)
+		myPreferences = [[PreferencesController alloc] init];
+	[myPreferences showWindow:self];
+}
+
+- (IBAction) checkVersion:(id)sender {
+#pragma unused(sender)
+	CFStringRef displayText = CFCopyLocalizedString(CFSTR("A newer version of Monolingual is available online. Would you like to download it now?"), "");
+	[VersionCheck checkVersionAtURL:versionURL
+						displayText:(NSString *)displayText
+						downloadURL:downloadURL];
+	CFRelease(displayText);
+}
+
+- (IBAction) donate:(id)sender {
+#pragma unused(sender)
+	LSOpenCFURLRef(donateURL, NULL);
+}
+
+- (IBAction) removeLanguages:(id)sender
+{
+#pragma unused(sender)
+	mode = MODE_LANGUAGES;
+	/* Display a warning first */
+	CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
+	CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
+	CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Continue"), "");
+	CFStringRef msg = CFCopyLocalizedString(CFSTR("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling Mac OS X."), "");
+	NSBeginAlertSheet((NSString *)title, (NSString *)defaultButton,
+					  (NSString *)alternateButton, nil, [NSApp mainWindow],
+					  self, NULL,
+					  @selector(warningSelector:returnCode:contextInfo:), self,
+					  (NSString *)msg);
+	CFRelease(msg);
+	CFRelease(alternateButton);
+	CFRelease(defaultButton);
+	CFRelease(title);
+}
+
+- (IBAction) removeLayouts:(id)sender
+{
+#pragma unused(sender)
+	mode = MODE_LAYOUTS;
+	/* Display a warning first */
+	CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
+	CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
+	CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Continue"), "");
+	CFStringRef msg = CFCopyLocalizedString(CFSTR("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling Mac OS X."), "");
+	NSBeginAlertSheet((NSString *)title, (NSString *)defaultButton,
+					  (NSString *)alternateButton, nil, [NSApp mainWindow],
+					  self, NULL,
+					  @selector(removeLayoutsWarning:returnCode:contextInfo:),self,
+					  (NSString *)msg);
+	CFRelease(msg);
+	CFRelease(alternateButton);
+	CFRelease(defaultButton);
+	CFRelease(title);
+}
+
+- (IBAction) removeArchitectures:(id)sender
+{
+#pragma unused(sender)
+	CFArrayRef	roots;
+	CFIndex		roots_count;
+	CFIndex		archs_count;
+	const char	**argv;
+
+	mode = MODE_ARCHITECTURES;
+
+	roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	roots_count = CFArrayGetCount(roots);
+	archs_count = CFArrayGetCount(architectures);
+	argv = (const char **)malloc((10+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
+	int idx = 1;
+
+	CFIndex remove_count = 0;
+	for (CFIndex i=0; i<archs_count; ++i) {
+		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
+		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("enabled")))) {
+			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
+			NSLog(@"Will remove architecture %@", name);
+			argv[idx++] = "--thin";
+			argv[idx++] = [(NSString *)name UTF8String];
+			++remove_count;
+		}
+	}
+
+	if (remove_count == archs_count) {
+		CFStringRef title = CFCopyLocalizedString(CFSTR("Cannot remove all architectures"), "");
+		CFStringRef msg = CFCopyLocalizedString(CFSTR("Removing all architectures will make Mac OS X inoperable. Please keep at least one architecture and try again."), "");
+		NSBeginAlertSheet((NSString *)title,
+						  nil, nil, nil, [NSApp mainWindow], self, NULL,
+						  NULL, nil,
+						  (NSString *)msg);
+		CFRelease(msg);
+		CFRelease(title);
+	} else if (remove_count) {
+		/* start things off if we have something to remove! */
+		for (CFIndex i=0; i<roots_count; ++i) {
+			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
+			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Enabled")));
+			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
+			if (enabled) {
+				NSLog(@"Adding root %@", path);
+				argv[idx++] = "-r";
+			} else {
+				NSLog(@"Excluding root %@", path);
+				argv[idx++] = "-x";
+			}
+			argv[idx++] = [path fileSystemRepresentation];
+		}
+		argv[idx++] = "-b";
+		argv[idx++] = "com.charlessoft.pacifist";
+		argv[idx++] = "-b";
+		argv[idx++] = "com.skype.skype";
+		argv[idx++] = "-b";
+		argv[idx++] = "com.yazsoft.SpeedDownload";
+		argv[idx++] = "-b";
+		argv[idx++] = "org.xlife.Acquisition";
+		argv[idx] = NULL;
+		[self runDeleteHelperWithArgs:argv];
+	}
+	free(argv);
 }
 
 static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType, 
@@ -556,11 +604,16 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 		Growl_PostNotificationWithDictionary(finishedNotificationInfo);
 
-		NSBeginAlertSheet(NSLocalizedString(@"Removal completed",@""),
+		CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
+		CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Language resources removed. Space saved: %s."), "");
+		CFStringRef msg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, msgFormat, human_readable(bytesSaved, hbuf, 1024));
+		CFRelease(msgFormat);
+		NSBeginAlertSheet((NSString *)title,
 						  nil, nil, nil, parentWindow, responder, NULL, NULL,
 						  responder,
-						  [NSString stringWithFormat:NSLocalizedString(@"Language resources removed. Space saved: %s.",@""), human_readable(bytesSaved, hbuf, 1024)],
-						  nil);
+						  (NSString *)msg);
+		CFRelease(msg);
+		CFRelease(title);
 		[responder scanLayouts];
 	}
 }
@@ -587,20 +640,37 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	switch (status) {
 		case errAuthorizationSuccess:
 			break;
-		case errAuthorizationDenied:
+		case errAuthorizationDenied: {
 			/* If you can't do it because you're not administrator, then let the user know! */
-			NSBeginAlertSheet(NSLocalizedString(@"Permission Error",@""),nil,nil,nil,[NSApp mainWindow],self, NULL,
-							  NULL,self,NSLocalizedString(@"You entered an incorrect administrator password.",@""),nil);
+			CFStringRef title = CFCopyLocalizedString(CFSTR("Permission Error"), "");
+			CFStringRef msg = CFCopyLocalizedString(CFSTR("You entered an incorrect administrator password."), "");
+			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+							  [NSApp mainWindow], self, NULL, NULL, NULL,
+							  (NSString *)msg);
+			CFRelease(msg);
+			CFRelease(title);
 			return;
-		case errAuthorizationCanceled:
-			NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
-							  NULL,NULL,NULL,
-							  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
+		}
+		case errAuthorizationCanceled: {
+			CFStringRef title = CFCopyLocalizedString(CFSTR("Nothing done"), "");
+			CFStringRef msg = CFCopyLocalizedString(CFSTR("Monolingual is stopping without making any changes. Your OS has not been modified."), "");
+			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+							  [NSApp mainWindow], self, NULL, NULL, NULL,
+							  (NSString *)msg);
+			CFRelease(msg);
+			CFRelease(title);
 			return;
-		default:
-			NSBeginAlertSheet(NSLocalizedString(@"Authorization Error",@""),nil,nil,nil,[NSApp mainWindow],self, NULL,
-							  NULL,self,NSLocalizedString(@"Failed to authorize as an administrator.",@""),nil);
+		}
+		default: {
+			CFStringRef title = CFCopyLocalizedString(CFSTR("Authorization Error"), "");
+			CFStringRef msg = CFCopyLocalizedString(CFSTR("Failed to authorize as an administrator."), "");
+			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+							  [NSApp mainWindow], self, NULL, NULL, NULL,
+							  (NSString *)msg);
+			CFRelease(msg);
+			CFRelease(title);
 			return;
+		}
 	}
 
 	argv[0] = path;
@@ -645,9 +715,13 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	const char		**argv;
 
 	if (NSAlertDefaultReturn == returnCode) {
-		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
-						  NULL,NULL,contextInfo,
-						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
+		CFStringRef title = CFCopyLocalizedString(CFSTR("Nothing done"), "");
+		CFStringRef msg = CFCopyLocalizedString(CFSTR("Monolingual is stopping without making any changes. Your OS has not been modified."), "");
+		NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+						  [NSApp mainWindow], self, NULL, NULL, contextInfo,
+						  (NSString *)msg);
+		CFRelease(msg);
+		CFRelease(title);
 	} else {
 		count = CFArrayGetCount(layouts);
 		argv = (const char **)malloc((10+count+count)*sizeof(char *));
@@ -690,9 +764,21 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
 			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("folders")), 0U), CFSTR("en.lproj"))) {
 				/* Display a warning */
-				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!",@""),NSLocalizedString(@"Stop",@""),NSLocalizedString(@"Continue",@""),nil,[NSApp mainWindow],self,NULL,
-										  @selector(englishWarningSelector:returnCode:contextInfo:),self,
-										  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?",@""),nil);
+				CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
+				CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
+				CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Continue"), "");
+				CFStringRef msg = CFCopyLocalizedString(CFSTR("You are about to delete the English language files. Are you sure you want to do that?"), "");
+				NSBeginCriticalAlertSheet((NSString *)title,
+										  (NSString *)defaultButton,
+										  (NSString *)alternateButton, nil,
+										  [NSApp mainWindow], self, NULL,
+										  @selector(englishWarningSelector:returnCode:contextInfo:),
+										  self,
+										  (NSString *)msg);
+				CFRelease(msg);
+				CFRelease(alternateButton);
+				CFRelease(defaultButton);
+				CFRelease(title);
 				return;
 			}
 		}
@@ -702,42 +788,46 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 - (void) englishWarningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-#pragma unused(sheet)
-	unsigned int i;
-	unsigned int rCount;
-	unsigned int lCount;
-	unsigned int idx;
-	const char **argv;
-	NSArray *roots;
-	unsigned int roots_count;
-	BOOL trash;
+#pragma unused(sheet,contextInfo)
+	CFIndex			i;
+	CFIndex			rCount;
+	CFIndex			lCount;
+	unsigned int	idx;
+	const char		**argv;
+	CFArrayRef		roots;
+	CFIndex			roots_count;
+	BOOL			trash;
 
-	roots = [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
-	roots_count = [roots count];
+	roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	roots_count = CFArrayGetCount(roots);
 
-	for (i=0U; i<roots_count; ++i)
-		if ([[[roots objectAtIndex:i] objectForKey:@"Enabled"] boolValue])
+	for (i=0; i<roots_count; ++i)
+		if (CFBooleanGetValue(CFDictionaryGetValue(CFArrayGetValueAtIndex(roots, i), CFSTR("Enabled"))))
 			break;
 	if (i==roots_count)
 		/* No active roots */
-		roots_count = 0U;
+		roots_count = 0;
 
 	if (NSAlertDefaultReturn == returnCode || !roots_count) {
-		NSBeginAlertSheet(NSLocalizedString(@"Nothing done",@""),nil,nil,nil,[NSApp mainWindow],self,
-						  NULL,NULL,contextInfo,
-						  NSLocalizedString(@"Monolingual is stopping without making any changes.  Your OS has not been modified.",@""),nil);
+		CFStringRef title = CFCopyLocalizedString(CFSTR("Nothing done"), "");
+		CFStringRef msg = CFCopyLocalizedString(CFSTR("Monolingual is stopping without making any changes. Your OS has not been modified."), "");
+		NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+						  [NSApp mainWindow], self, NULL, NULL, NULL,
+						  (NSString *)msg);
+		CFRelease(msg);
+		CFRelease(title);
 	} else {
-		rCount = 0U;
+		rCount = 0;
 		lCount = CFArrayGetCount(languages);
 		argv = (const char **)malloc((3+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *));
 		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if (trash)
 			argv[idx++] = "-t";
-		for (i=0U; i<roots_count; ++i) {
-			NSDictionary *root = [roots objectAtIndex:i];
-			BOOL enabled = [[root objectForKey:@"Enabled"] boolValue];
-			NSString *path = [root objectForKey:@"Path"];
+		for (i=0; i<roots_count; ++i) {
+			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
+			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Enabled")));
+			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
 			if (enabled) {
 				NSLog(@"Adding root %@", path);
 				argv[idx++] = "-r";
@@ -747,7 +837,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			}
 			argv[idx++] = [path fileSystemRepresentation];
 		}
-		for (i=0U; i<lCount; ++i) {
+		for (i=0; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
 			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled")))) {
 				CFArrayRef paths = CFDictionaryGetValue(language, CFSTR("folders"));
@@ -762,10 +852,13 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		}
 
 		if (rCount == lCount)  {
-			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages",@""),
-							  nil, nil, nil, [NSApp mainWindow], self, NULL,
-							  NULL, nil,
-							  NSLocalizedString(@"Removing all languages will make OS X inoperable.  Please keep at least one language and try again.",@""),nil);
+			CFStringRef title = CFCopyLocalizedString(CFSTR("Cannot remove all languages"), "");
+			CFStringRef msg = CFCopyLocalizedString(CFSTR("Removing all languages will make Mac OS X inoperable. Please keep at least one language and try again."), "");
+			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+							  [NSApp mainWindow], self, NULL, NULL, NULL,
+							  (NSString *)msg);
+			CFRelease(msg);
+			CFRelease(title);
 		} else if (rCount) {
 			/* start things off if we have something to remove! */
 			argv[idx] = NULL;
@@ -792,16 +885,12 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 #pragma unused(aNotification)
+	CFStringRef displayText = CFCopyLocalizedString(CFSTR("A newer version of Monolingual is available online. Would you like to download it now?"), "");
 	[VersionCheck checkVersionAtURL:versionURL
 					withDayInterval:7
-						displayText:NSLocalizedString(@"A newer version of Monolingual is available online.  Would you like to download it now?",@"")
+						displayText:(NSString *)displayText
 						downloadURL:downloadURL];
-}
-
-static CFComparisonResult languageCompare(const void *val1, const void *val2, void *context)
-{
-#pragma unused(context)
-	return CFStringCompare(CFDictionaryGetValue((CFDictionaryRef)val1, CFSTR("displayName")), CFDictionaryGetValue((CFDictionaryRef)val2, CFSTR("displayName")), kCFCompareLocalized);
+	CFRelease(displayText);
 }
 
 - (void) awakeFromNib

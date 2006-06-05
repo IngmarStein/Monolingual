@@ -25,7 +25,7 @@
 	[oPanel setCanChooseDirectories:YES];
 	[oPanel setCanChooseFiles:NO];
 
-	if( NSOKButton == [oPanel runModalForDirectory:nil file:nil types:nil] ) {
+	if (NSOKButton == [oPanel runModalForDirectory:nil file:nil types:nil]) {
 		NSEnumerator *filenameEnum = [[oPanel filenames] objectEnumerator];
 		NSString *filename;
 		while ((filename = [filenameEnum nextObject])) {

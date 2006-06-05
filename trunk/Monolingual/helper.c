@@ -32,6 +32,7 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <syslog.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include "lipo.h"
 
 #ifndef FAT_MAGIC
@@ -45,9 +46,11 @@ static int trash;
 static unsigned num_directories;
 static unsigned num_excludes;
 static unsigned num_archs;
+static unsigned num_blacklists;
 static const char **directories;
 static const char **excludes;
 static const char **archs;
+static const char **blacklist;
 
 static int string_compare(const void *s1, const void *s2)
 {
@@ -76,6 +79,42 @@ static void thin_file(const char *path)
 		printf("%s%c%llu%c", path, '\0', size_diff, '\0');
 		fflush(stdout);
 	}
+}
+
+static int is_blacklisted(const char *path)
+{
+	int result = 0;
+	CFStringRef infoPlistPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/Info.plist"), path);
+	CFURLRef infoPlistURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, infoPlistPath, kCFURLPOSIXPathStyle, false);
+	CFRelease(infoPlistPath);
+	CFReadStreamRef stream = CFReadStreamCreateWithFile(kCFAllocatorDefault, infoPlistURL);
+	CFRelease(infoPlistURL);
+	if (stream) {
+		if (CFReadStreamOpen(stream)) {
+			CFPropertyListFormat format;
+			CFPropertyListRef plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+																	 stream,
+																	 /*streamLength*/ 0,
+																	 kCFPropertyListImmutable,
+																	 &format,
+																	 /*errorString*/ NULL);
+			if (plist) {
+				CFStringRef bundleId = CFDictionaryGetValue(plist, kCFBundleIdentifierKey);
+				if (bundleId) {
+					char buffer[256];
+					if (CFStringGetCString(bundleId, buffer, sizeof(buffer), kCFStringEncodingUTF8))
+						result = bsearch(buffer, blacklist, num_blacklists, sizeof(char *), string_search) != NULL;
+				}
+				CFRelease(plist);
+			}
+			
+			CFReadStreamClose(stream);
+		}
+		
+		CFRelease(stream);
+	}
+
+	return result;
 }
 
 static int delete_recursively(const char *path)
@@ -259,24 +298,26 @@ static void thin_recursively(const char *path)
 	switch (st.st_mode & S_IFMT) {
 		case S_IFDIR: {
 			DIR *dir;
-			struct dirent *ent;
-			dir = opendir(path);
-			if (dir) {
-				size_t pathlen = strlen(path);
-				while ((ent = readdir(dir))) {
-					if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
-						char *subdir = malloc(pathlen + ent->d_namlen + 2);
-						strcpy(subdir, path);
-						if (path[pathlen-1] != '/') {
-							subdir[pathlen] = '/';
-							subdir[pathlen+1] = '\0';
+			if (!is_blacklisted(path)) {
+				dir = opendir(path);
+				if (dir) {
+					struct dirent *ent;
+					size_t pathlen = strlen(path);
+					while ((ent = readdir(dir))) {
+						if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
+							char *subdir = malloc(pathlen + ent->d_namlen + 2);
+							strcpy(subdir, path);
+							if (path[pathlen-1] != '/') {
+								subdir[pathlen] = '/';
+								subdir[pathlen+1] = '\0';
+							}
+							strcat(subdir, ent->d_name);
+							thin_recursively(subdir);
+							free(subdir);
 						}
-						strcat(subdir, ent->d_name);
-						thin_recursively(subdir);
-						free(subdir);
 					}
+					closedir(dir);
 				}
-				closedir(dir);
 			}
 			break;
 		}
@@ -315,12 +356,14 @@ int main(int argc, const char *argv[])
 	num_roots = 0U;
 	num_files = 0U;
 	num_archs = 0U;
+	num_blacklists = 0U;
 
 	roots       = (const char **)malloc((argc-1) * sizeof(char *));
 	files       = (const char **)malloc((argc-1) * sizeof(char *));
 	directories = (const char **)malloc((argc-1) * sizeof(char *));
 	excludes    = (const char **)malloc((argc-1) * sizeof(char *));
 	archs       = (const char **)malloc((argc-1) * sizeof(char *));
+	blacklist   = (const char **)malloc((argc-1) * sizeof(char *));
 
 	for (int i=1; i<argc; ++i) {
 		const char *arg = argv[i];
@@ -358,6 +401,14 @@ int main(int argc, const char *argv[])
 			} else {
 				files[num_files++] = argv[i];
 			}
+		} else if (!strcmp(arg, "-b") || !strcmp(arg, "--blacklist")) {
+			++i;
+			if (i == argc) {
+				fprintf(stderr, "Argument expected for -b/--blacklist\n");
+				return EXIT_FAILURE;
+			} else {
+				blacklist[num_blacklists++] = argv[i];
+			}
 		} else {
 			directories[num_directories++] = arg;
 		}
@@ -365,6 +416,9 @@ int main(int argc, const char *argv[])
 
 	if (num_directories)
 		qsort(directories, num_directories, sizeof(char *), string_compare);
+
+	if (num_blacklists)
+		qsort(blacklist, num_blacklists, sizeof(char *), string_compare);
 
 	// delete regular files
 	for (unsigned i=0U; i<num_files && !should_exit(); ++i)
