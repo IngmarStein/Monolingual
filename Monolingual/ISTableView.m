@@ -19,17 +19,16 @@
 		case ' ':
 			row = [self selectedRow];
 			if (row != -1) {
-				NSMutableDictionary *dict = [[arrayController arrangedObjects] objectAtIndex:row];
+				CFMutableDictionaryRef dict = (CFMutableDictionaryRef)[[arrayController arrangedObjects] objectAtIndex:row];
 				if (dict) {
-					id oldValue = [dict objectForKey:@"enabled"];
-					NSNumber *newValue = [[NSNumber alloc] initWithBool:![oldValue boolValue]];
-					[dict setObject:newValue forKey:@"enabled"];
-					[newValue release];
+					CFBooleanRef value = CFDictionaryGetValue(dict, CFSTR("enabled"));
+					CFDictionarySetValue(dict, CFSTR("enabled"), CFBooleanGetValue(value) ? kCFBooleanFalse : kCFBooleanTrue);
 				}
 			}
 			break;
 		default:
 			[super keyDown:theEvent];
+			break;
 	}
 }
 

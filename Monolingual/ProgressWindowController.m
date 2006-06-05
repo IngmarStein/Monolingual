@@ -44,7 +44,7 @@ CFDictionaryRef fileAttributes;
 {
 	static ProgressWindowController *_sharedProgressWindowController = nil;
 
-	if( !_sharedProgressWindowController ) {
+	if (!_sharedProgressWindowController) {
 		_sharedProgressWindowController = [[ProgressWindowController allocWithZone:[self zone]] init];
 		parent = sender;
 	}

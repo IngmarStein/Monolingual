@@ -89,17 +89,21 @@ static CFPropertyListRef createPropertyListFromURL(CFURLRef url, u_int32_t mutab
 
 		// do nothing--be quiet if there is no active connection or if the
 		// version number could not be downloaded
-		if( latestVersionNumber ) {
+		if (latestVersionNumber) {
 			if (CFEqual(latestVersionNumber, currVersionNumber)) {
 				// Everything is fine, update the counter
 				CFPreferencesSetAppValue(CFSTR("lastVersionCheckDate"), now, kCFPreferencesCurrentApplication);
 			} else {
-				NSBeginAlertSheet(NSLocalizedString(@"Update Available",@""),
+				CFStringRef title = CFCopyLocalizedString(CFSTR("Update Available"),"");
+				CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Cancel"),"");
+				NSBeginAlertSheet((NSString *)title,
 								  nil,
-								  NSLocalizedString(@"Cancel",@""), nil, nil,
+								  (NSString *)alternateButton, nil, nil,
 								  self, NULL,
 								  @selector(downloadSelector:returnCode:contextInfo:),
-								  (void *)goURL, message, nil);
+								  (void *)goURL, message);
+				CFRelease(alternateButton);
+				CFRelease(title);
 				CFPreferencesSetAppValue(CFSTR("lastVersionCheckDate"), NULL, kCFPreferencesCurrentApplication);
 			}
 		}
@@ -128,12 +132,16 @@ static CFPropertyListRef createPropertyListFromURL(CFURLRef url, u_int32_t mutab
 	// do nothing--be quiet if there is no active connection or if the
 	// version number could not be downloaded
 	if (latestVersionNumber && (!CFEqual(latestVersionNumber, currVersionNumber))) {
-		NSBeginAlertSheet(NSLocalizedString(@"Update Available",@""),
+		CFStringRef title = CFCopyLocalizedString(CFSTR("Update Available"),"");
+		CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Cancel"),"");
+		NSBeginAlertSheet((NSString *)title,
 						  nil,
-						  NSLocalizedString(@"Cancel",@""), nil, nil, self,
+						  (NSString *)alternateButton, nil, nil, self,
 						  NULL, 
 						  @selector(downloadSelector:returnCode:contextInfo:),
-						  (void *)goURL, message, nil);
+						  (void *)goURL, message);
+		CFRelease(alternateButton);
+		CFRelease(title);
 	}
 	CFRelease(productVersionDict);
 }
@@ -142,7 +150,7 @@ static CFPropertyListRef createPropertyListFromURL(CFURLRef url, u_int32_t mutab
 {
 #pragma unused(sheet)
 	if (returnCode == NSAlertDefaultReturn)
-		[[NSWorkspace sharedWorkspace] openURL:contextInfo];
+		LSOpenCFURLRef((CFURLRef)contextInfo, NULL);
 }
 
 @end
