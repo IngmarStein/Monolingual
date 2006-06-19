@@ -9,7 +9,6 @@
 
 @implementation ProgressWindowController
 id parent;
-CFDictionaryRef fileAttributes;
 
 - (IBAction) cancelButton: (id)sender
 {
@@ -24,20 +23,8 @@ CFDictionaryRef fileAttributes;
 
 - (id) init
 {
-	if( (self = [self initWithWindowNibName:@"ProgressWindow"]) ) {
-		NSMutableParagraphStyle *fileParagraphStyle;
-		fileParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-		[fileParagraphStyle setLineBreakMode:NSLineBreakByTruncatingMiddle];
-		fileAttributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&NSParagraphStyleAttributeName, (const void **)&fileParagraphStyle, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		[fileParagraphStyle release];
-	}
+	self = [self initWithWindowNibName:@"ProgressWindow"];
 	return self;
-}
-
-- (void) dealloc
-{
-	CFRelease(fileAttributes);
-	[super dealloc];
 }
 
 + (id) sharedProgressWindowController: (id)sender
@@ -63,7 +50,7 @@ CFDictionaryRef fileAttributes;
 	CFStringRef value = CFCopyLocalizedString(CFSTR("Removing..."),"");
 	[applicationText setStringValue:(NSString *)value];
 	CFRelease(value);
-	[self setFile:CFSTR("")];
+	[fileText setStringValue:@""];
 }
 
 - (void) stop
@@ -73,11 +60,7 @@ CFDictionaryRef fileAttributes;
 
 - (void) setFile:(CFStringRef)file
 {
-	NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:(NSString *)file attributes:(NSDictionary *)fileAttributes];
-	[[fileText cell] setAttributedStringValue:attrStr];
-	[fileText updateCell:[fileText cell]];
-	[attrStr release];
-	//[fileText setStringValue:file];
+	[fileText setStringValue:(NSString *)file];
 }
 
 - (void) setText:(CFStringRef)text
