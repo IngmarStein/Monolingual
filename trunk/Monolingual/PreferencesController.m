@@ -10,12 +10,6 @@
 
 @implementation PreferencesController
 
-- (id) init
-{
-	self = [self initWithWindowNibName:@"Preferences"];
-	return self;
-}
-
 - (IBAction) add: (id)sender
 {
 #pragma unused(sender)

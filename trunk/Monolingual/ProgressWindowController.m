@@ -21,23 +21,6 @@ id parent;
 	[parent cancelRemove];
 }
 
-- (id) init
-{
-	self = [self initWithWindowNibName:@"ProgressWindow"];
-	return self;
-}
-
-+ (id) sharedProgressWindowController: (id)sender
-{
-	static ProgressWindowController *_sharedProgressWindowController = nil;
-
-	if (!_sharedProgressWindowController) {
-		_sharedProgressWindowController = [[ProgressWindowController allocWithZone:[self zone]] init];
-		parent = sender;
-	}
-	return _sharedProgressWindowController;
-}
-
 - (void) windowDidLoad
 {
 	[super windowDidLoad];

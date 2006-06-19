@@ -12,5 +12,4 @@
 	IBOutlet NSArrayController *roots;
 }
 - (IBAction) add: (id)sender;
-- (id) init;
 @end

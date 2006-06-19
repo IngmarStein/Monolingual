@@ -36,7 +36,5 @@
 - (void) setText:(CFStringRef)text;
 - (void) setFile:(CFStringRef)file;
 - (void) windowDidLoad;
-+ (id) sharedProgressWindowController: (id)sender;
-- (id) init;
 
 @end
