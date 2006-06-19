@@ -20,6 +20,24 @@
             }; 
             CLASS = MyResponder; 
             LANGUAGE = ObjC; 
+            OUTLETS = {
+                preferencesController = PreferencesController; 
+                progressWindowController = ProgressWindowController; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            ACTIONS = {add = id; }; 
+            CLASS = PreferencesController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {roots = NSArrayController; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            ACTIONS = {cancelButton = id; }; 
+            CLASS = ProgressWindowController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {applicationText = id; fileText = id; progressBar = id; }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

@@ -23,8 +23,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class ProgressWindowController, PreferencesController;
+
 @interface MyResponder : NSWindowController
 {
+	IBOutlet ProgressWindowController *progressWindowController;
+	IBOutlet PreferencesController *preferencesController;
 }
 + (void) initialize;
 - (IBAction) documentationBundler:(id)sender;

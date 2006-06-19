@@ -134,8 +134,6 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 
 @implementation MyResponder
 struct Growl_Delegate    growlDelegate;
-ProgressWindowController *myProgress;
-PreferencesController    *myPreferences;
 NSWindow                 *parentWindow;
 CFMutableArrayRef        languages;
 CFMutableArrayRef        layouts;
@@ -209,9 +207,9 @@ int                      mode;
 	CFRelease(pipeBuffer);
 	pipeSocket = NULL;
 
-	[NSApp endSheet:[myProgress window]];
-	[[myProgress window] orderOut:self];
-	[myProgress stop];
+	[NSApp endSheet:[progressWindowController window]];
+	[[progressWindowController window] orderOut:self];
+	[progressWindowController stop];
 
 	Growl_PostNotificationWithDictionary(finishedNotificationInfo);
 
@@ -337,9 +335,7 @@ int                      mode;
 - (IBAction) showPreferences:(id)sender
 {
 #pragma unused(sender)
-	if (!myPreferences)
-		myPreferences = [[PreferencesController alloc] init];
-	[myPreferences showWindow:self];
+	[preferencesController showWindow:self];
 }
 
 - (IBAction) checkVersion:(id)sender {
@@ -579,8 +575,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 						CFRelease(im);
 				}
 
-				[myProgress setText:message];
-				[myProgress setFile:file];
+				[responder->progressWindowController setText:message];
+				[responder->progressWindowController setFile:file];
 				[NSApp updateWindows];
 				CFRelease(message);
 				CFRelease(file);
@@ -598,9 +594,9 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFRelease(pipeSocket);
 		pipeSocket = NULL;
 		CFRelease(pipeBuffer);
-		[NSApp endSheet:[myProgress window]];
-		[[myProgress window] orderOut:responder];
-		[myProgress stop];
+		[NSApp endSheet:[responder->progressWindowController window]];
+		[[responder->progressWindowController window] orderOut:responder];
+		[responder->progressWindowController stop];
 
 		Growl_PostNotificationWithDictionary(finishedNotificationInfo);
 
@@ -676,9 +672,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	argv[0] = path;
 
 	parentWindow = [NSApp mainWindow];
-	myProgress = [ProgressWindowController sharedProgressWindowController:self];
-	[myProgress start];
-	[NSApp beginSheet:[myProgress window]
+	[progressWindowController start];
+	[NSApp beginSheet:[progressWindowController window]
 	   modalForWindow:parentWindow
 		modalDelegate:nil
 	   didEndSelector:nil
@@ -870,8 +865,6 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 - (void) dealloc
 {
-	[myProgress    release];
-	[myPreferences release];
 	CFRelease(versionURL);
 	CFRelease(downloadURL);
 	CFRelease(donateURL);
