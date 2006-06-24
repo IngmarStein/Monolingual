@@ -134,7 +134,6 @@ struct thin_file {
 	const char      *name;
 	char            *addr;
 	struct fat_arch fat_arch;
-	int             remove;
 };
 static struct thin_file *thin_files = NULL;
 static unsigned long nthin_files = 0UL;
@@ -158,53 +157,15 @@ static unsigned long nremove_arch_flags = 0UL;
  */
 static int get_arch_from_flag(const char *name, struct arch_flag *arch_flag)
 {
-	unsigned long i;
-
-	for (i = 0; arch_flags[i].name; ++i) {
+	for (unsigned long i = 0UL; arch_flags[i].name; ++i) {
 		if (!strcmp(arch_flags[i].name, name)) {
 			if (arch_flag)
 				*arch_flag = arch_flags[i];
 			return 1;
 		}
 	}
-	if (arch_flag)
-		memset(arch_flag, '\0', sizeof(struct arch_flag));
+
 	return 0;
-}
-
-static void *reallocate(void *p, unsigned long size)
-{
-	if (p == NULL)
-		return malloc(size);
-	return realloc(p, size);
-}
-
-/*
- * Create a new thin file struct, clear it and return it.
- */
-static struct thin_file *new_thin(void)
-{
-	struct thin_file *thin;
-
-	thin_files = reallocate(thin_files, (nthin_files + 1) * sizeof(struct thin_file));
-	thin = thin_files + nthin_files;
-	nthin_files++;
-	memset(thin, '\0', sizeof(struct thin_file));
-	return thin;
-}
-
-/*
- * Create a new arch_flag struct on the specified list, clear it and return it.
- */
-static struct arch_flag *new_arch_flag(struct arch_flag **p_arch_flags, unsigned long *narch_flags)
-{
-	struct arch_flag *arch_flag;
-
-	*p_arch_flags = reallocate(*p_arch_flags, (*narch_flags + 1) * sizeof(struct arch_flag));
-	arch_flag = *p_arch_flags + *narch_flags;
-	*narch_flags = *narch_flags + 1;
-	memset(arch_flag, '\0', sizeof(struct arch_flag));
-	return arch_flag;
 }
 
 /*
@@ -230,9 +191,7 @@ static unsigned long myround(unsigned long v, unsigned long r)
 #ifdef __LITTLE_ENDIAN__
 static void swap_fat_arch(struct fat_arch *fat_archs, unsigned long nfat_arch)
 {
-	unsigned long i;
-
-	for (i = 0; i < nfat_arch; ++i) {
+	for (unsigned long i = 0; i < nfat_arch; ++i) {
 		fat_archs[i].cputype	= SWAP_LONG(fat_archs[i].cputype);
 		fat_archs[i].cpusubtype = SWAP_LONG(fat_archs[i].cpusubtype);
 		fat_archs[i].offset 	= SWAP_LONG(fat_archs[i].offset);
@@ -368,10 +327,10 @@ static void process_input_file(struct input_file *input)
 	output_uid = stat_buf.st_uid;
 	output_gid = stat_buf.st_gid;
 	/*
-	 * Select the earliest modifiy time so that if the output file
+	 * Select the earliest modify time so that if the output file
 	 * contains archives with table of contents lipo will not make them
-	 * out of date.  This logic however could make an out of date table of
-	 * contents appear up todate if another file is combined with it that
+	 * out of date. This logic however could make an out of date table of
+	 * contents appear up to date if another file is combined with it that
 	 * has a date early enough.
 	 */
 	if (output_timep.modtime == 0 || output_timep.modtime > stat_buf.st_mtime) {
@@ -459,9 +418,10 @@ static void process_input_file(struct input_file *input)
 			}
 		}
 
+		nthin_files = input->fat_header->nfat_arch;
+		thin_files = malloc(nthin_files * sizeof(struct thin_file));
 		/* create a thin file struct for each arch in the fat file */
-		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
-			thin = new_thin();
+		for (i = 0, thin = thin_files; i < nthin_files; ++i, ++thin) {
 			thin->name = input->name;
 			thin->addr = addr + input->fat_arches[i].offset;
 			thin->fat_arch = input->fat_arches[i];
@@ -475,18 +435,44 @@ static void process_input_file(struct input_file *input)
 	}
 }
 
-int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *size_diff)
+int setup_lipo(const char *archs[], unsigned num_archs)
 {
-	unsigned a;
-	unsigned long i, j;
-	struct arch_flag *arch_flag;
+	nremove_arch_flags = num_archs;
+	remove_arch_flags = malloc(num_archs * sizeof(struct arch_flag));
+	for (unsigned i = 0U; i < num_archs; ++i) {
+		if (!get_arch_from_flag(archs[i], &remove_arch_flags[i])) {
+			fprintf(stderr, "unknown architecture specification flag: %s", archs[i]);
+			free(remove_arch_flags);
+			return 0;
+		}
+	}
+
+	for (unsigned i = 0U; i < nremove_arch_flags; ++i) {
+		for (unsigned j = i + 1; j < nremove_arch_flags; ++j) {
+			if (remove_arch_flags[i].cputype == remove_arch_flags[j].cputype
+				&& remove_arch_flags[i].cpusubtype == remove_arch_flags[j].cpusubtype)
+				fprintf(stderr, "-remove %s specified multiple times", remove_arch_flags[i].name);
+		}
+	}
+
+	return 1;
+}
+
+void finish_lipo(void)
+{
+	if (remove_arch_flags)
+		free(remove_arch_flags);
+}
+
+int run_lipo(const char *path, off_t *size_diff)
+{
 	int err;
 	off_t newsize;
 
 	/*
 	 * Check to see the specified arguments are valid.
 	 */
-	if (!num_archs || !path)
+	if (!path)
 		return 1;
 
 	/* reset static variables */
@@ -494,8 +480,6 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *s
 	nthin_files = 0UL;
 	memset(&output_timep, 0, sizeof(output_timep));
 	archives_in_input = 0;
-	remove_arch_flags = NULL;
-	nremove_arch_flags = 0UL;
 
 	/*
 	 * Process the arguments.
@@ -505,15 +489,6 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *s
 	input_file.size = 0;
 	input_file.fat_header = NULL;
 	input_file.fat_arches = NULL;
-	for (a = 0; a < num_archs; a++) {
-		arch_flag = new_arch_flag(&remove_arch_flags, &nremove_arch_flags);
-		if (!get_arch_from_flag(archs[a], arch_flag)) {
-			fprintf(stderr, "unknown architecture specification flag: %s", archs[a]);
-			if (remove_arch_flags)
-				free(remove_arch_flags);
-			return 1;
-		}
-	}
 
 	/*
 	 * Determine the types of the input files.
@@ -526,35 +501,19 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *s
 
 	if (!input_file.fat_header) {
 		fprintf(stderr, "input file (%s) must be a fat file", input_file.name);
-		if (remove_arch_flags)
-			free(remove_arch_flags);
 		return 1;
 	}
-	for (i = 0; i < nremove_arch_flags; ++i) {
-		for (j = i + 1; j < nremove_arch_flags; ++j) {
-			if (remove_arch_flags[i].cputype == remove_arch_flags[j].cputype &&
-			   remove_arch_flags[i].cpusubtype == remove_arch_flags[j].cpusubtype)
-				fprintf(stderr, "-remove %s specified multiple times", remove_arch_flags[i].name);
-		}
-	}
-	/* mark those thin files for removal */
-	for (i = 0; i < nremove_arch_flags; ++i) {
-		for (j = 0; j < nthin_files; ++j) {
-			if (remove_arch_flags[i].cputype == thin_files[j].fat_arch.cputype &&
-			   remove_arch_flags[i].cpusubtype == thin_files[j].fat_arch.cpusubtype) {
-				thin_files[j].remove = 1;
+	/* remove those thin files */
+	for (unsigned long i = 0; i < nremove_arch_flags; ++i) {
+		for (unsigned long j = 0; j < nthin_files; ++j) {
+			if (remove_arch_flags[i].cputype == thin_files[j].fat_arch.cputype
+				&& remove_arch_flags[i].cpusubtype == thin_files[j].fat_arch.cpusubtype) {
+				--nthin_files;
+				for (unsigned long k = j; k < nthin_files; ++k)
+					thin_files[k] = thin_files[k + 1];
 				break;
 			}
 		}
-	}
-	/* remove those thin files marked for removal */
-	for (i = 0; i < nthin_files; ) {
-		if (thin_files[i].remove) {
-			for (j = i; j < nthin_files; ++j)
-				thin_files[j] = thin_files[j + 1];
-			--nthin_files;
-		} else
-			++i;
 	}
 
 	/* write output file */
@@ -572,8 +531,6 @@ int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *s
 	if (ret != KERN_SUCCESS)
 		mach_error("vm_deallocate", ret);
 
-	if (remove_arch_flags)
-		free(remove_arch_flags);
 	if (thin_files)
 		free(thin_files);
 
