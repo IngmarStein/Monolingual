@@ -42,7 +42,7 @@
 #define FAT_CIGAM	0xbebafeca
 #endif
 
-static int trash;
+static void (*remove_func)(const char *path);
 static unsigned num_directories;
 static unsigned num_excludes;
 static unsigned num_archs;
@@ -75,7 +75,7 @@ static int should_exit(void)
 static void thin_file(const char *path)
 {
 	off_t size_diff;
-	if (!run_lipo(path, archs, num_archs, &size_diff)) {
+	if (!run_lipo(path, &size_diff)) {
 		printf("%s%c%llu%c", path, '\0', size_diff, '\0');
 		fflush(stdout);
 	}
@@ -117,16 +117,16 @@ static int is_blacklisted(const char *path)
 	return result;
 }
 
-static int delete_recursively(const char *path)
+static void delete_recursively(const char *path)
 {
 	struct stat st;
 	int result;
 
 	if (should_exit())
-		return 0;
+		return;
 
 	if (lstat(path, &st) == -1)
-		return 1;
+		return;
 
 	switch (st.st_mode & S_IFMT) {
 		case S_IFDIR: {
@@ -137,13 +137,13 @@ static int delete_recursively(const char *path)
 				size_t pathlen = strlen(path);
 				while ((ent = readdir(dir))) {
 					if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
-						char *subdir = malloc(pathlen + ent->d_namlen + 2);
-						strcpy(subdir, path);
-						if (path[pathlen-1] != '/') {
+						char subdir[PATH_MAX];
+						strncpy(subdir, path, sizeof(subdir));
+						if (path[pathlen-1] != '/' && pathlen<sizeof(subdir)-1) {
 							subdir[pathlen] = '/';
 							subdir[pathlen+1] = '\0';
 						}
-						strcat(subdir, ent->d_name);
+						strncat(subdir, ent->d_name, sizeof(subdir));
 						delete_recursively(subdir);
 						free(subdir);
 					}
@@ -158,76 +158,70 @@ static int delete_recursively(const char *path)
 			result = unlink(path);
 			break;
 		default:
-			return 1;
+			return;
 	}
 	if (!result) {
 		printf("%s%c%llu%c", path, '\0', st.st_size, '\0');
 		fflush(stdout);
 	}
-
-	return result;
 }
 
-static void remove_file(const char *path)
+static void trash_file(const char *path)
 {
-	if (trash) {
-		char resolved_path[PATH_MAX];
-		if (realpath(path, resolved_path)) {
-			char userTrash[PATH_MAX];
-			int validTrash = 0;
-			if (!strncmp(path, "/Volumes/", 9)) {
-				strncpy(userTrash, path, sizeof(userTrash));
-				char *sep_pos = strchr(&userTrash[9], '/');
-				if (sep_pos) {
-					sep_pos[1] = '\0';
-					strncat(userTrash, ".Trashes", sizeof(userTrash));
-					mkdir(userTrash, 0700);
-					snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", getuid());
-					validTrash = 1;
-				}
-			} else {
-				struct passwd *pwd = getpwuid(getuid());
-				if (pwd) {
-					strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
-					strncat(userTrash, "/.Trash", sizeof(userTrash));
-					validTrash = 1;
-				}
-			}
-			if (validTrash) {
-				char destination[PATH_MAX];
+	char resolved_path[PATH_MAX];
+	if (realpath(path, resolved_path)) {
+		char userTrash[PATH_MAX];
+		int validTrash = 0;
+		if (!strncmp(path, "/Volumes/", 9)) {
+			strncpy(userTrash, path, sizeof(userTrash));
+			char *sep_pos = strchr(&userTrash[9], '/');
+			if (sep_pos) {
+				sep_pos[1] = '\0';
+				strncat(userTrash, ".Trashes", sizeof(userTrash));
 				mkdir(userTrash, 0700);
-				char *filename = strrchr(path, '/');
-				if (filename) {
-					filename = strdup(filename);
-					char *extension = strrchr(filename, '.');
-					strncpy(destination, userTrash, sizeof(destination));
-					strncat(destination, filename, sizeof(destination));
-					while (1) {
-						struct stat sb;
-						struct tm *lt;
-						time_t now;
-
-						if (stat(destination, &sb)) {
-							if (rename(path, destination)) {
-								syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
-							} else {
-								printf("%s%c0%c", path, '\0', '\0');
-								fflush(stdout);
-							}
-							break;
-						}
-						if (extension)
-							*extension = '\0';
-						now = time(NULL);
-						lt = localtime(&now);
-						snprintf(destination, sizeof(destination), "%s%s %d-%d-%d.%s", userTrash, filename, lt->tm_hour, lt->tm_min, lt->tm_sec, extension+1);
-					}
-					free(filename);
-				}
+				snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", getuid());
+				validTrash = 1;
+			}
+		} else {
+			struct passwd *pwd = getpwuid(getuid());
+			if (pwd) {
+				strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
+				strncat(userTrash, "/.Trash", sizeof(userTrash));
+				validTrash = 1;
 			}
 		}
-	} else {
-		delete_recursively(path);
+		if (validTrash) {
+			char destination[PATH_MAX];
+			mkdir(userTrash, 0700);
+			char *filename = strrchr(path, '/');
+			if (filename) {
+				filename = strdup(filename);
+				char *extension = strrchr(filename, '.');
+				strncpy(destination, userTrash, sizeof(destination));
+				strncat(destination, filename, sizeof(destination));
+				while (1) {
+					struct stat sb;
+					struct tm *lt;
+					time_t now;
+
+					if (stat(destination, &sb)) {
+						if (rename(path, destination)) {
+							syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
+						} else {
+							printf("%s%c0%c", path, '\0', '\0');
+							fflush(stdout);
+						}
+						break;
+					}
+					if (extension)
+						*extension = '\0';
+					now = time(NULL);
+					lt = localtime(&now);
+					snprintf(destination, sizeof(destination), "%s%s %d-%d-%d.%s", userTrash, filename, lt->tm_hour, lt->tm_min, lt->tm_sec, extension+1);
+				}
+				free(filename);
+			}
+		}
 	}
 }
 
@@ -250,7 +244,7 @@ static void process_directory(const char *path)
 	if (last_component) {
 		++last_component;
 		if (bsearch(last_component, directories, num_directories, sizeof(char *), string_search)) {
-			remove_file(path);
+			remove_func(path);
 			return;
 		}
 	}
@@ -262,19 +256,16 @@ static void process_directory(const char *path)
 		while ((ent = readdir(dir))) {
 			if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
 				struct stat st;
-
-				char *subdir = malloc(pathlen + ent->d_namlen + 2);
-				strcpy(subdir, path);
-				if (path[pathlen-1] != '/') {
+				char subdir[PATH_MAX];
+				strncpy(subdir, path, sizeof(subdir));
+				if (path[pathlen-1] != '/' && pathlen<sizeof(subdir)-1) {
 					subdir[pathlen] = '/';
 					subdir[pathlen+1] = '\0';
 				}
-				strcat(subdir, ent->d_name);
+				strncat(subdir, ent->d_name, sizeof(subdir));
 
 				if (lstat(subdir, &st) != -1 && ((st.st_mode & S_IFMT) == S_IFDIR))
 					process_directory(subdir);
-
-				free(subdir);
 			}
 		}
 		closedir(dir);
@@ -286,6 +277,9 @@ static void thin_recursively(const char *path)
 	struct stat st;
 
 	if (should_exit())
+		return;
+
+	if (!strcmp(path, "/dev"))
 		return;
 
 	for (unsigned i=0U; i<num_excludes; ++i)
@@ -305,15 +299,14 @@ static void thin_recursively(const char *path)
 					size_t pathlen = strlen(path);
 					while ((ent = readdir(dir))) {
 						if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..")) {
-							char *subdir = malloc(pathlen + ent->d_namlen + 2);
-							strcpy(subdir, path);
-							if (path[pathlen-1] != '/') {
+							char subdir[PATH_MAX];
+							strncpy(subdir, path, sizeof(subdir));
+							if (path[pathlen-1] != '/' && pathlen<sizeof(subdir)-1) {
 								subdir[pathlen] = '/';
 								subdir[pathlen+1] = '\0';
 							}
-							strcat(subdir, ent->d_name);
+							strncat(subdir, ent->d_name, sizeof(subdir));
 							thin_recursively(subdir);
-							free(subdir);
 						}
 					}
 					closedir(dir);
@@ -327,6 +320,7 @@ static void thin_recursively(const char *path)
 				if (fd >= 0) {
 					unsigned int magic;
 					ssize_t num;
+					fcntl(fd, F_NOCACHE, 1);
 					num = read(fd, &magic, sizeof(magic));
 					close(fd);
 
@@ -338,8 +332,6 @@ static void thin_recursively(const char *path)
 		default:
 			break;
 	}
-
-	return;
 }
 
 int main(int argc, const char *argv[])
@@ -348,22 +340,33 @@ int main(int argc, const char *argv[])
 	const char **files;
 	unsigned   num_roots;
 	unsigned   num_files;
+	size_t     maxsize;
+	const char **buf;
+	const char **bufptr;
 
 	if (argc <= 2)
 		return EXIT_FAILURE;
 
-	trash = 0;
 	num_roots = 0U;
 	num_files = 0U;
 	num_archs = 0U;
 	num_blacklists = 0U;
+	remove_func = delete_recursively;
 
-	roots       = (const char **)malloc((argc-1) * sizeof(char *));
-	files       = (const char **)malloc((argc-1) * sizeof(char *));
-	directories = (const char **)malloc((argc-1) * sizeof(char *));
-	excludes    = (const char **)malloc((argc-1) * sizeof(char *));
-	archs       = (const char **)malloc((argc-1) * sizeof(char *));
-	blacklist   = (const char **)malloc((argc-1) * sizeof(char *));
+	maxsize     = argc-1;
+	buf         = (const char **)malloc(6 * maxsize * sizeof(char *));
+	bufptr      = buf;
+	roots       = bufptr;
+	bufptr     += maxsize;
+	files       = bufptr;
+	bufptr     += maxsize;
+	directories = bufptr;
+	bufptr     += maxsize;
+	excludes    = bufptr;
+	bufptr     += maxsize;
+	archs       = bufptr;
+	bufptr     += maxsize;
+	blacklist   = bufptr;
 
 	for (int i=1; i<argc; ++i) {
 		const char *arg = argv[i];
@@ -384,7 +387,7 @@ int main(int argc, const char *argv[])
 				excludes[num_excludes++] = argv[i];
 			}
 		} else if (!strcmp(arg, "-t") || !strcmp(arg, "--trash")) {
-			trash = 1;
+			remove_func = trash_file;
 		} else if (!strcmp(arg, "--thin")) {
 			++i;
 			if (i == argc) {
@@ -422,7 +425,7 @@ int main(int argc, const char *argv[])
 
 	// delete regular files
 	for (unsigned i=0U; i<num_files && !should_exit(); ++i)
-		remove_file(files[i]);
+		remove_func(files[i]);
 
 	// recursively delete directories
 	if (num_directories)
@@ -430,15 +433,13 @@ int main(int argc, const char *argv[])
 			process_directory(roots[i]);
 
 	// thin fat binaries
-	if (num_archs)
+	if (num_archs && setup_lipo(archs, num_archs)) {
 		for (unsigned i=0U; i<num_roots && !should_exit(); ++i)
 			thin_recursively(roots[i]);
+		finish_lipo();
+	}
 
-	free(directories);
-	free(roots);
-	free(excludes);
-	free(files);
-	free(archs);
+	free(buf);
 
 	return EXIT_SUCCESS;
 }

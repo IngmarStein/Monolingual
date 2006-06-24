@@ -13,6 +13,7 @@
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = F5A6E37F01A07759016596AB /* COPYING.txt */; };
+		956E31D70A4B4056004E91ED /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 956E31D60A4B4056004E91ED /* main.c */; };
 		9595189A07E48934004A4471 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
 		9595190107E48C30004A4471 /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
 		95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A0BEA206346AD3007510F1 /* PreferencesController.m */; };
@@ -20,7 +21,6 @@
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130350608F92F00D8E30C /* Monolingual.icns in Resources */ = {isa = PBXBuildFile; fileRef = F585B20B01E4DA180100012D /* Monolingual.icns */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
-		95A130380608F92F00D8E30C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		95A130390608F92F00D8E30C /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ECF788010242A17F000001 /* MyResponder.m */; };
 		95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 10400F490164385C7F000001 /* ProgressWindowController.m */; };
 		95A1303D0608F92F00D8E30C /* VersionCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = F54BC88102DA668D0100012F /* VersionCheck.m */; };
@@ -64,7 +64,6 @@
 		10400F480164385C7F000001 /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
 		10400F490164385C7F000001 /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -75,6 +74,7 @@
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = German.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
+		956E31D60A4B4056004E91ED /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		95833CC906ED88A900238761 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Italian; path = Italian.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
@@ -201,10 +201,10 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				956E31D60A4B4056004E91ED /* main.c */,
 				95BC963D0991F2C9001DEF94 /* lipo.c */,
 				95BC989F099228D5001DEF94 /* lipo.h */,
 				95D7A8AC098D42F800DCE08D /* helper.c */,
-				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -342,12 +342,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95A130380608F92F00D8E30C /* main.m in Sources */,
 				95A130390608F92F00D8E30C /* MyResponder.m in Sources */,
 				95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */,
 				95A1303D0608F92F00D8E30C /* VersionCheck.m in Sources */,
 				95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */,
 				95B4BCFC098A542E00251F45 /* ISTableView.m in Sources */,
+				956E31D70A4B4056004E91ED /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -450,6 +450,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
+				GCC_PFE_FILE_C_DIALECTS = "objective-c c++ objective-c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = Info.plist;
@@ -462,6 +463,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
+				GCC_PFE_FILE_C_DIALECTS = "objective-c c++ objective-c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = Info.plist;

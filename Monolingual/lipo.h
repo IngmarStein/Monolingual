@@ -12,6 +12,8 @@
 
 #include <unistd.h>
 
-int run_lipo(const char *path, const char *archs[], unsigned num_archs, off_t *size_diff);
+int setup_lipo(const char *archs[], unsigned num_archs);
+int run_lipo(const char *path, off_t *size_diff);
+void finish_lipo(void);
 
 #endif
