@@ -6,7 +6,7 @@
 //  Copyright (c) 2004-2006 Ingmar Stein. All rights reserved.
 //
 
-#import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 
 @interface PreferencesController : NSWindowController {
 	IBOutlet NSArrayController *roots;
