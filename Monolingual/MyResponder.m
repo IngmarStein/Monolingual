@@ -902,10 +902,16 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	for (CFIndex i=0; i<count; ++i) {
 		CFStringRef str = CFArrayGetValueAtIndex(languagePref, i);
 		CFIndex length = CFStringGetLength(str);
-		CFMutableStringRef language = CFStringCreateMutableCopy(kCFAllocatorDefault, length, str);
-		CFStringFindAndReplace(language, CFSTR("-"), CFSTR("_"), CFRangeMake(0, length), 0);
-		CFSetAddValue(userLanguages, language);
-		CFRelease(language);
+		if (CFEqual(str, CFSTR("zh-Hans")))
+			CFSetAddValue(userLanguages, CFSTR("zh_CN"));
+		else if (CFEqual(str, CFSTR("zh-Hant")))
+			CFSetAddValue(userLanguages, CFSTR("zh_TW"));
+		else {
+			CFMutableStringRef language = CFStringCreateMutableCopy(kCFAllocatorDefault, length, str);
+			CFStringFindAndReplace(language, CFSTR("-"), CFSTR("_"), CFRangeMake(0, length), 0);
+			CFSetAddValue(userLanguages, language);
+			CFRelease(language);
+		}
 	}
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
