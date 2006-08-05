@@ -8,7 +8,6 @@
 #import "MyResponder.h"
 
 @implementation ProgressWindowController
-id parent;
 
 - (IBAction) cancelButton: (id)sender
 {
@@ -23,7 +22,6 @@ id parent;
 
 - (void) windowDidLoad
 {
-	[super windowDidLoad];
 	[self start];
 }
 

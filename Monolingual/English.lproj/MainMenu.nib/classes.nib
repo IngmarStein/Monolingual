@@ -37,7 +37,7 @@
             ACTIONS = {cancelButton = id; }; 
             CLASS = ProgressWindowController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {applicationText = id; fileText = id; progressBar = id; }; 
+            OUTLETS = {applicationText = id; fileText = id; parent = id; progressBar = id; }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

@@ -28,6 +28,7 @@
 	IBOutlet id progressBar;
 	IBOutlet id applicationText;
 	IBOutlet id fileText;
+	IBOutlet id parent;
 }
 
 - (IBAction) cancelButton: (id)sender;
