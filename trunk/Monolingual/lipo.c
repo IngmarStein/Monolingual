@@ -222,9 +222,6 @@ static int create_fat(off_t *newsize)
 		return 1;
 	}
 
-	// restore the original owner and permissions
-	fchown(fd, output_uid, output_gid);
-
 	/* sort the files by alignment to save space in the output file */
 	if (nthin_files > 1)
 		qsort(thin_files, nthin_files, sizeof(struct thin_file),
@@ -288,6 +285,11 @@ static int create_fat(off_t *newsize)
 		}
 	}
 	*newsize = output_size;
+
+	// restore the original owner and permissions
+	fchown(fd, output_uid, output_gid);	
+	fchmod(fd, output_filemode);
+	
 	if (close(fd) == -1)
 		fprintf(stderr, "can't close output file: %s", output_file);
 	if (archives_in_input)
