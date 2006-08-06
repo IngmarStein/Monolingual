@@ -74,6 +74,12 @@ D. La mia tastiera non funziona pi\'9d dopo aver usato Monolingual.\
 R. Molto probabilmente hai rimosso il layout di tastiera per la tua lingua predefinita. Per l'Inglese, il Tedesco etc. (cio\'8e tutte le lingue derivate dal Latino) \'8f il layout di tastiera Roman. Puoi ripristinare il layout copiandolo da un altro Mac nella posizione corretta. \
 \
 \
+Q. Should I remove the non-Intel architectures on my Intel based Mac?\
+\A. You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should \f0\b not strip the System frameworks if you want to use Rosetta\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
+    /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
+    mach-o, but wrong architecture\
+\
+\
 D. Monolingual non ricorda le mie preferenze su quali lingue rimuovere.\
 \
 R. Monolingual rimuove di default le lingue che non sono elencate in Preferenze di Sistema / Internazionale / Lingue.\

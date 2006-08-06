@@ -73,9 +73,16 @@ A. Chances are that you have accidently removed the English language files. Some
 \f1\b0  unless you know what you are doing. \
 \
 \
+Q. Should I remove the non-Intel architectures on my Intel based Mac?\
+\
+A. You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should \f0\b not strip the System frameworks if you want to use Rosetta\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
+	/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
+	mach-o, but wrong architecture\
+\
+\
 Q. My keyboard appears not to be working after using Monolingual.\
 \
-A. Most likely, you deleted the keyboard layout for your default input language. For English, German, etc. (which are all roman languages) this is the Roman keyboard layout. You can restore the layout by copying it from another Mac to the correct location. \
+A. Most likely, you deleted the keyboard layout for your default input language. For English, German, etc. (which are all roman languages) this is the Roman keyboard layout. You can restore the layout by copying it from another Mac to the correct location.\
 \
 \
 Q. Monolingual doesn't remember my preferences of which languages to remove.\

@@ -75,6 +75,12 @@ A. M\'9aglicherweise haben Sie versehentlich die englischen Sprachdateien gel\'9
 \f1\b0  au\'a7er Sie wissen genau, was Sie tun.\
 \
 \
+Q. Should I remove the non-Intel architectures on my Intel based Mac?\
+\A. You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should \f0\b not strip the System frameworks if you want to use Rosetta\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
+    /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
+    mach-o, but wrong architecture\
+\
+\
 F. Meine Tastatur funktioniert nicht mehr, nachdem ich Monolingual benutzt habe.\
 \
 A. Wahrscheinlich haben Sie die Tastaturbelegung (Layout) f\'9fr Ihre Standard-Eingabesprache gel\'9ascht. F\'9fr Englisch, Deutsch usw. (die alle das lateinische Alphabet verwenden) ist dies die Belegung "Roman". Sie k\'9annen die Tastaturbelegung (Layout) wiederherstellen, indem Sie sie von einem anderen Mac an die entsprechende Stelle kopieren.\
