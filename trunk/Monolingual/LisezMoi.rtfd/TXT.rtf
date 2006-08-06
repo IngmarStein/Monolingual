@@ -68,6 +68,25 @@ C'est tout ; plut\'99t facile, non ?\
 \f0\b \cf0 3) FAQ 
 \f1\b0 \
 \
+Q. Monolingual made my OS X installation unusable.\
+\
+A. Chances are that you have accidently removed the English language files. Some language packs are only a subset of other language packs (for example "U.S. English" is a subset of "English"), so you will have an incomplete OS X installation if you remove "English" but not "U.S. English". In general, you should
+\f0\b never remove the English language files
+\f1\b0  unless you know what you are doing. \
+\
+\
+Q. Should I remove the non-Intel architectures on my Intel based Mac?\
+\A. You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should \f0\b not strip the System frameworks if you want to use Rosetta\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
+    /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
+    mach-o, but wrong architecture\
+\
+\
+Q. My keyboard appears not to be working after using Monolingual.\\A. Most likely, you deleted the keyboard layout for your default input language. For English, German, etc. (which are all roman languages) this is the Roman keyboard layout. You can restore the layout by copying it from another Mac to the correct location.\
+\
+\
+Q. Monolingual doesn't remember my preferences of which languages to remove.\\A. Monolingual by default removes those languages that are not listed in System Preferences / International / Languages.\
+\
+\
 Q.  Combien \'8da co\'9ete ?\
 \
 A.  RIEN. Monolingual est un gratuiciel (logiciel gratuit). If you like this program and want to support its development, you can donate a small amout via SourceForge's {\field{\*\fldinst{HYPERLINK "http://sourceforge.net/donate/index.php?group_id=106424"}}{\fldrslt donation page}}.\
