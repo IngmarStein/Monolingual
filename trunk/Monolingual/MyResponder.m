@@ -1118,6 +1118,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	kern_return_t ret = host_info(my_mach_host_self, HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
 	mach_port_deallocate(mach_task_self(), my_mach_host_self);
 
+	[currentArchitecture setStringValue:(NSString *)CFSTR("unknown")];
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 8, &kCFTypeArrayCallBacks);
 	for (unsigned i=0U; i<8U; ++i) {
 		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -1125,6 +1126,13 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFDictionarySetValue(architecture, CFSTR("name"), archs[i].name);
 		CFDictionarySetValue(architecture, CFSTR("displayName"), archs[i].displayName);
 		CFArrayAppendValue(knownArchitectures, architecture);
+		if (hostInfo.cpu_type == archs[i].cpu_type && hostInfo.cpu_subtype == archs[i].cpu_subtype) {
+			CFStringRef format = CFCopyLocalizedString(CFSTR("Current architecture: %@"), "");
+			CFStringRef label = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, format, archs[i].displayName);
+			CFRelease(format);
+			[currentArchitecture setStringValue:(NSString *)label];
+			CFRelease(label);
+		}
 	}
 	[self setArchitectures:(NSMutableArray *)knownArchitectures];
 	CFRelease(knownArchitectures);

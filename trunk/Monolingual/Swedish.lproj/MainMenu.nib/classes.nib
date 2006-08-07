@@ -21,6 +21,7 @@
             CLASS = MyResponder; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                currentArchitecture = NSTextField; 
                 preferencesController = PreferencesController; 
                 progressWindowController = ProgressWindowController; 
             }; 
