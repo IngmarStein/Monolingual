@@ -603,7 +603,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		Growl_PostNotificationWithDictionary(finishedNotificationInfo);
 
 		CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
-		CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Language resources removed. Space saved: %s."), "");
+		CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Files removed. Space saved: %s."), "");
 		CFStringRef msg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, msgFormat, human_readable(bytesSaved, hbuf, 1024));
 		CFRelease(msgFormat);
 		NSBeginAlertSheet((NSString *)title,
