@@ -29,6 +29,7 @@
 {
 	IBOutlet ProgressWindowController *progressWindowController;
 	IBOutlet PreferencesController *preferencesController;
+	IBOutlet NSTextField *currentArchitecture;
 }
 + (void) initialize;
 - (IBAction) documentationBundler:(id)sender;
