@@ -6,7 +6,7 @@
  */
 
 #import "VersionCheck.h"
-#import <SystemConfiguration/SystemConfiguration.h>
+#include <SystemConfiguration/SystemConfiguration.h>
 
 static CFPropertyListRef createPropertyListFromURL(CFURLRef url, u_int32_t mutability, CFPropertyListFormat *outFormat, CFStringRef *outErrorString) {
 	CFPropertyListRef plist = NULL;

@@ -1055,7 +1055,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_2("pl",    "Polish",               "pl_PL", "Polish");
 	ADD_LANGUAGE_1("ps",    "Pashto",               "Pashto");
 	ADD_LANGUAGE_2("pt",    "Portuguese",           "pt_PT", "Portuguese");
-	ADD_LANGUAGE_0("pt_BR", "Brazilian Portoguese");
+	ADD_LANGUAGE_1("pt_BR", "Brazilian Portoguese", "PT_br");
 	ADD_LANGUAGE_1("qu",    "Quechua",              "Quechua");
 	ADD_LANGUAGE_1("rn",    "Rundi",                "Rundi");
 	ADD_LANGUAGE_1("ro",    "Romanian",             "Romanian");
