@@ -88,7 +88,8 @@ static const struct arch_flag arch_flags[] = {
 
 	/* architecture families */
 	{ "ppc",	    CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL },
-	{ "i386",       CPU_TYPE_I386,	    CPU_SUBTYPE_I386_ALL },
+	{ "x86",        CPU_TYPE_X86,	    CPU_SUBTYPE_X86_ALL },
+	{ "x86_64",     CPU_TYPE_X86_64,    CPU_SUBTYPE_X86_64_ALL },
 	{ "m68k",       CPU_TYPE_MC680x0,   CPU_SUBTYPE_MC680x0_ALL },
 	{ "hppa",       CPU_TYPE_HPPA,	    CPU_SUBTYPE_HPPA_ALL },
 	{ "sparc",	    CPU_TYPE_SPARC,     CPU_SUBTYPE_SPARC_ALL },

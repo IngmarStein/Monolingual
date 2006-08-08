@@ -1100,7 +1100,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 	[self scanLayouts];
 
-	const arch_info_t archs[8] = {
+	const arch_info_t archs[9] = {
 		{ CFSTR("ppc"),       CFSTR("PowerPC"),           CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL},
 		{ CFSTR("ppc750"),    CFSTR("PowerPC G3"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_750},
 		{ CFSTR("ppc7400"),   CFSTR("PowerPC G4"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7400},
@@ -1108,7 +1108,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		{ CFSTR("ppc970"),    CFSTR("PowerPC G5"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_970},
 		{ CFSTR("ppc64"),     CFSTR("PowerPC 64-bit"),    CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_ALL},
 		{ CFSTR("ppc970-64"), CFSTR("PowerPC G5 64-bit"), CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_970},
-		{ CFSTR("i386"),      CFSTR("Intel"),             CPU_TYPE_X86,       CPU_SUBTYPE_INTEL_MODEL_ALL}
+		{ CFSTR("x86"),       CFSTR("Intel"),             CPU_TYPE_X86,       CPU_SUBTYPE_X86_ALL},
+		{ CFSTR("x86_64"),    CFSTR("Intel 64-bit"),      CPU_TYPE_X86_64,    CPU_SUBTYPE_X86_64_ALL}
 	};
 
 	host_basic_info_data_t hostInfo;
@@ -1120,7 +1121,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 	[currentArchitecture setStringValue:(NSString *)CFSTR("unknown")];
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 8, &kCFTypeArrayCallBacks);
-	for (unsigned i=0U; i<8U; ++i) {
+	for (unsigned i=0U; i<9U; ++i) {
 		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(architecture, CFSTR("enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype)) ? kCFBooleanTrue : kCFBooleanFalse);
 		CFDictionarySetValue(architecture, CFSTR("name"), archs[i].name);
