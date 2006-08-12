@@ -129,7 +129,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 static CFComparisonResult languageCompare(const void *val1, const void *val2, void *context)
 {
 #pragma unused(context)
-	return CFStringCompare(CFDictionaryGetValue((CFDictionaryRef)val1, CFSTR("displayName")), CFDictionaryGetValue((CFDictionaryRef)val2, CFSTR("displayName")), kCFCompareLocalized);
+	return CFStringCompare(CFDictionaryGetValue((CFDictionaryRef)val1, CFSTR("DisplayName")), CFDictionaryGetValue((CFDictionaryRef)val2, CFSTR("DisplayName")), kCFCompareLocalized);
 }
 
 @implementation MyResponder
@@ -250,10 +250,10 @@ int                      mode;
 			CFStringRef displayName = CFCopyLocalizedString((CFStringRef)[(NSString *)file stringByDeletingPathExtension], "");
 			CFStringRef type = CFCopyLocalizedString(CFSTR("Keyboard Layout"), "");
 			CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-			CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-			CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-			CFDictionarySetValue(layout, CFSTR("type"), type);
-			CFDictionarySetValue(layout, CFSTR("path"), [layoutPath stringByAppendingPathComponent:(NSString *)file]);
+			CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+			CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+			CFDictionarySetValue(layout, CFSTR("Type"), type);
+			CFDictionarySetValue(layout, CFSTR("Path"), [layoutPath stringByAppendingPathComponent:(NSString *)file]);
 			CFArrayAppendValue(scannedLayouts, layout);
 			CFRelease(layout);
 			CFRelease(type);
@@ -264,10 +264,10 @@ int                      mode;
 	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/Kotoeri.component"));
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/Kotoeri.component"));
 		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
@@ -275,10 +275,10 @@ int                      mode;
 	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/XPIM.component"));
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/XPIM.component"));
 		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
@@ -286,10 +286,10 @@ int                      mode;
 	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/TCIM.component"));
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/TCIM.component"));
 		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
@@ -297,10 +297,10 @@ int                      mode;
 	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/SCIM.component"));
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/SCIM.component"));
 		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
@@ -308,10 +308,10 @@ int                      mode;
 	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Murasu Anjal Tamil"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/AnjalIM.component"));
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/AnjalIM.component"));
 		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
@@ -319,10 +319,10 @@ int                      mode;
 	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
 		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
 		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("displayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("path"), CFSTR("/System/Library/Components/HangulIM.component"));
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/HangulIM.component"));
 		CFRelease(displayName);
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
@@ -411,8 +411,8 @@ int                      mode;
 	CFIndex remove_count = 0;
 	for (CFIndex i=0; i<archs_count; ++i) {
 		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
-		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("enabled")))) {
-			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("name"));
+		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("Enabled")))) {
+			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("Name"));
 			NSLog(@"Will remove architecture %@", name);
 			argv[idx++] = "--thin";
 			argv[idx++] = [(NSString *)name UTF8String];
@@ -531,9 +531,9 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 							CFIndex count = CFArrayGetCount(languages);
 							for (CFIndex l=0; l<count; ++l) {
 								CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
-								CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("folders"));
+								CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("Folders"));
 								if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
-									lang = CFDictionaryGetValue(language, CFSTR("displayName"));
+									lang = CFDictionaryGetValue(language, CFSTR("DisplayName"));
 									break;
 								}
 							}
@@ -736,9 +736,9 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			argv[idx++] = "-t";
 		for (i=0; i<count; ++i) {
 			row = CFArrayGetValueAtIndex(layouts, i);
-			if (CFBooleanGetValue(CFDictionaryGetValue(row, CFSTR("enabled")))) {
+			if (CFBooleanGetValue(CFDictionaryGetValue(row, CFSTR("Enabled")))) {
 				argv[idx++] = "-f";
-				argv[idx++] = [(NSString *)CFDictionaryGetValue(row, CFSTR("path")) fileSystemRepresentation];
+				argv[idx++] = [(NSString *)CFDictionaryGetValue(row, CFSTR("Path")) fileSystemRepresentation];
 			}
 		}
 		if (idx != 9) {
@@ -759,7 +759,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		lCount = CFArrayGetCount(languages);
 		for (i=0; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
-			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("folders")), 0U), CFSTR("en.lproj"))) {
+			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("Enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("Folders")), 0U), CFSTR("en.lproj"))) {
 				/* Display a warning */
 				CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
 				CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
@@ -836,8 +836,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		}
 		for (i=0; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
-			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("enabled")))) {
-				CFArrayRef paths = CFDictionaryGetValue(language, CFSTR("folders"));
+			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("Enabled")))) {
+				CFArrayRef paths = CFDictionaryGetValue(language, CFSTR("Folders"));
 				CFIndex paths_count = CFArrayGetCount(paths);
 				for (CFIndex j=0; j<paths_count; ++j) {
 					NSString *path = (NSString *)CFArrayGetValueAtIndex(paths, j);
@@ -922,24 +922,24 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	do { \
 		CFMutableDictionaryRef language = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks); \
 		CFStringRef languageName = CFCopyLocalizedString(CFSTR(name), ""); \
-		CFDictionarySetValue(language, CFSTR("displayName"), languageName); \
+		CFDictionarySetValue(language, CFSTR("DisplayName"), languageName); \
 		CFRelease(languageName);
 #define ADD_LANGUAGE_END \
-		CFDictionarySetValue(language, CFSTR("folders"), foldersArray); \
+		CFDictionarySetValue(language, CFSTR("Folders"), foldersArray); \
 		CFRelease(foldersArray); \
 		CFArrayAppendValue(knownLanguages, language); \
 		CFRelease(language); \
 	} while(0)
 #define ADD_LANGUAGE_0(code, name) \
 	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
 		CFStringRef folders[1]; \
 		folders[0] = CFSTR(code ".lproj"); \
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 1, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_1(code, name, folder) \
 	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
 		CFStringRef folders[2]; \
 		folders[0] = CFSTR(code ".lproj"); \
 		folders[1] = CFSTR(folder ".lproj"); \
@@ -947,7 +947,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_2(code, name, folder1, folder2) \
 	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
 		CFStringRef folders[3]; \
 		folders[0] = CFSTR(code ".lproj"); \
 		folders[1] = CFSTR(folder1 ".lproj"); \
@@ -956,7 +956,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_EN(code, name, folder) \
 	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("enabled"), kCFBooleanFalse); \
+		CFDictionarySetValue(language, CFSTR("Enabled"), kCFBooleanFalse); \
 		CFStringRef folders[2]; \
 		folders[0] = CFSTR(code ".lproj"); \
 		folders[1] = CFSTR(folder ".lproj"); \
@@ -1123,9 +1123,9 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 9, &kCFTypeArrayCallBacks);
 	for (unsigned i=0U; i<9U; ++i) {
 		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(architecture, CFSTR("enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype)) ? kCFBooleanTrue : kCFBooleanFalse);
-		CFDictionarySetValue(architecture, CFSTR("name"), archs[i].name);
-		CFDictionarySetValue(architecture, CFSTR("displayName"), archs[i].displayName);
+		CFDictionarySetValue(architecture, CFSTR("Enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype)) ? kCFBooleanTrue : kCFBooleanFalse);
+		CFDictionarySetValue(architecture, CFSTR("Name"), archs[i].name);
+		CFDictionarySetValue(architecture, CFSTR("DisplayName"), archs[i].displayName);
 		CFArrayAppendValue(knownArchitectures, architecture);
 		if (hostInfo.cpu_type == archs[i].cpu_type && hostInfo.cpu_subtype == archs[i].cpu_subtype) {
 			CFStringRef format = CFCopyLocalizedString(CFSTR("Current architecture: %@"), "");

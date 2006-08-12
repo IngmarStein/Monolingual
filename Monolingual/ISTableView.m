@@ -21,8 +21,8 @@
 			if (row != -1) {
 				CFMutableDictionaryRef dict = (CFMutableDictionaryRef)[[arrayController arrangedObjects] objectAtIndex:row];
 				if (dict) {
-					CFBooleanRef value = CFDictionaryGetValue(dict, CFSTR("enabled"));
-					CFDictionarySetValue(dict, CFSTR("enabled"), CFBooleanGetValue(value) ? kCFBooleanFalse : kCFBooleanTrue);
+					CFBooleanRef value = CFDictionaryGetValue(dict, CFSTR("Enabled"));
+					CFDictionarySetValue(dict, CFSTR("Enabled"), CFBooleanGetValue(value) ? kCFBooleanFalse : kCFBooleanTrue);
 				}
 			}
 			break;
