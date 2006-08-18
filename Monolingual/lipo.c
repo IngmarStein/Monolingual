@@ -44,6 +44,7 @@
 #include <sys/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <syslog.h>
 #include <mach/mach.h>
 #include <mach-o/loader.h>
 #include <mach-o/fat.h>
@@ -230,7 +231,7 @@ static int create_fat(off_t *newsize)
 	 */
 	unlink(output_file);
 	if ((fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, output_filemode)) == -1) {
-		fprintf(stderr, "can't create output file: %s", output_file);
+		syslog(LOG_ERR, "can't create output file: %s", output_file);
 		return 1;
 	}
 
@@ -264,7 +265,7 @@ static int create_fat(off_t *newsize)
 		fat_header.nfat_arch = nthin_files;
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &fat_header, sizeof(struct fat_header)) != sizeof(struct fat_header)) {
-			fprintf(stderr, "can't write fat header to output file: %s", output_file);
+			syslog(LOG_ERR, "can't write fat header to output file: %s", output_file);
 			close(fd);
 			return 1;
 		}
@@ -273,7 +274,7 @@ static int create_fat(off_t *newsize)
 		swap_fat_arch(&(thin_files[i].fat_arch), 1);
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &(thin_files[i].fat_arch), sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
-			fprintf(stderr, "can't write fat arch to output file: %s", output_file);
+			syslog(LOG_ERR, "can't write fat arch to output file: %s", output_file);
 			close(fd);
 			return 1;
 		}
@@ -285,13 +286,13 @@ static int create_fat(off_t *newsize)
 	for (i = 0; i < nthin_files; ++i) {
 		if (nthin_files != 1)
 			if (lseek(fd, thin_files[i].fat_arch.offset, L_SET) == -1) {
-				fprintf(stderr, "can't lseek in output file: %s", output_file);
+				syslog(LOG_ERR, "can't lseek in output file: %s", output_file);
 				close(fd);
 				return 1;
 			}
 		output_size += thin_files[i].fat_arch.size;
 		if (write(fd, thin_files[i].addr, thin_files[i].fat_arch.size) != (int)(thin_files[i].fat_arch.size)) {
-			fprintf(stderr, "can't write to output file: %s", output_file);
+			syslog(LOG_ERR, "can't write to output file: %s", output_file);
 			close(fd);
 			return 1;
 		}
@@ -303,10 +304,10 @@ static int create_fat(off_t *newsize)
 	fchmod(fd, output_filemode);
 	
 	if (close(fd) == -1)
-		fprintf(stderr, "can't close output file: %s", output_file);
+		syslog(LOG_WARNING, "can't close output file: %s", output_file);
 	if (archives_in_input)
 		if (utime(output_file, &output_timep) == -1)
-			fprintf(stderr, "can't set the modify times for output file: %s", output_file);
+			syslog(LOG_WARNING, "can't set the modify times for output file: %s", output_file);
 
 	return 0;
 }
@@ -319,19 +320,20 @@ static void process_input_file(struct input_file *input)
 {
 	int fd;
 	struct stat stat_buf;
-	unsigned long size, i, j;
+	off_t size;
+	unsigned long i, j;
 	kern_return_t r;
 	char *addr;
 	struct thin_file *thin;
 
 	/* Open the input file and map it in */
 	if ((fd = open(input->name, O_RDONLY)) == -1) {
-		fprintf(stderr, "can't open input file: %s", input->name);
+		syslog(LOG_ERR, "can't open input file: %s", input->name);
 		return;
 	}
 	if (fstat(fd, &stat_buf) == -1) {
 		close(fd);
-		fprintf(stderr, "Can't stat input file: %s", input->name);
+		syslog(LOG_ERR, "Can't stat input file: %s", input->name);
 		return;
 	}
 	size = stat_buf.st_size;
@@ -352,7 +354,7 @@ static void process_input_file(struct input_file *input)
 		output_timep.modtime = stat_buf.st_mtime;
 	}
 	if (map_fd((int)fd, (vm_offset_t)0, (vm_offset_t *)&addr, (boolean_t)1, (vm_size_t)size) != KERN_SUCCESS) {
-		fprintf(stderr, "Can't map input file: %s", input->name);
+		syslog(LOG_ERR, "Can't map input file: %s", input->name);
 		close(fd);
 		return;
 	}
@@ -375,7 +377,7 @@ static void process_input_file(struct input_file *input)
 		input->fat_header->nfat_arch = SWAP_LONG(input->fat_header->nfat_arch);
 #endif /* __LITTLE_ENDIAN__ */
 		if (sizeof(struct fat_header) + input->fat_header->nfat_arch * sizeof(struct fat_arch) > size) {
-			fprintf(stderr, "truncated or malformed fat file (fat_arch structs would "
+			syslog(LOG_ERR, "truncated or malformed fat file (fat_arch structs would "
 					"extend past the end of the file) %s", input->name);
 			vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
 			input->fat_header = NULL;
@@ -387,7 +389,7 @@ static void process_input_file(struct input_file *input)
 #endif /* __LITTLE_ENDIAN__ */
 		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
 			if (input->fat_arches[i].offset + input->fat_arches[i].size > size) {
-				fprintf(stderr, "truncated or malformed fat file (offset plus size "
+				syslog(LOG_ERR, "truncated or malformed fat file (offset plus size "
 						"of cputype (%d) cpusubtype (%d) extends past the "
 						"end of the file) %s", input->fat_arches[i].cputype,
 						input->fat_arches[i].cpusubtype, input->name);
@@ -396,7 +398,7 @@ static void process_input_file(struct input_file *input)
 				return;
 			}
 			if (input->fat_arches[i].align > MAXSECTALIGN) {
-				fprintf(stderr, "align (2^%u) too large of fat file %s (cputype (%d)"
+				syslog(LOG_ERR, "align (2^%u) too large of fat file %s (cputype (%d)"
 						" cpusubtype (%d)) (maximum 2^%d)",
 						input->fat_arches[i].align, input->name,
 						input->fat_arches[i].cputype,
@@ -406,7 +408,7 @@ static void process_input_file(struct input_file *input)
 				return;
 			}
 			if (input->fat_arches[i].offset % (1 << input->fat_arches[i].align) != 0) {
-				fprintf(stderr, "offset %u of fat file %s (cputype (%d) cpusubtype "
+				syslog(LOG_ERR, "offset %u of fat file %s (cputype (%d) cpusubtype "
 						"(%d)) not aligned on it's alignment (2^%u)",
 						input->fat_arches[i].offset, input->name,
 						input->fat_arches[i].cputype,
@@ -421,7 +423,7 @@ static void process_input_file(struct input_file *input)
 			for (j = i + 1; j < input->fat_header->nfat_arch; ++j) {
 				if (input->fat_arches[i].cputype == input->fat_arches[j].cputype &&
 				   input->fat_arches[i].cpusubtype == input->fat_arches[j].cpusubtype) {
-					fprintf(stderr, "fat file %s contains two of the same architecture "
+					syslog(LOG_ERR, "fat file %s contains two of the same architecture "
 							"(cputype (%d) cpusubtype (%d))", input->name,
 							input->fat_arches[i].cputype,
 							input->fat_arches[i].cpusubtype);
@@ -455,7 +457,7 @@ int setup_lipo(const char *archs[], unsigned num_archs)
 	remove_arch_flags = malloc(num_archs * sizeof(struct arch_flag));
 	for (unsigned i = 0U; i < num_archs; ++i) {
 		if (!get_arch_from_flag(archs[i], &remove_arch_flags[i])) {
-			fprintf(stderr, "unknown architecture specification flag: %s", archs[i]);
+			syslog(LOG_ERR, "unknown architecture specification flag: %s", archs[i]);
 			free(remove_arch_flags);
 			return 0;
 		}
@@ -465,7 +467,7 @@ int setup_lipo(const char *archs[], unsigned num_archs)
 		for (unsigned j = i + 1; j < nremove_arch_flags; ++j) {
 			if (remove_arch_flags[i].cputype == remove_arch_flags[j].cputype
 				&& remove_arch_flags[i].cpusubtype == remove_arch_flags[j].cpusubtype)
-				fprintf(stderr, "-remove %s specified multiple times", remove_arch_flags[i].name);
+				syslog(LOG_ERR, "-remove %s specified multiple times", remove_arch_flags[i].name);
 		}
 	}
 
@@ -514,7 +516,7 @@ int run_lipo(const char *path, off_t *size_diff)
 	 */
 
 	if (!input_file.fat_header) {
-		fprintf(stderr, "input file (%s) must be a fat file", input_file.name);
+		syslog(LOG_WARNING, "input file (%s) must be a fat file", input_file.name);
 		return 1;
 	}
 	/* remove those thin files */
@@ -537,7 +539,7 @@ int run_lipo(const char *path, off_t *size_diff)
 		if (!err)
 			*size_diff = input_file.size - newsize;
 	} else {
-		fprintf(stderr, "-remove's specified would result in an empty fat file");
+		syslog(LOG_WARNING, "-remove's specified would result in an empty fat file");
 		err = 1;
 	}
 
