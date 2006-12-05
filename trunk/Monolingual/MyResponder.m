@@ -74,8 +74,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			power = 0U;
 
 			do {
-				int r10 = (amt % base) * 10U + tenths;
-				unsigned int r2 = (r10 % base) * 2 + (rounding >> 1);
+				long long r10 = (amt % base) * 10U + tenths;
+				unsigned int r2 = ((r10 % base) << 1) + (rounding >> 1);
 				amt /= base;
 				tenths = r10 / base;
 				rounding = (r2 < base
