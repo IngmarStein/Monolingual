@@ -405,7 +405,7 @@ int                      mode;
 	roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
-	argv = (const char **)malloc((12+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
+	argv = (const char **)malloc((14+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
 	int idx = 1;
 
 	CFIndex remove_count = 0;
@@ -454,6 +454,8 @@ int                      mode;
 		argv[idx++] = "org.xlife.Acquisition";
 		argv[idx++] = "-b";
 		argv[idx++] = "com.linotype.FontExplorerX";
+		argv[idx++] = "-x";
+		argv[idx++] = "/System/Library/Frameworks";
 		argv[idx] = NULL;
 		[self runDeleteHelperWithArgs:argv];
 	}
