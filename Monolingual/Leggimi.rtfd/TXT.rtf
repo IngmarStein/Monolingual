@@ -1,11 +1,11 @@
-{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;
 }
 {\colortbl;\red255\green255\blue255;\red0\green0\blue255;}
-\vieww11720\viewh13100\viewkind0
+\vieww11260\viewh13700\viewkind0
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f0\b\fs24 \cf0 pen Monolingual\
+\f0\b\fs24 \cf0 Monolingual\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 \
@@ -38,17 +38,16 @@ Utilizza Monolingual \'d1 una comoda utility per rivendicare il tuo spazio e uti
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 \cf0 Per usare Monolingual devi accedere al computer come utente amministratore.\
 \
-All'avvio di Monolingual, ti verr\'88 chiesto quali lingue desideri rimuovere:\
+All'avvio di Monolingual ti verr\'88 chiesto quali lingue desideri rimuovere:\
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 \cf0 {{\NeXTGraphic Monolingual.png \width8638 \height9018
-}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-\cf0 \
+}¬}\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 \cf0 \
 Una volta selezionate le lingue indesiderate, premi il bottone "Rimuovi".\
 \
-Se non sei loggato come utente "root", ti verr\'88 richiesta la tua password di amministratore.\
+Se non sei loggato come utente "root", ti verr\'88 chiesta la password di amministratore.\
 \
 Riceverai quindi un avviso per confermare che DESIDERI REALMENTE ELIMINARE i file di localizzazione. Una volta rimossi, l'unica maniera per riottenerli \'8f reinstallare il sistema Mac OS X.\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
@@ -68,16 +67,17 @@ R. \'e9 probabile che tu abbia accidentalmente rimosso i file della lingua ingle
 \f0\b non dovresti mai rimuovere i file della lingua inglese
 \f1\b0  a meno di essere assolutamente certo di quel che stai facendo. \
 \
+D. Posso eliminare le architetture non-Intel sul mio Mac con processore Intel?\
+\
+R. Puoi usare Monolingual per eliminare le architetture diverse da Intel per le tue applicazioni installate (anche se alcune sono soltanto PowerPC; Monolingual \'8f sufficientemente furbo da lasciare intatte le applicazioni che non sono universal binary). Tuttavia, non dovresti 
+\f0\b mai snellire i framework di sistema se desideri utilizzare Rosetta
+\f1\b0 . Rosetta richiede il codice PowerPC per tutti i framework usati dalle applicazioni emulate, e se non li trova mostrer\'88 dei messaggi come il seguente nella Console:\
+	/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
+	mach-o, but wrong architecture\
 \
 D. La mia tastiera non funziona pi\'9d dopo aver usato Monolingual.\
 \
 R. Molto probabilmente hai rimosso il layout di tastiera per la tua lingua predefinita. Per l'Inglese, il Tedesco etc. (cio\'8e tutte le lingue derivate dal Latino) \'8f il layout di tastiera Roman. Puoi ripristinare il layout copiandolo da un altro Mac nella posizione corretta. \
-\
-\
-Q. Should I remove the non-Intel architectures on my Intel based Mac?\
-\A. You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should \f0\b not strip the System frameworks if you want to use Rosetta\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
-    /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
-    mach-o, but wrong architecture\
 \
 \
 D. Monolingual non ricorda le mie preferenze su quali lingue rimuovere.\
@@ -88,15 +88,14 @@ R. Monolingual rimuove di default le lingue che non sono elencate in Preferenze 
 \cf0 \
 D. Quanto costa?\
 \
-R. NIENTE. Monolingual \'8f gratuito. If you like this program and want to support its\
-development, you can donate a small amout via SourceForge's {\field{\*\fldinst{HYPERLINK "http://sourceforge.net/donate/index.php?group_id=106424"}}{\fldrslt donation page}}.\
+R. NIENTE. Monolingual \'8f gratuito. Se trovi utile questo programma e desideri sostenerne lo sviluppo, puoi donare una piccola somma tramite la {\field{\*\fldinst{HYPERLINK "http://sourceforge.net/donate/index.php?group_id=106424"}}{\fldrslt pagina donazioni}} di SourceForge.\
 \
 \
-D. My Adobe applications want to be reinstalled after running Monolingual.\
+D. Le mie applicazioni Adobe richiedono la reinstallazione dopo aver usato Monolingual.\
 \
-R. Adobe's newer applications have a self-heal feature which checks for the existence of certain files and refuses to launch the application if one of those files is missing. This feature does not distinguish between files that are critical components of the program and those files which are not needed, e.g. localization files. Therefore, you should exclude Adobe's from being processed by Monolingual. Open Monolingual's preferences window, add "
+R. Le pi\'9d recenti applicazioni Adobe possiedono una funzione di autodiagnostica che verifica l'esistenza di alcuni file, e impedisce il lancio dell'applicazione se uno di tali file risulta mancante. Dal momento che non viene fatta alcuna distinzione tra file critici per il funzionamento del programma e file superflui, come i file delle lingue, dovresti escludere le applicazioni Adobe da quelle esaminate da Monolingual. Apri le preferenze di Monolingual, aggiungi "
 \f2\fs20 /Applications/Adobe Acrobat 7.0 Professional
-\f1\fs24 " (for example) and deselect the checkbox next to the item.\
+\f1\fs24 " (ad esempio) e deseleziona la casella di spunta accanto all'elemento.\
 \
 \
 D. Come viene distribuito Monolingual?\
@@ -111,7 +110,7 @@ R. La versione pi\'9d recente di Monolingual pu\'98 essere ottenuta all'indirizz
 \
 D. Desidero modificare/utilizzare Monolingual. Posso farlo?\
 \
-R. Certamente, a patto che tu segua la licenza GPL. Il codice sorgente pu\'98 essere ottenuto da {\field{\*\fldinst{HYPERLINK "http://sourceforge.net/svn/?group_id=106424"}}{\fldrslt \cf2 \ul \ulc2 http://sourceforge.net/svn/?group_id=106424}}.\
+R. Certamente, a patto che tu segua la licenza GPL. Il codice sorgente pu\'98 essere ottenuto da {\field{\*\fldinst{HYPERLINK "https://sourceforge.net/svn/?group_id=106424"}}{\fldrslt \cf2 \ul \ulc2 http://sourceforge.net/svn/?group_id=106424}}.\
 \
 \
 D. Bisognerebbe aggiungere la funzione X\'c9\
@@ -122,11 +121,11 @@ R. Puoi richiedere tu stesso l'aggiunta di nuove funzionalit\'88 all'indirizzo {
 D. Cosa c'\'8f di nuovo in questa versione?\
 \
 Version 1.3.4\
-- Added support for x86_64.\
+- Aggiunto il supporto per l'architettura x86_64.\
 \
 Version 1.3.3\
-- Added a blacklist to exlude popular applications which employ checksums from being stripped.\
-- Bugfixes.\
+- Aggiunta una blacklist per escludere applicazioni comuni che fanno uso di checksum dallo snellimento.\
+- Risolti bug.\
 \
 Versione 1.3.2\
 - Risolto un ciclo infinito se "/" viene aggiunto all'elenco delle cartelle.\
