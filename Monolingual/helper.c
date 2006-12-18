@@ -145,7 +145,6 @@ static void delete_recursively(const char *path)
 						}
 						strncat(subdir, ent->d_name, sizeof(subdir));
 						delete_recursively(subdir);
-						free(subdir);
 					}
 				}
 				closedir(dir);
