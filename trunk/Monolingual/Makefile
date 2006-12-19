@@ -1,0 +1,24 @@
+RELEASE_DIR=release
+RELEASE_NAME=Monolingual-1.3.5
+BUILD_DIR=build/Deployment
+
+.PHONY: all release development deployment clean
+
+all: deployment
+
+development:
+	xcodebuild -target Monolingual -configuration Development build
+
+deployment:
+	xcodebuild -target Monolingual -configuration Deployment build
+
+clean:
+	xcodebuild -alltargets clean
+	-rm -rf $(RELEASE_DIR)
+
+release: deployment
+	rm -rf $(RELEASE_DIR)
+	mkdir -p $(RELEASE_DIR)/build
+	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/COPYING.txt $(RELEASE_DIR)/build
+	./make-diskimage.sh $(RELEASE_DIR)/$(RELEASE_NAME).dmg $(RELEASE_DIR)/build Monolingual dmg.scpt
+
