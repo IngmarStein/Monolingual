@@ -14,6 +14,10 @@
 #include <Security/AuthorizationTags.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <mach/mach_host.h>
 #include <mach/mach_port.h>
@@ -892,6 +896,11 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 - (void) awakeFromNib
 {
+	int    mib[2];
+	size_t len;
+	char   *kernelVersion;
+	BOOL   isTenFourOrHigher;
+
 	versionURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/version.xml"), NULL);
 	downloadURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net"), NULL);
 	donateURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://sourceforge.net/donate/index.php?group_id=106424"), NULL);
@@ -903,20 +912,24 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	CFIndex count = CFArrayGetCount(languagePref);
 	CFMutableSetRef userLanguages = CFSetCreateMutable(kCFAllocatorDefault, count, &kCFTypeSetCallBacks);
 
-	/* canonicalize the locale identifiers */
-	for (CFIndex i=0; i<count; ++i) {
-		CFStringRef str = CFArrayGetValueAtIndex(languagePref, i);
-		CFStringRef language = CFLocaleCreateCanonicalLocaleIdentifierFromString(kCFAllocatorDefault, str);
-		CFSetAddValue(userLanguages, language);
-		CFRelease(language);
-	}
+	for (CFIndex i=0; i<count; ++i)
+		CFSetAddValue(userLanguages, CFArrayGetValueAtIndex(languagePref, i));
 	CFRelease(languagePref);
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
+	// Get the kernel's version
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_OSRELEASE;
+	sysctl(mib, 2, NULL, &len, NULL, 0);
+	kernelVersion = malloc(len * sizeof(char));
+	sysctl(mib, 2, kernelVersion, &len, NULL, 0);
+	isTenFourOrHigher = kernelVersion[0] >= '8';
+	free(kernelVersion);
+
 #define NUM_KNOWN_LANGUAGES	129
 	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, NUM_KNOWN_LANGUAGES, &kCFTypeArrayCallBacks);
-#define ADD_LANGUAGE_BEGIN(code, name) \
+#define ADD_LANGUAGE_BEGIN(name) \
 	do { \
 		CFMutableDictionaryRef language = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks); \
 		CFStringRef languageName = CFCopyLocalizedString(CFSTR(name), ""); \
@@ -929,23 +942,23 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFRelease(language); \
 	} while(0)
 #define ADD_LANGUAGE_0(code, name, folder) \
-	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+	ADD_LANGUAGE_BEGIN(name) \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
 		CFStringRef folders[1]; \
 		folders[0] = CFSTR(folder ".lproj"); \
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 1, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_1(code, name, folder1, folder2) \
-	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+	ADD_LANGUAGE_BEGIN(name) \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
 		CFStringRef folders[2]; \
 		folders[0] = CFSTR(folder1 ".lproj"); \
 		folders[1] = CFSTR(folder2 ".lproj"); \
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 2, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_2(code, name, folder1, folder2, folder3) \
-	ADD_LANGUAGE_BEGIN(code, name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, CFSTR(code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+	ADD_LANGUAGE_BEGIN(name) \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
 		CFStringRef folders[3]; \
 		folders[0] = CFSTR(folder1 ".lproj"); \
 		folders[1] = CFSTR(folder2 ".lproj"); \
@@ -953,7 +966,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 3, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_EN(code, name, folder1, folder2) \
-	ADD_LANGUAGE_BEGIN(code, name) \
+	ADD_LANGUAGE_BEGIN(name) \
 		CFDictionarySetValue(language, CFSTR("Enabled"), kCFBooleanFalse); \
 		CFStringRef folders[2]; \
 		folders[0] = CFSTR(folder1 ".lproj"); \
@@ -961,135 +974,135 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 2, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
 
-	ADD_LANGUAGE_1("af",    "Afrikaans",            "af", "Afrikaans");
-	ADD_LANGUAGE_1("am",    "Amharic",              "am", "Amharic");
-	ADD_LANGUAGE_1("ar",    "Arabic",               "ar", "Arabic");
-	ADD_LANGUAGE_1("as",    "Assamese",             "as", "Assamese");
-	ADD_LANGUAGE_1("ay",    "Aymara",               "ay", "Aymara");
-	ADD_LANGUAGE_1("az",    "Azerbaijani",          "az", "Azerbaijani");
-	ADD_LANGUAGE_1("be",    "Byelorussian",         "be", "Byelorussian");
-	ADD_LANGUAGE_1("bg",    "Bulgarian",            "bg", "Bulgarian");
-	ADD_LANGUAGE_1("bi",    "Bislama",              "bi", "Bislama");
-	ADD_LANGUAGE_1("bn",    "Bengali",              "bn", "Bengali");
-	ADD_LANGUAGE_1("bo",    "Tibetan",              "bo", "Tibetan");
-	ADD_LANGUAGE_1("br",    "Breton",               "bt", "Breton");
-	ADD_LANGUAGE_1("ca",    "Catalan",              "ca", "Catalan");
-	ADD_LANGUAGE_1("chr",   "Cherokee",             "chr", "Cherokee");
-	ADD_LANGUAGE_2("cs",    "Czech",                "cS", "cs_CZ", "Czech");
-	ADD_LANGUAGE_1("cy",    "Welsh",                "cy", "Welsh");
-	ADD_LANGUAGE_2("da",    "Danish",               "da", "da_DK", "Danish");
-	ADD_LANGUAGE_2("de",    "German",               "de", "de_DE", "German");
-	ADD_LANGUAGE_0("de-AT", "Austrian German",      "de_AT");
-	ADD_LANGUAGE_0("de-CH", "Swiss German",         "de_CH");
-	ADD_LANGUAGE_1("dz",    "Dzongkha",             "dz", "Dzongkha");
-	ADD_LANGUAGE_2("el",    "Greek",                "el", "el_GR", "Greek");
-	ADD_LANGUAGE_EN("en",   "English",              "en", "English");
-	ADD_LANGUAGE_0("en-AU", "Australian English",   "en_AU");
-	ADD_LANGUAGE_0("en-CA", "Canadian English",     "en_CA");
-	ADD_LANGUAGE_0("en-GB", "British English",      "en_GB");
-	ADD_LANGUAGE_0("en-US", "U.S. English",         "en_US");
-	ADD_LANGUAGE_1("eo",    "Esperanto",            "eo", "Esperanto");
-	ADD_LANGUAGE_2("es",    "Spanish",              "es", "es_ES", "Spanish");
-	ADD_LANGUAGE_1("et",    "Estonian",             "et", "Estonian");
-	ADD_LANGUAGE_1("eu",    "Basque",               "eu", "Basque");
-	ADD_LANGUAGE_1("fa",    "Farsi",                "fa", "Farsi");
-	ADD_LANGUAGE_2("fi",    "Finnish",              "fi", "fi_FI", "Finnish");
-	ADD_LANGUAGE_1("fo",    "Faroese",              "fo", "Faroese");
-	ADD_LANGUAGE_2("fr",    "French",               "fr", "fr_FR", "French");
-	ADD_LANGUAGE_0("fr-CA", "Canadian French",      "fr_CA");
-	ADD_LANGUAGE_0("fr-CH", "Swiss French",         "fr_CH");
-	ADD_LANGUAGE_1("ga",    "Irish",                "ga", "Irish");
-	ADD_LANGUAGE_1("gd",    "Scottish",             "gd", "Scottish");
-	ADD_LANGUAGE_1("gl",    "Galician",             "gl", "Galician");
-	ADD_LANGUAGE_1("gn",    "Guarani",              "gn", "Guarani");
-	ADD_LANGUAGE_1("gu",    "Gujarati",             "gu", "Gujarati");
-	ADD_LANGUAGE_1("gv",    "Manx",                 "gv", "Manx");
-	ADD_LANGUAGE_1("haw",   "Hawaiian",             "haw", "Hawaiian");
-	ADD_LANGUAGE_1("he",    "Hebrew",               "he", "Hebrew");
-	ADD_LANGUAGE_1("hi",    "Hindi",                "hi", "Hindi");
-	ADD_LANGUAGE_1("hr",    "Croatian",             "hr", "Croatian");
-	ADD_LANGUAGE_2("hu",    "Hungarian",            "hu", "hu_HU", "Hungarian");
-	ADD_LANGUAGE_1("hy",    "Armenian",             "hy", "Armenian");
-	ADD_LANGUAGE_1("id",    "Indonesian",           "id", "Indonesian");
-	ADD_LANGUAGE_1("is",    "Icelandic",            "is", "Icelandic");
-	ADD_LANGUAGE_2("it",    "Italian",              "it", "it_IT", "Italian");
-	ADD_LANGUAGE_1("iu",    "Inuktitut",            "iu", "Inuktitut");
-	ADD_LANGUAGE_2("ja",    "Japanese",             "ja", "ja_JP", "Japanese");
-	ADD_LANGUAGE_1("jv",    "Javanese",             "jv", "Javanese");
-	ADD_LANGUAGE_1("ka",    "Georgian",             "ka", "Georgian");
-	ADD_LANGUAGE_1("kk",    "Kazakh",               "kk", "Kazakh");
-	ADD_LANGUAGE_1("kl",    "Greenlandic",          "kl", "Greenlandic");
-	ADD_LANGUAGE_1("km",    "Khmer",                "km", "Khmer");
-	ADD_LANGUAGE_1("kn",    "Kannada",              "kn", "Kannada");
-	ADD_LANGUAGE_2("ko",    "Korean",               "ko", "ko_KR", "Korean");
-	ADD_LANGUAGE_1("ks",    "Kashmiri",             "ks", "Kashmiri");
-	ADD_LANGUAGE_1("ku",    "Kurdish",              "ku", "Kurdish");
-	ADD_LANGUAGE_1("kw",    "Kernowek",             "kw", "Kernowek");
-	ADD_LANGUAGE_1("ky",    "Kirghiz",              "ky", "Kirghiz");
-	ADD_LANGUAGE_1("la",    "Latin",                "la", "Latin");
-	ADD_LANGUAGE_1("lo",    "Lao",                  "lo", "Lao");
-	ADD_LANGUAGE_1("lt",    "Lithuanian",           "lt", "Lithuanian");
-	ADD_LANGUAGE_1("lv",    "Latvian",              "lv", "Latvian");
-	ADD_LANGUAGE_1("mg",    "Malagasy",             "mg", "Malagasy");
-	ADD_LANGUAGE_1("mi",    "Maori",                "mi", "Maori");
-	ADD_LANGUAGE_1("mk",    "Macedonian",           "mk", "Macedonian");
-	ADD_LANGUAGE_1("mr",    "Marathi",              "mr", "Marathi");
-	ADD_LANGUAGE_1("ml",    "Malayalam",            "ml", "Malayalam");
-	ADD_LANGUAGE_1("mn",    "Mongolian",            "mn", "Mongolian");
-	ADD_LANGUAGE_1("mo",    "Moldavian",            "mo", "Moldavian");
-	ADD_LANGUAGE_1("ms",    "Malay",                "ms", "Malay");
-	ADD_LANGUAGE_1("mt",    "Maltese",              "mt", "Maltese");
-	ADD_LANGUAGE_1("my",    "Burmese",              "my", "Burmese");
-	ADD_LANGUAGE_1("ne",    "Nepali",               "ne", "Nepali");
-	ADD_LANGUAGE_2("nl",    "Dutch",                "nl", "nl_NL", "Dutch");
-	ADD_LANGUAGE_0("nl-BE", "Flemish",              "nl_BE");
-	ADD_LANGUAGE_2("no",    "Norwegian",            "no", "no_NO", "Norwegian");
-	ADD_LANGUAGE_0("nb",    "Norwegian Bokmal",     "nb");
-	ADD_LANGUAGE_0("nn",    "Norwegian Nynorsk",    "nn");
-	ADD_LANGUAGE_1("om",    "Oromo",                "om", "Oromo");
-	ADD_LANGUAGE_1("or",    "Oriya",                "or", "Oriya");
-	ADD_LANGUAGE_1("pa",    "Punjabi",              "pa", "Punjabi");
-	ADD_LANGUAGE_2("pl",    "Polish",               "pl", "pl_PL", "Polish");
-	ADD_LANGUAGE_1("ps",    "Pashto",               "ps", "Pashto");
-	ADD_LANGUAGE_2("pt",    "Portuguese",           "pt", "pt_PT", "Portuguese");
-	ADD_LANGUAGE_1("pt-BR", "Brazilian Portoguese", "pt_BR", "PT_br");
-	ADD_LANGUAGE_1("qu",    "Quechua",              "qu", "Quechua");
-	ADD_LANGUAGE_1("rn",    "Rundi",                "rn", "Rundi");
-	ADD_LANGUAGE_1("ro",    "Romanian",             "ro", "Romanian");
-	ADD_LANGUAGE_1("ru",    "Russian",              "ru", "Russian");
-	ADD_LANGUAGE_1("rw",    "Kinyarwanda",          "rw", "Kinyarwanda");
-	ADD_LANGUAGE_1("sa",    "Sanskrit",             "sa", "Sanskrit");
-	ADD_LANGUAGE_1("sd",    "Sindhi",               "sd", "Sindhi");
-	ADD_LANGUAGE_1("se",    "Sami",                 "se", "Sami");
-	ADD_LANGUAGE_1("si",    "Sinhalese",            "si", "Sinhalese");
-	ADD_LANGUAGE_1("sk",    "Slovak",               "sk", "Slovak");
-	ADD_LANGUAGE_1("sl",    "Slovenian",            "sl", "Slovenian");
-	ADD_LANGUAGE_1("so",    "Somali",               "so", "Somali");
-	ADD_LANGUAGE_1("sq",    "Albanian",             "sq", "Albanian");
-	ADD_LANGUAGE_1("sr",    "Serbian",              "sr", "Serbian");
-	ADD_LANGUAGE_1("su",    "Sundanese",            "su", "Sundanese");
-	ADD_LANGUAGE_2("sv",    "Swedish",              "sv", "sv_SE", "Swedish");
-	ADD_LANGUAGE_1("sw",    "Swahili",              "sw", "Swahili");
-	ADD_LANGUAGE_1("ta",    "Tamil",                "ta", "Tamil");
-	ADD_LANGUAGE_1("te",    "Telugu",               "te", "Telugu");
-	ADD_LANGUAGE_1("tg",    "Tajiki",               "tg", "Tajiki");
-	ADD_LANGUAGE_1("th",    "Thai",                 "th", "Thai");
-	ADD_LANGUAGE_1("ti",    "Tigrinya",             "ti", "Tigrinya");
-	ADD_LANGUAGE_1("tk",    "Turkmen",              "tk", "Turkmen");
-	ADD_LANGUAGE_1("tl",    "Tagalog",              "tl", "Tagalog");
-	ADD_LANGUAGE_1("tlh",   "Klingon",              "tlh", "Klingon");
-	ADD_LANGUAGE_2("tr",    "Turkish",              "tr", "tr_TR", "Turkish");
-	ADD_LANGUAGE_1("tt",    "Tatar",                "tt", "Tatar");
-	ADD_LANGUAGE_1("to",    "Tongan",               "to", "Tongan");
-	ADD_LANGUAGE_1("ug",    "Uighur",               "ug", "Uighur");
-	ADD_LANGUAGE_1("uk",    "Ukrainian",            "tk", "Ukrainian");
-	ADD_LANGUAGE_1("ur",    "Urdu",                 "ur", "Urdu");
-	ADD_LANGUAGE_1("uz",    "Uzbek",                "uz", "Uzbek");
-	ADD_LANGUAGE_1("vi",    "Vietnamese",           "vi", "Vietnamese");
-	ADD_LANGUAGE_1("yi",    "Yiddish",              "yi", "Yiddish");
-	ADD_LANGUAGE_0("zh",    "Chinese",              "zh");
-	ADD_LANGUAGE_1("zh-Hans", "Simplified Chinese",   "zh_CN", "zh_SC");
-	ADD_LANGUAGE_0("zh-Hant", "Traditional Chinese",  "zh_TW");
+	ADD_LANGUAGE_1(CFSTR("af"),    "Afrikaans",            "af", "Afrikaans");
+	ADD_LANGUAGE_1(CFSTR("am"),    "Amharic",              "am", "Amharic");
+	ADD_LANGUAGE_1(CFSTR("ar"),    "Arabic",               "ar", "Arabic");
+	ADD_LANGUAGE_1(CFSTR("as"),    "Assamese",             "as", "Assamese");
+	ADD_LANGUAGE_1(CFSTR("ay"),    "Aymara",               "ay", "Aymara");
+	ADD_LANGUAGE_1(CFSTR("az"),    "Azerbaijani",          "az", "Azerbaijani");
+	ADD_LANGUAGE_1(CFSTR("be"),    "Byelorussian",         "be", "Byelorussian");
+	ADD_LANGUAGE_1(CFSTR("bg"),    "Bulgarian",            "bg", "Bulgarian");
+	ADD_LANGUAGE_1(CFSTR("bi"),    "Bislama",              "bi", "Bislama");
+	ADD_LANGUAGE_1(CFSTR("bn"),    "Bengali",              "bn", "Bengali");
+	ADD_LANGUAGE_1(CFSTR("bo"),    "Tibetan",              "bo", "Tibetan");
+	ADD_LANGUAGE_1(CFSTR("br"),    "Breton",               "bt", "Breton");
+	ADD_LANGUAGE_1(CFSTR("ca"),    "Catalan",              "ca", "Catalan");
+	ADD_LANGUAGE_1(CFSTR("chr"),   "Cherokee",             "chr", "Cherokee");
+	ADD_LANGUAGE_2(CFSTR("cs"),    "Czech",                "cS", "cs_CZ", "Czech");
+	ADD_LANGUAGE_1(CFSTR("cy"),    "Welsh",                "cy", "Welsh");
+	ADD_LANGUAGE_2(CFSTR("da"),    "Danish",               "da", "da_DK", "Danish");
+	ADD_LANGUAGE_2(CFSTR("de"),    "German",               "de", "de_DE", "German");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("de-AT") : CFSTR("de_AT"), "Austrian German",      "de_AT");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("de-CH") : CFSTR("de_CH"), "Swiss German",         "de_CH");
+	ADD_LANGUAGE_1(CFSTR("dz"),    "Dzongkha",             "dz", "Dzongkha");
+	ADD_LANGUAGE_2(CFSTR("el"),    "Greek",                "el", "el_GR", "Greek");
+	ADD_LANGUAGE_EN(CFSTR("en"),   "English",              "en", "English");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-AU") : CFSTR("en_AU"), "Australian English",   "en_AU");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-CA") : CFSTR("en_CA"), "Canadian English",     "en_CA");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-GB") : CFSTR("en_GB"), "British English",      "en_GB");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-US") : CFSTR("en_US"), "U.S. English",         "en_US");
+	ADD_LANGUAGE_1(CFSTR("eo"),    "Esperanto",            "eo", "Esperanto");
+	ADD_LANGUAGE_2(CFSTR("es"),    "Spanish",              "es", "es_ES", "Spanish");
+	ADD_LANGUAGE_1(CFSTR("et"),    "Estonian",             "et", "Estonian");
+	ADD_LANGUAGE_1(CFSTR("eu"),    "Basque",               "eu", "Basque");
+	ADD_LANGUAGE_1(CFSTR("fa"),    "Farsi",                "fa", "Farsi");
+	ADD_LANGUAGE_2(CFSTR("fi"),    "Finnish",              "fi", "fi_FI", "Finnish");
+	ADD_LANGUAGE_1(CFSTR("fo"),    "Faroese",              "fo", "Faroese");
+	ADD_LANGUAGE_2(CFSTR("fr"),    "French",               "fr", "fr_FR", "French");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("fr-CA") : CFSTR("fr_CA"), "Canadian French",      "fr_CA");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("fr-CH") : CFSTR("fr_CH"), "Swiss French",         "fr_CH");
+	ADD_LANGUAGE_1(CFSTR("ga"),    "Irish",                "ga", "Irish");
+	ADD_LANGUAGE_1(CFSTR("gd"),    "Scottish",             "gd", "Scottish");
+	ADD_LANGUAGE_1(CFSTR("gl"),    "Galician",             "gl", "Galician");
+	ADD_LANGUAGE_1(CFSTR("gn"),    "Guarani",              "gn", "Guarani");
+	ADD_LANGUAGE_1(CFSTR("gu"),    "Gujarati",             "gu", "Gujarati");
+	ADD_LANGUAGE_1(CFSTR("gv"),    "Manx",                 "gv", "Manx");
+	ADD_LANGUAGE_1(CFSTR("haw"),   "Hawaiian",             "haw", "Hawaiian");
+	ADD_LANGUAGE_1(CFSTR("he"),    "Hebrew",               "he", "Hebrew");
+	ADD_LANGUAGE_1(CFSTR("hi"),    "Hindi",                "hi", "Hindi");
+	ADD_LANGUAGE_1(CFSTR("hr"),    "Croatian",             "hr", "Croatian");
+	ADD_LANGUAGE_2(CFSTR("hu"),    "Hungarian",            "hu", "hu_HU", "Hungarian");
+	ADD_LANGUAGE_1(CFSTR("hy"),    "Armenian",             "hy", "Armenian");
+	ADD_LANGUAGE_1(CFSTR("id"),    "Indonesian",           "id", "Indonesian");
+	ADD_LANGUAGE_1(CFSTR("is"),    "Icelandic",            "is", "Icelandic");
+	ADD_LANGUAGE_2(CFSTR("it"),    "Italian",              "it", "it_IT", "Italian");
+	ADD_LANGUAGE_1(CFSTR("iu"),    "Inuktitut",            "iu", "Inuktitut");
+	ADD_LANGUAGE_2(CFSTR("ja"),    "Japanese",             "ja", "ja_JP", "Japanese");
+	ADD_LANGUAGE_1(CFSTR("jv"),    "Javanese",             "jv", "Javanese");
+	ADD_LANGUAGE_1(CFSTR("ka"),    "Georgian",             "ka", "Georgian");
+	ADD_LANGUAGE_1(CFSTR("kk"),    "Kazakh",               "kk", "Kazakh");
+	ADD_LANGUAGE_1(CFSTR("kl"),    "Greenlandic",          "kl", "Greenlandic");
+	ADD_LANGUAGE_1(CFSTR("km"),    "Khmer",                "km", "Khmer");
+	ADD_LANGUAGE_1(CFSTR("kn"),    "Kannada",              "kn", "Kannada");
+	ADD_LANGUAGE_2(CFSTR("ko"),    "Korean",               "ko", "ko_KR", "Korean");
+	ADD_LANGUAGE_1(CFSTR("ks"),    "Kashmiri",             "ks", "Kashmiri");
+	ADD_LANGUAGE_1(CFSTR("ku"),    "Kurdish",              "ku", "Kurdish");
+	ADD_LANGUAGE_1(CFSTR("kw"),    "Kernowek",             "kw", "Kernowek");
+	ADD_LANGUAGE_1(CFSTR("ky"),    "Kirghiz",              "ky", "Kirghiz");
+	ADD_LANGUAGE_1(CFSTR("la"),    "Latin",                "la", "Latin");
+	ADD_LANGUAGE_1(CFSTR("lo"),    "Lao",                  "lo", "Lao");
+	ADD_LANGUAGE_1(CFSTR("lt"),    "Lithuanian",           "lt", "Lithuanian");
+	ADD_LANGUAGE_1(CFSTR("lv"),    "Latvian",              "lv", "Latvian");
+	ADD_LANGUAGE_1(CFSTR("mg"),    "Malagasy",             "mg", "Malagasy");
+	ADD_LANGUAGE_1(CFSTR("mi"),    "Maori",                "mi", "Maori");
+	ADD_LANGUAGE_1(CFSTR("mk"),    "Macedonian",           "mk", "Macedonian");
+	ADD_LANGUAGE_1(CFSTR("mr"),    "Marathi",              "mr", "Marathi");
+	ADD_LANGUAGE_1(CFSTR("ml"),    "Malayalam",            "ml", "Malayalam");
+	ADD_LANGUAGE_1(CFSTR("mn"),    "Mongolian",            "mn", "Mongolian");
+	ADD_LANGUAGE_1(CFSTR("mo"),    "Moldavian",            "mo", "Moldavian");
+	ADD_LANGUAGE_1(CFSTR("ms"),    "Malay",                "ms", "Malay");
+	ADD_LANGUAGE_1(CFSTR("mt"),    "Maltese",              "mt", "Maltese");
+	ADD_LANGUAGE_1(CFSTR("my"),    "Burmese",              "my", "Burmese");
+	ADD_LANGUAGE_1(CFSTR("ne"),    "Nepali",               "ne", "Nepali");
+	ADD_LANGUAGE_2(CFSTR("nl"),    "Dutch",                "nl", "nl_NL", "Dutch");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("nl-BE") : CFSTR("nl_BE"), "Flemish",              "nl_BE");
+	ADD_LANGUAGE_2(CFSTR("no"),    "Norwegian",            "no", "no_NO", "Norwegian");
+	ADD_LANGUAGE_0(CFSTR("nb"),    "Norwegian Bokmal",     "nb");
+	ADD_LANGUAGE_0(CFSTR("nn"),    "Norwegian Nynorsk",    "nn");
+	ADD_LANGUAGE_1(CFSTR("om"),    "Oromo",                "om", "Oromo");
+	ADD_LANGUAGE_1(CFSTR("or"),    "Oriya",                "or", "Oriya");
+	ADD_LANGUAGE_1(CFSTR("pa"),    "Punjabi",              "pa", "Punjabi");
+	ADD_LANGUAGE_2(CFSTR("pl"),    "Polish",               "pl", "pl_PL", "Polish");
+	ADD_LANGUAGE_1(CFSTR("ps"),    "Pashto",               "ps", "Pashto");
+	ADD_LANGUAGE_2(CFSTR("pt"),    "Portuguese",           "pt", "pt_PT", "Portuguese");
+	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("pt-BR") : CFSTR("pt_BR"), "Brazilian Portoguese", "pt_BR", "PT_br");
+	ADD_LANGUAGE_1(CFSTR("qu"),    "Quechua",              "qu", "Quechua");
+	ADD_LANGUAGE_1(CFSTR("rn"),    "Rundi",                "rn", "Rundi");
+	ADD_LANGUAGE_1(CFSTR("ro"),    "Romanian",             "ro", "Romanian");
+	ADD_LANGUAGE_1(CFSTR("ru"),    "Russian",              "ru", "Russian");
+	ADD_LANGUAGE_1(CFSTR("rw"),    "Kinyarwanda",          "rw", "Kinyarwanda");
+	ADD_LANGUAGE_1(CFSTR("sa"),    "Sanskrit",             "sa", "Sanskrit");
+	ADD_LANGUAGE_1(CFSTR("sd"),    "Sindhi",               "sd", "Sindhi");
+	ADD_LANGUAGE_1(CFSTR("se"),    "Sami",                 "se", "Sami");
+	ADD_LANGUAGE_1(CFSTR("si"),    "Sinhalese",            "si", "Sinhalese");
+	ADD_LANGUAGE_1(CFSTR("sk"),    "Slovak",               "sk", "Slovak");
+	ADD_LANGUAGE_1(CFSTR("sl"),    "Slovenian",            "sl", "Slovenian");
+	ADD_LANGUAGE_1(CFSTR("so"),    "Somali",               "so", "Somali");
+	ADD_LANGUAGE_1(CFSTR("sq"),    "Albanian",             "sq", "Albanian");
+	ADD_LANGUAGE_1(CFSTR("sr"),    "Serbian",              "sr", "Serbian");
+	ADD_LANGUAGE_1(CFSTR("su"),    "Sundanese",            "su", "Sundanese");
+	ADD_LANGUAGE_2(CFSTR("sv"),    "Swedish",              "sv", "sv_SE", "Swedish");
+	ADD_LANGUAGE_1(CFSTR("sw"),    "Swahili",              "sw", "Swahili");
+	ADD_LANGUAGE_1(CFSTR("ta"),    "Tamil",                "ta", "Tamil");
+	ADD_LANGUAGE_1(CFSTR("te"),    "Telugu",               "te", "Telugu");
+	ADD_LANGUAGE_1(CFSTR("tg"),    "Tajiki",               "tg", "Tajiki");
+	ADD_LANGUAGE_1(CFSTR("th"),    "Thai",                 "th", "Thai");
+	ADD_LANGUAGE_1(CFSTR("ti"),    "Tigrinya",             "ti", "Tigrinya");
+	ADD_LANGUAGE_1(CFSTR("tk"),    "Turkmen",              "tk", "Turkmen");
+	ADD_LANGUAGE_1(CFSTR("tl"),    "Tagalog",              "tl", "Tagalog");
+	ADD_LANGUAGE_1(CFSTR("tlh"),   "Klingon",              "tlh", "Klingon");
+	ADD_LANGUAGE_2(CFSTR("tr"),    "Turkish",              "tr", "tr_TR", "Turkish");
+	ADD_LANGUAGE_1(CFSTR("tt"),    "Tatar",                "tt", "Tatar");
+	ADD_LANGUAGE_1(CFSTR("to"),    "Tongan",               "to", "Tongan");
+	ADD_LANGUAGE_1(CFSTR("ug"),    "Uighur",               "ug", "Uighur");
+	ADD_LANGUAGE_1(CFSTR("uk"),    "Ukrainian",            "tk", "Ukrainian");
+	ADD_LANGUAGE_1(CFSTR("ur"),    "Urdu",                 "ur", "Urdu");
+	ADD_LANGUAGE_1(CFSTR("uz"),    "Uzbek",                "uz", "Uzbek");
+	ADD_LANGUAGE_1(CFSTR("vi"),    "Vietnamese",           "vi", "Vietnamese");
+	ADD_LANGUAGE_1(CFSTR("yi"),    "Yiddish",              "yi", "Yiddish");
+	ADD_LANGUAGE_0(CFSTR("zh"),    "Chinese",              "zh");
+	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("zh-Hans") : CFSTR("zh_CN"), "Simplified Chinese",   "zh_CN", "zh_SC");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("zh-Hant") : CFSTR("zh_TW"), "Traditional Chinese",  "zh_TW");
 	CFRelease(userLanguages);
 	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
 	[self setLanguages:(NSMutableArray *)knownLanguages];
