@@ -6,6 +6,19 @@
 	<string>English</string>
 	<key>CFBundleDisplayName</key>
 	<string>Monolingual</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>*</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Executable</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>Monolingual</string>
 	<key>CFBundleGetInfoString</key>
@@ -26,18 +39,18 @@
 	<string>MoLi</string>
 	<key>CFBundleVersion</key>
 	<string>27</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.3.0</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyleft 2001, 2002 J. Schrier, 2004-2006 Ingmar Stein.
+Released under the GNU Public License.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyleft 2001, 2002 J. Schrier, 2004-2006 Ingmar Stein.
-Released under the GNU Public License.</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.3.0</string>
-	<key>SmartCrashReports_CompanyName</key> 
-	<string>Ingmar Stein</string> 
-	<key>SmartCrashReports_EmailTicket</key> 
-	<string>SCR-C7A11CBEDE</string> 
+	<key>SmartCrashReports_CompanyName</key>
+	<string>Ingmar Stein</string>
+	<key>SmartCrashReports_EmailTicket</key>
+	<string>SCR-C7A11CBEDE</string>
 </dict>
 </plist>

@@ -22,6 +22,7 @@
 #include <mach/mach_host.h>
 #include <mach/mach_port.h>
 #include <mach/machine.h>
+#include <mach-o/arch.h>
 
 #define MODE_LANGUAGES		0
 #define MODE_LAYOUTS		1
@@ -38,6 +39,7 @@ static int                pipeDescriptor;
 static CFSocketRef        pipeSocket;
 static CFMutableDataRef   pipeBuffer;
 static CFRunLoopSourceRef pipeRunLoopSource;
+static CFArrayRef         processApplication;
 
 static const char suffixes[9] =
 {
@@ -200,6 +202,27 @@ int                      mode;
 	return YES;
 }
 
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
+{
+#pragma unused(theApplication)
+	CFTypeRef keys[2] = {
+		CFSTR("Path"),
+		CFSTR("Enabled")
+	};
+	CFTypeRef values[2];
+	values[0] = (CFStringRef)filename;
+	values[1] = kCFBooleanTrue;
+	CFDictionaryRef dict = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+
+	values[0] = (CFTypeRef)dict;
+	processApplication = CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks);
+	CFRelease(dict);
+
+	[self warningSelector:nil returnCode:NSAlertAlternateReturn contextInfo:nil];
+
+	return YES;
+}
+
 - (void) cancelRemove
 {
 	const unsigned char bytes[1] = {'\0'};
@@ -224,6 +247,11 @@ int                      mode;
 					  (NSString *)msg);
 	CFRelease(msg);
 	CFRelease(title);
+
+	if (processApplication) {
+		CFRelease(processApplication);
+		processApplication = nil;
+	}
 }
 
 - (IBAction) documentationBundler:(id)sender
@@ -425,7 +453,6 @@ int                      mode;
 - (IBAction) removeLanguages:(id)sender
 {
 #pragma unused(sender)
-	mode = MODE_LANGUAGES;
 	/* Display a warning first */
 	CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
 	CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
@@ -434,7 +461,8 @@ int                      mode;
 	NSBeginAlertSheet((NSString *)title, (NSString *)defaultButton,
 					  (NSString *)alternateButton, nil, [NSApp mainWindow],
 					  self, NULL,
-					  @selector(warningSelector:returnCode:contextInfo:), self,
+					  @selector(warningSelector:returnCode:contextInfo:),
+					  nil,
 					  (NSString *)msg);
 	CFRelease(msg);
 	CFRelease(alternateButton);
@@ -472,7 +500,10 @@ int                      mode;
 
 	mode = MODE_ARCHITECTURES;
 
-	roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	if (processApplication)
+		roots = processApplication;
+	else
+		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
 	argv = (const char **)malloc((14+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
@@ -672,19 +703,26 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		[[responder->progressWindowController window] orderOut:responder];
 		[responder->progressWindowController stop];
 
-		Growl_PostNotificationWithDictionary(finishedNotificationInfo);
-
-		CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
-		CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Files removed. Space saved: %s."), "");
-		CFStringRef msg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, msgFormat, human_readable(bytesSaved, hbuf, 1024));
-		CFRelease(msgFormat);
-		NSBeginAlertSheet((NSString *)title,
-						  nil, nil, nil, parentWindow, responder, NULL, NULL,
-						  responder,
-						  (NSString *)msg);
-		CFRelease(msg);
-		CFRelease(title);
-		[responder scanLayouts];
+		if (processApplication) {
+			[responder removeArchitectures:nil];
+			
+			CFRelease(processApplication);
+			processApplication = nil;
+		} else {
+			Growl_PostNotificationWithDictionary(finishedNotificationInfo);
+			
+			CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
+			CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Files removed. Space saved: %s."), "");
+			CFStringRef msg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, msgFormat, human_readable(bytesSaved, hbuf, 1024));
+			CFRelease(msgFormat);
+			NSBeginAlertSheet((NSString *)title,
+							  nil, nil, nil, parentWindow, responder, NULL, NULL,
+							  responder,
+							  (NSString *)msg);
+			CFRelease(msg);
+			CFRelease(title);
+			[responder scanLayouts];
+		}
 	}
 }
 
@@ -842,7 +880,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 										  (NSString *)alternateButton, nil,
 										  [NSApp mainWindow], self, NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),
-										  self,
+										  nil,
 										  (NSString *)msg);
 				CFRelease(msg);
 				CFRelease(alternateButton);
@@ -867,7 +905,12 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	CFIndex			roots_count;
 	BOOL			trash;
 
-	roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	mode = MODE_LANGUAGES;
+
+	if (processApplication)
+		roots = processApplication;
+	else
+		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 
 	for (i=0; i<roots_count; ++i)
