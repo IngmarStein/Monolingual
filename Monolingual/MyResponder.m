@@ -331,6 +331,72 @@ int                      mode;
 		CFArrayAppendValue(scannedLayouts, layout);
 		CFRelease(layout);
 	}
+	if (stat("/System/Library/Input Methods/KoreanIM.app", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Korean"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/KoreanIM.app"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Input Methods/Kotoeri.app", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/Kotoeri.app"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Input Methods/SCIM.app", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/SCIM.app"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Input Methods/TCIM.app", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/TCIM.app"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Input Methods/TamilIM.app", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Tamil"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/TamilIM.app"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
+	if (stat("/System/Library/Input Methods/VietnameseIM.app", &st) != -1) {
+		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Vietnamese"),"");
+		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
+		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
+		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
+		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/VietnameseIM.app"));
+		CFRelease(displayName);
+		CFArrayAppendValue(scannedLayouts, layout);
+		CFRelease(layout);
+	}
 	CFRelease(inputMethod);
 	[self setLayouts:(NSMutableArray *)scannedLayouts];
 	CFRelease(scannedLayouts);
