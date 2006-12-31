@@ -1018,12 +1018,13 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 																  kCFPreferencesAnyApplication,
 																  kCFPreferencesCurrentUser,
 																  kCFPreferencesAnyHost);
-	CFIndex count = CFArrayGetCount(languagePref);
+	CFIndex count = languagePref ? CFArrayGetCount(languagePref) : 0;
 	CFMutableSetRef userLanguages = CFSetCreateMutable(kCFAllocatorDefault, count, &kCFTypeSetCallBacks);
 
 	for (CFIndex i=0; i<count; ++i)
 		CFSetAddValue(userLanguages, CFArrayGetValueAtIndex(languagePref, i));
-	CFRelease(languagePref);
+	if (languagePref)
+		CFRelease(languagePref);
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
