@@ -1,5 +1,5 @@
 RELEASE_DIR=release
-RELEASE_NAME=Monolingual-1.3.5
+RELEASE_NAME=Monolingual-1.3.6
 BUILD_DIR=build/Deployment
 
 .PHONY: all release development deployment clean
