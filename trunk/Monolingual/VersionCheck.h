@@ -1,7 +1,7 @@
 /*
 #    VersionCheck.h
 #    Copyright (C) 2001, 2002 Joshua Schrier (jschrier@mac.com),
-#    2004-2006 Ingmar Stein
+#    2004-2007 Ingmar Stein
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
