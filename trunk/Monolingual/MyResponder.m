@@ -1037,7 +1037,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	isTenFourOrHigher = kernelVersion[0] >= '8';
 	free(kernelVersion);
 
-#define NUM_KNOWN_LANGUAGES	129
+#define NUM_KNOWN_LANGUAGES	130
 	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, NUM_KNOWN_LANGUAGES, &kCFTypeArrayCallBacks);
 #define ADD_LANGUAGE_BEGIN(name) \
 	do { \
@@ -1102,15 +1102,16 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("cy"),    "Welsh",                "cy", "Welsh");
 	ADD_LANGUAGE_2(CFSTR("da"),    "Danish",               "da", "da_DK", "Danish");
 	ADD_LANGUAGE_2(CFSTR("de"),    "German",               "de", "de_DE", "German");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("de-AT") : CFSTR("de_AT"), "Austrian German",      "de_AT");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("de-CH") : CFSTR("de_CH"), "Swiss German",         "de_CH");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("de-AT") : CFSTR("de_AT"), "German (Austria)",      "de_AT");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("de-CH") : CFSTR("de_CH"), "German (Switzerland)",  "de_CH");
 	ADD_LANGUAGE_1(CFSTR("dz"),    "Dzongkha",             "dz", "Dzongkha");
 	ADD_LANGUAGE_2(CFSTR("el"),    "Greek",                "el", "el_GR", "Greek");
 	ADD_LANGUAGE_EN(CFSTR("en"),   "English",              "en", "English");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-AU") : CFSTR("en_AU"), "Australian English",   "en_AU");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-CA") : CFSTR("en_CA"), "Canadian English",     "en_CA");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-GB") : CFSTR("en_GB"), "British English",      "en_GB");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-US") : CFSTR("en_US"), "U.S. English",         "en_US");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-AU") : CFSTR("en_AU"), "English (Australia)",      "en_AU");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-CA") : CFSTR("en_CA"), "English (Canada)",         "en_CA");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-GB") : CFSTR("en_GB"), "English (United Kingdom)", "en_GB");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-NZ") : CFSTR("en_NZ"), "English (New Zealand)",    "en_NZ");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("en-US") : CFSTR("en_US"), "English (United States)",  "en_US");
 	ADD_LANGUAGE_1(CFSTR("eo"),    "Esperanto",            "eo", "Esperanto");
 	ADD_LANGUAGE_2(CFSTR("es"),    "Spanish",              "es", "es_ES", "Spanish");
 	ADD_LANGUAGE_1(CFSTR("et"),    "Estonian",             "et", "Estonian");
@@ -1119,8 +1120,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_2(CFSTR("fi"),    "Finnish",              "fi", "fi_FI", "Finnish");
 	ADD_LANGUAGE_1(CFSTR("fo"),    "Faroese",              "fo", "Faroese");
 	ADD_LANGUAGE_2(CFSTR("fr"),    "French",               "fr", "fr_FR", "French");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("fr-CA") : CFSTR("fr_CA"), "Canadian French",      "fr_CA");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("fr-CH") : CFSTR("fr_CH"), "Swiss French",         "fr_CH");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("fr-CA") : CFSTR("fr_CA"), "French (Canada)",      "fr_CA");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("fr-CH") : CFSTR("fr_CH"), "French (Switzerland)", "fr_CH");
 	ADD_LANGUAGE_1(CFSTR("ga"),    "Irish",                "ga", "Irish");
 	ADD_LANGUAGE_1(CFSTR("gd"),    "Scottish",             "gd", "Scottish");
 	ADD_LANGUAGE_1(CFSTR("gl"),    "Galician",             "gl", "Galician");
@@ -1175,7 +1176,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_2(CFSTR("pl"),    "Polish",               "pl", "pl_PL", "Polish");
 	ADD_LANGUAGE_1(CFSTR("ps"),    "Pashto",               "ps", "Pashto");
 	ADD_LANGUAGE_2(CFSTR("pt"),    "Portuguese",           "pt", "pt_PT", "Portuguese");
-	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("pt-BR") : CFSTR("pt_BR"), "Brazilian Portoguese", "pt_BR", "PT_br");
+	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("pt-BR") : CFSTR("pt_BR"), "Portuguese (Brazil)", "pt_BR", "PT_br");
 	ADD_LANGUAGE_1(CFSTR("qu"),    "Quechua",              "qu", "Quechua");
 	ADD_LANGUAGE_1(CFSTR("rn"),    "Rundi",                "rn", "Rundi");
 	ADD_LANGUAGE_1(CFSTR("ro"),    "Romanian",             "ro", "Romanian");
@@ -1211,8 +1212,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("vi"),    "Vietnamese",           "vi", "Vietnamese");
 	ADD_LANGUAGE_1(CFSTR("yi"),    "Yiddish",              "yi", "Yiddish");
 	ADD_LANGUAGE_0(CFSTR("zh"),    "Chinese",              "zh");
-	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("zh-Hans") : CFSTR("zh_CN"), "Simplified Chinese",   "zh_CN", "zh_SC");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("zh-Hant") : CFSTR("zh_TW"), "Traditional Chinese",  "zh_TW");
+	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("zh-Hans") : CFSTR("zh_CN"), "Chinese (Simplified Han)",   "zh_CN", "zh_SC");
+	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("zh-Hant") : CFSTR("zh_TW"), "Chinese (Traditional Han)",  "zh_TW");
 	CFRelease(userLanguages);
 	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
 	[self setLanguages:(NSMutableArray *)knownLanguages];
