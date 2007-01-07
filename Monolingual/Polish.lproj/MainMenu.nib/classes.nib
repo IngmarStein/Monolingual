@@ -9,7 +9,6 @@
         }, 
         {
             ACTIONS = {
-                checkVersion = id; 
                 documentationBundler = id; 
                 donate = id; 
                 openWebsite = id; 
@@ -40,6 +39,12 @@
             LANGUAGE = ObjC; 
             OUTLETS = {applicationText = id; fileText = id; parent = id; progressBar = id; }; 
             SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            ACTIONS = {checkForUpdates = id; }; 
+            CLASS = SUUpdater; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
         }
     ); 
     IBVersion = 1; 
