@@ -24,4 +24,6 @@ release: deployment
 	cp -R dmg-bg.jpg $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.jpg
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(RELEASE_DIR)/$(RELEASE_NAME).dmg $(RELEASE_DIR)/build Monolingual dmg.scpt
+	md5 $(RELEASE_DIR)/$(RELEASE_NAME).dmg
+	ls -l $(RELEASE_DIR)/$(RELEASE_NAME).dmg | awk '{ print($$5) }'
 
