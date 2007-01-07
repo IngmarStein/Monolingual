@@ -7,7 +7,6 @@
 #import "MyResponder.h"
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
-#import "VersionCheck.h"
 #include <Growl/GrowlDefines.h>
 #include <Growl/GrowlApplicationBridge-Carbon.h>
 #include <Security/Authorization.h>
@@ -436,15 +435,6 @@ int                      mode;
 	[preferencesController showWindow:self];
 }
 
-- (IBAction) checkVersion:(id)sender {
-#pragma unused(sender)
-	CFStringRef displayText = CFCopyLocalizedString(CFSTR("A newer version of Monolingual is available online. Would you like to download it now?"), "");
-	[VersionCheck checkVersionAtURL:versionURL
-						displayText:(NSString *)displayText
-						downloadURL:downloadURL];
-	CFRelease(displayText);
-}
-
 - (IBAction) donate:(id)sender {
 #pragma unused(sender)
 	LSOpenCFURLRef(donateURL, NULL);
@@ -506,7 +496,7 @@ int                      mode;
 		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
-	argv = (const char **)malloc((14+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
+	argv = (const char **)malloc((15+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
 	int idx = 1;
 
 	CFIndex remove_count = 0;
@@ -555,8 +545,12 @@ int                      mode;
 		argv[idx++] = "org.xlife.Acquisition";
 		argv[idx++] = "-b";
 		argv[idx++] = "com.linotype.FontExplorerX";
+		argv[idx++] = "-b";
+		argv[idx++] = "com.alsoft.diskwarrior";
 		argv[idx++] = "-x";
 		argv[idx++] = "/System/Library/Frameworks";
+		argv[idx++] = "-x";
+		argv[idx++] = "/System/Library/PrivateFrameworks";
 		argv[idx] = NULL;
 		[self runDeleteHelperWithArgs:argv];
 	}
@@ -990,17 +984,6 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	CFRelease(startedNotificationInfo);
 	CFRelease(finishedNotificationInfo);
 	[super dealloc];
-}
-
-- (void) applicationDidFinishLaunching:(NSNotification *)aNotification
-{
-#pragma unused(aNotification)
-	CFStringRef displayText = CFCopyLocalizedString(CFSTR("A newer version of Monolingual is available online. Would you like to download it now?"), "");
-	[VersionCheck checkVersionAtURL:versionURL
-					withDayInterval:7
-						displayText:(NSString *)displayText
-						downloadURL:downloadURL];
-	CFRelease(displayText);
 }
 
 - (void) awakeFromNib
