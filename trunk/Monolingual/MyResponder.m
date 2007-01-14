@@ -22,6 +22,7 @@
 #include <mach/mach_port.h>
 #include <mach/machine.h>
 #include <mach-o/arch.h>
+#include <pwd.h>
 
 #define MODE_LANGUAGES		0
 #define MODE_LAYOUTS		1
@@ -39,6 +40,8 @@ static CFSocketRef        pipeSocket;
 static CFMutableDataRef   pipeBuffer;
 static CFRunLoopSourceRef pipeRunLoopSource;
 static CFArrayRef         processApplication;
+static FILE               *logFile;
+static char               logFileName[PATH_MAX];
 
 static const char suffixes[9] =
 {
@@ -193,6 +196,12 @@ int                      mode;
 	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultValues];
 	CFRelease(defaultValues);
 	CFRelease(defaultRoots);
+
+	struct passwd *pwd = getpwuid(getuid());
+	if (pwd && pwd->pw_dir)
+		snprintf(logFileName, sizeof(logFileName), "%s/Library/Logs/Monolingual.log", pwd->pw_dir);
+	else
+		strncpy(logFileName, "/var/log/Monolingual.log", sizeof(logFileName));
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
@@ -250,6 +259,11 @@ int                      mode;
 	if (processApplication) {
 		CFRelease(processApplication);
 		processApplication = nil;
+	}
+
+	if (logFile) {
+		fclose(logFile);
+		logFile = NULL;
 	}
 }
 
@@ -490,6 +504,12 @@ int                      mode;
 
 	mode = MODE_ARCHITECTURES;
 
+	logFile = fopen(logFileName, "at");
+	if (logFile) {
+		time_t now = time(NULL);
+		fprintf(logFile, "Monolingual started at %sRemoving architectures: ", ctime(&now));
+	}
+
 	if (processApplication)
 		roots = processApplication;
 	else
@@ -504,12 +524,19 @@ int                      mode;
 		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
 		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("Enabled")))) {
 			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("Name"));
-			NSLog(@"Will remove architecture %@", name);
+			char const *arch = [(NSString *)name UTF8String];
 			argv[idx++] = "--thin";
-			argv[idx++] = [(NSString *)name UTF8String];
+			argv[idx++] = arch;
+			if (logFile) {
+				if (remove_count)
+					fputs(" ", logFile);
+				fputs(arch, logFile);
+			}
 			++remove_count;
 		}
 	}
+	if (logFile)
+		fputs("\nModified files:\n", logFile);
 
 	if (remove_count == archs_count) {
 		CFStringRef title = CFCopyLocalizedString(CFSTR("Cannot remove all architectures"), "");
@@ -520,6 +547,10 @@ int                      mode;
 						  (NSString *)msg);
 		CFRelease(msg);
 		CFRelease(title);
+		if (logFile) {
+			fclose(logFile);
+			logFile = NULL;
+		}
 	} else if (remove_count) {
 		/* start things off if we have something to remove! */
 		for (CFIndex i=0; i<roots_count; ++i) {
@@ -584,7 +615,11 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 		for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
 			if (!bytes[j]) {
+				unsigned char const *pfile;
+				unsigned char const *psize;
+
 				/* read file name */
+				pfile = bytes;
 				CFStringRef file = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
 				bytes += j + 1;
 
@@ -592,11 +627,15 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 				for (j=0; bytes[j]; ++j) {}
 
 				/* read file size */
+				psize = bytes;
 				CFStringRef size = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
 				bytesSaved += CFStringGetIntValue(size);
 				bytes += j + 1;
 				i += j + 1;
 				num -= 2;
+
+				if (logFile)
+					fprintf(logFile, "%s: %s\n", pfile, psize);
 
 				CFStringRef message;
 				if (mode == MODE_ARCHITECTURES) {
@@ -704,7 +743,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			processApplication = nil;
 		} else {
 			Growl_PostNotificationWithDictionary(finishedNotificationInfo);
-			
+
 			CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
 			CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Files removed. Space saved: %s."), "");
 			CFStringRef msg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, msgFormat, human_readable(bytesSaved, hbuf, 1024));
@@ -716,6 +755,10 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			CFRelease(msg);
 			CFRelease(title);
 			[responder scanLayouts];
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 		}
 	}
 }
@@ -751,6 +794,10 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 							  (NSString *)msg);
 			CFRelease(msg);
 			CFRelease(title);
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 			return;
 		}
 		case errAuthorizationCanceled: {
@@ -761,6 +808,10 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 							  (NSString *)msg);
 			CFRelease(msg);
 			CFRelease(title);
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 			return;
 		}
 		default: {
@@ -771,6 +822,10 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 							  (NSString *)msg);
 			CFRelease(msg);
 			CFRelease(title);
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 			return;
 		}
 	}
@@ -901,6 +956,12 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 	mode = MODE_LANGUAGES;
 
+	logFile = fopen(logFileName, "at");
+	if (logFile) {
+		time_t now = time(NULL);
+		fprintf(logFile, "Monolingual started at %sRemoving languages: ", ctime(&now));
+	}
+
 	if (processApplication)
 		roots = processApplication;
 	else
@@ -950,13 +1011,20 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 				CFIndex paths_count = CFArrayGetCount(paths);
 				for (CFIndex j=0; j<paths_count; ++j) {
 					NSString *path = (NSString *)CFArrayGetValueAtIndex(paths, j);
-					NSLog(@"Will remove %@", path);
-					argv[idx++] = [path fileSystemRepresentation];
+					char const *pathname = [path fileSystemRepresentation];
+					if (logFile) {
+						if (rCount || paths_count)
+							fputs(" ", logFile);
+						fputs(pathname, logFile);
+					}
+					argv[idx++] = pathname;
 				}
 				++rCount;
 			}
 		}
 
+		if (logFile)
+			fputs("\nDeleted files: \n", logFile);
 		if (rCount == lCount)  {
 			CFStringRef title = CFCopyLocalizedString(CFSTR("Cannot remove all languages"), "");
 			CFStringRef msg = CFCopyLocalizedString(CFSTR("Removing all languages will make Mac OS X inoperable. Please keep at least one language and try again."), "");
@@ -965,6 +1033,10 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 							  (NSString *)msg);
 			CFRelease(msg);
 			CFRelease(title);
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 		} else if (rCount) {
 			/* start things off if we have something to remove! */
 			argv[idx] = NULL;
