@@ -305,9 +305,6 @@ static int create_fat(off_t *newsize)
 	
 	if (close(fd) == -1)
 		syslog(LOG_WARNING, "can't close output file: %s", output_file);
-	if (archives_in_input)
-		if (utime(output_file, &output_timep) == -1)
-			syslog(LOG_WARNING, "can't set the modify times for output file: %s", output_file);
 
 	return 0;
 }
