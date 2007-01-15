@@ -477,7 +477,6 @@ int                      mode;
 - (IBAction) removeLayouts:(id)sender
 {
 #pragma unused(sender)
-	mode = MODE_LAYOUTS;
 	/* Display a warning first */
 	CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
 	CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
@@ -584,6 +583,11 @@ int                      mode;
 		argv[idx++] = "/System/Library/PrivateFrameworks";
 		argv[idx] = NULL;
 		[self runDeleteHelperWithArgs:argv];
+	} else {
+		if (logFile) {
+			fclose(logFile);
+			logFile = NULL;
+		}
 	}
 	free(argv);
 }
@@ -649,35 +653,37 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 					CFStringRef layout = NULL;
 					CFStringRef im = NULL;
 					BOOL cache = NO;
-					for (CFIndex k=0; k<componentCount; ++k) {
-						CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
-						if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
-							if (app)
-								CFRelease(app);
-							app = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-4));
-						} else if (CFStringHasSuffix(pathComponent, CFSTR(".bundle"))) {
-							if (layout)
-								CFRelease(layout);
-							layout = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-7));
-						} else if (CFStringHasSuffix(pathComponent, CFSTR(".component"))) {
-							if (im)
-								CFRelease(im);
-							im = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-10));
-						} else if (CFStringHasSuffix(pathComponent, CFSTR(".lproj"))) {
-							CFIndex count = CFArrayGetCount(languages);
-							for (CFIndex l=0; l<count; ++l) {
-								CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
-								CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("Folders"));
-								if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
-									lang = CFDictionaryGetValue(language, CFSTR("DisplayName"));
-									break;
+					if (mode == MODE_LANGUAGES) {
+						for (CFIndex k=0; k<componentCount; ++k) {
+							CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
+							if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
+								if (app)
+									CFRelease(app);
+								app = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-4));
+							} else if (CFStringHasSuffix(pathComponent, CFSTR(".bundle"))) {
+								if (layout)
+									CFRelease(layout);
+								layout = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-7));
+							} else if (CFStringHasSuffix(pathComponent, CFSTR(".component"))) {
+								if (im)
+									CFRelease(im);
+								im = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-10));
+							} else if (CFStringHasSuffix(pathComponent, CFSTR(".lproj"))) {
+								CFIndex count = CFArrayGetCount(languages);
+								for (CFIndex l=0; l<count; ++l) {
+									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
+									CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("Folders"));
+									if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
+										lang = CFDictionaryGetValue(language, CFSTR("DisplayName"));
+										break;
+									}
 								}
+							} else if (CFStringHasPrefix(pathComponent, CFSTR("com.apple.IntlDataCache"))) {
+								cache = YES;
 							}
-						} else if (CFStringHasPrefix(pathComponent, CFSTR("com.apple.IntlDataCache"))) {
-							cache = YES;
 						}
+						CFRelease(pathComponents);
 					}
-					CFRelease(pathComponents);
 					if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
 						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing keyboard layout"), "");
 						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
@@ -879,6 +885,13 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFRelease(msg);
 		CFRelease(title);
 	} else {
+		mode = MODE_LAYOUTS;
+		logFile = fopen(logFileName, "at");
+		if (logFile) {
+			time_t now = time(NULL);
+			fprintf(logFile, "Monolingual started at %sRemoving layouts: ", ctime(&now));
+		}
+
 		count = CFArrayGetCount(layouts);
 		argv = (const char **)malloc((10+count+count)*sizeof(char *));
 		argv[1] = "-f";
@@ -893,16 +906,30 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if (trash)
 			argv[idx++] = "-t";
+		int rCount = 0;
 		for (i=0; i<count; ++i) {
 			row = CFArrayGetValueAtIndex(layouts, i);
 			if (CFBooleanGetValue(CFDictionaryGetValue(row, CFSTR("Enabled")))) {
 				argv[idx++] = "-f";
 				argv[idx++] = [(NSString *)CFDictionaryGetValue(row, CFSTR("Path")) fileSystemRepresentation];
+				if (logFile) {
+					if (rCount++)
+						fputs(" ", logFile);
+					NSString *displayName = (NSString *)CFDictionaryGetValue(row, CFSTR("DisplayName"));
+					fputs([displayName UTF8String], logFile);
+				}
 			}
 		}
-		if (idx != 9) {
+		if (logFile)
+			fputs("\nDeleted files: \n", logFile);
+		if (rCount) {
 			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs:argv];
+		} else {
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 		}
 		free(argv);
 	}
@@ -1041,6 +1068,11 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			/* start things off if we have something to remove! */
 			argv[idx] = NULL;
 			[self runDeleteHelperWithArgs:argv];
+		} else {
+			if (logFile) {
+				fclose(logFile);
+				logFile = NULL;
+			}
 		}
 		free(argv);
 	}
