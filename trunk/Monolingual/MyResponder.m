@@ -1327,11 +1327,23 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	kern_return_t ret = host_info(my_mach_host_self, HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
 	mach_port_deallocate(mach_task_self(), my_mach_host_self);
 
+	if (hostInfo.cpu_type == CPU_TYPE_X86) {
+		/* fix host_info */
+		int x86_64;
+		size_t x86_64_size = sizeof(x86_64);
+		if (!sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, NULL, 0)) {
+			if (x86_64) {
+				hostInfo.cpu_type = CPU_TYPE_X86_64;
+				hostInfo.cpu_subtype = CPU_SUBTYPE_X86_64_ALL;
+			}
+		}
+	}
+
 	[currentArchitecture setStringValue:(NSString *)CFSTR("unknown")];
 	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 9, &kCFTypeArrayCallBacks);
 	for (unsigned i=0U; i<9U; ++i) {
 		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(architecture, CFSTR("Enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype)) ? kCFBooleanTrue : kCFBooleanFalse);
+		CFDictionarySetValue(architecture, CFSTR("Enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype) && (!(hostInfo.cpu_type & CPU_ARCH_ABI64) || (archs[i].cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64)))) ? kCFBooleanTrue : kCFBooleanFalse);
 		CFDictionarySetValue(architecture, CFSTR("Name"), archs[i].name);
 		CFDictionarySetValue(architecture, CFSTR("DisplayName"), archs[i].displayName);
 		CFArrayAppendValue(knownArchitectures, architecture);
