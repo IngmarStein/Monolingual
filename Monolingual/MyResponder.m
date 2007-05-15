@@ -515,7 +515,7 @@ int                      mode;
 		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
-	argv = (const char **)malloc((19+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
+	argv = (const char **)malloc((21+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
 	int idx = 1;
 
 	CFIndex remove_count = 0;
@@ -579,6 +579,8 @@ int                      mode;
 		argv[idx++] = "com.alsoft.diskwarrior";
 		argv[idx++] = "-b";
 		argv[idx++] = "com.StarryNight.StarryNight";
+		argv[idx++] = "-b";
+		argv[idx++] = "com.blizzard.worldofwarcraft";
 		argv[idx++] = "-x";
 		argv[idx++] = "/System/Library/Frameworks";
 		argv[idx++] = "-x";
