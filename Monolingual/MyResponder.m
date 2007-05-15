@@ -725,7 +725,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 				[responder->progressWindowController setText:message];
 				[responder->progressWindowController setFile:file];
-				[NSApp updateWindows];
+				[NSApp setWindowsNeedUpdate:YES];
 				CFRelease(message);
 				CFRelease(file);
 				CFRelease(size);
