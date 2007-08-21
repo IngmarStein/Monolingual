@@ -156,30 +156,35 @@ int                      mode;
 
 + (void) initialize
 {
-	CFTypeRef keys[2] = {
+	CFTypeRef keys[3] = {
 		CFSTR("Path"),
-		CFSTR("Enabled")
+		CFSTR("Languages"),
+		CFSTR("Architectures")
 	};
-	CFTypeRef applicationsValues[2] = {
+	CFTypeRef applicationsValues[3] = {
 		CFSTR("/Applications"),
+		kCFBooleanTrue,
 		kCFBooleanTrue
 	};
-	CFTypeRef developerValues[2] = {
+	CFTypeRef developerValues[3] = {
 		CFSTR("/Developer"),
+		kCFBooleanTrue,
 		kCFBooleanTrue
 	};
-	CFTypeRef libraryValues[2] = {
+	CFTypeRef libraryValues[3] = {
 		CFSTR("/Library"),
+		kCFBooleanTrue,
 		kCFBooleanTrue
 	};
-	CFTypeRef systemValues[2] = {
+	CFTypeRef systemValues[3] = {
 		CFSTR("/System"),
-		kCFBooleanTrue
+		kCFBooleanTrue,
+		kCFBooleanFalse
 	};
-	CFDictionaryRef applications = CFDictionaryCreate(kCFAllocatorDefault, keys, applicationsValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef developer = CFDictionaryCreate(kCFAllocatorDefault, keys, developerValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef library = CFDictionaryCreate(kCFAllocatorDefault, keys, libraryValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef systemPath = CFDictionaryCreate(kCFAllocatorDefault, keys, systemValues, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef applications = CFDictionaryCreate(kCFAllocatorDefault, keys, applicationsValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef developer = CFDictionaryCreate(kCFAllocatorDefault, keys, developerValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef library = CFDictionaryCreate(kCFAllocatorDefault, keys, libraryValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef systemPath = CFDictionaryCreate(kCFAllocatorDefault, keys, systemValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 	CFTypeRef roots[4] = {
 		applications,
 		developer,
@@ -215,12 +220,14 @@ int                      mode;
 #pragma unused(theApplication)
 	CFTypeRef keys[2] = {
 		CFSTR("Path"),
-		CFSTR("Enabled")
+		CFSTR("Languages"),
+		CFSTR("Architectures")
 	};
-	CFTypeRef values[2];
+	CFTypeRef values[3];
 	values[0] = (CFStringRef)filename;
 	values[1] = kCFBooleanTrue;
-	CFDictionaryRef dict = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	values[2] = kCFBooleanTrue;
+	CFDictionaryRef dict = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
 	values[0] = (CFTypeRef)dict;
 	processApplication = CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks);
@@ -554,7 +561,7 @@ int                      mode;
 		/* start things off if we have something to remove! */
 		for (CFIndex i=0; i<roots_count; ++i) {
 			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
-			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Enabled")));
+			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Architectures")));
 			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
 			if (enabled) {
 				NSLog(@"Adding root %@", path);
@@ -1000,7 +1007,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	roots_count = CFArrayGetCount(roots);
 
 	for (i=0; i<roots_count; ++i)
-		if (CFBooleanGetValue(CFDictionaryGetValue(CFArrayGetValueAtIndex(roots, i), CFSTR("Enabled"))))
+		if (CFBooleanGetValue(CFDictionaryGetValue(CFArrayGetValueAtIndex(roots, i), CFSTR("Languages"))))
 			break;
 	if (i==roots_count)
 		/* No active roots */
@@ -1024,7 +1031,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			argv[idx++] = "-t";
 		for (i=0; i<roots_count; ++i) {
 			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
-			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Enabled")));
+			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Languages")));
 			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
 			if (enabled) {
 				NSLog(@"Adding root %@", path);

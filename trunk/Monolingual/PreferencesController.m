@@ -25,7 +25,8 @@
 		while ((filename = [filenameEnum nextObject])) {
 			CFMutableDictionaryRef root = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 			CFDictionarySetValue(root, CFSTR("Path"), filename);
-			CFDictionarySetValue(root, CFSTR("Enabled"), kCFBooleanTrue);
+			CFDictionarySetValue(root, CFSTR("Languages"), kCFBooleanTrue);
+			CFDictionarySetValue(root, CFSTR("Architectures"), kCFBooleanTrue);
 			[roots addObject:(NSMutableDictionary *)root];
 			CFRelease(root);
 		}
