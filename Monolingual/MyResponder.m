@@ -218,7 +218,7 @@ int                      mode;
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
 #pragma unused(theApplication)
-	CFTypeRef keys[2] = {
+	CFTypeRef keys[3] = {
 		CFSTR("Path"),
 		CFSTR("Languages"),
 		CFSTR("Architectures")
@@ -561,7 +561,8 @@ int                      mode;
 		/* start things off if we have something to remove! */
 		for (CFIndex i=0; i<roots_count; ++i) {
 			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
-			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Architectures")));
+			CFBooleanRef archEnabled = CFDictionaryGetValue(root, CFSTR("Architectures"));
+			Boolean enabled = archEnabled ? CFBooleanGetValue(archEnabled) : false;
 			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
 			if (enabled) {
 				NSLog(@"Adding root %@", path);
@@ -1006,9 +1007,11 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 
-	for (i=0; i<roots_count; ++i)
-		if (CFBooleanGetValue(CFDictionaryGetValue(CFArrayGetValueAtIndex(roots, i), CFSTR("Languages"))))
+	for (i=0; i<roots_count; ++i) {
+		CFBooleanRef enabled = CFDictionaryGetValue(CFArrayGetValueAtIndex(roots, i), CFSTR("Languages"));
+		if (enabled && CFBooleanGetValue(enabled))
 			break;
+	}
 	if (i==roots_count)
 		/* No active roots */
 		roots_count = 0;
@@ -1031,7 +1034,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			argv[idx++] = "-t";
 		for (i=0; i<roots_count; ++i) {
 			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
-			Boolean enabled = CFBooleanGetValue(CFDictionaryGetValue(root, CFSTR("Languages")));
+			CFBooleanRef langEnabled = CFDictionaryGetValue(root, CFSTR("Languages"));
+			Boolean enabled = langEnabled ? CFBooleanGetValue(langEnabled) : false;
 			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
 			if (enabled) {
 				NSLog(@"Adding root %@", path);
