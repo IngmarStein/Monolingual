@@ -31,7 +31,7 @@ DEV_NAME=`hdiutil attach -readwrite -noverify -noautoopen $DMG_TEMP_NAME | egrep
 
 # run applescript
 if [ ! -z "${APPLESCRIPT}" -a "${APPLESCRIPT}" != "-null-" ]; then
-	osascript $APPLESCRIPT
+	/usr/bin/osascript $APPLESCRIPT
 fi
 
 # make sure it's not world writeable
