@@ -1,16 +1,16 @@
 RELEASE_DIR=release
 RELEASE_NAME=Monolingual-1.3.7
-BUILD_DIR=build/Deployment
+BUILD_DIR=build/Release
 
 .PHONY: all release development deployment clean
 
 all: deployment
 
 development:
-	xcodebuild -target Monolingual -configuration Development build
+	xcodebuild -target Monolingual -configuration Debug build
 
 deployment:
-	xcodebuild -target Monolingual -configuration Deployment build
+	xcodebuild -target Monolingual -configuration Release build
 
 clean:
 	xcodebuild -alltargets clean
