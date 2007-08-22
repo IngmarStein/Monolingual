@@ -10,6 +10,11 @@
 
 @implementation PreferencesController
 
+- (void) awakeFromNib
+{
+	[[self window] setFrameAutosaveName:@"PreferencesWindow"];
+}
+
 - (IBAction) add: (id)sender
 {
 #pragma unused(sender)
