@@ -74,9 +74,9 @@ static int should_exit(void)
 
 static void thin_file(const char *path)
 {
-	off_t size_diff;
+	size_t size_diff;
 	if (!run_lipo(path, &size_diff)) {
-		printf("%s%c%llu%c", path, '\0', size_diff, '\0');
+		printf("%s%c%zu%c", path, '\0', size_diff, '\0');
 		fflush(stdout);
 	}
 }
