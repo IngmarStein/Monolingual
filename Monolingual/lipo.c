@@ -45,7 +45,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
-#include <mach/mach.h>
+#include <sys/mman.h>
+#include <mach-o/swap.h>
 #include <mach-o/loader.h>
 #include <mach-o/fat.h>
 
@@ -57,21 +58,10 @@
  * name, and the cputype and cpusubtype.
  */
 struct arch_flag {
-	const char *name;
-	cpu_type_t cputype;
+	const char    *name;
+	cpu_type_t    cputype;
 	cpu_subtype_t cpusubtype;
 };
-
-enum byte_sex {
-	UNKNOWN_BYTE_SEX,
-	BIG_ENDIAN_BYTE_SEX,
-	LITTLE_ENDIAN_BYTE_SEX
-};
-
-#define SWAP_LONG(a) ( ((a) << 24) | \
-					   (((a) << 8) & 0x00ff0000) | \
-					   (((a) >> 8) & 0x0000ff00) | \
-					   ((unsigned long)(a) >> 24) )
 
 static const struct arch_flag arch_flags[] = {
 	{ "any",	    CPU_TYPE_ANY,	      CPU_SUBTYPE_MULTIPLE },
@@ -136,7 +126,7 @@ static const struct arch_flag arch_flags[] = {
 /* name of input file */
 struct input_file {
 	const char        *name;
-	off_t             size;
+	size_t            size;
 	struct fat_header *fat_header;
 	struct fat_arch   *fat_arches;
 };
@@ -149,7 +139,7 @@ struct thin_file {
 	struct fat_arch fat_arch;
 };
 static struct thin_file *thin_files = NULL;
-static unsigned long nthin_files = 0UL;
+static uint32_t nthin_files = 0U;
 
 /* The specified output file */
 static const char *output_file = NULL;
@@ -192,36 +182,22 @@ static int cmp_qsort(const struct thin_file *thin1, const struct thin_file *thin
 /*
  * myround() rounds v to a multiple of r.
  */
-static unsigned long myround(unsigned long v, unsigned long r)
+static uint32_t myround(uint32_t v, uint32_t r)
 {
 	--r;
 	v += r;
-	v &= ~(long)r;
+	v &= ~(int32_t)r;
 	return v;
 }
-
-
-#ifdef __LITTLE_ENDIAN__
-static void swap_fat_arch(struct fat_arch *fat_archs, unsigned long nfat_arch)
-{
-	for (unsigned long i = 0; i < nfat_arch; ++i) {
-		fat_archs[i].cputype	= SWAP_LONG(fat_archs[i].cputype);
-		fat_archs[i].cpusubtype = SWAP_LONG(fat_archs[i].cpusubtype);
-		fat_archs[i].offset 	= SWAP_LONG(fat_archs[i].offset);
-		fat_archs[i].size   	= SWAP_LONG(fat_archs[i].size);
-		fat_archs[i].align  	= SWAP_LONG(fat_archs[i].align);
-	}
-}
-#endif
 
 /*
  * create_fat() creates a fat output file from the thin files.
  */
-static int create_fat(off_t *newsize)
+static int create_fat(size_t *newsize)
 {
-	unsigned long i, offset;
+	uint32_t i, offset;
 	int fd;
-	off_t output_size = 0ULL;
+	size_t output_size = 0;
 
 	/*
 	 * Create the output file.  The unlink() is done to handle the
@@ -236,12 +212,12 @@ static int create_fat(off_t *newsize)
 	}
 
 	/* sort the files by alignment to save space in the output file */
-	if (nthin_files > 1)
+	if (nthin_files > 1U)
 		qsort(thin_files, nthin_files, sizeof(struct thin_file),
 			  (int (*)(const void *, const void *))cmp_qsort);
 
 	/* Fill in the fat_arch's offsets. */
-	offset = sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch);
+	offset = (uint32_t)(sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch));
 	for (i = 0; i < nthin_files; ++i) {
 		offset = myround(offset, 1 << thin_files[i].fat_arch.align);
 		thin_files[i].fat_arch.offset = offset;
@@ -257,12 +233,11 @@ static int create_fat(off_t *newsize)
 		output_size += sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch);
 
 		/* Fill in the fat header */
-#ifdef __LITTLE_ENDIAN__
-		fat_header.magic = SWAP_LONG(FAT_MAGIC);
-		fat_header.nfat_arch = SWAP_LONG(nthin_files);
-#else
 		fat_header.magic = FAT_MAGIC;
 		fat_header.nfat_arch = nthin_files;
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_header(&fat_header, NX_BigEndian);
+#else
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &fat_header, sizeof(struct fat_header)) != sizeof(struct fat_header)) {
 			syslog(LOG_ERR, "can't write fat header to output file: %s", output_file);
@@ -271,7 +246,7 @@ static int create_fat(off_t *newsize)
 		}
 		for (i = 0; i < nthin_files; ++i) {
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(&(thin_files[i].fat_arch), 1);
+		swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &(thin_files[i].fat_arch), sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
 			syslog(LOG_ERR, "can't write fat arch to output file: %s", output_file);
@@ -279,7 +254,7 @@ static int create_fat(off_t *newsize)
 			return 1;
 		}
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(&(thin_files[i].fat_arch), 1);
+		swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		}
 	}
@@ -317,9 +292,8 @@ static void process_input_file(struct input_file *input)
 {
 	int fd;
 	struct stat stat_buf;
-	off_t size;
+	size_t size;
 	unsigned long i, j;
-	kern_return_t r;
 	char *addr;
 	struct thin_file *thin;
 
@@ -333,7 +307,7 @@ static void process_input_file(struct input_file *input)
 		syslog(LOG_ERR, "Can't stat input file: %s", input->name);
 		return;
 	}
-	size = stat_buf.st_size;
+	size = (size_t)stat_buf.st_size;
 	input->size = size;
 	/* pick up set uid, set gid and sticky text bits */
 	output_filemode = stat_buf.st_mode & 07777;
@@ -350,7 +324,8 @@ static void process_input_file(struct input_file *input)
 		output_timep.actime = stat_buf.st_atime;
 		output_timep.modtime = stat_buf.st_mtime;
 	}
-	if (map_fd((int)fd, (vm_offset_t)0, (vm_offset_t *)&addr, (boolean_t)1, (vm_size_t)size) != KERN_SUCCESS) {
+	addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+	if (MAP_FAILED == addr) {
 		syslog(LOG_ERR, "Can't map input file: %s", input->name);
 		close(fd);
 		return;
@@ -360,29 +335,28 @@ static void process_input_file(struct input_file *input)
 	/* Try to figure out what kind of file this is */
 
 	/* see if this file is a fat file */
-	if (size >= sizeof(struct fat_header) &&
+	if ((size_t)size >= sizeof(struct fat_header) &&
 #ifdef __BIG_ENDIAN__
-	   *((unsigned long *)addr) == FAT_MAGIC)
+	   *((uint32_t *)addr) == FAT_MAGIC)
 #endif /* __BIG_ENDIAN__ */
 #ifdef __LITTLE_ENDIAN__
-	   *((unsigned long *)addr) == SWAP_LONG(FAT_MAGIC))
+	   *((uint32_t *)addr) == FAT_CIGAM)
 #endif /* __LITTLE_ENDIAN__ */
 	{
 		input->fat_header = (struct fat_header *)addr;
 #ifdef __LITTLE_ENDIAN__
-		input->fat_header->magic 	 = SWAP_LONG(input->fat_header->magic);
-		input->fat_header->nfat_arch = SWAP_LONG(input->fat_header->nfat_arch);
+		swap_fat_header(input->fat_header, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
-		if (sizeof(struct fat_header) + input->fat_header->nfat_arch * sizeof(struct fat_arch) > size) {
+		if (sizeof(struct fat_header) + input->fat_header->nfat_arch * sizeof(struct fat_arch) > (size_t)size) {
 			syslog(LOG_ERR, "truncated or malformed fat file (fat_arch structs would "
 					"extend past the end of the file) %s", input->name);
-			vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
+			munmap(addr, size);
 			input->fat_header = NULL;
 			return;
 		}
 		input->fat_arches = (struct fat_arch *)(addr + sizeof(struct fat_header));
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(input->fat_arches, input->fat_header->nfat_arch);
+		swap_fat_arch(input->fat_arches, input->fat_header->nfat_arch, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
 			if (input->fat_arches[i].offset + input->fat_arches[i].size > size) {
@@ -390,7 +364,7 @@ static void process_input_file(struct input_file *input)
 						"of cputype (%d) cpusubtype (%d) extends past the "
 						"end of the file) %s", input->fat_arches[i].cputype,
 						input->fat_arches[i].cpusubtype, input->name);
-				vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
+				munmap(addr, size);
 				input->fat_header = NULL;
 				return;
 			}
@@ -400,7 +374,7 @@ static void process_input_file(struct input_file *input)
 						input->fat_arches[i].align, input->name,
 						input->fat_arches[i].cputype,
 						input->fat_arches[i].cpusubtype, MAXSECTALIGN);
-				vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
+				munmap(addr, size);
 				input->fat_header = NULL;
 				return;
 			}
@@ -411,7 +385,7 @@ static void process_input_file(struct input_file *input)
 						input->fat_arches[i].cputype,
 						input->fat_arches[i].cpusubtype,
 						input->fat_arches[i].align);
-				vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
+				munmap(addr, size);
 				input->fat_header = NULL;
 				return;
 			}
@@ -424,7 +398,7 @@ static void process_input_file(struct input_file *input)
 							"(cputype (%d) cpusubtype (%d))", input->name,
 							input->fat_arches[i].cputype,
 							input->fat_arches[i].cpusubtype);
-					vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
+					munmap(addr, size);
 					input->fat_header = NULL;
 					return;
 				}
@@ -442,9 +416,8 @@ static void process_input_file(struct input_file *input)
 				archives_in_input = 1;
 		}
 	} else {
-		r = vm_deallocate(mach_task_self(), (vm_offset_t)addr, (vm_size_t)size);
-		if (r != KERN_SUCCESS)
-			mach_error("vm_deallocate", r);
+		if (munmap(addr, size))
+			syslog(LOG_ERR, "munmap: %s", strerror(errno));
 	}
 }
 
@@ -477,10 +450,10 @@ void finish_lipo(void)
 		free(remove_arch_flags);
 }
 
-int run_lipo(const char *path, off_t *size_diff)
+int run_lipo(const char *path, size_t *size_diff)
 {
-	int err;
-	off_t newsize;
+	int    err;
+	size_t newsize;
 
 	/*
 	 * Check to see the specified arguments are valid.
@@ -490,7 +463,7 @@ int run_lipo(const char *path, off_t *size_diff)
 
 	/* reset static variables */
 	thin_files = NULL;
-	nthin_files = 0UL;
+	nthin_files = 0U;
 	memset(&output_timep, 0, sizeof(output_timep));
 	archives_in_input = 0;
 
@@ -540,9 +513,8 @@ int run_lipo(const char *path, off_t *size_diff)
 		err = 1;
 	}
 
-	kern_return_t ret = vm_deallocate(mach_task_self(), (vm_offset_t)input_file.fat_header, (vm_size_t)input_file.size);
-	if (ret != KERN_SUCCESS)
-		mach_error("vm_deallocate", ret);
+	if (munmap(input_file.fat_header, input_file.size))
+		syslog(LOG_ERR, "munmap: %s", strerror(errno));
 
 	if (thin_files)
 		free(thin_files);
