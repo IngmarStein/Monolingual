@@ -33,13 +33,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ar.h>
-#ifndef AR_EFMT1
-#define	AR_EFMT1	"#1/"		/* extended format #1 */
-#endif
-#include <limits.h>
 #include <errno.h>
-#include <ctype.h>
-#include <libc.h>
 #include <utime.h>
 #include <sys/file.h>
 #include <sys/types.h>
@@ -47,8 +41,11 @@
 #include <syslog.h>
 #include <sys/mman.h>
 #include <mach-o/swap.h>
-#include <mach-o/loader.h>
-#include <mach-o/fat.h>
+#include <mach/machine.h>
+
+#ifndef CPU_SUBTYPE_MASK
+# define CPU_SUBTYPE_MASK	0xff000000  /* mask for feature flags */
+#endif
 
 /* The maximum section alignment allowed to be specified, as a power of two */
 #define MAXSECTALIGN		15 /* 2**15 or 0x8000 */
@@ -343,11 +340,16 @@ static void process_input_file(struct input_file *input)
 	   *((uint32_t *)addr) == FAT_CIGAM)
 #endif /* __LITTLE_ENDIAN__ */
 	{
+		uint64_t big_size;
+
 		input->fat_header = (struct fat_header *)addr;
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_header(input->fat_header, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
-		if (sizeof(struct fat_header) + input->fat_header->nfat_arch * sizeof(struct fat_arch) > (size_t)size) {
+	    big_size = input->fat_header->nfat_arch;
+	    big_size *= sizeof(struct fat_arch);
+	    big_size += sizeof(struct fat_header);
+		if (big_size > size) {
 			syslog(LOG_ERR, "truncated or malformed fat file (fat_arch structs would "
 					"extend past the end of the file) %s", input->name);
 			munmap(addr, size);
@@ -363,7 +365,7 @@ static void process_input_file(struct input_file *input)
 				syslog(LOG_ERR, "truncated or malformed fat file (offset plus size "
 						"of cputype (%d) cpusubtype (%d) extends past the "
 						"end of the file) %s", input->fat_arches[i].cputype,
-						input->fat_arches[i].cpusubtype, input->name);
+						input->fat_arches[i].cpusubtype & ~CPU_SUBTYPE_MASK, input->name);
 				munmap(addr, size);
 				input->fat_header = NULL;
 				return;
@@ -373,7 +375,7 @@ static void process_input_file(struct input_file *input)
 						" cpusubtype (%d)) (maximum 2^%d)",
 						input->fat_arches[i].align, input->name,
 						input->fat_arches[i].cputype,
-						input->fat_arches[i].cpusubtype, MAXSECTALIGN);
+						input->fat_arches[i].cpusubtype & ~CPU_SUBTYPE_MASK, MAXSECTALIGN);
 				munmap(addr, size);
 				input->fat_header = NULL;
 				return;
@@ -383,7 +385,7 @@ static void process_input_file(struct input_file *input)
 						"(%d)) not aligned on it's alignment (2^%u)",
 						input->fat_arches[i].offset, input->name,
 						input->fat_arches[i].cputype,
-						input->fat_arches[i].cpusubtype,
+						input->fat_arches[i].cpusubtype & ~CPU_SUBTYPE_MASK,
 						input->fat_arches[i].align);
 				munmap(addr, size);
 				input->fat_header = NULL;
@@ -393,11 +395,11 @@ static void process_input_file(struct input_file *input)
 		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
 			for (j = i + 1; j < input->fat_header->nfat_arch; ++j) {
 				if (input->fat_arches[i].cputype == input->fat_arches[j].cputype &&
-				   input->fat_arches[i].cpusubtype == input->fat_arches[j].cpusubtype) {
+				   (input->fat_arches[i].cpusubtype & ~CPU_SUBTYPE_MASK) == (input->fat_arches[j].cpusubtype & ~CPU_SUBTYPE_MASK)) {
 					syslog(LOG_ERR, "fat file %s contains two of the same architecture "
 							"(cputype (%d) cpusubtype (%d))", input->name,
 							input->fat_arches[i].cputype,
-							input->fat_arches[i].cpusubtype);
+							input->fat_arches[i].cpusubtype & ~CPU_SUBTYPE_MASK);
 					munmap(addr, size);
 					input->fat_header = NULL;
 					return;
@@ -436,7 +438,7 @@ int setup_lipo(const char *archs[], unsigned num_archs)
 	for (unsigned i = 0U; i < nremove_arch_flags; ++i) {
 		for (unsigned j = i + 1; j < nremove_arch_flags; ++j) {
 			if (remove_arch_flags[i].cputype == remove_arch_flags[j].cputype
-				&& remove_arch_flags[i].cpusubtype == remove_arch_flags[j].cpusubtype)
+				&& (remove_arch_flags[i].cpusubtype & ~CPU_SUBTYPE_MASK) == (remove_arch_flags[j].cpusubtype & ~CPU_SUBTYPE_MASK))
 				syslog(LOG_ERR, "-remove %s specified multiple times", remove_arch_flags[i].name);
 		}
 	}
@@ -493,7 +495,7 @@ int run_lipo(const char *path, size_t *size_diff)
 	for (unsigned long i = 0; i < nremove_arch_flags; ++i) {
 		for (unsigned long j = 0; j < nthin_files; ++j) {
 			if (remove_arch_flags[i].cputype == thin_files[j].fat_arch.cputype
-				&& remove_arch_flags[i].cpusubtype == thin_files[j].fat_arch.cpusubtype) {
+				&& (remove_arch_flags[i].cpusubtype & ~CPU_SUBTYPE_MASK) == (thin_files[j].fat_arch.cpusubtype & ~CPU_SUBTYPE_MASK)) {
 				--nthin_files;
 				for (unsigned long k = j; k < nthin_files; ++k)
 					thin_files[k] = thin_files[k + 1];
