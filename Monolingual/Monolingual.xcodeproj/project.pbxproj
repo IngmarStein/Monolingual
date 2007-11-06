@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 43;
+	objectVersion = 44;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -32,6 +32,7 @@
 		95D180030610CBDD00633B04 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95C3C9F7061014ED00D417BC /* Security.framework */; };
 		95D7A8AD098D42F800DCE08D /* helper.c in Sources */ = {isa = PBXBuildFile; fileRef = 95D7A8AC098D42F800DCE08D /* helper.c */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
+		95DE020D0CD70DF20020CACB /* settings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 95DE020C0CD70DF20020CACB /* settings.xcconfig */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +57,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = Sparkle;
+		};
+		959B95700CD5CC5600C2E843 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 953AA9F60C7B8FE2009B69EA /* Sparkle.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 613242400CD06DB000106AA4;
+			remoteInfo = "Relaunch Tool";
 		};
 		95E7A46D06115DA5009E5926 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -121,6 +129,7 @@
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95D7A8AC098D42F800DCE08D /* helper.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = helper.c; sourceTree = "<group>"; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = Leggimi.rtfd; sourceTree = "<group>"; };
+		95DE020C0CD70DF20020CACB /* settings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = settings.xcconfig; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LisezMoi.rtfd; sourceTree = "<group>"; };
 		95EDCC8B062C4393007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -211,6 +220,7 @@
 		29B97314FDCFA39411CA2CEA /* Monolingual */ = {
 			isa = PBXGroup;
 			children = (
+				95DE020C0CD70DF20020CACB /* settings.xcconfig */,
 				953AAA9D0C7B945F009B69EA /* Sparkle.framework */,
 				953AA9F60C7B8FE2009B69EA /* Sparkle.xcodeproj */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -265,6 +275,7 @@
 			children = (
 				953AA9FC0C7B8FE2009B69EA /* Sparkle.framework */,
 				953AA9FE0C7B8FE2009B69EA /* Sparkle Test App.app */,
+				959B95710CD5CC5600C2E843 /* relaunch */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -360,6 +371,13 @@
 			remoteRef = 953AA9FD0C7B8FE2009B69EA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		959B95710CD5CC5600C2E843 /* relaunch */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = relaunch;
+			remoteRef = 959B95700CD5CC5600C2E843 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -378,6 +396,7 @@
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
 				95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */,
 				9531D7830C7B1020008B48AA /* MainMenu.xib in Resources */,
+				95DE020D0CD70DF20020CACB /* settings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,6 +513,7 @@
 /* Begin XCBuildConfiguration section */
 		95AAF5610856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 95DE020C0CD70DF20020CACB /* settings.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -504,6 +524,7 @@
 		};
 		95AAF5620856C2DC007CEE36 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 95DE020C0CD70DF20020CACB /* settings.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -514,6 +535,7 @@
 		};
 		95AAF5650856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 95DE020C0CD70DF20020CACB /* settings.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -531,6 +553,7 @@
 		};
 		95AAF5660856C2DC007CEE36 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 95DE020C0CD70DF20020CACB /* settings.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -548,15 +571,17 @@
 		};
 		95AAF5690856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 95DE020C0CD70DF20020CACB /* settings.xcconfig */;
 			buildSettings = {
 				ARCHS = (
-					ppc,
 					i386,
+					ppc,
+					ppc64,
+					x86_64,
 				);
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -582,12 +607,8 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.3;
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				OTHER_LDFLAGS_ppc = "-prebind";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				WARNING_CFLAGS = (
 					"-W",
 					"-Wall",
@@ -602,10 +623,11 @@
 				ARCHS = (
 					i386,
 					ppc,
+					ppc64,
+					x86_64,
 				);
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -630,12 +652,9 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.3;
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				OTHER_LDFLAGS_ppc = "-prebind";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
+				STRIP_STYLE = "non-global";
 				WARNING_CFLAGS = (
 					"-W",
 					"-Wall",
