@@ -33,14 +33,9 @@
 #include <pwd.h>
 #include <syslog.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <mach-o/fat.h>
+#include <mach-o/loader.h>
 #include "lipo.h"
-
-#ifndef FAT_MAGIC
-#define FAT_MAGIC	0xcafebabe
-#endif
-#ifndef FAT_CIGAM
-#define FAT_CIGAM	0xbebafeca
-#endif
 
 static int do_strip;
 static void (*remove_func)(const char *path);
@@ -80,35 +75,40 @@ static void thin_file(const char *path)
 		printf("%s%c%zu%c", path, '\0', size_diff, '\0');
 		fflush(stdout);
 	}
-	if (do_strip) {
-		char const *argv[4];
-		int stat_loc;
-		struct stat st;
-		pid_t child;
-		off_t old_size;
+}
 
+static void strip_file(const char *path)
+{
+	char const *argv[4];
+	int stat_loc;
+	struct stat st;
+	pid_t child;
+	off_t old_size;
+	
+	if (!stat(path, &st)) {
+		old_size = st.st_size;
+		child = fork();
+		switch (child) {
+			case -1:
+				syslog(LOG_ERR, "fork() failed");
+				break;
+			case 0:
+				argv[0] = "/usr/bin/strip";
+				argv[1] = "-";
+				argv[2] = path;
+				argv[3] = NULL;
+				execv("/usr/bin/strip", (char * const *)argv);
+				syslog(LOG_ERR, "execv(\"/usr/bin/strip\") failed");
+				break;
+		}
+		waitpid(child, &stat_loc, 0);
+		chmod(path, st.st_mode & 0777);
+		if (chown(path, st.st_uid, st.st_gid) >= 0)
+			chmod(path, st.st_mode & 07777);
 		if (!stat(path, &st)) {
-			old_size = st.st_size;
-			child = fork();
-			switch (child) {
-				case -1:
-					syslog(LOG_ERR, "fork() failed");
-					break;
-				case 0:
-					argv[0] = "/usr/bin/strip";
-					argv[1] = "--";
-					argv[2] = path;
-					argv[3] = NULL;
-					execv("/usr/bin/strip", (char * const *)argv);
-					syslog(LOG_ERR, "execv(\"/usr/bin/strip\") failed");
-					break;
-			}
-			waitpid(child, &stat_loc, 0);
-			if (!stat(path, &st)) {
-				size_diff = (size_t)(old_size - st.st_size);
-				printf("%s%c%zu%c", path, '\0', size_diff, '\0');
-				fflush(stdout);
-			}
+			size_t size_diff = (size_t)(old_size - st.st_size);
+			printf("%s%c%zu%c", path, '\0', size_diff, '\0');
+			fflush(stdout);
 		}
 	}
 }
@@ -357,6 +357,8 @@ static void thin_recursively(const char *path)
 
 					if (num == sizeof(magic) && (magic == FAT_MAGIC || magic == FAT_CIGAM))
 						thin_file(path);
+					if (num == sizeof(magic) && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
+						strip_file(path);
 				}
 			}
 			break;
