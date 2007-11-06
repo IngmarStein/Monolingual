@@ -42,6 +42,7 @@
 #define FAT_CIGAM	0xbebafeca
 #endif
 
+static int do_strip;
 static void (*remove_func)(const char *path);
 static unsigned num_directories;
 static unsigned num_excludes;
@@ -78,6 +79,37 @@ static void thin_file(const char *path)
 	if (!run_lipo(path, &size_diff)) {
 		printf("%s%c%zu%c", path, '\0', size_diff, '\0');
 		fflush(stdout);
+	}
+	if (do_strip) {
+		char const *argv[4];
+		int stat_loc;
+		struct stat st;
+		pid_t child;
+		off_t old_size;
+
+		if (!stat(path, &st)) {
+			old_size = st.st_size;
+			child = fork();
+			switch (child) {
+				case -1:
+					syslog(LOG_ERR, "fork() failed");
+					break;
+				case 0:
+					argv[0] = "/usr/bin/strip";
+					argv[1] = "--";
+					argv[2] = path;
+					argv[3] = NULL;
+					execv("/usr/bin/strip", (char * const *)argv);
+					syslog(LOG_ERR, "execv(\"/usr/bin/strip\") failed");
+					break;
+			}
+			waitpid(child, &stat_loc, 0);
+			if (!stat(path, &st)) {
+				size_diff = (size_t)(old_size - st.st_size);
+				printf("%s%c%zu%c", path, '\0', size_diff, '\0');
+				fflush(stdout);
+			}
+		}
 	}
 }
 
@@ -411,6 +443,8 @@ int main(int argc, const char *argv[])
 			} else {
 				blacklist[num_blacklists++] = argv[i];
 			}
+		} else if (!strcmp(arg, "-s") || !strcmp(arg, "--strip")) {
+			do_strip = 1;
 		} else {
 			directories[num_directories++] = arg;
 		}
