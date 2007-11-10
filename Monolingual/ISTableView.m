@@ -12,7 +12,7 @@
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	int row;
+	NSInteger row;
 	unichar key = [[theEvent charactersIgnoringModifiers] characterAtIndex:0];
 
 	switch (key) {

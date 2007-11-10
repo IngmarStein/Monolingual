@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9502B7380CE08E5200774059 /* NGSByteSizeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 9502B7350CE08E5200774059 /* NGSByteSizeFormatter.m */; };
+		9502B7390CE08E5200774059 /* NGSTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 9502B7370CE08E5200774059 /* NGSTreeNode.m */; };
 		9503D710098CF0E8007F59E3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9503D70F098CF0E8007F59E3 /* SystemConfiguration.framework */; };
 		9507F6870A308E320064C21E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9507F6860A308E320064C21E /* CoreFoundation.framework */; };
 		9531D7790C7B0E61008B48AA /* ISTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9531D7780C7B0E61008B48AA /* ISTableView.m */; };
@@ -98,6 +100,10 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		2BCD7FCA097D043900FE7723 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Italian; path = Italian.lproj/Credits.html; sourceTree = "<group>"; };
+		9502B7340CE08E5200774059 /* NGSByteSizeFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NGSByteSizeFormatter.h; sourceTree = "<group>"; };
+		9502B7350CE08E5200774059 /* NGSByteSizeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NGSByteSizeFormatter.m; sourceTree = "<group>"; };
+		9502B7360CE08E5200774059 /* NGSTreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NGSTreeNode.h; sourceTree = "<group>"; };
+		9502B7370CE08E5200774059 /* NGSTreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NGSTreeNode.m; sourceTree = "<group>"; };
 		9503D70F098CF0E8007F59E3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		9507F6860A308E320064C21E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		9531D7770C7B0E61008B48AA /* ISTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISTableView.h; sourceTree = "<group>"; };
@@ -174,6 +180,10 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				9502B7340CE08E5200774059 /* NGSByteSizeFormatter.h */,
+				9502B7350CE08E5200774059 /* NGSByteSizeFormatter.m */,
+				9502B7360CE08E5200774059 /* NGSTreeNode.h */,
+				9502B7370CE08E5200774059 /* NGSTreeNode.m */,
 				9534F842072707D200CAB28E /* GrowlDefines.h */,
 				00ECF787010242A17F000001 /* MyResponder.h */,
 				00ECF788010242A17F000001 /* MyResponder.m */,
@@ -428,6 +438,8 @@
 				95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */,
 				956E31D70A4B4056004E91ED /* main.c in Sources */,
 				9531D7790C7B0E61008B48AA /* ISTableView.m in Sources */,
+				9502B7380CE08E5200774059 /* NGSByteSizeFormatter.m in Sources */,
+				9502B7390CE08E5200774059 /* NGSTreeNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

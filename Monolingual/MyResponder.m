@@ -1,12 +1,14 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *  2004-2007 Ingmar Stein
+ *                2004-2007 Ingmar Stein
+ *                2007 Nicholas Shanks (contact@nickshanks.com)
  *  Released under the GNU GPL.  For more information, see the header file.
  */
 
 #import "MyResponder.h"
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
+#import "NGSTreeNode.h"
 #include <Growl/GrowlDefines.h>
 #include <Growl/GrowlApplicationBridge-Carbon.h>
 #include <Security/Authorization.h>
@@ -83,9 +85,9 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 			do {
 				long long r10 = (amt % base) * 10U + tenths;
-				unsigned int r2 = ((r10 % base) << 1) + (rounding >> 1);
+				unsigned int r2 = (unsigned)(((r10 % base) << 1) + (rounding >> 1));
 				amt /= base;
-				tenths = r10 / base;
+				tenths = (unsigned)(r10 / base);
 				rounding = (r2 < base
 							? 0 < r2 + rounding
 							: 2 + (base < r2 + rounding));
@@ -153,10 +155,16 @@ CFURLRef                 downloadURL;
 CFURLRef                 donateURL;
 unsigned long long       bytesSaved;
 int                      mode;
+NGSTreeNode              *rootNode;
 
 + (void) initialize
 {
-	CFTypeRef keys[3] = {
+	CFTypeRef defaultKeys[3] = {
+		CFSTR("Roots"),
+		CFSTR("Trash"),
+		CFSTR("Strip")
+	};
+	CFTypeRef keys[5] = {
 		CFSTR("Path"),
 		CFSTR("Languages"),
 		CFSTR("Architectures")
@@ -191,15 +199,18 @@ int                      mode;
 		library,
 		systemPath
 	};
+	CFTypeRef defaultValues[3];
 	CFArrayRef defaultRoots = CFArrayCreate(kCFAllocatorDefault, roots, 4, &kCFTypeArrayCallBacks);
 	CFRelease(applications);
 	CFRelease(developer);
 	CFRelease(library);
 	CFRelease(systemPath);
-	CFStringRef rootsKey = CFSTR("Roots");
-	CFDictionaryRef defaultValues = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&rootsKey, (const void **)&defaultRoots, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultValues];
-	CFRelease(defaultValues);
+	defaultValues[0] = defaultRoots;
+	defaultValues[1] = kCFBooleanFalse;
+	defaultValues[2] = kCFBooleanFalse;
+	CFDictionaryRef defaultDict = CFDictionaryCreate(kCFAllocatorDefault, defaultKeys, defaultValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultDict];
+	CFRelease(defaultDict);
 	CFRelease(defaultRoots);
 
 	struct passwd *pwd = getpwuid(getuid());
@@ -522,7 +533,11 @@ int                      mode;
 		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
-	argv = (const char **)malloc((21+archs_count+archs_count+roots_count+roots_count)*sizeof(char *));
+	BOOL strip = [[NSUserDefaults standardUserDefaults] boolForKey:@"Strip"];
+	CFIndex num_args = 21+archs_count+archs_count+roots_count+roots_count;
+	if (strip)
+		++num_args;
+	argv = (const char **)malloc(num_args*sizeof(char *));
 	int idx = 1;
 
 	CFIndex remove_count = 0;
@@ -593,6 +608,8 @@ int                      mode;
 		argv[idx++] = "/System/Library/Frameworks";
 		argv[idx++] = "-x";
 		argv[idx++] = "/System/Library/PrivateFrameworks";
+		if (strip)
+			argv[idx++] = "-s";
 		argv[idx] = NULL;
 		[self runDeleteHelperWithArgs:argv];
 	} else {
@@ -881,8 +898,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 - (void) removeLayoutsWarning:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 #pragma unused(sheet)
-	unsigned int	i;
-	unsigned int	count;
+	CFIndex         i;
+	CFIndex         count;
 	int				idx;
 	CFDictionaryRef	row;
 	BOOL			trash;
@@ -897,6 +914,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFRelease(msg);
 		CFRelease(title);
 	} else {
+		CFIndex num_args;
 		mode = MODE_LAYOUTS;
 		logFile = fopen(logFileName, "at");
 		if (logFile) {
@@ -905,7 +923,11 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		}
 
 		count = CFArrayGetCount(layouts);
-		argv = (const char **)malloc((10+count+count)*sizeof(char *));
+		num_args = count + count + 9;
+		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
+		if (trash)
+			++num_args;
+		argv = (const char **)malloc(num_args*sizeof(char *));
 		argv[1] = "-f";
 		argv[2] = "/System/Library/Caches/com.apple.IntlDataCache";
 		argv[3] = "-f";
@@ -915,7 +937,6 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		argv[7] = "-f";
 		argv[8] = "/System/Library/Caches/com.apple.IntlDataCache.tecx";
 		idx = 9;
-		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if (trash)
 			argv[idx++] = "-t";
 		int rCount = 0;
@@ -950,8 +971,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 - (void) warningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 #pragma unused(sheet,contextInfo)
-	unsigned int i;
-	unsigned int lCount;
+	CFIndex i;
+	CFIndex lCount;
 
 	if (NSAlertDefaultReturn != returnCode) {
 		lCount = CFArrayGetCount(languages);
@@ -1111,6 +1132,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	size_t len;
 	char   *kernelVersion;
 	BOOL   isTenFourOrHigher;
+
+	[bundlesOutlineView setAutoresizesOutlineColumn: NO];
 
 	versionURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/version.xml"), NULL);
 	downloadURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net"), NULL);
@@ -1459,6 +1482,45 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		architectures = (CFMutableArrayRef)inArray;
 		CFRetain(architectures);
 	}
+}
+
+- (id) outlineView:(NSOutlineView *)outlineView child:(int)i ofItem:(id)item
+{
+#pragma unused (outlineView)
+	NGSTreeNode *node = item ? item : rootNode;
+	return [node childAtIndex: i];
+}
+
+- (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
+{
+#pragma unused (outlineView)
+	NGSTreeNode *node = item ? item : rootNode;
+	return ([node numberOfChildren] != 0);
+}
+
+- (int) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+{
+#pragma unused (outlineView)
+	NGSTreeNode *node = item ? item : rootNode;
+	return [node numberOfChildren];
+}
+
+- (id) outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
+{
+#pragma unused (outlineView)
+	NGSTreeNode *node = item ? item : rootNode;
+	if ([[tableColumn identifier] isEqualToString: @"BundleTableColumnName"]) {
+		if ([node isDisabledOrHasDisabledSubLocale]) {
+			NSDictionary *attrs = [NSDictionary dictionaryWithObject: [NSColor grayColor] forKey: NSForegroundColorAttributeName];
+			return [[[NSAttributedString alloc] initWithString: [node name] attributes: attrs] autorelease];
+		} else
+			return [node name];
+	} else if ([[tableColumn identifier] isEqualToString: @"BundleTableColumnLocale"])
+		return [node localeIdentifier];
+	else if ([[tableColumn identifier] isEqualToString: @"BundleTableColumnSize"])
+		return [NSNumber numberWithUnsignedLongLong: [node size]];
+
+	return nil;
 }
 
 @end
