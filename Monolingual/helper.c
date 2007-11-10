@@ -79,13 +79,14 @@ static void thin_file(const char *path)
 
 static void strip_file(const char *path)
 {
-	char const *argv[4];
-	int stat_loc;
 	struct stat st;
-	pid_t child;
-	off_t old_size;
 	
 	if (!stat(path, &st)) {
+		char const *argv[5];
+		int stat_loc;
+		pid_t child;
+		off_t old_size;
+		
 		old_size = st.st_size;
 		child = fork();
 		switch (child) {
@@ -94,9 +95,10 @@ static void strip_file(const char *path)
 				break;
 			case 0:
 				argv[0] = "/usr/bin/strip";
-				argv[1] = "-";
-				argv[2] = path;
-				argv[3] = NULL;
+				argv[1] = "-u";
+				argv[2] = "-";
+				argv[3] = path;
+				argv[4] = NULL;
 				execv("/usr/bin/strip", (char * const *)argv);
 				syslog(LOG_ERR, "execv(\"/usr/bin/strip\") failed");
 				break;
