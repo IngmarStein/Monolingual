@@ -1223,7 +1223,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("br"),    "Breton",               "bt", "Breton");
 	ADD_LANGUAGE_1(CFSTR("ca"),    "Catalan",              "ca", "Catalan");
 	ADD_LANGUAGE_1(CFSTR("chr"),   "Cherokee",             "chr", "Cherokee");
-	ADD_LANGUAGE_2(CFSTR("cs"),    "Czech",                "cS", "cs_CZ", "Czech");
+	ADD_LANGUAGE_2(CFSTR("cs"),    "Czech",                "cs", "cs_CZ", "Czech");
 	ADD_LANGUAGE_1(CFSTR("cy"),    "Welsh",                "cy", "Welsh");
 	ADD_LANGUAGE_2(CFSTR("da"),    "Danish",               "da", "da_DK", "Danish");
 	ADD_LANGUAGE_2(CFSTR("de"),    "German",               "de", "de_DE", "German");
@@ -1338,7 +1338,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("yi"),    "Yiddish",              "yi", "Yiddish");
 	ADD_LANGUAGE_0(CFSTR("zh"),    "Chinese",              "zh");
 	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("zh-Hans") : CFSTR("zh_CN"), "Chinese (Simplified Han)",   "zh_CN", "zh_SC");
-	ADD_LANGUAGE_0(isTenFourOrHigher ? CFSTR("zh-Hant") : CFSTR("zh_TW"), "Chinese (Traditional Han)",  "zh_TW");
+	ADD_LANGUAGE_1(isTenFourOrHigher ? CFSTR("zh-Hant") : CFSTR("zh_TW"), "Chinese (Traditional Han)",  "zh_TW", "zh_HK");
 	CFRelease(userLanguages);
 	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
 	[self setLanguages:(NSMutableArray *)knownLanguages];
