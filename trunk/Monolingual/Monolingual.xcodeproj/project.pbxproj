@@ -285,7 +285,7 @@
 			children = (
 				953AA9FC0C7B8FE2009B69EA /* Sparkle.framework */,
 				953AA9FE0C7B8FE2009B69EA /* Sparkle Test App.app */,
-				959B95710CD5CC5600C2E843 /* relaunch */,
+				959B95710CD5CC5600C2E843 /* relaunch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -381,10 +381,10 @@
 			remoteRef = 953AA9FD0C7B8FE2009B69EA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		959B95710CD5CC5600C2E843 /* relaunch */ = {
+		959B95710CD5CC5600C2E843 /* relaunch.app */ = {
 			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = relaunch;
+			fileType = wrapper.application;
+			path = relaunch.app;
 			remoteRef = 959B95700CD5CC5600C2E843 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
