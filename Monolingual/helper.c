@@ -35,6 +35,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/fat.h>
 #include <mach-o/loader.h>
+#include <mach-o/swap.h>
+#include <sys/mman.h>
 #include "lipo.h"
 
 static int do_strip;
@@ -77,6 +79,118 @@ static void thin_file(const char *path)
 	}
 }
 
+static int thin_has_code_signature(char *addr, size_t size)
+{
+	uint32_t i;
+	size_t mh_size = 0;
+	uint32_t ncmds = 0;
+
+	if (size >= sizeof(struct mach_header) &&
+#ifdef __BIG_ENDIAN__
+		*((uint32_t *)addr) == MH_MAGIC)
+#endif /* __BIG_ENDIAN__ */
+#ifdef __LITTLE_ENDIAN__
+		*((uint32_t *)addr) == MH_CIGAM)
+#endif /* __LITTLE_ENDIAN__ */
+	{
+		struct mach_header *mh = (struct mach_header *)addr;
+#ifdef __LITTLE_ENDIAN__
+		swap_mach_header(mh, NX_BigEndian);
+#endif
+		mh_size = sizeof(*mh);
+		ncmds = mh->ncmds;
+	} else if (size >= sizeof(struct mach_header_64) &&
+#ifdef __BIG_ENDIAN__
+		*((uint32_t *)addr) == MH_MAGIC_64)
+#endif /* __BIG_ENDIAN__ */
+#ifdef __LITTLE_ENDIAN__
+		*((uint32_t *)addr) == MH_CIGAM_64)
+#endif /* __LITTLE_ENDIAN__ */
+	{
+		struct mach_header_64 *mh = (struct mach_header_64 *)addr;
+#ifdef __LITTLE_ENDIAN__
+		swap_mach_header_64(mh, NX_BigEndian);
+#endif
+		mh_size = sizeof(*mh);
+		ncmds = mh->ncmds;
+	}
+	if (mh_size) {
+		struct load_command *lc = (struct load_command *)(addr + mh_size);
+		for (i=0; i<ncmds; ++i) {
+#ifdef __LITTLE_ENDIAN__
+			swap_load_command(&lc[i], NX_BigEndian);
+#endif
+			if (LC_CODE_SIGNATURE == lc[i].cmd)
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
+static int has_code_signature(const char *path)
+{
+	int         fd;
+	struct stat stat_buf;
+	size_t      size;
+	int         found_sig;
+	char        *addr;
+	uint32_t    i;
+	
+	/* Open the input file and map it in */
+	if ((fd = open(path, O_RDONLY)) == -1) {
+		syslog(LOG_ERR, "can't open input file: %s", path);
+		return -1;
+	}
+	if (fstat(fd, &stat_buf) == -1) {
+		close(fd);
+		syslog(LOG_ERR, "Can't stat input file: %s", path);
+		return -1;
+	}
+	size = (size_t)stat_buf.st_size;
+
+	addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+	if (MAP_FAILED == addr) {
+		syslog(LOG_ERR, "Can't map input file: %s", path);
+		close(fd);
+		return -1;
+	}
+	close(fd);
+
+	found_sig = 0;
+
+	/* see if this file is a fat file */
+	if ((size_t)size >= sizeof(struct fat_header) &&
+#ifdef __BIG_ENDIAN__
+		*((uint32_t *)addr) == FAT_MAGIC)
+#endif /* __BIG_ENDIAN__ */
+#ifdef __LITTLE_ENDIAN__
+		*((uint32_t *)addr) == FAT_CIGAM)
+#endif /* __LITTLE_ENDIAN__ */
+	{
+		struct fat_header *fat_header = (struct fat_header *)addr;
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_header(fat_header, NX_BigEndian);
+#endif /* __LITTLE_ENDIAN__ */
+		struct fat_arch *fat_arches = (struct fat_arch *)(addr + sizeof(struct fat_header));
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_arch(fat_arches, fat_header->nfat_arch, NX_BigEndian);
+#endif /* __LITTLE_ENDIAN__ */
+		for (i = 0; i < fat_header->nfat_arch; ++i) {
+			if (thin_has_code_signature(addr + fat_arches[i].offset, fat_arches[i].size)) {
+				found_sig = 1;
+				break;
+			}
+		}
+	} else if (thin_has_code_signature(addr, size))
+		found_sig = 1;
+
+	if (munmap(addr, size))
+		syslog(LOG_ERR, "munmap: %s", strerror(errno));
+
+	return found_sig;
+}
+
 static void strip_file(const char *path)
 {
 	struct stat st;
@@ -86,6 +200,10 @@ static void strip_file(const char *path)
 		int stat_loc;
 		pid_t child;
 		off_t old_size;
+
+		/* do not modify executables with code signatures */
+		if (has_code_signature(path))
+			return;
 
 		old_size = st.st_size;
 		child = fork();
