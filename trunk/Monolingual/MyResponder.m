@@ -8,7 +8,6 @@
 #import "MyResponder.h"
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
-#import "NGSTreeNode.h"
 #include <Growl/GrowlDefines.h>
 #include <Growl/GrowlApplicationBridge-Carbon.h>
 #include <Security/Authorization.h>
@@ -155,7 +154,6 @@ CFURLRef                 downloadURL;
 CFURLRef                 donateURL;
 unsigned long long       bytesSaved;
 int                      mode;
-NGSTreeNode              *rootNode;
 
 + (void) initialize
 {
@@ -1486,45 +1484,6 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		architectures = (CFMutableArrayRef)inArray;
 		CFRetain(architectures);
 	}
-}
-
-- (id) outlineView:(NSOutlineView *)outlineView child:(int)i ofItem:(id)item
-{
-#pragma unused (outlineView)
-	NGSTreeNode *node = item ? item : rootNode;
-	return [node childAtIndex: i];
-}
-
-- (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
-{
-#pragma unused (outlineView)
-	NGSTreeNode *node = item ? item : rootNode;
-	return ([node numberOfChildren] != 0);
-}
-
-- (int) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
-{
-#pragma unused (outlineView)
-	NGSTreeNode *node = item ? item : rootNode;
-	return [node numberOfChildren];
-}
-
-- (id) outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{
-#pragma unused (outlineView)
-	NGSTreeNode *node = item ? item : rootNode;
-	if ([[tableColumn identifier] isEqualToString: @"BundleTableColumnName"]) {
-		if ([node isDisabledOrHasDisabledSubLocale]) {
-			NSDictionary *attrs = [NSDictionary dictionaryWithObject: [NSColor grayColor] forKey: NSForegroundColorAttributeName];
-			return [[[NSAttributedString alloc] initWithString: [node name] attributes: attrs] autorelease];
-		} else
-			return [node name];
-	} else if ([[tableColumn identifier] isEqualToString: @"BundleTableColumnLocale"])
-		return [node localeIdentifier];
-	else if ([[tableColumn identifier] isEqualToString: @"BundleTableColumnSize"])
-		return [NSNumber numberWithUnsignedLongLong: [node size]];
-
-	return nil;
 }
 
 @end
