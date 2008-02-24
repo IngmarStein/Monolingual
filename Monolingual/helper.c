@@ -209,8 +209,8 @@ static void strip_file(const char *path)
 		child = fork();
 		switch (child) {
 			case -1:
-				syslog(LOG_ERR, "fork() failed");
-				break;
+				syslog(LOG_ERR, "fork() failed: %s", strerror(errno));
+				return;
 			case 0:
 				argv[0] = "/usr/bin/strip";
 				argv[1] = "-u";
@@ -479,10 +479,12 @@ static void thin_recursively(const char *path)
 					num = read(fd, &magic, sizeof(magic));
 					close(fd);
 
-					if (num == sizeof(magic) && (magic == FAT_MAGIC || magic == FAT_CIGAM))
-						thin_file(path);
-					if (num == sizeof(magic) && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
-						strip_file(path);
+					if (num == sizeof(magic)) {
+						if (magic == FAT_MAGIC || magic == FAT_CIGAM)
+							thin_file(path);
+						if (do_strip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
+							strip_file(path);
+					}
 				}
 			}
 			break;
@@ -581,6 +583,13 @@ int main(int argc, const char *argv[])
 
 	if (num_blacklists)
 		qsort(blacklist, num_blacklists, sizeof(char *), string_compare);
+	
+	if (do_strip) {
+		// check if /usr/bin/strip is present
+		struct stat st;
+		if (stat("/usr/bin/strip", &st))
+			do_strip = 0;
+	}
 
 	// delete regular files
 	for (unsigned i=0U; i<num_files && !should_exit(); ++i)
