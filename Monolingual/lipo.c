@@ -234,7 +234,6 @@ static int create_fat(size_t *newsize)
 		fat_header.nfat_arch = nthin_files;
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_header(&fat_header, NX_BigEndian);
-#else
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &fat_header, sizeof(struct fat_header)) != sizeof(struct fat_header)) {
 			syslog(LOG_ERR, "can't write fat header to output file: %s", output_file);
@@ -243,15 +242,15 @@ static int create_fat(size_t *newsize)
 		}
 		for (i = 0; i < nthin_files; ++i) {
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
+			swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
-		if (write(fd, &(thin_files[i].fat_arch), sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
-			syslog(LOG_ERR, "can't write fat arch to output file: %s", output_file);
-			close(fd);
-			return 1;
-		}
+			if (write(fd, &(thin_files[i].fat_arch), sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
+				syslog(LOG_ERR, "can't write fat arch to output file: %s", output_file);
+				close(fd);
+				return 1;
+			}
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
+			swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		}
 	}
@@ -344,7 +343,7 @@ static void process_input_file(struct input_file *input)
 
 		input->fat_header = (struct fat_header *)addr;
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_header(input->fat_header, NX_BigEndian);
+		swap_fat_header(input->fat_header, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 	    big_size = input->fat_header->nfat_arch;
 	    big_size *= sizeof(struct fat_arch);
@@ -358,7 +357,7 @@ static void process_input_file(struct input_file *input)
 		}
 		input->fat_arches = (struct fat_arch *)(addr + sizeof(struct fat_header));
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(input->fat_arches, input->fat_header->nfat_arch, NX_BigEndian);
+		swap_fat_arch(input->fat_arches, input->fat_header->nfat_arch, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		for (i = 0; i < input->fat_header->nfat_arch; ++i) {
 			if (input->fat_arches[i].offset + input->fat_arches[i].size > size) {

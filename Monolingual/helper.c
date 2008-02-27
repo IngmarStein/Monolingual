@@ -82,34 +82,34 @@ static void thin_file(const char *path)
 static int thin_has_code_signature(char *addr, size_t size)
 {
 	uint32_t i;
-	size_t mh_size = 0;
+	size_t   mh_size = 0;
 	uint32_t ncmds = 0;
 
 	if (size >= sizeof(struct mach_header) &&
 #ifdef __BIG_ENDIAN__
-		*((uint32_t *)addr) == MH_MAGIC)
-#endif /* __BIG_ENDIAN__ */
+		*(uint32_t *)addr == MH_MAGIC)
+#endif
 #ifdef __LITTLE_ENDIAN__
-		*((uint32_t *)addr) == MH_CIGAM)
-#endif /* __LITTLE_ENDIAN__ */
+		*(uint32_t *)addr == MH_CIGAM)
+#endif
 	{
 		struct mach_header *mh = (struct mach_header *)addr;
 #ifdef __LITTLE_ENDIAN__
-		swap_mach_header(mh, NX_BigEndian);
+		swap_mach_header(mh, NX_LittleEndian);
 #endif
 		mh_size = sizeof(*mh);
 		ncmds = mh->ncmds;
 	} else if (size >= sizeof(struct mach_header_64) &&
 #ifdef __BIG_ENDIAN__
-		*((uint32_t *)addr) == MH_MAGIC_64)
-#endif /* __BIG_ENDIAN__ */
+		*(uint32_t *)addr == MH_MAGIC_64)
+#endif
 #ifdef __LITTLE_ENDIAN__
-		*((uint32_t *)addr) == MH_CIGAM_64)
-#endif /* __LITTLE_ENDIAN__ */
+		*(uint32_t *)addr == MH_CIGAM_64)
+#endif
 	{
 		struct mach_header_64 *mh = (struct mach_header_64 *)addr;
 #ifdef __LITTLE_ENDIAN__
-		swap_mach_header_64(mh, NX_BigEndian);
+		swap_mach_header_64(mh, NX_LittleEndian);
 #endif
 		mh_size = sizeof(*mh);
 		ncmds = mh->ncmds;
@@ -118,7 +118,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 		struct load_command *lc = (struct load_command *)(addr + mh_size);
 		for (i=0; i<ncmds; ++i) {
 #ifdef __LITTLE_ENDIAN__
-			swap_load_command(&lc[i], NX_BigEndian);
+			swap_load_command(&lc[i], NX_LittleEndian);
 #endif
 			if (LC_CODE_SIGNATURE == lc[i].cmd)
 				return 1;
@@ -170,11 +170,11 @@ static int has_code_signature(const char *path)
 	{
 		struct fat_header *fat_header = (struct fat_header *)addr;
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_header(fat_header, NX_BigEndian);
+		swap_fat_header(fat_header, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		struct fat_arch *fat_arches = (struct fat_arch *)(addr + sizeof(struct fat_header));
 #ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(fat_arches, fat_header->nfat_arch, NX_BigEndian);
+		swap_fat_arch(fat_arches, fat_header->nfat_arch, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		for (i = 0; i < fat_header->nfat_arch; ++i) {
 			if (thin_has_code_signature(addr + fat_arches[i].offset, fat_arches[i].size)) {
