@@ -28,6 +28,10 @@
 #define MODE_LAYOUTS		1
 #define MODE_ARCHITECTURES	2
 
+#ifndef NELEMS
+# define NELEMS(x) sizeof((x))/sizeof((x)[0])
+#endif
+
 typedef struct arch_info_s {
 	CFStringRef   name;
 	CFStringRef   displayName;
@@ -1380,8 +1384,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	}
 
 	[currentArchitecture setStringValue:(NSString *)CFSTR("unknown")];
-	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, 9, &kCFTypeArrayCallBacks);
-	for (unsigned i=0U; i<9U; ++i) {
+	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, NELEMS(archs), &kCFTypeArrayCallBacks);
+	for (unsigned i=0U; i<NELEMS(archs); ++i) {
 		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 		CFDictionarySetValue(architecture, CFSTR("Enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype) && (!(hostInfo.cpu_type & CPU_ARCH_ABI64) || (archs[i].cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64)))) ? kCFBooleanTrue : kCFBooleanFalse);
 		CFDictionarySetValue(architecture, CFSTR("Name"), archs[i].name);
