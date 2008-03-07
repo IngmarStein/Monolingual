@@ -84,44 +84,33 @@ static int thin_has_code_signature(char *addr, size_t size)
 	uint32_t i;
 	size_t   mh_size = 0;
 	uint32_t ncmds = 0;
+	int      swapped = 0;
 
-	if (size >= sizeof(struct mach_header) &&
-#ifdef __BIG_ENDIAN__
-		*(uint32_t *)addr == MH_MAGIC)
-#endif
-#ifdef __LITTLE_ENDIAN__
-		*(uint32_t *)addr == MH_CIGAM)
-#endif
-	{
+	if (size >= sizeof(struct mach_header) && (*(uint32_t *)addr == MH_MAGIC || *(uint32_t *)addr == MH_CIGAM)) {
 		struct mach_header *mh = (struct mach_header *)addr;
-#ifdef __LITTLE_ENDIAN__
-		swap_mach_header(mh, NX_LittleEndian);
-#endif
+		if (*(uint32_t *)addr == MH_CIGAM) {
+			swapped = 1;
+			swap_mach_header(mh, NXHostByteOrder());
+		}
 		mh_size = sizeof(*mh);
 		ncmds = mh->ncmds;
-	} else if (size >= sizeof(struct mach_header_64) &&
-#ifdef __BIG_ENDIAN__
-		*(uint32_t *)addr == MH_MAGIC_64)
-#endif
-#ifdef __LITTLE_ENDIAN__
-		*(uint32_t *)addr == MH_CIGAM_64)
-#endif
-	{
+	} else if (size >= sizeof(struct mach_header_64) && (*(uint32_t *)addr == MH_MAGIC_64 || *(uint32_t *)addr == MH_CIGAM_64)) {
 		struct mach_header_64 *mh = (struct mach_header_64 *)addr;
-#ifdef __LITTLE_ENDIAN__
-		swap_mach_header_64(mh, NX_LittleEndian);
-#endif
+		if (*(uint32_t *)addr == MH_CIGAM_64) {
+			swapped = 1;
+			swap_mach_header_64(mh, NXHostByteOrder());
+		}
 		mh_size = sizeof(*mh);
 		ncmds = mh->ncmds;
 	}
 	if (mh_size) {
 		struct load_command *lc = (struct load_command *)(addr + mh_size);
 		for (i=0; i<ncmds; ++i) {
-#ifdef __LITTLE_ENDIAN__
-			swap_load_command(&lc[i], NX_LittleEndian);
-#endif
-			if (LC_CODE_SIGNATURE == lc[i].cmd)
+			if (swapped)
+				swap_load_command(lc, NXHostByteOrder());
+			if (LC_CODE_SIGNATURE == lc->cmd)
 				return 1;
+			lc = (struct load_command *)((char *)lc + lc->cmdsize);
 		}
 	}
 

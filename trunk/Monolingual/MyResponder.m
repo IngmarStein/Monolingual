@@ -1347,7 +1347,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 	[self scanLayouts];
 
-	const arch_info_t archs[9] = {
+	const arch_info_t archs[10] = {
+		{ CFSTR("arm"),       CFSTR("ARM"),               CPU_TYPE_ARM,       CPU_SUBTYPE_ARM_ALL},
 		{ CFSTR("ppc"),       CFSTR("PowerPC"),           CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL},
 		{ CFSTR("ppc750"),    CFSTR("PowerPC G3"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_750},
 		{ CFSTR("ppc7400"),   CFSTR("PowerPC G4"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7400},
