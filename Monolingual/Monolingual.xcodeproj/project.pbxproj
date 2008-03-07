@@ -412,7 +412,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$BUILT_PRODUCTS_DIR\"\nSPARKLE_FRAMEWORK=\"$SRCROOT/sparkle/build/$CONFIGURATION/Sparkle.framework\"\necho test1\nif [ -d \"$SPARKLE_FRAMEWORK\" ]; then\necho test2\n\trm -f \"$BUILT_PRODUCTS_DIR/Sparkle.framework\"\n\tln -s \"$SPARKLE_FRAMEWORK\" \"$BUILT_PRODUCTS_DIR/Sparkle.framework\"\nfi\n";
+			shellScript = "mkdir -p \"$BUILT_PRODUCTS_DIR\"\nSPARKLE_FRAMEWORK=\"$SRCROOT/sparkle/build/$CONFIGURATION/Sparkle.framework\"\nif [ -d \"$SPARKLE_FRAMEWORK\" ]; then\n\trm -f \"$BUILT_PRODUCTS_DIR/Sparkle.framework\"\n\tln -s \"$SPARKLE_FRAMEWORK\" \"$BUILT_PRODUCTS_DIR/Sparkle.framework\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -574,7 +574,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "ppc i386 ppc64 x86_64";
 				DEAD_CODE_STRIPPING = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -618,6 +618,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "ppc i386 ppc64 x86_64";
 				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = YES;
