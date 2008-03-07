@@ -83,6 +83,7 @@ static const struct arch_flag arch_flags[] = {
 	{ "sparc",	      CPU_TYPE_SPARC,     CPU_SUBTYPE_SPARC_ALL },
 	{ "m88k",         CPU_TYPE_MC88000,   CPU_SUBTYPE_MC88000_ALL },
 	{ "i860",         CPU_TYPE_I860,	  CPU_SUBTYPE_I860_ALL },
+	{ "arm",	      CPU_TYPE_ARM,       CPU_SUBTYPE_ARM_ALL },
 	/* specific architecture implementations */
 	{ "ppc601",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_601 },
 	{ "ppc603",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_603 },
@@ -192,9 +193,8 @@ static uint32_t myround(uint32_t v, uint32_t r)
  */
 static int create_fat(size_t *newsize)
 {
-	uint32_t i, offset;
+	uint32_t i;
 	int fd;
-	size_t output_size = 0;
 
 	/*
 	 * Create the output file.  The unlink() is done to handle the
@@ -213,25 +213,23 @@ static int create_fat(size_t *newsize)
 		qsort(thin_files, nthin_files, sizeof(struct thin_file),
 			  (int (*)(const void *, const void *))cmp_qsort);
 
-	/* Fill in the fat_arch's offsets. */
-	offset = (uint32_t)(sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch));
-	for (i = 0; i < nthin_files; ++i) {
-		offset = myround(offset, 1 << thin_files[i].fat_arch.align);
-		thin_files[i].fat_arch.offset = offset;
-		offset += thin_files[i].fat_arch.size;
-	}
-
 	/*
 	 * Create a fat file only if there is more than one thin file on the list.
 	 */
 	if (nthin_files != 1) {
 		struct fat_header fat_header;
+		uint32_t offset;
 
-		output_size += sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch);
-
-		/* Fill in the fat header */
+		/* Fill in the fat header and the fat_arch's offsets. */
 		fat_header.magic = FAT_MAGIC;
 		fat_header.nfat_arch = nthin_files;
+		offset = (uint32_t)(sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch));
+		for (i = 0; i < nthin_files; ++i) {
+			offset = myround(offset, 1 << thin_files[i].fat_arch.align);
+			thin_files[i].fat_arch.offset = offset;
+			offset += thin_files[i].fat_arch.size;
+		}
+		
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_header(&fat_header, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
@@ -261,14 +259,16 @@ static int create_fat(size_t *newsize)
 				close(fd);
 				return 1;
 			}
-		output_size += thin_files[i].fat_arch.size;
 		if (write(fd, thin_files[i].addr, thin_files[i].fat_arch.size) != (int)(thin_files[i].fat_arch.size)) {
 			syslog(LOG_ERR, "can't write to output file: %s", output_file);
 			close(fd);
 			return 1;
 		}
 	}
-	*newsize = output_size;
+	if (nthin_files != 1)
+		*newsize = thin_files[nthin_files-1].fat_arch.offset + thin_files[nthin_files-1].fat_arch.size;
+	else
+		*newsize = thin_files[0].fat_arch.size;
 
 	// restore the original owner and permissions
 	fchown(fd, output_uid, output_gid);	
