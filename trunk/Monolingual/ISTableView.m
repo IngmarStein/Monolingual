@@ -10,6 +10,11 @@
 
 @implementation ISTableView
 
+-(void) dealloc
+{
+	[super dealloc];
+}
+
 - (void) keyDown:(NSEvent *)theEvent
 {
 	NSInteger row;

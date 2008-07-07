@@ -9,6 +9,11 @@
 
 @implementation ProgressWindowController
 
+-(void) dealloc
+{
+	[super dealloc];
+}
+
 - (IBAction) cancelButton: (id)sender
 {
 #pragma unused(sender)

@@ -10,6 +10,11 @@
 
 @implementation PreferencesController
 
+-(void) dealloc
+{
+	[super dealloc];
+}
+
 - (void) awakeFromNib
 {
 	[[self window] setFrameAutosaveName:@"PreferencesWindow"];
