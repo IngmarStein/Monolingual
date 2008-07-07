@@ -504,7 +504,6 @@ int run_lipo(const char *path, size_t *size_diff)
 	}
 
 	/* write output file */
-	err = 0;
 	if (nthin_files) {
 		err = create_fat(&newsize);
 		if (!err)

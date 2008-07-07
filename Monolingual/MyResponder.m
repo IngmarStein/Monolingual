@@ -680,14 +680,14 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 					message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
 				} else {
 					/* parse file name */
-					CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
-					CFIndex componentCount = CFArrayGetCount(pathComponents);
 					CFStringRef lang = NULL;
 					CFStringRef app = NULL;
 					CFStringRef layout = NULL;
 					CFStringRef im = NULL;
 					BOOL cache = NO;
 					if (mode == MODE_LANGUAGES) {
+						CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
+						CFIndex componentCount = CFArrayGetCount(pathComponents);
 						for (CFIndex k=0; k<componentCount; ++k) {
 							CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
 							if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
@@ -812,6 +812,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	CFURLRef helperPath = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("Helper"), NULL, NULL);
 	if (!CFURLGetFileSystemRepresentation(helperPath, false, (UInt8 *)path, sizeof(path))) {
 		NSLog(@"Could not get file system representation of %@", helperPath);
+		CFRelease(helperPath);
 		/* TODO */
 		NSBeep();
 		return;
@@ -1391,6 +1392,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		CFDictionarySetValue(architecture, CFSTR("Name"), archs[i].name);
 		CFDictionarySetValue(architecture, CFSTR("DisplayName"), archs[i].displayName);
 		CFArrayAppendValue(knownArchitectures, architecture);
+		CFRelease(architecture);
 		if (hostInfo.cpu_type == archs[i].cpu_type && hostInfo.cpu_subtype == archs[i].cpu_subtype) {
 			CFStringRef format = CFCopyLocalizedString(CFSTR("Current architecture: %@"), "");
 			CFStringRef label = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, format, archs[i].displayName);
