@@ -1,6 +1,7 @@
 RELEASE_DIR=release
 RELEASE_NAME=Monolingual-1.3.9
 BUILD_DIR=build/Release
+CHECK_DIR=$(PWD)/check
 
 .PHONY: all release development deployment clean
 
@@ -14,7 +15,10 @@ deployment:
 
 clean:
 	xcodebuild -alltargets clean
-	-rm -rf $(RELEASE_DIR)
+	-rm -rf $(RELEASE_DIR) $(CHECK_DIR)
+
+check:
+	scan-build -o $(CHECK_DIR) -v xcodebuild -target Monolingual -configuration Debug
 
 release: deployment
 	rm -rf $(RELEASE_DIR)
