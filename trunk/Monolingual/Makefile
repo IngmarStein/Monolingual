@@ -3,7 +3,7 @@ RELEASE_NAME=Monolingual-1.3.9
 BUILD_DIR=build/Release
 CHECK_DIR=$(PWD)/check
 
-.PHONY: all release development deployment clean
+.PHONY: all release development deployment clean check
 
 all: deployment
 
