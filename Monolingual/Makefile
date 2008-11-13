@@ -1,5 +1,6 @@
 RELEASE_DIR=release
 RELEASE_NAME=Monolingual-1.3.9
+RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
 BUILD_DIR=build/Release
 CHECK_DIR=$(PWD)/check
 
@@ -27,7 +28,8 @@ release: deployment
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	cp -R dmg-bg.jpg $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.jpg
 	ln -s /Applications $(RELEASE_DIR)/build
-	./make-diskimage.sh $(RELEASE_DIR)/$(RELEASE_NAME).dmg $(RELEASE_DIR)/build Monolingual dmg.scpt
-	md5 $(RELEASE_DIR)/$(RELEASE_NAME).dmg
-	ls -l $(RELEASE_DIR)/$(RELEASE_NAME).dmg | awk '{ print($$5) }'
+	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.scpt
+	md5 $(RELEASE_FILE)
+	openssl dgst -sha1 -binary < $(RELEASE_FILE) | openssl dgst -dss1 -sign ~/.ssh/monolingual_priv.pem | openssl enc -base64
+	ls -l $(RELEASE_FILE) | awk '{ print($$5) }'
 

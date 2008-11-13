@@ -33,6 +33,7 @@
 		95D7A8AD098D42F800DCE08D /* helper.c in Sources */ = {isa = PBXBuildFile; fileRef = 95D7A8AC098D42F800DCE08D /* helper.c */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
+		95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 95F7771C0ECC2644009C621B /* dsa_pub.pem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +105,7 @@
 		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LisezMoi.rtfd; sourceTree = "<group>"; };
 		95EDCC8B062C4393007229A3 /* French */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		95F508FD098CC8DF009FD7EC /* English */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = English; path = English.lproj/Credits.html; sourceTree = "<group>"; };
+		95F7771C0ECC2644009C621B /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		F505F4EC0300C29D01E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F505F4ED0300C2B001E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F51C1B3501F29B1C0120C6FA /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -215,6 +217,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				95F7771C0ECC2644009C621B /* dsa_pub.pem */,
 				9531D7810C7B1020008B48AA /* MainMenu.xib */,
 				95D7A921098D48B700DCE08D /* Leggimi.rtfd */,
 				95EDCC87062C4264007229A3 /* LisezMoi.rtfd */,
@@ -324,6 +327,7 @@
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
 				95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */,
 				9531D7830C7B1020008B48AA /* MainMenu.xib in Resources */,
+				95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
