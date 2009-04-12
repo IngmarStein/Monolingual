@@ -10,7 +10,7 @@ for language in Japanese Swedish Polish German French Italian; do
 		stringsfile=$langdir/$xibname.strings
 		if [ -e $stringsfile ]; then
 			translated="$langdir/$xibfile"
-			ibtool --strings-file $langdir/$xibname.strings $primarydir/$xibfile --write $translated
+			ibtool --import-strings-file $langdir/$xibname.strings $primarydir/$xibfile --write $translated
 			echo Updated $langdir/$xibfile
 		else
 			cp $primarydir/$xibfile/*.xib $langdir/$xibfile
