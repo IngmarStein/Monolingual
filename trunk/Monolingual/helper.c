@@ -39,6 +39,7 @@
 #include <sys/mman.h>
 #include "lipo.h"
 
+static int dry_run;
 static int do_strip;
 static void (*remove_func)(const char *path);
 static unsigned num_directories;
@@ -294,12 +295,18 @@ static void delete_recursively(const char *path)
 				}
 				closedir(dir);
 			}
-			result = rmdir(path);
+			if (dry_run)
+				result = 0;
+			else
+				result = rmdir(path);
 			break;
 		}
 		case S_IFREG:
 		case S_IFLNK:
-			result = unlink(path);
+			if (dry_run)
+				result = 0;
+			else
+				result = unlink(path);
 			break;
 		default:
 			return;
@@ -313,6 +320,10 @@ static void delete_recursively(const char *path)
 static void trash_file(const char *path)
 {
 	char resolved_path[PATH_MAX];
+
+	if (dry_run)
+		return;
+
 	if (realpath(path, resolved_path)) {
 		char userTrash[PATH_MAX];
 		int validTrash = 0;
@@ -562,6 +573,8 @@ int main(int argc, const char *argv[])
 			}
 		} else if (!strcmp(arg, "-s") || !strcmp(arg, "--strip")) {
 			do_strip = 1;
+		} else if (!strcmp(arg, "-n") || !strcmp(arg, "--dry-run")) {
+			dry_run = 1;
 		} else {
 			directories[num_directories++] = arg;
 		}
