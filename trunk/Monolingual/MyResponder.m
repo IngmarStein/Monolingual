@@ -1054,7 +1054,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	} else {
 		rCount = 0;
 		lCount = CFArrayGetCount(languages);
-		argv = (const char **)malloc((3+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *));
+		argv = (const char **)malloc((4+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *));
 		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if (trash)
@@ -1091,6 +1091,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 				++rCount;
 			}
 		}
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"NIB"])
+			argv[idx++] = "designable.nib";
 
 		if (logFile)
 			fputs("\nDeleted files: \n", logFile);
