@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *                2004-2008 Ingmar Stein
+ *                2004-2009 Ingmar Stein
  *  Released under the GNU GPL.  For more information, see the header file.
  */
 
@@ -305,7 +305,7 @@ int                      mode;
 {
 	struct stat st;
 	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
-	CFArrayRef files = (CFArrayRef)[[NSFileManager defaultManager] directoryContentsAtPath:layoutPath];
+	CFArrayRef files = (CFArrayRef)[[NSFileManager defaultManager] contentsOfDirectoryAtPath:layoutPath error:NULL];
 	CFIndex length = CFArrayGetCount(files);
 	CFMutableArrayRef scannedLayouts = CFArrayCreateMutable(kCFAllocatorDefault, length+6, &kCFTypeArrayCallBacks);
 	for (CFIndex i=0; i<length; ++i) {
