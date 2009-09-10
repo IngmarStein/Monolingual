@@ -1334,8 +1334,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("vi"),    "Vietnamese",           "vi", "Vietnamese");
 	ADD_LANGUAGE_1(CFSTR("yi"),    "Yiddish",              "yi", "Yiddish");
 	ADD_LANGUAGE_0(CFSTR("zh"),    "Chinese",              "zh");
-	ADD_LANGUAGE_1(CFSTR("zh-Hans"), "Chinese (Simplified Han)",   "zh_CN", "zh_SC");
-	ADD_LANGUAGE_1(CFSTR("zh-Hant"), "Chinese (Traditional Han)",  "zh_TW", "zh_HK");
+	ADD_LANGUAGE_2(CFSTR("zh-Hans"), "Chinese (Simplified Han)",   "zh-Hans", "zh_CN", "zh_SC");
+	ADD_LANGUAGE_2(CFSTR("zh-Hant"), "Chinese (Traditional Han)",  "zh-Hant", "zh_TW", "zh_HK");
 	CFRelease(userLanguages);
 	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
 	[self setLanguages:(NSMutableArray *)knownLanguages];
