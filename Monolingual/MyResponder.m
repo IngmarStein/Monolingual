@@ -1156,7 +1156,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
-#define NUM_KNOWN_LANGUAGES	130
+#define NUM_KNOWN_LANGUAGES	133
 	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, NUM_KNOWN_LANGUAGES, &kCFTypeArrayCallBacks);
 #define ADD_LANGUAGE_BEGIN(name) \
 	do { \
