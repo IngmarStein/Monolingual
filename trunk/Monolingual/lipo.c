@@ -148,7 +148,7 @@ static struct utimbuf output_timep;
 static int archives_in_input = 0;
 
 static struct arch_flag *remove_arch_flags = NULL;
-static unsigned long nremove_arch_flags = 0UL;
+static uint32_t nremove_arch_flags = 0U;
 
 /*
  * get_arch_from_flag() is passed a name of an architecture flag and returns
@@ -434,8 +434,8 @@ int setup_lipo(const char *archs[], unsigned num_archs)
 		}
 	}
 
-	for (unsigned i = 0U; i < nremove_arch_flags; ++i) {
-		for (unsigned j = i + 1; j < nremove_arch_flags; ++j) {
+	for (uint32_t i = 0U; i < nremove_arch_flags; ++i) {
+		for (uint32_t j = i + 1; j < nremove_arch_flags; ++j) {
 			if (remove_arch_flags[i].cputype == remove_arch_flags[j].cputype
 				&& (remove_arch_flags[i].cpusubtype & ~CPU_SUBTYPE_MASK) == (remove_arch_flags[j].cpusubtype & ~CPU_SUBTYPE_MASK))
 				syslog(LOG_ERR, "-remove %s specified multiple times", remove_arch_flags[i].name);
@@ -491,8 +491,8 @@ int run_lipo(const char *path, size_t *size_diff)
 		return 1;
 	}
 	/* remove those thin files */
-	for (unsigned long i = 0; i < nremove_arch_flags; ++i) {
-		for (unsigned long j = 0; j < nthin_files; ++j) {
+	for (uint32_t i = 0; i < nremove_arch_flags; ++i) {
+		for (uint32_t j = 0; j < nthin_files; ++j) {
 			if (remove_arch_flags[i].cputype == thin_files[j].fat_arch.cputype
 				&& (remove_arch_flags[i].cpusubtype & ~CPU_SUBTYPE_MASK) == (thin_files[j].fat_arch.cpusubtype & ~CPU_SUBTYPE_MASK)) {
 				--nthin_files;
