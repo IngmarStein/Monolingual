@@ -1140,7 +1140,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 	versionURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/version.xml"), NULL);
 	downloadURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net"), NULL);
-	donateURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/donate.html"), NULL);
+	donateURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/donate.php"), NULL);
 
 	CFArrayRef languagePref = (CFArrayRef) CFPreferencesCopyValue(CFSTR("AppleLanguages"),
 																  kCFPreferencesAnyApplication,
