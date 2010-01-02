@@ -535,7 +535,7 @@ int                      mode;
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
 	BOOL strip = [[NSUserDefaults standardUserDefaults] boolForKey:@"Strip"];
-	CFIndex num_args = 25+archs_count+archs_count+roots_count+roots_count;
+	CFIndex num_args = 27+archs_count+archs_count+roots_count+roots_count;
 	if (strip)
 		++num_args;
 	argv = (const char **)malloc(num_args*sizeof(char *));
@@ -609,6 +609,8 @@ int                      mode;
 		argv[idx++] = "com.ElectronicArts.ERegWeb.cnc3";
 		argv[idx++] = "-b";
 		argv[idx++] = "com.ultralingua.6";
+		argv[idx++] = "-b";
+		argv[idx++] = "de.jinx.JollysFastVNC";
 		argv[idx++] = "-x";
 		argv[idx++] = "/System/Library/Frameworks";
 		argv[idx++] = "-x";
