@@ -8,7 +8,6 @@
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
 #include <Growl/GrowlDefines.h>
-#include <Growl/GrowlApplicationBridge-Carbon.h>
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
 #include <sys/types.h>
@@ -145,7 +144,6 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 }
 
 @implementation MyResponder
-struct Growl_Delegate    growlDelegate;
 NSWindow                 *parentWindow;
 CFMutableArrayRef        languages;
 CFMutableArrayRef        layouts;
@@ -265,7 +263,7 @@ int                      mode;
 	[[progressWindowController window] orderOut:self];
 	[progressWindowController stop];
 
-	Growl_PostNotificationWithDictionary(finishedNotificationInfo);
+	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
 	CFStringRef title = CFCopyLocalizedString(CFSTR("Removal cancelled"), "");
 	CFStringRef msg = CFCopyLocalizedString(CFSTR("You cancelled the removal. Some files were erased, some were not."), "");
@@ -784,7 +782,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 			CFRelease(processApplication);
 			processApplication = nil;
 		} else {
-			Growl_PostNotificationWithDictionary(finishedNotificationInfo);
+			[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
 			CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
 			CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Files removed. Space saved: %s."), "");
@@ -887,7 +885,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	if (errAuthorizationSuccess == status) {
 		CFSocketContext context = { 0, self, NULL, NULL, NULL };
 
-		Growl_PostNotificationWithDictionary(startedNotificationInfo);
+		[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)startedNotificationInfo];
 
 		bytesSaved = 0ULL;
 		pipeBuffer = CFDataCreateMutable(kCFAllocatorDefault, 0);
@@ -1397,27 +1395,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	[self setArchitectures:(NSMutableArray *)knownArchitectures];
 	CFRelease(knownArchitectures);
 
-	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
-	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
-	CFTypeRef notificationNames[2] = { startedNotificationName, finishedNotificationName };
-
-	CFArrayRef defaultAndAllNotifications = CFArrayCreate(kCFAllocatorDefault, notificationNames, 2, &kCFTypeArrayCallBacks);
-	CFTypeRef registrationKeys[2] = { GROWL_NOTIFICATIONS_ALL, GROWL_NOTIFICATIONS_DEFAULT };
-	CFTypeRef registrationValues[2] = { defaultAndAllNotifications, defaultAndAllNotifications };
-	CFDictionaryRef registrationDictionary = CFDictionaryCreate(kCFAllocatorDefault,
-																registrationKeys,
-																registrationValues,
-																2,
-																&kCFTypeDictionaryKeyCallBacks,
-																&kCFTypeDictionaryValueCallBacks);
-	CFRelease(defaultAndAllNotifications);
-
 	/* set ourself as the Growl delegate */
-	InitGrowlDelegate(&growlDelegate);
-	growlDelegate.applicationName = CFSTR("Monolingual");
-	growlDelegate.registrationDictionary = registrationDictionary;
-	Growl_SetDelegate(&growlDelegate);
-	CFRelease(registrationDictionary);
+	[GrowlApplicationBridge setGrowlDelegate:self];
 
 	NSString *keys[4] = {
 		GROWL_APP_NAME,
@@ -1427,6 +1406,9 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	};
 	CFStringRef values[4];
 	CFStringRef description;
+
+	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
+	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
 
 	description = CFCopyLocalizedString(CFSTR("Started removing files"), "");
 	values[0] = CFSTR("Monolingual");
@@ -1444,6 +1426,28 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	finishedNotificationInfo = CFDictionaryCreate(kCFAllocatorDefault, (const void **)keys, (const void **)values, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 	CFRelease(finishedNotificationName);
 	CFRelease(description);
+}
+
+- (NSDictionary *) registrationDictionaryForGrowl
+{
+	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
+	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
+	CFTypeRef notificationNames[2] = { startedNotificationName, finishedNotificationName };
+
+	CFArrayRef defaultAndAllNotifications = CFArrayCreate(kCFAllocatorDefault, notificationNames, 2, &kCFTypeArrayCallBacks);
+	CFTypeRef registrationKeys[4] = { GROWL_APP_NAME, GROWL_APP_ID, GROWL_NOTIFICATIONS_ALL, GROWL_NOTIFICATIONS_DEFAULT };
+	CFTypeRef registrationValues[4] = { CFSTR("Monolingual"), CFSTR("net.sourceforge.Monolingual"), defaultAndAllNotifications, defaultAndAllNotifications };
+	CFDictionaryRef registrationDictionary = CFDictionaryCreate(kCFAllocatorDefault,
+																registrationKeys,
+																registrationValues,
+																4,
+																&kCFTypeDictionaryKeyCallBacks,
+																&kCFTypeDictionaryValueCallBacks);
+	CFRelease(defaultAndAllNotifications);
+	CFRelease(startedNotificationName);
+	CFRelease(finishedNotificationName);
+
+	return [(NSDictionary *)registrationDictionary autorelease];
 }
 
 - (NSMutableArray *) languages {

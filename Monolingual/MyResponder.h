@@ -22,10 +22,11 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <Growl/GrowlApplicationBridge.h>
 
 @class ProgressWindowController, PreferencesController;
 
-@interface MyResponder : NSWindowController
+@interface MyResponder : NSWindowController<GrowlApplicationBridgeDelegate>
 {
 	IBOutlet ProgressWindowController *progressWindowController;
 	IBOutlet PreferencesController *preferencesController;
