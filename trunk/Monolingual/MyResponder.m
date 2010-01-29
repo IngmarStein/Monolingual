@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *                2004-2009 Ingmar Stein
+ *                2004-2010 Ingmar Stein
  *  Released under the GNU GPL.  For more information, see the header file.
  */
 
@@ -1328,7 +1328,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("tt"),    "Tatar",                "tt", "Tatar");
 	ADD_LANGUAGE_1(CFSTR("to"),    "Tongan",               "to", "Tongan");
 	ADD_LANGUAGE_1(CFSTR("ug"),    "Uighur",               "ug", "Uighur");
-	ADD_LANGUAGE_1(CFSTR("uk"),    "Ukrainian",            "tk", "Ukrainian");
+	ADD_LANGUAGE_1(CFSTR("uk"),    "Ukrainian",            "uk", "Ukrainian");
 	ADD_LANGUAGE_1(CFSTR("ur"),    "Urdu",                 "ur", "Urdu");
 	ADD_LANGUAGE_1(CFSTR("uz"),    "Uzbek",                "uz", "Uzbek");
 	ADD_LANGUAGE_1(CFSTR("vi"),    "Vietnamese",           "vi", "Vietnamese");

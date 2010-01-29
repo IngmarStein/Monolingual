@@ -3,7 +3,7 @@
 //  Monolingual
 //
 //  Created by Ingmar Stein on Tue Mar 23 2004.
-//  Copyright (c) 2004-2009 Ingmar Stein. All rights reserved.
+//  Copyright (c) 2004-2010 Ingmar Stein. All rights reserved.
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ static int has_code_signature(const char *path)
 	int         found_sig;
 	char        *addr;
 	uint32_t    i;
-	
+
 	/* Open the input file and map it in */
 	if ((fd = open(path, O_RDONLY)) == -1) {
 		syslog(LOG_ERR, "can't open input file: %s", path);
