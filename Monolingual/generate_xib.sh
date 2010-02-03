@@ -2,7 +2,7 @@
 
 primary=English
 primarydir=$primary.lproj
-for language in Japanese Swedish Polish German French Italian; do
+for language in Japanese Swedish Polish German French Italian Spanish; do
 	langdir=$language.lproj
 	for f in `find $primary.lproj -name \*.xib -not -name \*~.xib -type f`; do
 		xibfile=`basename $f`

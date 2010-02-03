@@ -88,6 +88,10 @@
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
 		956E31D60A4B4056004E91ED /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		95852A7C1119CD7C00B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Spanish; path = Spanish.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Spanish; path = Spanish.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95852A7F1119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Spanish; path = Spanish.lproj/Credits.html; sourceTree = "<group>"; };
+		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Spanish; path = Spanish.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
 		95A0BEA106346AD3007510F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		95A0BEA206346AD3007510F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
@@ -300,6 +304,7 @@
 				Swedish,
 				Polish,
 				Italian,
+				Spanish,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			projectDirPath = "";
@@ -392,6 +397,7 @@
 				F505F4EC0300C29D01E3DC1E /* German */,
 				95EDCC8B062C4393007229A3 /* French */,
 				95833CDF06ED8C2D00238761 /* Italian */,
+				95852A801119CDA400B54346 /* Spanish */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -406,6 +412,7 @@
 				9531D78B0C7B15D0008B48AA /* Japanese */,
 				9531D78C0C7B15DC008B48AA /* Polish */,
 				9531D78D0C7B15E5008B48AA /* Swedish */,
+				95852A7C1119CD7C00B54346 /* Spanish */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -416,6 +423,7 @@
 				95F508FD098CC8DF009FD7EC /* English */,
 				9558F7940615953D00F6DE23 /* German */,
 				2BCD7FCA097D043900FE7723 /* Italian */,
+				95852A7F1119CDA400B54346 /* Spanish */,
 			);
 			name = Credits.html;
 			sourceTree = "<group>";
@@ -430,6 +438,7 @@
 				F505F4ED0300C2B001E3DC1E /* German */,
 				95EDCC84062C3B83007229A3 /* French */,
 				95CB1AFE06E8DDDD00293B60 /* Italian */,
+				95852A7D1119CD8F00B54346 /* Spanish */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
