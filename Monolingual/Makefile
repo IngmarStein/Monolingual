@@ -31,7 +31,7 @@ release: deployment
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.scpt
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
-		-e "s/%PUBDATE%/$$(date +"%a, %d %b %G %T %z")/g" \
+		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
 		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_FILE)")/g" \
 		-e "s/%FILENAME%/$(RELEASE_NAME).dmg/g" \
 		-e "s/%MD5%/$$(md5 -q $(RELEASE_FILE))/g" \
