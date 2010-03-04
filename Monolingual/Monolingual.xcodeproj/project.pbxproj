@@ -253,11 +253,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */;
 			buildPhases = (
-				953AAA920C7B92BD009B69EA /* ShellScript */,
 				959518FF07E48C1F004A4471 /* CopyFiles */,
 				95A1302C0608F92F00D8E30C /* Resources */,
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
+				95A501FC113F8933008EE4DB /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -339,7 +339,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		953AAA920C7B92BD009B69EA /* ShellScript */ = {
+		95A501FC113F8933008EE4DB /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -350,7 +350,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$BUILT_PRODUCTS_DIR\"\nSPARKLE_FRAMEWORK=\"$SRCROOT/sparkle/build/$CONFIGURATION/Sparkle.framework\"\nif [ -d \"$SPARKLE_FRAMEWORK\" ]; then\n\trm -f \"$BUILT_PRODUCTS_DIR/Sparkle.framework\"\n\tln -s \"$SPARKLE_FRAMEWORK\" \"$BUILT_PRODUCTS_DIR/Sparkle.framework\"\nfi\n";
+			shellScript = "echo \"*** stripping header files from frameworks ***\"\nfind \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\" -type file -name \"*.h\" -delete\necho \"*** removing .DS_Store files ***\"\nfind \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type file -name \".DS_Store\" -delete\necho \"*** stripping IB files from NIBs ***\"\nfind \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type file \\( -name \"classes.nib\" -or -name \"info.nib\" -or -name \"data.dependency\" \\) -delete";
 		};
 /* End PBXShellScriptBuildPhase section */
 

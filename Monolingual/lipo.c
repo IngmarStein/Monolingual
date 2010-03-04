@@ -145,7 +145,6 @@ static mode_t output_filemode = 0;
 static uid_t output_uid;
 static gid_t output_gid;
 static struct utimbuf output_timep;
-static int archives_in_input = 0;
 
 static struct arch_flag *remove_arch_flags = NULL;
 static uint32_t nremove_arch_flags = 0U;
@@ -413,8 +412,6 @@ static void process_input_file(struct input_file *input)
 			thin->name = input->name;
 			thin->addr = addr + input->fat_arches[i].offset;
 			thin->fat_arch = input->fat_arches[i];
-			if (input->fat_arches[i].size >= SARMAG && !strncmp(thin->addr, ARMAG, SARMAG))
-				archives_in_input = 1;
 		}
 	} else {
 		if (munmap(addr, size))
@@ -466,7 +463,6 @@ int run_lipo(const char *path, size_t *size_diff)
 	thin_files = NULL;
 	nthin_files = 0U;
 	memset(&output_timep, 0, sizeof(output_timep));
-	archives_in_input = 0;
 
 	/*
 	 * Process the arguments.
@@ -486,10 +482,9 @@ int run_lipo(const char *path, size_t *size_diff)
 	 * Do the specified operation.
 	 */
 
-	if (!input_file.fat_header) {
-		syslog(LOG_WARNING, "input file (%s) must be a fat file", input_file.name);
+	if (!input_file.fat_header)
 		return 1;
-	}
+
 	/* remove those thin files */
 	for (uint32_t i = 0; i < nremove_arch_flags; ++i) {
 		for (uint32_t j = 0; j < nthin_files; ++j) {

@@ -49,7 +49,8 @@ static unsigned num_blacklists;
 static const char **directories;
 static const char **excludes;
 static const char **archs;
-static const char **blacklist;
+static const char **bundle_blacklist;
+static CFMutableSetRef file_blacklist;
 
 static int string_compare(const void *s1, const void *s2)
 {
@@ -86,7 +87,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 	size_t   mh_size = 0;
 	uint32_t ncmds = 0;
 	int      swapped = 0;
-
+	
 	if (size >= sizeof(struct mach_header) && (*(uint32_t *)addr == MH_MAGIC || *(uint32_t *)addr == MH_CIGAM)) {
 		struct mach_header *mh = (struct mach_header *)addr;
 		if (*(uint32_t *)addr == MH_CIGAM) {
@@ -114,7 +115,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 			lc = (struct load_command *)((char *)lc + lc->cmdsize);
 		}
 	}
-
+	
 	return 0;
 }
 
@@ -227,19 +228,32 @@ static void strip_file(const char *path)
 	}
 }
 
+static void add_file_to_blacklist (const void *key, const void *value, void *context)
+{
+	if (CFGetTypeID((CFTypeRef)value) == CFDictionaryGetTypeID())
+		if (CFDictionaryGetValue((CFDictionaryRef)value, CFSTR("optional")) == kCFBooleanTrue)
+			return;
+
+	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/%@"), (const char *)context, (CFStringRef)key);
+	CFSetAddValue(file_blacklist, path);
+	CFRelease(path);
+}
+
 static int is_blacklisted(const char *path)
 {
 	int result = 0;
+	
+	// get bundle identifier
 	CFStringRef infoPlistPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/Info.plist"), path);
 	CFURLRef infoPlistURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, infoPlistPath, kCFURLPOSIXPathStyle, false);
 	CFRelease(infoPlistPath);
-	CFReadStreamRef stream = CFReadStreamCreateWithFile(kCFAllocatorDefault, infoPlistURL);
+	CFReadStreamRef infoPlistStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, infoPlistURL);
 	CFRelease(infoPlistURL);
-	if (stream) {
-		if (CFReadStreamOpen(stream)) {
+	if (infoPlistStream) {
+		if (CFReadStreamOpen(infoPlistStream)) {
 			CFPropertyListFormat format;
 			CFPropertyListRef plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
-																	 stream,
+																	 infoPlistStream,
 																	 /*streamLength*/ 0,
 																	 kCFPropertyListImmutable,
 																	 &format,
@@ -247,19 +261,46 @@ static int is_blacklisted(const char *path)
 			if (plist) {
 				CFStringRef bundleId = CFDictionaryGetValue(plist, kCFBundleIdentifierKey);
 				if (bundleId) {
+					// check bundle blacklist
 					char buffer[256];
 					if (CFStringGetCString(bundleId, buffer, sizeof(buffer), kCFStringEncodingUTF8))
-						result = bsearch(buffer, blacklist, num_blacklists, sizeof(char *), string_search) != NULL;
+						result = bsearch(buffer, bundle_blacklist, num_blacklists, sizeof(char *), string_search) != NULL;
 				}
 				CFRelease(plist);
 			}
 			
-			CFReadStreamClose(stream);
+			CFReadStreamClose(infoPlistStream);
 		}
 		
-		CFRelease(stream);
+		CFRelease(infoPlistStream);
 	}
 
+	// add code resources to file blacklist
+	CFStringRef codeResourcesPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/_CodeSignature/CodeResources"), path);
+	CFURLRef codeResourcesURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, codeResourcesPath, kCFURLPOSIXPathStyle, false);
+	CFRelease(codeResourcesPath);
+	CFReadStreamRef codeResourcesStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, codeResourcesURL);
+	CFRelease(codeResourcesURL);
+	if (codeResourcesStream) {
+		if (CFReadStreamOpen(codeResourcesStream)) {
+			CFPropertyListFormat format;
+			CFPropertyListRef plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+																	 codeResourcesStream,
+																	 /*streamLength*/ 0,
+																	 kCFPropertyListImmutable,
+																	 &format,
+																	 /*errorString*/ NULL);
+			if (plist) {
+				CFDictionaryRef files = CFDictionaryGetValue(plist, CFSTR("files"));
+				if (files)
+					CFDictionaryApplyFunction(files, add_file_to_blacklist, (void *)path);
+			}
+			CFReadStreamClose(codeResourcesStream);
+		}
+		
+		CFRelease(codeResourcesStream);
+	}
+	
 	return result;
 }
 
@@ -274,6 +315,13 @@ static void delete_recursively(const char *path)
 	if (lstat(path, &st) == -1)
 		return;
 
+	CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
+	Boolean blacklisted = CFSetContainsValue(file_blacklist, pathString);
+	CFRelease(pathString);
+	
+	if (blacklisted)
+		return;
+	
 	switch (st.st_mode & S_IFMT) {
 		case S_IFDIR: {
 			DIR *dir;
@@ -395,6 +443,9 @@ static void process_directory(const char *path)
 		if (!strncmp(path, excludes[i], strlen(excludes[i])))
 			return;
 
+	if (is_blacklisted(path))
+		return;
+
 	last_component = strrchr(path, '/');
 	if (last_component) {
 		++last_component;
@@ -471,21 +522,26 @@ static void thin_recursively(const char *path)
 		}
 		case S_IFREG:
 			if (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)) {
-				int fd = open(path, O_RDONLY, 0);
-				if (fd >= 0) {
-					unsigned int magic;
-					ssize_t num;
-					fcntl(fd, F_NOCACHE, 1);
-					num = read(fd, &magic, sizeof(magic));
-					close(fd);
+				// check file blacklist
+				CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
+				if (!CFSetContainsValue(file_blacklist, pathString)) {
+					int fd = open(path, O_RDONLY, 0);
+					if (fd >= 0) {
+						unsigned int magic;
+						ssize_t num;
+						fcntl(fd, F_NOCACHE, 1);
+						num = read(fd, &magic, sizeof(magic));
+						close(fd);
 
-					if (num == sizeof(magic)) {
-						if (magic == FAT_MAGIC || magic == FAT_CIGAM)
-							thin_file(path);
-						if (do_strip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
-							strip_file(path);
+						if (num == sizeof(magic)) {
+							if (magic == FAT_MAGIC || magic == FAT_CIGAM)
+								thin_file(path);
+							if (do_strip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
+								strip_file(path);
+						}
 					}
 				}
+				CFRelease(pathString);
 			}
 			break;
 		default:
@@ -525,8 +581,8 @@ int main(int argc, const char *argv[])
 	bufptr     += maxsize;
 	archs       = bufptr;
 	bufptr     += maxsize;
-	blacklist   = bufptr;
-
+	bundle_blacklist = bufptr;
+	
 	for (int i=1; i<argc; ++i) {
 		const char *arg = argv[i];
 		if (!strcmp(arg, "-r") || !strcmp(arg, "--root")) {
@@ -569,7 +625,7 @@ int main(int argc, const char *argv[])
 				fprintf(stderr, "Argument expected for -b/--blacklist\n");
 				return EXIT_FAILURE;
 			} else {
-				blacklist[num_blacklists++] = argv[i];
+				bundle_blacklist[num_blacklists++] = argv[i];
 			}
 		} else if (!strcmp(arg, "-s") || !strcmp(arg, "--strip")) {
 			do_strip = 1;
@@ -584,7 +640,7 @@ int main(int argc, const char *argv[])
 		qsort(directories, num_directories, sizeof(char *), string_compare);
 
 	if (num_blacklists)
-		qsort(blacklist, num_blacklists, sizeof(char *), string_compare);
+		qsort(bundle_blacklist, num_blacklists, sizeof(char *), string_compare);
 	
 	if (do_strip) {
 		// check if /usr/bin/strip is present
@@ -592,6 +648,8 @@ int main(int argc, const char *argv[])
 		if (stat("/usr/bin/strip", &st))
 			do_strip = 0;
 	}
+
+	file_blacklist = CFSetCreateMutable(kCFAllocatorDefault, 0, &kCFTypeSetCallBacks);
 
 	// delete regular files
 	for (unsigned i=0U; i<num_files && !should_exit(); ++i)
@@ -608,6 +666,8 @@ int main(int argc, const char *argv[])
 			thin_recursively(roots[i]);
 		finish_lipo();
 	}
+	
+	CFRelease(file_blacklist);
 
 	free(buf);
 
