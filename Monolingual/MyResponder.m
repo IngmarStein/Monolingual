@@ -144,17 +144,17 @@ static CFComparisonResult languageCompare(const void *val1, const void *val2, vo
 }
 
 @implementation MyResponder
-NSWindow                 *parentWindow;
-CFMutableArrayRef        languages;
-CFMutableArrayRef        layouts;
-CFMutableArrayRef        architectures;
-CFDictionaryRef          startedNotificationInfo;
-CFDictionaryRef          finishedNotificationInfo;
-CFURLRef                 versionURL;
-CFURLRef                 downloadURL;
-CFURLRef                 donateURL;
-unsigned long long       bytesSaved;
-int                      mode;
+NSWindow           *parentWindow;
+CFMutableArrayRef  languages;
+CFMutableArrayRef  layouts;
+CFMutableArrayRef  architectures;
+CFDictionaryRef    startedNotificationInfo;
+CFDictionaryRef    finishedNotificationInfo;
+CFURLRef           blacklistURL;
+CFURLRef           donateURL;
+CFArrayRef         blacklist;
+unsigned long long bytesSaved;
+int                mode;
 
 + (void) initialize
 {
@@ -516,6 +516,7 @@ int                      mode;
 	CFArrayRef	roots;
 	CFIndex		roots_count;
 	CFIndex		archs_count;
+	CFIndex		blacklist_count;
 	const char	**argv;
 
 	mode = MODE_ARCHITECTURES;
@@ -532,8 +533,9 @@ int                      mode;
 		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 	roots_count = CFArrayGetCount(roots);
 	archs_count = CFArrayGetCount(architectures);
+	blacklist_count = CFArrayGetCount(blacklist);
 	BOOL strip = [[NSUserDefaults standardUserDefaults] boolForKey:@"Strip"];
-	CFIndex num_args = 27+archs_count+archs_count+roots_count+roots_count;
+	CFIndex num_args = 5+archs_count+archs_count+roots_count+roots_count+blacklist_count+blacklist_count;
 	if (strip)
 		++num_args;
 	argv = (const char **)malloc(num_args*sizeof(char *));
@@ -587,28 +589,17 @@ int                      mode;
 			}
 			argv[idx++] = [path fileSystemRepresentation];
 		}
-		argv[idx++] = "-b";
-		argv[idx++] = "com.charlessoft.pacifist";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.skype.skype";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.yazsoft.SpeedDownload";
-		argv[idx++] = "-b";
-		argv[idx++] = "org.xlife.Acquisition";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.linotype.FontExplorerX";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.alsoft.diskwarrior";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.StarryNight.StarryNight";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.blizzard.worldofwarcraft";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.ElectronicArts.ERegWeb.cnc3";
-		argv[idx++] = "-b";
-		argv[idx++] = "com.ultralingua.6";
-		argv[idx++] = "-b";
-		argv[idx++] = "de.jinx.JollysFastVNC";
+		for (CFIndex i=0; i<blacklist_count; ++i) {
+			CFDictionaryRef item = CFArrayGetValueAtIndex(blacklist, i);
+			CFBooleanRef archEnabled = CFDictionaryGetValue(item, CFSTR("architectures"));
+			Boolean enabled = archEnabled ? CFBooleanGetValue(archEnabled) : false;
+			NSString *bundle = (NSString *)CFDictionaryGetValue(item, CFSTR("bundle"));
+			if (enabled) {
+				NSLog(@"Blacklisting %@", bundle);
+				argv[idx++] = "-b";
+				argv[idx++] = [bundle fileSystemRepresentation];
+			}
+		}
 		argv[idx++] = "-x";
 		argv[idx++] = "/System/Library/Frameworks";
 		argv[idx++] = "-x";
@@ -1018,6 +1009,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	const char		**argv;
 	CFArrayRef		roots;
 	CFIndex			roots_count;
+	CFIndex			blacklist_count;
 	BOOL			trash;
 
 	mode = MODE_LANGUAGES;
@@ -1054,7 +1046,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	} else {
 		rCount = 0;
 		lCount = CFArrayGetCount(languages);
-		argv = (const char **)malloc((4+lCount+lCount+lCount+roots_count+roots_count)*sizeof(char *));
+		blacklist_count = CFArrayGetCount(blacklist);
+		argv = (const char **)malloc((4+lCount+lCount+lCount+roots_count+roots_count+blacklist_count+blacklist_count)*sizeof(char *));
 		idx = 1U;
 		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
 		if (trash)
@@ -1072,6 +1065,17 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 				argv[idx++] = "-x";
 			}
 			argv[idx++] = [path fileSystemRepresentation];
+		}
+		for (i=0; i<blacklist_count; ++i) {
+			CFDictionaryRef item = CFArrayGetValueAtIndex(blacklist, i);
+			CFBooleanRef languagesEnabled = CFDictionaryGetValue(item, CFSTR("languages"));
+			Boolean enabled = languagesEnabled ? CFBooleanGetValue(languagesEnabled) : false;
+			NSString *bundle = (NSString *)CFDictionaryGetValue(item, CFSTR("bundle"));
+			if (enabled) {
+				NSLog(@"Blacklisting %@", bundle);
+				argv[idx++] = "-b";
+				argv[idx++] = [bundle fileSystemRepresentation];
+			}
 		}
 		for (i=0; i<lCount; ++i) {
 			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
@@ -1124,8 +1128,9 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 - (void) dealloc
 {
-	CFRelease(versionURL);
-	CFRelease(downloadURL);
+	if (blacklist)
+		CFRelease(blacklist);
+	CFRelease(blacklistURL);
 	CFRelease(donateURL);
 	CFRelease(layouts);
 	CFRelease(languages);
@@ -1138,8 +1143,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 {
 	[bundlesOutlineView setAutoresizesOutlineColumn: NO];
 
-	versionURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/version.xml"), NULL);
-	downloadURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net"), NULL);
+	blacklistURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/blacklist.plist"), NULL);
 	donateURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/donate.php"), NULL);
 
 	CFArrayRef languagePref = (CFArrayRef) CFPreferencesCopyValue(CFSTR("AppleLanguages"),
@@ -1426,6 +1430,33 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	finishedNotificationInfo = CFDictionaryCreate(kCFAllocatorDefault, (const void **)keys, (const void **)values, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 	CFRelease(finishedNotificationName);
 	CFRelease(description);
+
+	// load blacklist from URL
+	CFDataRef blacklistData;
+	if (CFURLCreateDataAndPropertiesFromResource(kCFAllocatorDefault, blacklistURL, &blacklistData, NULL, NULL, NULL)) {
+		blacklist = CFPropertyListCreateFromXMLData(kCFAllocatorDefault, blacklistData, kCFPropertyListImmutable, NULL);
+		CFRelease(blacklistData);
+	}
+
+	// use blacklist from bundle as a fallback
+	if (!blacklist) {
+		CFURLRef blacklistBundleURL = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("blacklist"), CFSTR("plist"), NULL);
+		CFReadStreamRef blacklistStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, blacklistBundleURL);
+		CFRelease(blacklistBundleURL);
+		if (blacklistStream) {
+			if (CFReadStreamOpen(blacklistStream)) {
+				CFPropertyListFormat format;
+				blacklist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+															blacklistStream,
+															/*streamLength*/ 0,
+															kCFPropertyListImmutable,
+															&format,
+															/*errorString*/ NULL);
+				CFReadStreamClose(blacklistStream);
+			}
+			CFRelease(blacklistStream);
+		}
+	}
 }
 
 - (NSDictionary *) registrationDictionaryForGrowl

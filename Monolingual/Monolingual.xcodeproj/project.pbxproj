@@ -11,6 +11,7 @@
 		9507F6870A308E320064C21E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9507F6860A308E320064C21E /* CoreFoundation.framework */; };
 		9531D7790C7B0E61008B48AA /* ISTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9531D7780C7B0E61008B48AA /* ISTableView.m */; };
 		9531D7830C7B1020008B48AA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9531D7810C7B1020008B48AA /* MainMenu.xib */; };
+		9539D83811453596007E698C /* blacklist.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9539D83711453596007E698C /* blacklist.plist */; };
 		953AAA9E0C7B945F009B69EA /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; };
 		953AAAB00C7B947E009B69EA /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; };
 		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
@@ -82,6 +83,7 @@
 		9531D78C0C7B15DC008B48AA /* Polish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Polish; path = Polish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D78D0C7B15E5008B48AA /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Swedish; path = Swedish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9534F842072707D200CAB28E /* GrowlDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GrowlDefines.h; sourceTree = "<group>"; };
+		9539D83711453596007E698C /* blacklist.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = blacklist.plist; sourceTree = "<group>"; };
 		953AAA9D0C7B945F009B69EA /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = German.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
@@ -221,6 +223,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9539D83711453596007E698C /* blacklist.plist */,
 				95F7771C0ECC2644009C621B /* dsa_pub.pem */,
 				9531D7810C7B1020008B48AA /* MainMenu.xib */,
 				95D7A921098D48B700DCE08D /* Leggimi.rtfd */,
@@ -333,6 +336,7 @@
 				95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */,
 				9531D7830C7B1020008B48AA /* MainMenu.xib in Resources */,
 				95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */,
+				9539D83811453596007E698C /* blacklist.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
