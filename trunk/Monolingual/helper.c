@@ -294,6 +294,7 @@ static int is_blacklisted(const char *path)
 				CFDictionaryRef files = CFDictionaryGetValue(plist, CFSTR("files"));
 				if (files)
 					CFDictionaryApplyFunction(files, add_file_to_blacklist, (void *)path);
+				CFRelease(plist);
 			}
 			CFReadStreamClose(codeResourcesStream);
 		}
