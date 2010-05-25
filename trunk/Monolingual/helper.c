@@ -66,7 +66,7 @@ static int should_exit(void)
 {
 	fd_set fdset;
 	struct timeval timeout = {0, 0};
-	
+
 	FD_ZERO(&fdset);
 	FD_SET(0, &fdset);
 	return select(1, &fdset, NULL, NULL, &timeout) == 1;
@@ -87,7 +87,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 	size_t   mh_size = 0;
 	uint32_t ncmds = 0;
 	int      swapped = 0;
-	
+
 	if (size >= sizeof(struct mach_header) && (*(uint32_t *)addr == MH_MAGIC || *(uint32_t *)addr == MH_CIGAM)) {
 		struct mach_header *mh = (struct mach_header *)addr;
 		if (*(uint32_t *)addr == MH_CIGAM) {
@@ -115,7 +115,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 			lc = (struct load_command *)((char *)lc + lc->cmdsize);
 		}
 	}
-	
+
 	return 0;
 }
 
