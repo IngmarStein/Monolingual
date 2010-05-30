@@ -234,7 +234,7 @@ static void add_file_to_blacklist (const void *key, const void *value, void *con
 		if (CFDictionaryGetValue((CFDictionaryRef)value, CFSTR("optional")) == kCFBooleanTrue)
 			return;
 
-	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/%@"), (const char *)context, (CFStringRef)key);
+	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/%@"), (const char *)context, (CFStringRef)key);
 	CFSetAddValue(file_blacklist, path);
 	CFRelease(path);
 }
