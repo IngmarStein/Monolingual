@@ -249,15 +249,16 @@ static int is_blacklisted(const char *path)
 	CFRelease(infoPlistPath);
 	CFReadStreamRef infoPlistStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, infoPlistURL);
 	CFRelease(infoPlistURL);
-	if (!infoPlistStream) {
-		// frameworks store the Info.plist under a different path
-		infoPlistPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Resources/Info.plist"), path);
-		infoPlistURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, infoPlistPath, kCFURLPOSIXPathStyle, false);
-		CFRelease(infoPlistPath);
-		infoPlistStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, infoPlistURL);
-		CFRelease(infoPlistURL);
-	}
 	if (infoPlistStream) {
+		if (!CFReadStreamOpen(infoPlistStream)) {
+			CFRelease(infoPlistStream);
+			// frameworks store the Info.plist under a different path
+			infoPlistPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Resources/Info.plist"), path);
+			infoPlistURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, infoPlistPath, kCFURLPOSIXPathStyle, false);
+			CFRelease(infoPlistPath);
+			infoPlistStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, infoPlistURL);
+			CFRelease(infoPlistURL);
+		}
 		if (CFReadStreamOpen(infoPlistStream)) {
 			CFPropertyListFormat format;
 			CFPropertyListRef plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
