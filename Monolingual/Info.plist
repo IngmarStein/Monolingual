@@ -13,6 +13,8 @@
 			<array>
 				<string>*</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string></string>
 			<key>CFBundleTypeName</key>
 			<string>Executable</string>
 			<key>CFBundleTypeRole</key>
@@ -37,6 +39,8 @@
 	<string>1.4.4</string>
 	<key>CFBundleSignature</key>
 	<string>MoLi</string>
+	<key>CFBundleURLTypes</key>
+	<array/>
 	<key>CFBundleVersion</key>
 	<string>1.4.4</string>
 	<key>LSMinimumSystemVersion</key>
@@ -48,13 +52,19 @@ Released under the GNU Public License.</string>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>SmartCrashReports_CompanyName</key>
-	<string>Ingmar Stein</string>
-	<key>SmartCrashReports_EmailTicket</key>
-	<string>SCR-C7A11CBEDE</string>
+	<key>NSServices</key>
+	<array/>
 	<key>SUFeedURL</key>
 	<string>http://monolingual.sourceforge.net/appcast.xml</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>dsa_pub.pem</string>
+	<key>SmartCrashReports_CompanyName</key>
+	<string>Ingmar Stein</string>
+	<key>SmartCrashReports_EmailTicket</key>
+	<string>SCR-C7A11CBEDE</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array/>
+	<key>UTImportedTypeDeclarations</key>
+	<array/>
 </dict>
 </plist>

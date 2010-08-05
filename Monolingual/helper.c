@@ -480,8 +480,12 @@ static void process_directory(const char *path)
 				}
 				strncat(subdir, ent->d_name, sizeof(subdir));
 
-				if (lstat(subdir, &st) != -1 && ((st.st_mode & S_IFMT) == S_IFDIR))
-					process_directory(subdir);
+				if (lstat(subdir, &st) != -1) {
+					// process symlinks, too (see tracker issue 3035669)
+					mode_t mode = (st.st_mode & S_IFMT);
+					if (mode == S_IFDIR || mode == S_IFLNK)
+						process_directory(subdir);
+				}
 			}
 		}
 		closedir(dir);
