@@ -440,7 +440,7 @@ static void trash_file(const char *path)
 	}
 }
 
-static void process_directory(const char *path)
+static void process_directory(const char *path, int leaf)
 {
 	DIR  *dir;
 	char *last_component;
@@ -466,6 +466,10 @@ static void process_directory(const char *path)
 			return;
 		}
 	}
+	
+	// don't recurse into symlinks (see tracker issue 31011269)
+	if (leaf)
+		return;
 
 	dir = opendir(path);
 	if (dir) {
@@ -486,7 +490,7 @@ static void process_directory(const char *path)
 					// process symlinks, too (see tracker issue 3035669)
 					mode_t mode = (st.st_mode & S_IFMT);
 					if (mode == S_IFDIR || mode == S_IFLNK)
-						process_directory(subdir);
+						process_directory(subdir, mode == S_IFLNK);
 				}
 			}
 		}
@@ -674,7 +678,7 @@ int main(int argc, const char *argv[])
 	// recursively delete directories
 	if (num_directories)
 		for (unsigned i=0U; i<num_roots && !should_exit(); ++i)
-			process_directory(roots[i]);
+			process_directory(roots[i], 0);
 
 	// thin fat binaries
 	if (num_archs && setup_lipo(archs, num_archs)) {
