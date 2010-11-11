@@ -28,6 +28,7 @@
     [oPanel setAllowsMultipleSelection:YES];
 	[oPanel setCanChooseDirectories:YES];
 	[oPanel setCanChooseFiles:NO];
+	[oPanel setTreatsFilePackagesAsDirectories:YES];
 
 	if (NSOKButton == [oPanel runModalForDirectory:nil file:nil types:nil]) {
 		NSEnumerator *filenameEnum = [[oPanel filenames] objectEnumerator];
