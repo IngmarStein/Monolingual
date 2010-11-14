@@ -219,8 +219,8 @@ static void strip_file(const char *path)
 		if (chown(path, st.st_uid, st.st_gid) >= 0)
 			chmod(path, st.st_mode & 07777);
 		if (!stat(path, &st)) {
-			size_t size_diff = (size_t)(old_size - st.st_size);
-			if (size_diff) {
+			if (old_size > st.st_size) {
+				size_t size_diff = (size_t)(old_size - st.st_size);
 				printf("%s%c%zu%c", path, '\0', size_diff, '\0');
 				fflush(stdout);
 			}
