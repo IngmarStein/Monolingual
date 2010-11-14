@@ -1198,6 +1198,16 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		folders[2] = CFSTR(folder3 ".lproj"); \
 		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 3, &kCFTypeArrayCallBacks); \
 	ADD_LANGUAGE_END
+#define ADD_LANGUAGE_3(code, name, folder1, folder2, folder3, folder4) \
+	ADD_LANGUAGE_BEGIN(name) \
+		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
+		CFStringRef folders[4]; \
+		folders[0] = CFSTR(folder1 ".lproj"); \
+		folders[1] = CFSTR(folder2 ".lproj"); \
+		folders[2] = CFSTR(folder3 ".lproj"); \
+		folders[3] = CFSTR(folder4 ".lproj"); \
+		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 4, &kCFTypeArrayCallBacks); \
+	ADD_LANGUAGE_END
 #define ADD_LANGUAGE_EN(code, name, folder1, folder2) \
 	ADD_LANGUAGE_BEGIN(name) \
 		CFDictionarySetValue(language, CFSTR("Enabled"), kCFBooleanFalse); \
@@ -1299,8 +1309,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("pa"),    "Punjabi",              "pa", "Punjabi");
 	ADD_LANGUAGE_2(CFSTR("pl"),    "Polish",               "pl", "pl_PL", "Polish");
 	ADD_LANGUAGE_1(CFSTR("ps"),    "Pashto",               "ps", "Pashto");
-	ADD_LANGUAGE_2(CFSTR("pt"),    "Portuguese",           "pt", "pt_PT", "Portuguese");
-	ADD_LANGUAGE_1(CFSTR("pt-BR"), "Portuguese (Brazil)", "pt_BR", "PT_br");
+	ADD_LANGUAGE_3(CFSTR("pt"),    "Portuguese",           "pt", "pt_PT", "pt-PT", "Portuguese");
+	ADD_LANGUAGE_2(CFSTR("pt-BR"), "Portuguese (Brazil)",  "pt_BR", "PT_br", "pt-BR");
 	ADD_LANGUAGE_1(CFSTR("qu"),    "Quechua",              "qu", "Quechua");
 	ADD_LANGUAGE_1(CFSTR("rn"),    "Rundi",                "rn", "Rundi");
 	ADD_LANGUAGE_1(CFSTR("ro"),    "Romanian",             "ro", "Romanian");
@@ -1338,8 +1348,8 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	ADD_LANGUAGE_1(CFSTR("vi"),    "Vietnamese",           "vi", "Vietnamese");
 	ADD_LANGUAGE_1(CFSTR("yi"),    "Yiddish",              "yi", "Yiddish");
 	ADD_LANGUAGE_0(CFSTR("zh"),    "Chinese",              "zh");
-	ADD_LANGUAGE_2(CFSTR("zh-Hans"), "Chinese (Simplified Han)",   "zh-Hans", "zh_CN", "zh_SC");
-	ADD_LANGUAGE_2(CFSTR("zh-Hant"), "Chinese (Traditional Han)",  "zh-Hant", "zh_TW", "zh_HK");
+	ADD_LANGUAGE_3(CFSTR("zh-Hans"), "Chinese (Simplified Han)",   "zh_Hans", "zh-Hans", "zh_CN", "zh_SC");
+	ADD_LANGUAGE_3(CFSTR("zh-Hant"), "Chinese (Traditional Han)",  "zh_Hant", "zh-Hant", "zh_TW", "zh_HK");
 	CFRelease(userLanguages);
 	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
 	[self setLanguages:(NSMutableArray *)knownLanguages];
