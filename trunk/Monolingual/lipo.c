@@ -177,9 +177,9 @@ static int cmp_qsort(const struct thin_file *thin1, const struct thin_file *thin
 }
 
 /*
- * myround() rounds v to a multiple of r.
+ * rnd() rounds v to a multiple of r.
  */
-static uint32_t myround(uint32_t v, uint32_t r)
+static uint32_t rnd(uint32_t v, uint32_t r)
 {
 	--r;
 	v += r;
@@ -224,7 +224,7 @@ static int create_fat(size_t *newsize)
 		fat_header.nfat_arch = nthin_files;
 		offset = (uint32_t)(sizeof(struct fat_header) + nthin_files * sizeof(struct fat_arch));
 		for (i = 0; i < nthin_files; ++i) {
-			offset = myround(offset, 1 << thin_files[i].fat_arch.align);
+			offset = rnd(offset, 1 << thin_files[i].fat_arch.align);
 			thin_files[i].fat_arch.offset = offset;
 			offset += thin_files[i].fat_arch.size;
 		}
@@ -286,8 +286,8 @@ static int create_fat(size_t *newsize)
 static void process_input_file(struct input_file *input)
 {
 	int fd;
-	struct stat stat_buf;
-	size_t size;
+	struct stat stat_buf, stat_buf2;
+	off_t size;
 	unsigned long i, j;
 	char *addr;
 	struct thin_file *thin;
@@ -325,6 +325,23 @@ static void process_input_file(struct input_file *input)
 		close(fd);
 		return;
 	}
+
+	/*
+	 * Because of rdar://8087586 we do a second stat to see if the file
+	 * is still there and the same file.
+	 */
+	if(fstat(fd, &stat_buf2) == -1) {
+	    syslog(LOG_ERR, "Can't stat input file: %s", input->name);
+		close(fd);
+		return;
+	}
+	if(stat_buf2.st_size != size ||
+	   stat_buf2.st_mtime != stat_buf.st_mtime) {
+	    syslog(LOG_ERR, "Input file: %s changed since opened", input->name);
+		close(fd);
+		return;
+	}
+
 	close(fd);
 
 	/* Try to figure out what kind of file this is */
@@ -338,7 +355,7 @@ static void process_input_file(struct input_file *input)
 	   *((uint32_t *)addr) == FAT_CIGAM)
 #endif /* __LITTLE_ENDIAN__ */
 	{
-		uint64_t big_size;
+		off_t big_size;
 
 		input->fat_header = (struct fat_header *)addr;
 #ifdef __LITTLE_ENDIAN__
@@ -380,7 +397,7 @@ static void process_input_file(struct input_file *input)
 			}
 			if (input->fat_arches[i].offset % (1 << input->fat_arches[i].align) != 0) {
 				syslog(LOG_ERR, "offset %u of fat file %s (cputype (%d) cpusubtype "
-						"(%d)) not aligned on it's alignment (2^%u)",
+						"(%d)) not aligned on its alignment (2^%u)",
 						input->fat_arches[i].offset, input->name,
 						input->fat_arches[i].cputype,
 						input->fat_arches[i].cpusubtype & ~CPU_SUBTYPE_MASK,

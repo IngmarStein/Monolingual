@@ -10,11 +10,6 @@
 
 @implementation ISTableView
 
--(void) dealloc
-{
-	[super dealloc];
-}
-
 - (void) keyDown:(NSEvent *)theEvent
 {
 	NSInteger row;
@@ -24,10 +19,10 @@
 		case ' ':
 			row = [self selectedRow];
 			if (row != -1) {
-				CFMutableDictionaryRef dict = (CFMutableDictionaryRef)[[arrayController arrangedObjects] objectAtIndex:row];
+				NSMutableDictionary *dict = [arrayController arrangedObjects][row];
 				if (dict) {
-					CFBooleanRef value = CFDictionaryGetValue(dict, CFSTR("Enabled"));
-					CFDictionarySetValue(dict, CFSTR("Enabled"), CFBooleanGetValue(value) ? kCFBooleanFalse : kCFBooleanTrue);
+					BOOL value = [dict[@"Enabled"] boolValue];
+					dict[@"Enabled"] = @(!value);
 				}
 			}
 			break;

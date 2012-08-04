@@ -10,11 +10,6 @@
 
 @implementation PreferencesController
 
--(void) dealloc
-{
-	[super dealloc];
-}
-
 - (void) awakeFromNib
 {
 	[[self window] setFrameAutosaveName:@"PreferencesWindow"];
@@ -30,18 +25,15 @@
 	[oPanel setCanChooseFiles:NO];
 	[oPanel setTreatsFilePackagesAsDirectories:YES];
 
-	if (NSOKButton == [oPanel runModalForDirectory:nil file:nil types:nil]) {
-		NSEnumerator *filenameEnum = [[oPanel filenames] objectEnumerator];
-		NSString *filename;
-		while ((filename = [filenameEnum nextObject])) {
-			CFMutableDictionaryRef root = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-			CFDictionarySetValue(root, CFSTR("Path"), filename);
-			CFDictionarySetValue(root, CFSTR("Languages"), kCFBooleanTrue);
-			CFDictionarySetValue(root, CFSTR("Architectures"), kCFBooleanTrue);
-			[roots addObject:(NSMutableDictionary *)root];
-			CFRelease(root);
+	[oPanel beginWithCompletionHandler:^(NSInteger result) {
+		if (NSOKButton == result) {
+			for (NSURL *url in [oPanel URLs]) {
+				[roots addObject:@{ @"Path" : [url path],
+									@"Languages" : @YES,
+									@"Architectures" : @YES}];
+			}
 		}
-	}
+	}];
 }
 
 @end
