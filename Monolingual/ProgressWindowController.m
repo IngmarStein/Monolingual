@@ -9,17 +9,10 @@
 
 @implementation ProgressWindowController
 
--(void) dealloc
-{
-	[super dealloc];
-}
 
 - (IBAction) cancelButton: (id)sender
 {
-#pragma unused(sender)
-	CFStringRef value = CFCopyLocalizedString(CFSTR("Canceling operation..."),"");
-	[applicationText setStringValue:(NSString *)value];
-	CFRelease(value);
+	[applicationText setStringValue:NSLocalizedString(@"Canceling operation...", "")];
 	[fileText setStringValue:@""];
 	[NSApp updateWindows];
 	[parent cancelRemove];
@@ -33,9 +26,7 @@
 - (void) start
 {
 	[progressBar startAnimation:self];
-	CFStringRef value = CFCopyLocalizedString(CFSTR("Removing..."),"");
-	[applicationText setStringValue:(NSString *)value];
-	CFRelease(value);
+	[applicationText setStringValue:NSLocalizedString(@"Removing...", "")];
 	[fileText setStringValue:@""];
 }
 
@@ -44,14 +35,14 @@
 	[progressBar stopAnimation:self];
 }
 
-- (void) setFile:(CFStringRef)file
+- (void) setFile:(NSString *)file
 {
-	[fileText setStringValue:(NSString *)file];
+	[fileText setStringValue:file];
 }
 
-- (void) setText:(CFStringRef)text
+- (void) setText:(NSString *)text
 {
-	[applicationText setStringValue:(NSString *)text];
+	[applicationText setStringValue:text];
 }
 
 @end

@@ -47,13 +47,6 @@
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
-- (void) runDeleteHelperWithArgs: (const char **)argv;
-
-- (NSMutableArray *) languages;
-- (void) setLanguages:(NSMutableArray *)inArray;
-- (NSMutableArray *) layouts;
-- (void) setLayouts:(NSMutableArray *)inArray;
-- (NSMutableArray *) architectures;
-- (void) setArchitectures:(NSMutableArray *)inArray;
+- (void) runDeleteHelperWithArgs: (xpc_object_t)arguments;
 
 @end

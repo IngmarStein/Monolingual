@@ -24,7 +24,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Monolingual</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Monolingual 1.4.5, Copyleft (L) 2001, 2002 J. Schrier, 2004-2010 Ingmar Stein</string>
+	<string>Monolingual 1.5.0, Copyleft (L) 2001, 2002 J. Schrier, 2004-2012 Ingmar Stein</string>
 	<key>CFBundleIconFile</key>
 	<string>Monolingual.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -36,17 +36,17 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.5</string>
+	<string>1.5.0</string>
 	<key>CFBundleSignature</key>
 	<string>MoLi</string>
 	<key>CFBundleURLTypes</key>
 	<array/>
 	<key>CFBundleVersion</key>
-	<string>1.4.5</string>
+	<string>1.5.0</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.5.0</string>
+	<string>10.7.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyleft 2001, 2002 J. Schrier, 2004-2010 Ingmar Stein.
+	<string>Copyleft 2001, 2002 J. Schrier, 2004-2012 Ingmar Stein.
 Released under the GNU Public License.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
@@ -64,6 +64,11 @@ Released under the GNU Public License.</string>
 	<string>SCR-C7A11CBEDE</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array/>
+	<key>SMPrivilegedExecutables</key>
+	<dict>
+		<key>net.sourceforge.MonolingualHelper</key>
+		<string>identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = &quot;3rd Party Mac Developer Application: Business Solution Group&quot;</string>
+	</dict>
 	<key>UTImportedTypeDeclarations</key>
 	<array/>
 </dict>

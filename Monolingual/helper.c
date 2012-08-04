@@ -37,47 +37,32 @@
 #include <mach-o/loader.h>
 #include <mach-o/swap.h>
 #include <sys/mman.h>
+#include <xpc/xpc.h>
 #include "lipo.h"
 
-static int dry_run;
-static int do_strip;
-static void (*remove_func)(const char *path);
-static unsigned num_directories;
-static unsigned num_excludes;
-static unsigned num_archs;
-static unsigned num_blacklists;
-static const char **directories;
-static const char **excludes;
-static const char **archs;
-static const char **bundle_blacklist;
-static CFMutableSetRef file_blacklist;
+typedef struct helper_context_s {
+	int should_exit;
+	int dry_run;
+	int do_strip;
+	void (*remove_func)(const char *path, const struct helper_context_s *);
+	xpc_connection_t connection;
+	CFMutableSetRef directories;
+	xpc_object_t excludes;
+	CFMutableSetRef bundle_blacklist;
+	CFMutableSetRef file_blacklist;
+} helper_context_t;
 
-static int string_compare(const void *s1, const void *s2)
-{
-	return strcmp(*(const char **)s1, *(const char **)s2);
-}
-
-static int string_search(const void *s1, const void *s2)
-{
-	return strcmp((const char *)s1, *(const char **)s2);
-}
-
-static int should_exit(void)
-{
-	fd_set fdset;
-	struct timeval timeout = {0, 0};
-
-	FD_ZERO(&fdset);
-	FD_SET(0, &fdset);
-	return select(1, &fdset, NULL, NULL, &timeout) == 1;
-}
-
-static void thin_file(const char *path)
+static void thin_file(const char *path, const helper_context_t *context)
 {
 	size_t size_diff;
 	if (!run_lipo(path, &size_diff)) {
-		printf("%s%c%zu%c", path, '\0', size_diff, '\0');
-		fflush(stdout);
+		if (size_diff > 0) {
+			xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
+			xpc_dictionary_set_string(message, "file", path);
+			xpc_dictionary_set_uint64(message, "size", size_diff);
+			xpc_connection_send_message(context->connection, message);
+			xpc_release(message);
+		}
 	}
 }
 
@@ -90,7 +75,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 
 	if (size >= sizeof(struct mach_header) && (*(uint32_t *)addr == MH_MAGIC || *(uint32_t *)addr == MH_CIGAM)) {
 		struct mach_header *mh = (struct mach_header *)addr;
-		if (*(uint32_t *)addr == MH_CIGAM) {
+		if (mh->magic == MH_CIGAM) {
 			swapped = 1;
 			swap_mach_header(mh, NXHostByteOrder());
 		}
@@ -98,7 +83,7 @@ static int thin_has_code_signature(char *addr, size_t size)
 		ncmds = mh->ncmds;
 	} else if (size >= sizeof(struct mach_header_64) && (*(uint32_t *)addr == MH_MAGIC_64 || *(uint32_t *)addr == MH_CIGAM_64)) {
 		struct mach_header_64 *mh = (struct mach_header_64 *)addr;
-		if (*(uint32_t *)addr == MH_CIGAM_64) {
+		if (mh->magic == MH_CIGAM_64) {
 			swapped = 1;
 			swap_mach_header_64(mh, NXHostByteOrder());
 		}
@@ -182,7 +167,7 @@ static int has_code_signature(const char *path)
 	return found_sig;
 }
 
-static void strip_file(const char *path)
+static void strip_file(const char *path, const helper_context_t *context)
 {
 	struct stat st;
 
@@ -221,25 +206,34 @@ static void strip_file(const char *path)
 		if (!stat(path, &st)) {
 			if (old_size > st.st_size) {
 				size_t size_diff = (size_t)(old_size - st.st_size);
-				printf("%s%c%zu%c", path, '\0', size_diff, '\0');
-				fflush(stdout);
+				xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
+				xpc_dictionary_set_string(message, "file", path);
+				xpc_dictionary_set_uint64(message, "size", size_diff);
+				xpc_connection_send_message(context->connection, message);
+				xpc_release(message);
 			}
 		}
 	}
 }
 
-static void add_file_to_blacklist(const void *key, const void *value, void *context)
+typedef struct {
+	const char *path;
+	const helper_context_t *helper_context;
+} file_blacklist_context_t;
+
+static void add_file_to_blacklist(const void *key, const void *value, void *ctx)
 {
 	if (CFGetTypeID((CFTypeRef)value) == CFDictionaryGetTypeID())
 		if (CFDictionaryGetValue((CFDictionaryRef)value, CFSTR("optional")) == kCFBooleanTrue)
 			return;
 
-	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/%@"), (const char *)context, (CFStringRef)key);
-	CFSetAddValue(file_blacklist, path);
+	file_blacklist_context_t *context = (file_blacklist_context_t *)ctx;
+	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/%@"), context->path, (CFStringRef)key);
+	CFSetAddValue(context->helper_context->file_blacklist, path);
 	CFRelease(path);
 }
 
-static int is_blacklisted(const char *path)
+static int is_blacklisted(const char *path, const helper_context_t *context)
 {
 	int result = 0;
 	
@@ -273,9 +267,7 @@ static int is_blacklisted(const char *path)
 				CFStringRef bundleId = CFDictionaryGetValue(plist, kCFBundleIdentifierKey);
 				if (bundleId) {
 					// check bundle blacklist
-					char buffer[256];
-					if (CFStringGetCString(bundleId, buffer, sizeof(buffer), kCFStringEncodingUTF8))
-						result = bsearch(buffer, bundle_blacklist, num_blacklists, sizeof(char *), string_search) != NULL;
+					result = CFSetContainsValue(context->bundle_blacklist, bundleId);
 				}
 				CFRelease(plist);
 			}
@@ -303,8 +295,12 @@ static int is_blacklisted(const char *path)
 																	 /*errorString*/ NULL);
 			if (plist) {
 				CFDictionaryRef files = CFDictionaryGetValue(plist, CFSTR("files"));
-				if (files)
-					CFDictionaryApplyFunction(files, add_file_to_blacklist, (void *)path);
+				if (files) {
+					file_blacklist_context_t blacklist_context;
+					blacklist_context.path = path;
+					blacklist_context.helper_context = context;
+					CFDictionaryApplyFunction(files, add_file_to_blacklist, (void *)&blacklist_context);
+				}
 				CFRelease(plist);
 			}
 			CFReadStreamClose(codeResourcesStream);
@@ -316,19 +312,19 @@ static int is_blacklisted(const char *path)
 	return result;
 }
 
-static void delete_recursively(const char *path)
+static void delete_recursively(const char *path, const helper_context_t *context)
 {
 	struct stat st;
 	int result;
 
-	if (should_exit())
+	if (context->should_exit)
 		return;
 
 	if (lstat(path, &st) == -1)
 		return;
 
 	CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
-	Boolean blacklisted = CFSetContainsValue(file_blacklist, pathString);
+	Boolean blacklisted = CFSetContainsValue(context->file_blacklist, pathString);
 	CFRelease(pathString);
 	
 	if (blacklisted)
@@ -349,13 +345,13 @@ static void delete_recursively(const char *path)
 							subdir[pathlen] = '/';
 							subdir[pathlen+1] = '\0';
 						}
-						strncat(subdir, ent->d_name, sizeof(subdir));
-						delete_recursively(subdir);
+						strncat(subdir, ent->d_name, sizeof(subdir) - strlen(subdir) - 1);
+						delete_recursively(subdir, context);
 					}
 				}
 				closedir(dir);
 			}
-			if (dry_run)
+			if (context->dry_run)
 				result = 0;
 			else
 				result = rmdir(path);
@@ -363,7 +359,7 @@ static void delete_recursively(const char *path)
 		}
 		case S_IFREG:
 		case S_IFLNK:
-			if (dry_run)
+			if (context->dry_run)
 				result = 0;
 			else
 				result = unlink(path);
@@ -372,16 +368,19 @@ static void delete_recursively(const char *path)
 			return;
 	}
 	if (!result) {
-		printf("%s%c%llu%c", path, '\0', st.st_size, '\0');
-		fflush(stdout);
+		xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
+		xpc_dictionary_set_string(message, "file", path);
+		xpc_dictionary_set_uint64(message, "size", st.st_size);
+		xpc_connection_send_message(context->connection, message);
+		xpc_release(message);
 	}
 }
 
-static void trash_file(const char *path)
+static void trash_file(const char *path, const helper_context_t *context)
 {
 	char resolved_path[PATH_MAX];
 
-	if (dry_run)
+	if (context->dry_run)
 		return;
 
 	if (realpath(path, resolved_path)) {
@@ -392,7 +391,7 @@ static void trash_file(const char *path)
 			char *sep_pos = strchr(&userTrash[9], '/');
 			if (sep_pos) {
 				sep_pos[1] = '\0';
-				strncat(userTrash, ".Trashes", sizeof(userTrash));
+				strncat(userTrash, ".Trashes", sizeof(userTrash) - strlen(userTrash) - 1);
 				mkdir(userTrash, 0700);
 				snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", getuid());
 				validTrash = 1;
@@ -401,7 +400,7 @@ static void trash_file(const char *path)
 			struct passwd *pwd = getpwuid(getuid());
 			if (pwd) {
 				strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
-				strncat(userTrash, "/.Trash", sizeof(userTrash));
+				strncat(userTrash, "/.Trash", sizeof(userTrash) - strlen(userTrash) - 1);
 				validTrash = 1;
 			}
 		}
@@ -413,7 +412,7 @@ static void trash_file(const char *path)
 				filename = strdup(filename);
 				char *extension = strrchr(filename, '.');
 				strncpy(destination, userTrash, sizeof(destination));
-				strncat(destination, filename, sizeof(destination));
+				strncat(destination, filename, sizeof(destination) - strlen(destination) - 1);
 				while (1) {
 					struct stat sb;
 					struct tm *lt;
@@ -423,8 +422,11 @@ static void trash_file(const char *path)
 						if (rename(path, destination)) {
 							syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
 						} else {
-							printf("%s%c0%c", path, '\0', '\0');
-							fflush(stdout);
+							xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
+							xpc_dictionary_set_string(message, "file", path);
+							xpc_dictionary_set_uint64(message, "size", 0);
+							xpc_connection_send_message(context->connection, message);
+							xpc_release(message);
 						}
 						break;
 					}
@@ -440,31 +442,45 @@ static void trash_file(const char *path)
 	}
 }
 
-static void process_directory(const char *path, int leaf)
+static int is_excluded(const char *path, const helper_context_t *context) {
+	int exclusion = 0;
+
+	size_t num_excludes = context->excludes ? xpc_array_get_count(context->excludes) : 0;
+	for (size_t i=0; i<num_excludes; ++i) {
+		const char *ex = xpc_array_get_string(context->excludes, i);
+		if (!strncmp(path, ex, strlen(ex))) {
+			exclusion = 1;
+			break;
+		}
+	}
+	
+	return exclusion;
+}
+
+static void process_directory(const char *path, int leaf, const helper_context_t *context)
 {
 	DIR  *dir;
 	char *last_component;
 
-	if (should_exit())
+	if (context->should_exit)
 		return;
 
 	if (!strcmp(path, "/dev"))
 		return;
 
-	for (unsigned i=0U; i<num_excludes; ++i)
-		if (!strncmp(path, excludes[i], strlen(excludes[i])))
-			return;
-
-	if (is_blacklisted(path))
+	if (is_excluded(path, context) || is_blacklisted(path, context))
 		return;
 
 	last_component = strrchr(path, '/');
 	if (last_component) {
 		++last_component;
-		if (bsearch(last_component, directories, num_directories, sizeof(char *), string_search)) {
-			remove_func(path);
+		CFStringRef directory = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, last_component);
+		if (CFSetContainsValue(context->directories, directory)) {
+			CFRelease(directory);
+			context->remove_func(path, context);
 			return;
 		}
+		CFRelease(directory);
 	}
 	
 	// don't recurse into symlinks (see tracker issue 31011269)
@@ -484,13 +500,13 @@ static void process_directory(const char *path, int leaf)
 					subdir[pathlen] = '/';
 					subdir[pathlen+1] = '\0';
 				}
-				strncat(subdir, ent->d_name, sizeof(subdir));
+				strncat(subdir, ent->d_name, sizeof(subdir) - strlen(subdir) - 1);
 
 				if (lstat(subdir, &st) != -1) {
 					// process symlinks, too (see tracker issue 3035669)
 					mode_t mode = (st.st_mode & S_IFMT);
 					if (mode == S_IFDIR || mode == S_IFLNK)
-						process_directory(subdir, mode == S_IFLNK);
+						process_directory(subdir, mode == S_IFLNK, context);
 				}
 			}
 		}
@@ -498,19 +514,18 @@ static void process_directory(const char *path, int leaf)
 	}
 }
 
-static void thin_recursively(const char *path)
+static void thin_recursively(const char *path, const helper_context_t *context)
 {
 	struct stat st;
 
-	if (should_exit())
+	if (context->should_exit)
 		return;
 
 	if (!strcmp(path, "/dev"))
 		return;
 
-	for (unsigned i=0U; i<num_excludes; ++i)
-		if (!strncmp(path, excludes[i], strlen(excludes[i])))
-			return;
+	if (is_excluded(path, context))
+		return;
 
 	if (lstat(path, &st) == -1)
 		return;
@@ -518,7 +533,7 @@ static void thin_recursively(const char *path)
 	switch (st.st_mode & S_IFMT) {
 		case S_IFDIR: {
 			DIR *dir;
-			if (!is_blacklisted(path)) {
+			if (!is_blacklisted(path, context)) {
 				dir = opendir(path);
 				if (dir) {
 					struct dirent *ent;
@@ -531,8 +546,8 @@ static void thin_recursively(const char *path)
 								subdir[pathlen] = '/';
 								subdir[pathlen+1] = '\0';
 							}
-							strncat(subdir, ent->d_name, sizeof(subdir));
-							thin_recursively(subdir);
+							strncat(subdir, ent->d_name, sizeof(subdir) - strlen(subdir) - 1);
+							thin_recursively(subdir, context);
 						}
 					}
 					closedir(dir);
@@ -544,7 +559,7 @@ static void thin_recursively(const char *path)
 			if (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)) {
 				// check file blacklist
 				CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
-				if (!CFSetContainsValue(file_blacklist, pathString)) {
+				if (!CFSetContainsValue(context->file_blacklist, pathString)) {
 					int fd = open(path, O_RDONLY, 0);
 					if (fd >= 0) {
 						unsigned int magic;
@@ -555,9 +570,9 @@ static void thin_recursively(const char *path)
 
 						if (num == sizeof(magic)) {
 							if (magic == FAT_MAGIC || magic == FAT_CIGAM)
-								thin_file(path);
-							if (do_strip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
-								strip_file(path);
+								thin_file(path, context);
+							if (context->do_strip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
+								strip_file(path, context);
 						}
 					}
 				}
@@ -569,127 +584,188 @@ static void thin_recursively(const char *path)
 	}
 }
 
-int main(int argc, const char *argv[])
-{
-	const char **roots;
-	const char **files;
-	unsigned   num_roots;
-	unsigned   num_files;
-	size_t     maxsize;
-	const char **buf;
-	const char **bufptr;
+static void process_request(xpc_object_t request, xpc_object_t reply) {
+	__block helper_context_t context;
 
-	if (argc <= 2)
-		return EXIT_FAILURE;
-
-	num_roots = 0U;
-	num_files = 0U;
-	num_archs = 0U;
-	num_blacklists = 0U;
-	remove_func = delete_recursively;
-
-	maxsize     = argc-1;
-	buf         = (const char **)malloc(6 * maxsize * sizeof(char *));
-	bufptr      = buf;
-	roots       = bufptr;
-	bufptr     += maxsize;
-	files       = bufptr;
-	bufptr     += maxsize;
-	directories = bufptr;
-	bufptr     += maxsize;
-	excludes    = bufptr;
-	bufptr     += maxsize;
-	archs       = bufptr;
-	bufptr     += maxsize;
-	bundle_blacklist = bufptr;
+	context.should_exit = 0;
 	
-	for (int i=1; i<argc; ++i) {
-		const char *arg = argv[i];
-		if (!strcmp(arg, "-r") || !strcmp(arg, "--root")) {
-			++i;
-			if (i == argc) {
-				fprintf(stderr, "Argument expected for -r/--root\n");
-				return EXIT_FAILURE;
-			} else {
-				roots[num_roots++] = argv[i];
-			}
-		} else if (!strcmp(arg, "-x") || !strcmp(arg, "--exclude")) {
-			++i;
-			if (i == argc) {
-				fprintf(stderr, "Argument expected for -x/--exclude\n");
-				return EXIT_FAILURE;
-			} else {
-				excludes[num_excludes++] = argv[i];
-			}
-		} else if (!strcmp(arg, "-t") || !strcmp(arg, "--trash")) {
-			remove_func = trash_file;
-		} else if (!strcmp(arg, "--thin")) {
-			++i;
-			if (i == argc) {
-				fprintf(stderr, "Argument expected for --thin\n");
-				return EXIT_FAILURE;
-			} else {
-				archs[num_archs++] = argv[i];
-			}
-		} else if (!strcmp(arg, "-f") || !strcmp(arg, "--file")) {
-			++i;
-			if (i == argc) {
-				fprintf(stderr, "Argument expected for -f/--file\n");
-				return EXIT_FAILURE;
-			} else {
-				files[num_files++] = argv[i];
-			}
-		} else if (!strcmp(arg, "-b") || !strcmp(arg, "--blacklist")) {
-			++i;
-			if (i == argc) {
-				fprintf(stderr, "Argument expected for -b/--blacklist\n");
-				return EXIT_FAILURE;
-			} else {
-				bundle_blacklist[num_blacklists++] = argv[i];
-			}
-		} else if (!strcmp(arg, "-s") || !strcmp(arg, "--strip")) {
-			do_strip = 1;
-		} else if (!strcmp(arg, "-n") || !strcmp(arg, "--dry-run")) {
-			dry_run = 1;
-		} else {
-			directories[num_directories++] = arg;
-		}
+	context.connection = xpc_dictionary_create_connection(request, "connection");
+
+	// Check XPC Connection
+	if (!context.connection) {
+		syslog(LOG_ERR, "Invalid XPC connection");
+		return;
 	}
 
-	if (num_directories)
-		qsort(directories, num_directories, sizeof(char *), string_compare);
+	// Set up XPC connection endpoint for sending progress reports and receiving
+	// cancel notification.
+	xpc_connection_set_event_handler(context.connection, ^(xpc_object_t event) {
+		xpc_type_t type = xpc_get_type(event);
+		
+		// If the remote end of this connection has gone away then stop download
+		if (XPC_TYPE_ERROR == type &&
+			XPC_ERROR_CONNECTION_INTERRUPTED == event) {
+			syslog(LOG_NOTICE, "Stopping MonolingualHelper\n");
+            context.should_exit = 1;
+		}
+	});
+	xpc_connection_resume(context.connection);
 
-	if (num_blacklists)
-		qsort(bundle_blacklist, num_blacklists, sizeof(char *), string_compare);
+	context.remove_func = delete_recursively;
 	
-	if (do_strip) {
+	context.dry_run = xpc_dictionary_get_bool(request, "dry_run");
+	context.do_strip = xpc_dictionary_get_bool(request, "strip");
+	if (xpc_dictionary_get_bool(request, "strip"))
+		context.remove_func = trash_file;
+
+	xpc_object_t files = xpc_dictionary_get_value(request, "files");
+	xpc_object_t roots = xpc_dictionary_get_value(request, "includes");
+	context.excludes = xpc_dictionary_get_value(request, "excludes");
+	xpc_object_t thin = xpc_dictionary_get_value(request, "thin");
+
+	xpc_object_t blacklist = xpc_dictionary_get_value(request, "blacklist");
+	size_t blacklist_count = blacklist ? xpc_array_get_count(blacklist) : 0;
+	context.bundle_blacklist = CFSetCreateMutable(kCFAllocatorDefault, blacklist_count, &kCFTypeSetCallBacks);
+	if (blacklist) {
+		xpc_array_apply(blacklist, ^bool(size_t index, xpc_object_t value) {
+			CFStringRef bundle = CFStringCreateWithCString(kCFAllocatorDefault, xpc_string_get_string_ptr(value), kCFStringEncodingUTF8);
+			CFSetAddValue(context.bundle_blacklist, bundle);
+			CFRelease(bundle);
+			return true;
+		});
+	}
+	
+	xpc_object_t dirs = xpc_dictionary_get_value(request, "directories");
+	size_t dirs_count = dirs ? xpc_array_get_count(dirs) : 0;
+	context.directories = CFSetCreateMutable(kCFAllocatorDefault, dirs_count, &kCFTypeSetCallBacks);
+	if (dirs) {
+		xpc_array_apply(dirs, ^bool(size_t index, xpc_object_t value) {
+			CFStringRef directory = CFStringCreateWithCString(kCFAllocatorDefault, xpc_string_get_string_ptr(value), kCFStringEncodingUTF8);
+			CFSetAddValue(context.directories, directory);
+			CFRelease(directory);
+			return true;
+		});
+	}
+
+	if (context.do_strip) {
 		// check if /usr/bin/strip is present
 		struct stat st;
 		if (stat("/usr/bin/strip", &st))
-			do_strip = 0;
-	}
-
-	file_blacklist = CFSetCreateMutable(kCFAllocatorDefault, 0, &kCFTypeSetCallBacks);
-
-	// delete regular files
-	for (unsigned i=0U; i<num_files && !should_exit(); ++i)
-		remove_func(files[i]);
-
-	// recursively delete directories
-	if (num_directories)
-		for (unsigned i=0U; i<num_roots && !should_exit(); ++i)
-			process_directory(roots[i], 0);
-
-	// thin fat binaries
-	if (num_archs && setup_lipo(archs, num_archs)) {
-		for (unsigned i=0U; i<num_roots && !should_exit(); ++i)
-			thin_recursively(roots[i]);
-		finish_lipo();
+			context.do_strip = 0;
 	}
 	
-	CFRelease(file_blacklist);
+	context.file_blacklist = CFSetCreateMutable(kCFAllocatorDefault, 0, &kCFTypeSetCallBacks);
+	
+	// delete regular files
+	size_t num_files = files ? xpc_array_get_count(files) : 0;
+	for (size_t i=0; i<num_files && !context.should_exit; ++i)
+		context.remove_func(xpc_array_get_string(files, i), &context);
+	
+	// recursively delete directories
+	if (CFSetGetCount(context.directories)) {
+		size_t num_roots = roots ? xpc_array_get_count(roots) : 0;
+		for (size_t i=0; i<num_roots && !context.should_exit; ++i)
+			process_directory(xpc_array_get_string(roots, i), 0, &context);
+	}
+	
+	// thin fat binaries
+	size_t num_archs = thin ? xpc_array_get_count(thin) : 0;
+	if (num_archs) {
+		const char **archs = malloc(num_archs * sizeof(char *));
+		for (size_t i=0; i<num_archs; ++i) {
+			archs[i] = xpc_array_get_string(thin, i);
+		}
+												
+		if (setup_lipo(archs, num_archs)) {
+			size_t num_roots = xpc_array_get_count(roots);
+			for (size_t i=0; i<num_roots && !context.should_exit; ++i) {
+				thin_recursively(xpc_array_get_string(roots, i), &context);
+			}
+			finish_lipo();
+		}
 
-	free(buf);
+		free(archs);
+	}
 
-	return EXIT_SUCCESS;
+	CFRelease(context.file_blacklist);
+	CFRelease(context.bundle_blacklist);
+	CFRelease(context.directories);
+
+	if (context.connection) {
+		xpc_connection_suspend(context.connection);
+		xpc_release(context.connection);
+	}
+}
+
+static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
+	syslog(LOG_NOTICE, "Received event in helper.");
+
+	xpc_type_t type = xpc_get_type(event);
+
+	if (type == XPC_TYPE_ERROR) {
+		if (event == XPC_ERROR_CONNECTION_INVALID) {
+			// The client process on the other end of the connection has either
+			// crashed or cancelled the connection. After receiving this error,
+			// the connection is in an invalid state, and you do not need to
+			// call xpc_connection_cancel(). Just tear down any associated state
+			// here.
+			syslog(LOG_NOTICE, "peer(%d) received XPC_ERROR_CONNECTION_INVALID", xpc_connection_get_pid(peer));
+		} else if (event == XPC_ERROR_TERMINATION_IMMINENT) {
+			// Handle per-connection termination cleanup.
+			syslog(LOG_NOTICE, "peer(%d) received XPC_ERROR_TERMINATION_IMMINENT", xpc_connection_get_pid(peer));
+		} else if (XPC_ERROR_CONNECTION_INTERRUPTED == event) {
+			syslog(LOG_NOTICE, "peer(%d) received XPC_ERROR_CONNECTION_INTERRUPTED", xpc_connection_get_pid(peer));
+		}
+	} else if (XPC_TYPE_DICTIONARY == type) {
+		xpc_object_t requestMessage = event;
+		char *messageDescription = xpc_copy_description(requestMessage);
+		
+		syslog(LOG_NOTICE, "received message from peer(%d)\n:%s", xpc_connection_get_pid(peer), messageDescription);
+		free(messageDescription);
+
+		xpc_object_t replyMessage = xpc_dictionary_create_reply(requestMessage);
+		process_request(requestMessage, replyMessage);
+
+		messageDescription = xpc_copy_description(replyMessage);
+		syslog(LOG_NOTICE, "reply message to peer(%d)\n: %s", xpc_connection_get_pid(peer), messageDescription);
+		free(messageDescription);
+
+		xpc_connection_send_message(peer, replyMessage);
+		xpc_release(replyMessage);
+	}
+}
+
+static void service_event_handler(xpc_connection_t connection)  {
+	syslog(LOG_NOTICE, "Configuring message event handler for helper.");
+
+	xpc_connection_set_event_handler(connection, ^(xpc_object_t event) {
+		peer_event_handler(connection, event);
+	});
+	
+	xpc_connection_resume(connection);
+}
+
+int main(int argc, const char *argv[])
+{
+	xpc_connection_t service = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper",
+																  dispatch_get_main_queue(),
+																  XPC_CONNECTION_MACH_SERVICE_LISTENER);
+
+	if (!service) {
+		syslog(LOG_NOTICE, "Failed to create service.");
+		exit(EXIT_FAILURE);
+	}
+
+	syslog(LOG_NOTICE, "Configuring connection event handler for helper");
+	xpc_connection_set_event_handler(service, ^(xpc_object_t connection) {
+		service_event_handler(connection);
+	});
+
+	xpc_connection_resume(service);
+
+	dispatch_main();
+
+	//xpc_release(service);
+
+	//return EXIT_SUCCESS;
 }

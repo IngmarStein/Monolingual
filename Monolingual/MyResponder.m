@@ -7,7 +7,8 @@
 #import "MyResponder.h"
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
-#include <Growl/GrowlDefines.h>
+#import <Growl/GrowlDefines.h>
+#include <ServiceManagement/ServiceManagement.h>
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
 #include <sys/types.h>
@@ -23,17 +24,19 @@
 #include <mach-o/arch.h>
 #include <pwd.h>
 
-#define MODE_LANGUAGES		0
-#define MODE_LAYOUTS		1
-#define MODE_ARCHITECTURES	2
+typedef enum {
+	ModeLanguages = 0,
+	ModeLayouts = 1,
+	ModeArchitectures = 2
+} MonolingualMode;
 
 #ifndef NELEMS
 # define NELEMS(x) sizeof((x))/sizeof((x)[0])
 #endif
 
 typedef struct arch_info_s {
-	CFStringRef   name;
-	CFStringRef   displayName;
+	const char    *name;
+	const char    *displayName;
 	cpu_type_t    cpu_type;
 	cpu_subtype_t cpu_subtype;
 } arch_info_t;
@@ -42,7 +45,6 @@ static int                pipeDescriptor;
 static CFSocketRef        pipeSocket;
 static CFMutableDataRef   pipeBuffer;
 static CFRunLoopSourceRef pipeRunLoopSource;
-static CFArrayRef         processApplication;
 static FILE               *logFile;
 static char               logFileName[PATH_MAX];
 
@@ -128,7 +130,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			*--p = '.';
 			amt = 1;
 		}
-    }
+	}
 
 	do {
 		*--p = '0' + (int) (amt % 10);
@@ -137,80 +139,40 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	return p;
 }
 
-static CFComparisonResult languageCompare(const void *val1, const void *val2, void *context)
-{
-#pragma unused(context)
-	return CFStringCompare(CFDictionaryGetValue((CFDictionaryRef)val1, CFSTR("DisplayName")), CFDictionaryGetValue((CFDictionaryRef)val2, CFSTR("DisplayName")), kCFCompareLocalized);
+@interface MyResponder() {
+	NSWindow           *parentWindow;
+	NSDictionary       *startedNotificationInfo;
+	NSDictionary       *finishedNotificationInfo;
+	NSURL              *donateURL;
+	unsigned long long bytesSaved;
+	MonolingualMode    mode;
+	NSArray            *processApplication;
+	xpc_connection_t   progressConnection;
 }
 
+@property(nonatomic, strong) NSArray *blacklist;
+@property(nonatomic, strong) NSArray *languages;
+@property(nonatomic, strong) NSMutableArray *layouts;
+@property(nonatomic, strong) NSArray *architectures;
+
+@end
+
 @implementation MyResponder
-NSWindow           *parentWindow;
-CFMutableArrayRef  languages;
-CFMutableArrayRef  layouts;
-CFMutableArrayRef  architectures;
-CFDictionaryRef    startedNotificationInfo;
-CFDictionaryRef    finishedNotificationInfo;
-CFURLRef           blacklistURL;
-CFURLRef           donateURL;
-CFArrayRef         blacklist;
-unsigned long long bytesSaved;
-int                mode;
+
+@synthesize blacklist;
+@synthesize languages;
+@synthesize layouts;
+@synthesize architectures;
 
 + (void) initialize
 {
-	CFTypeRef defaultKeys[3] = {
-		CFSTR("Roots"),
-		CFSTR("Trash"),
-		CFSTR("Strip")
-	};
-	CFTypeRef keys[5] = {
-		CFSTR("Path"),
-		CFSTR("Languages"),
-		CFSTR("Architectures")
-	};
-	CFTypeRef applicationsValues[3] = {
-		CFSTR("/Applications"),
-		kCFBooleanTrue,
-		kCFBooleanTrue
-	};
-	CFTypeRef developerValues[3] = {
-		CFSTR("/Developer"),
-		kCFBooleanTrue,
-		kCFBooleanTrue
-	};
-	CFTypeRef libraryValues[3] = {
-		CFSTR("/Library"),
-		kCFBooleanTrue,
-		kCFBooleanTrue
-	};
-	CFTypeRef systemValues[3] = {
-		CFSTR("/System"),
-		kCFBooleanTrue,
-		kCFBooleanFalse
-	};
-	CFDictionaryRef applications = CFDictionaryCreate(kCFAllocatorDefault, keys, applicationsValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef developer = CFDictionaryCreate(kCFAllocatorDefault, keys, developerValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef library = CFDictionaryCreate(kCFAllocatorDefault, keys, libraryValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFDictionaryRef systemPath = CFDictionaryCreate(kCFAllocatorDefault, keys, systemValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFTypeRef roots[4] = {
-		applications,
-		developer,
-		library,
-		systemPath
-	};
-	CFTypeRef defaultValues[3];
-	CFArrayRef defaultRoots = CFArrayCreate(kCFAllocatorDefault, roots, 4, &kCFTypeArrayCallBacks);
-	CFRelease(applications);
-	CFRelease(developer);
-	CFRelease(library);
-	CFRelease(systemPath);
-	defaultValues[0] = defaultRoots;
-	defaultValues[1] = kCFBooleanFalse;
-	defaultValues[2] = kCFBooleanFalse;
-	CFDictionaryRef defaultDict = CFDictionaryCreate(kCFAllocatorDefault, defaultKeys, defaultValues, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	[[NSUserDefaults standardUserDefaults] registerDefaults:(NSDictionary *)defaultDict];
-	CFRelease(defaultDict);
-	CFRelease(defaultRoots);
+	NSDictionary *applications = @{ @"Path" : @"/Applications", @"Languages" : @YES, @"Architectures" : @YES };
+	NSDictionary *developer    = @{ @"Path" : @"/Developer",    @"Languages" : @YES, @"Architectures" : @YES };
+	NSDictionary *library      = @{ @"Path" : @"/Library",      @"Languages" : @YES, @"Architectures" : @YES };
+	NSDictionary *systemPath   = @{ @"Path" : @"/System",       @"Languages" : @YES, @"Architectures" : @NO  };
+	NSArray *defaultRoots = @[ applications, developer, library, systemPath ];
+	NSDictionary *defaultDict = @{ @"Roots" : defaultRoots, @"Trash" : @NO, @"Strip" : @NO };
+	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultDict];
 
 	struct passwd *pwd = getpwuid(getuid());
 	if (pwd && pwd->pw_dir)
@@ -221,27 +183,14 @@ int                mode;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
 {
-#pragma unused(theApplication)
 	return YES;
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-#pragma unused(theApplication)
-	CFTypeRef keys[3] = {
-		CFSTR("Path"),
-		CFSTR("Languages"),
-		CFSTR("Architectures")
-	};
-	CFTypeRef values[3];
-	values[0] = (CFStringRef)filename;
-	values[1] = kCFBooleanTrue;
-	values[2] = kCFBooleanTrue;
-	CFDictionaryRef dict = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	NSDictionary *dict = @{ @"Path" : filename, @"Language" : @YES, @"Architectures" : @YES };
 
-	values[0] = (CFTypeRef)dict;
-	processApplication = CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks);
-	CFRelease(dict);
+	processApplication = @[ dict ];
 
 	[self warningSelector:nil returnCode:NSAlertAlternateReturn contextInfo:nil];
 
@@ -250,14 +199,12 @@ int                mode;
 
 - (void) cancelRemove
 {
-	const unsigned char bytes[1] = {'\0'};
-	write(pipeDescriptor, bytes, sizeof(bytes));
-	CFRunLoopRemoveSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
-	CFRelease(pipeRunLoopSource);
-	CFSocketInvalidate(pipeSocket);
-	CFRelease(pipeSocket);
-	CFRelease(pipeBuffer);
-	pipeSocket = NULL;
+	if (progressConnection) {
+		// Cancel and release the anonymous connection which signals the remote
+		// service to stop, if working.
+		xpc_connection_cancel(progressConnection);
+		xpc_release(progressConnection);
+	}
 
 	[NSApp endSheet:[progressWindowController window]];
 	[[progressWindowController window] orderOut:self];
@@ -265,16 +212,11 @@ int                mode;
 
 	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
-	CFStringRef title = CFCopyLocalizedString(CFSTR("Removal cancelled"), "");
-	CFStringRef msg = CFCopyLocalizedString(CFSTR("You cancelled the removal. Some files were erased, some were not."), "");
-	NSBeginAlertSheet((NSString *)title, nil, nil, nil,
-					  [NSApp mainWindow], self, NULL, NULL, self,
-					  (NSString *)msg);
-	CFRelease(msg);
-	CFRelease(title);
+	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
+					  [NSApp mainWindow], self, NULL, NULL, NULL,
+					  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not.", ""));
 
 	if (processApplication) {
-		CFRelease(processApplication);
 		processApplication = nil;
 	}
 
@@ -286,240 +228,110 @@ int                mode;
 
 - (IBAction) documentationBundler:(id)sender
 {
-	CFURLRef docURL = CFBundleCopyResourceURL(CFBundleGetMainBundle(), (CFStringRef)[sender title], NULL, NULL);
-	LSOpenCFURLRef(docURL, NULL);
-	CFRelease(docURL);
+	NSURL *docURL = [[NSBundle mainBundle] URLForResource:[sender title] withExtension:nil];
+	[[NSWorkspace sharedWorkspace] openURL:docURL];
 }
 
 - (IBAction) openWebsite:(id)sender
 {
-#pragma unused(sender)
-	CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/"), NULL);
-	LSOpenCFURLRef(url, NULL);
-	CFRelease(url);
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net/"]];
 }
 
 - (void) scanLayouts
 {
 	struct stat st;
 	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
-	CFArrayRef files = (CFArrayRef)[[NSFileManager defaultManager] contentsOfDirectoryAtPath:layoutPath error:NULL];
-	CFIndex length = CFArrayGetCount(files);
-	CFMutableArrayRef scannedLayouts = CFArrayCreateMutable(kCFAllocatorDefault, length+6, &kCFTypeArrayCallBacks);
-	for (CFIndex i=0; i<length; ++i) {
-		CFStringRef file = CFArrayGetValueAtIndex(files, i);
-		if (CFStringHasSuffix(file, CFSTR(".bundle")) && !CFEqual(file, CFSTR("Roman.bundle"))) {
-			CFStringRef displayName = CFCopyLocalizedString((CFStringRef)[(NSString *)file stringByDeletingPathExtension], "");
-			CFStringRef type = CFCopyLocalizedString(CFSTR("Keyboard Layout"), "");
-			CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-			CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-			CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-			CFDictionarySetValue(layout, CFSTR("Type"), type);
-			CFDictionarySetValue(layout, CFSTR("Path"), [layoutPath stringByAppendingPathComponent:(NSString *)file]);
-			CFArrayAppendValue(scannedLayouts, layout);
-			CFRelease(layout);
-			CFRelease(type);
-			CFRelease(displayName);
+	NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:layoutPath error:NULL];
+	NSMutableArray *scannedLayouts = [NSMutableArray arrayWithCapacity:files.count + 6];
+	for (NSString *file in files) {
+		if ([file hasSuffix:@".bundle"] && ![file isEqualToString:@"Roman.bundle"]) {
+			NSString *displayName = NSLocalizedString([file stringByDeletingPathExtension], "");
+			NSString *type = NSLocalizedString(@"Keyboard Layout", "");
+			NSDictionary *layout = @{ @"Enabled" : @NO, @"DisplayName" : displayName, @"Type" : type, @"Path" : [layoutPath stringByAppendingPathComponent:file] };
+			[scannedLayouts addObject:layout];
 		}
 	}
-	CFStringRef inputMethod = CFCopyLocalizedString(CFSTR("Input Method"),"");
+	NSString *inputMethod = NSLocalizedString(@"Input Method","");
 	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/Kotoeri.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/Kotoeri.component" }];
 	}
 	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/XPIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/XPIM.component" }];
 	}
 	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/TCIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/TCIM.component" }];
 	}
 	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/SCIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/SCIM.component" }];
 	}
 	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Murasu Anjal Tamil"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/AnjalIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Murasu Anjal Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/AnjalIM.component" }];
 	}
 	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Hangul"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Components/HangulIM.component"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/HangulIM.component" }];
 	}
 	if (stat("/System/Library/Input Methods/KoreanIM.app", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Korean"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/KoreanIM.app"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Korean", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/KoreanIM.component" }];
 	}
 	if (stat("/System/Library/Input Methods/Kotoeri.app", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Kotoeri"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/Kotoeri.app"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/Kotoeri.app" }];
 	}
 	if (stat("/System/Library/Input Methods/SCIM.app", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Simplified Chinese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/SCIM.app"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/SCIM.app" }];
 	}
 	if (stat("/System/Library/Input Methods/TCIM.app", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Traditional Chinese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/TCIM.app"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TCIM.app" }];
 	}
 	if (stat("/System/Library/Input Methods/TamilIM.app", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Tamil"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/TamilIM.app"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TamilIM.app" }];
 	}
 	if (stat("/System/Library/Input Methods/VietnameseIM.app", &st) != -1) {
-		CFStringRef displayName = CFCopyLocalizedString(CFSTR("Vietnamese"),"");
-		CFMutableDictionaryRef layout = CFDictionaryCreateMutable(kCFAllocatorDefault, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(layout, CFSTR("Enabled"), kCFBooleanFalse);
-		CFDictionarySetValue(layout, CFSTR("DisplayName"), displayName);
-		CFDictionarySetValue(layout, CFSTR("Type"), inputMethod);
-		CFDictionarySetValue(layout, CFSTR("Path"), CFSTR("/System/Library/Input Methods/VietnameseIM.app"));
-		CFRelease(displayName);
-		CFArrayAppendValue(scannedLayouts, layout);
-		CFRelease(layout);
+		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Vietnamese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/VietnameseIM.app" }];
 	}
-	CFRelease(inputMethod);
-	[self setLayouts:(NSMutableArray *)scannedLayouts];
-	CFRelease(scannedLayouts);
+	self.layouts = scannedLayouts;
 }
 
 - (IBAction) showPreferences:(id)sender
 {
-#pragma unused(sender)
 	[preferencesController showWindow:self];
 }
 
 - (IBAction) donate:(id)sender {
-#pragma unused(sender)
-	LSOpenCFURLRef(donateURL, NULL);
+	[[NSWorkspace sharedWorkspace] openURL:donateURL];
 }
 
 - (IBAction) removeLanguages:(id)sender
 {
 #pragma unused(sender)
 	/* Display a warning first */
-	CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
-	CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
-	CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Continue"), "");
-	CFStringRef msg = CFCopyLocalizedString(CFSTR("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling Mac OS X."), "");
-	NSBeginAlertSheet((NSString *)title, (NSString *)defaultButton,
-					  (NSString *)alternateButton, nil, [NSApp mainWindow],
+	NSBeginAlertSheet(NSLocalizedString(@"WARNING!", ""),
+					  NSLocalizedString(@"Stop", ""),
+					  NSLocalizedString(@"Continue", ""),
+					  nil,
+					  [NSApp mainWindow],
 					  self, NULL,
 					  @selector(warningSelector:returnCode:contextInfo:),
 					  nil,
-					  (NSString *)msg);
-	CFRelease(msg);
-	CFRelease(alternateButton);
-	CFRelease(defaultButton);
-	CFRelease(title);
+					  NSLocalizedString(@"Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", ""));
 }
 
 - (IBAction) removeLayouts:(id)sender
 {
 #pragma unused(sender)
 	/* Display a warning first */
-	CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
-	CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
-	CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Continue"), "");
-	CFStringRef msg = CFCopyLocalizedString(CFSTR("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling Mac OS X."), "");
-	NSBeginAlertSheet((NSString *)title, (NSString *)defaultButton,
-					  (NSString *)alternateButton, nil, [NSApp mainWindow],
+	NSBeginAlertSheet(NSLocalizedString(@"WARNING!", ""),
+					  NSLocalizedString(@"Stop", ""),
+					  NSLocalizedString(@"Continue", ""),
+					  nil,
+					  [NSApp mainWindow],
 					  self, NULL,
-					  @selector(removeLayoutsWarning:returnCode:contextInfo:),self,
-					  (NSString *)msg);
-	CFRelease(msg);
-	CFRelease(alternateButton);
-	CFRelease(defaultButton);
-	CFRelease(title);
+					  @selector(removeLayoutsWarning:returnCode:contextInfo:),(__bridge void *)(self),
+					  NSLocalizedString(@"Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", ""));
 }
 
 - (IBAction) removeArchitectures:(id)sender
 {
-#pragma unused(sender)
-	CFArrayRef	roots;
-	CFIndex		roots_count;
-	CFIndex		archs_count;
-	CFIndex		blacklist_count;
-	const char	**argv;
-
-	mode = MODE_ARCHITECTURES;
+	mode = ModeArchitectures;
 
 	logFile = fopen(logFileName, "at");
 	if (logFile) {
@@ -527,342 +339,363 @@ int                mode;
 		fprintf(logFile, "Monolingual started at %sRemoving architectures: ", ctime(&now));
 	}
 
-	if (processApplication)
-		roots = processApplication;
-	else
-		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
-	roots_count = CFArrayGetCount(roots);
-	archs_count = CFArrayGetCount(architectures);
-	blacklist_count = CFArrayGetCount(blacklist);
-	BOOL strip = [[NSUserDefaults standardUserDefaults] boolForKey:@"Strip"];
-	CFIndex num_args = 5+archs_count+archs_count+roots_count+roots_count+blacklist_count+blacklist_count;
-	if (strip)
-		++num_args;
-	argv = (const char **)malloc(num_args*sizeof(char *));
-	int idx = 1;
+	NSArray *roots = processApplication ? processApplication : [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 
-	CFIndex remove_count = 0;
-	for (CFIndex i=0; i<archs_count; ++i) {
-		CFDictionaryRef architecture = CFArrayGetValueAtIndex(architectures, i);
-		if (CFBooleanGetValue(CFDictionaryGetValue(architecture, CFSTR("Enabled")))) {
-			CFStringRef name = CFDictionaryGetValue(architecture, CFSTR("Name"));
-			char const *arch = [(NSString *)name UTF8String];
-			argv[idx++] = "--thin";
-			argv[idx++] = arch;
+	xpc_object_t archs = xpc_array_create(NULL, 0);
+	[self.architectures enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		if ([obj[@"Enabled"] boolValue]) {
+			const char *arch = [obj[@"Name"] UTF8String];
+			xpc_array_set_string(archs, XPC_ARRAY_APPEND, arch);
 			if (logFile) {
-				if (remove_count)
-					fputs(" ", logFile);
+				fputs(" ", logFile);
 				fputs(arch, logFile);
 			}
-			++remove_count;
 		}
-	}
+	}];
+	
 	if (logFile)
 		fputs("\nModified files:\n", logFile);
 
-	if (remove_count == archs_count) {
-		CFStringRef title = CFCopyLocalizedString(CFSTR("Cannot remove all architectures"), "");
-		CFStringRef msg = CFCopyLocalizedString(CFSTR("Removing all architectures will make Mac OS X inoperable. Please keep at least one architecture and try again."), "");
-		NSBeginAlertSheet((NSString *)title,
+	size_t num_archs = xpc_array_get_count(archs);
+	if (num_archs == self.architectures.count) {
+		NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all architectures", ""),
 						  nil, nil, nil, [NSApp mainWindow], self, NULL,
 						  NULL, nil,
-						  (NSString *)msg);
-		CFRelease(msg);
-		CFRelease(title);
+						  NSLocalizedString(@"Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", ""));
 		if (logFile) {
 			fclose(logFile);
 			logFile = NULL;
 		}
-	} else if (remove_count) {
+	} else if (num_archs) {
 		/* start things off if we have something to remove! */
-		for (CFIndex i=0; i<roots_count; ++i) {
-			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
-			CFBooleanRef archEnabled = CFDictionaryGetValue(root, CFSTR("Architectures"));
-			Boolean enabled = archEnabled ? CFBooleanGetValue(archEnabled) : false;
-			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
-			if (enabled) {
+		xpc_object_t includes = xpc_array_create(NULL, 0);
+		xpc_object_t excludes = xpc_array_create(NULL, 0);
+		for (NSDictionary *root in roots) {
+			NSString *path = root[@"Path"];
+			if ([root[@"Architectures"] boolValue]) {
 				NSLog(@"Adding root %@", path);
-				argv[idx++] = "-r";
+				xpc_array_set_string(includes, XPC_ARRAY_APPEND, [path UTF8String]);
 			} else {
 				NSLog(@"Excluding root %@", path);
-				argv[idx++] = "-x";
-			}
-			argv[idx++] = [path fileSystemRepresentation];
-		}
-		for (CFIndex i=0; i<blacklist_count; ++i) {
-			CFDictionaryRef item = CFArrayGetValueAtIndex(blacklist, i);
-			CFBooleanRef archEnabled = CFDictionaryGetValue(item, CFSTR("architectures"));
-			Boolean enabled = archEnabled ? CFBooleanGetValue(archEnabled) : false;
-			NSString *bundle = (NSString *)CFDictionaryGetValue(item, CFSTR("bundle"));
-			if (enabled) {
-				NSLog(@"Blacklisting %@", bundle);
-				argv[idx++] = "-b";
-				argv[idx++] = [bundle fileSystemRepresentation];
+				xpc_array_set_string(excludes, XPC_ARRAY_APPEND, [path UTF8String]);
 			}
 		}
-		argv[idx++] = "-x";
-		argv[idx++] = "/System/Library/Frameworks";
-		argv[idx++] = "-x";
-		argv[idx++] = "/System/Library/PrivateFrameworks";
-		if (strip)
-			argv[idx++] = "-s";
-		argv[idx] = NULL;
-		[self runDeleteHelperWithArgs:argv];
+		xpc_array_set_string(excludes, XPC_ARRAY_APPEND, "/System/Library/Frameworks");
+		xpc_array_set_string(excludes, XPC_ARRAY_APPEND, "/System/Library/PrivateFrameworks");
+
+		xpc_object_t bl = xpc_array_create(NULL, 0);
+		for (NSDictionary *item in self.blacklist) {
+			if ([item[@"architectures"] boolValue]) {
+				xpc_array_set_string(bl, XPC_ARRAY_APPEND, [item[@"bundle"] UTF8String]);
+			}
+		}
+
+		xpc_object_t xpc_message = xpc_dictionary_create(NULL, NULL, 0);
+		xpc_dictionary_set_bool(xpc_message, "strip", [[NSUserDefaults standardUserDefaults] boolForKey:@"Strip"]);
+		xpc_dictionary_set_value(xpc_message, "blacklist", bl);
+		xpc_dictionary_set_value(xpc_message, "includes", includes);
+		xpc_dictionary_set_value(xpc_message, "excludes", excludes);
+		xpc_dictionary_set_value(xpc_message, "thin", archs);
+		xpc_release(bl);
+		xpc_release(includes);
+		xpc_release(excludes);
+
+		[self runDeleteHelperWithArgs:xpc_message];
+		
+		xpc_release(xpc_message);
 	} else {
 		if (logFile) {
 			fclose(logFile);
 			logFile = NULL;
 		}
 	}
-	free(argv);
+	
+	xpc_release(archs);
 }
 
-static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType, 
-						 CFDataRef address, const void *data, void *info)
-{
-#pragma unused(s,callbackType,address)
-	CFIndex i;
-	unsigned int j;
-	unsigned int num;
-	CFIndex length;
-	const unsigned char *bytes;
-	char hbuf[LONGEST_HUMAN_READABLE + 1];
-	MyResponder *responder = (MyResponder *)info;
-
-	length = CFDataGetLength((CFDataRef)data);
-	if (length) {
-		/* append new data */
-		CFDataAppendBytes(pipeBuffer, CFDataGetBytePtr((CFDataRef)data), length);
-		bytes = CFDataGetBytePtr(pipeBuffer);
-		length = CFDataGetLength(pipeBuffer);
-
-		/* count number of '\0' characters */
-		num = 0;
-		for (i=0; i<length; ++i)
-			if (!bytes[i])
-				++num;
-
-		for (i=0, j=0; num > 1 && i<length; ++i, ++j) {
-			if (!bytes[j]) {
-				unsigned char const *pfile;
-				unsigned char const *psize;
-
-				/* read file name */
-				pfile = bytes;
-				CFStringRef file = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
-				bytes += j + 1;
-
-				/* skip to next zero character */
-				for (j=0; bytes[j]; ++j) {}
-
-				/* read file size */
-				psize = bytes;
-				CFStringRef size = CFStringCreateWithBytes(kCFAllocatorDefault, bytes, j, kCFStringEncodingUTF8, false);
-				bytesSaved += CFStringGetIntValue(size);
-				bytes += j + 1;
-				i += j + 1;
-				num -= 2;
-
-				if (logFile)
-					fprintf(logFile, "%s: %s\n", pfile, psize);
-
-				CFStringRef message;
-				if (mode == MODE_ARCHITECTURES) {
-					message = CFCopyLocalizedString(CFSTR("Removing architecture from universal binary"), "");
-				} else {
-					/* parse file name */
-					CFStringRef lang = NULL;
-					CFStringRef app = NULL;
-					CFStringRef layout = NULL;
-					CFStringRef im = NULL;
-					BOOL cache = NO;
-					if (mode == MODE_LANGUAGES) {
-						CFArrayRef pathComponents = CFStringCreateArrayBySeparatingStrings(kCFAllocatorDefault, file, CFSTR("/"));
-						CFIndex componentCount = CFArrayGetCount(pathComponents);
-						for (CFIndex k=0; k<componentCount; ++k) {
-							CFStringRef pathComponent = CFArrayGetValueAtIndex(pathComponents, k);
-							if (CFStringHasSuffix(pathComponent, CFSTR(".app"))) {
-								if (app)
-									CFRelease(app);
-								app = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-4));
-							} else if (CFStringHasSuffix(pathComponent, CFSTR(".bundle"))) {
-								if (layout)
-									CFRelease(layout);
-								layout = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-7));
-							} else if (CFStringHasSuffix(pathComponent, CFSTR(".component"))) {
-								if (im)
-									CFRelease(im);
-								im = CFStringCreateWithSubstring(kCFAllocatorDefault, pathComponent, CFRangeMake(0,CFStringGetLength(pathComponent)-10));
-							} else if (CFStringHasSuffix(pathComponent, CFSTR(".lproj"))) {
-								CFIndex count = CFArrayGetCount(languages);
-								for (CFIndex l=0; l<count; ++l) {
-									CFDictionaryRef language = CFArrayGetValueAtIndex(languages, l);
-									CFArrayRef folders = CFDictionaryGetValue(language, CFSTR("Folders"));
-									if (-1 != CFArrayGetFirstIndexOfValue(folders, CFRangeMake(0, CFArrayGetCount(folders)), pathComponent)) {
-										lang = CFDictionaryGetValue(language, CFSTR("DisplayName"));
-										break;
-									}
-								}
-							} else if (CFStringHasPrefix(pathComponent, CFSTR("com.apple.IntlDataCache"))) {
-								cache = YES;
-							}
-						}
-						CFRelease(pathComponents);
-					}
-					if (layout && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
-						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing keyboard layout"), "");
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
-						CFRelease(description);
-					} else if (im && CFStringHasPrefix(file, CFSTR("/System/Library/"))) {
-						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing input method"), "");
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, layout, 0x2026);
-						CFRelease(description);
-					} else if (cache) {
-						CFStringRef description = CFCopyLocalizedString(CFSTR("Clearing cache"), "");
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%C"), description, 0x2026);
-						CFRelease(description);
-					} else if (app) {
-						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
-						CFStringRef from = CFCopyLocalizedString(CFSTR("from"), "");
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@ %@ %@%C"), description, lang, from, app, 0x2026);
-						CFRelease(from);
-						CFRelease(description);
-					} else if (lang) {
-						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing language"), "");
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, lang, 0x2026);
-						CFRelease(description);
-					} else {
-						CFStringRef description = CFCopyLocalizedString(CFSTR("Removing"), "");
-						message = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@%C"), description, file, 0x2026);
-						CFRelease(description);
-					}
-					if (app)
-						CFRelease(app);
-					if (layout)
-						CFRelease(layout);
-					if (im)
-						CFRelease(im);
-				}
-
-				[responder->progressWindowController setText:message];
-				[responder->progressWindowController setFile:file];
-				[NSApp setWindowsNeedUpdate:YES];
-				CFRelease(message);
-				CFRelease(file);
-				CFRelease(size);
-				j = -1;
-			}
-		}
-		/* delete processed bytes */
-		CFDataDeleteBytes(pipeBuffer, CFRangeMake(0, i));
-	} else if (pipeSocket) {
-		/* EOF */
-		CFRunLoopRemoveSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
-		CFRelease(pipeRunLoopSource);
-		CFSocketInvalidate(pipeSocket);
-		CFRelease(pipeSocket);
-		pipeSocket = NULL;
-		CFRelease(pipeBuffer);
-		[NSApp endSheet:[responder->progressWindowController window]];
-		[[responder->progressWindowController window] orderOut:responder];
-		[responder->progressWindowController stop];
-
-		if (processApplication) {
-			[responder removeArchitectures:nil];
-			
-			CFRelease(processApplication);
-			processApplication = nil;
-		} else {
-			[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
-
-			CFStringRef title = CFCopyLocalizedString(CFSTR("Removal completed"), "");
-			CFStringRef msgFormat = CFCopyLocalizedString(CFSTR("Files removed. Space saved: %s."), "");
-			CFStringRef msg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, msgFormat, human_readable(bytesSaved, hbuf, 1024));
-			CFRelease(msgFormat);
-			NSBeginAlertSheet((NSString *)title,
-							  nil, nil, nil, parentWindow, responder, NULL, NULL,
-							  responder,
-							  (NSString *)msg);
-			CFRelease(msg);
-			CFRelease(title);
-			[responder scanLayouts];
-			if (logFile) {
-				fclose(logFile);
-				logFile = NULL;
-			}
-		}
-	}
-}
-
-- (void) runDeleteHelperWithArgs:(const char **)argv
-{
-	OSStatus status;
-	FILE *fp_pipe;
-	char path[PATH_MAX];
-
-	CFURLRef helperPath = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("Helper"), NULL, NULL);
-	if (!CFURLGetFileSystemRepresentation(helperPath, false, (UInt8 *)path, sizeof(path))) {
-		NSLog(@"Could not get file system representation of %@", helperPath);
-		CFRelease(helperPath);
-		/* TODO */
-		NSBeep();
-		return;
-	}
-	CFRelease(helperPath);
-	AuthorizationItem right = {kAuthorizationRightExecute, strlen(path)+1, path, 0};
-	AuthorizationRights rights = {1, &right};
-	AuthorizationRef authorizationRef;
-
-	status = AuthorizationCreate(&rights, kAuthorizationEmptyEnvironment, kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed, &authorizationRef);
+- (BOOL)blessHelperWithLabel:(NSString *)label error:(NSError **)error {
+	BOOL result = NO;
+	
+	AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
+	AuthorizationRights authRights	= { 1, &authItem };
+	AuthorizationFlags flags		=	kAuthorizationFlagDefaults				| 
+										kAuthorizationFlagInteractionAllowed	|
+										kAuthorizationFlagPreAuthorize			|
+										kAuthorizationFlagExtendRights;
+	
+	AuthorizationRef authRef = NULL;
+	
+	/* Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper). */
+	OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
 	switch (status) {
-		case errAuthorizationSuccess:
+		case errAuthorizationSuccess: {
+			/* This does all the work of verifying the helper tool against the application
+			 * and vice-versa. Once verification has passed, the embedded launchd.plist
+			 * is extracted and placed in /Library/LaunchDaemons and then loaded. The
+			 * executable is placed in /Library/PrivilegedHelperTools.
+			 */
+			CFErrorRef cfError = NULL;
+			result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, authRef, &cfError);
+			if (error)
+				*error = (__bridge NSError *)cfError;
 			break;
+		}
 		case errAuthorizationDenied: {
 			/* If you can't do it because you're not administrator, then let the user know! */
-			CFStringRef title = CFCopyLocalizedString(CFSTR("Permission Error"), "");
-			CFStringRef msg = CFCopyLocalizedString(CFSTR("You entered an incorrect administrator password."), "");
-			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+			NSBeginAlertSheet(NSLocalizedString(@"Permission Error", ""), nil, nil, nil,
 							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  (NSString *)msg);
-			CFRelease(msg);
-			CFRelease(title);
+							  NSLocalizedString(@"You entered an incorrect administrator password.", ""));
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
-			return;
+			break;
 		}
 		case errAuthorizationCanceled: {
-			CFStringRef title = CFCopyLocalizedString(CFSTR("Nothing done"), "");
-			CFStringRef msg = CFCopyLocalizedString(CFSTR("Monolingual is stopping without making any changes. Your OS has not been modified."), "");
-			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+			NSBeginAlertSheet(NSLocalizedString(@"Nothing done", ""), nil, nil, nil,
 							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  (NSString *)msg);
-			CFRelease(msg);
-			CFRelease(title);
+							  NSLocalizedString(@"Monolingual is stopping without making any changes. Your OS has not been modified.", ""));
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
-			return;
+			break;
 		}
 		default: {
-			CFStringRef title = CFCopyLocalizedString(CFSTR("Authorization Error"), "");
-			CFStringRef msg = CFCopyLocalizedString(CFSTR("Failed to authorize as an administrator."), "");
-			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+			NSBeginAlertSheet(NSLocalizedString(@"Authorization Error", ""), nil, nil, nil,
 							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  (NSString *)msg);
-			CFRelease(msg);
-			CFRelease(title);
+							  NSLocalizedString(@"Failed to authorize as an administrator.", ""));
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
-			return;
+			break;
+		}
+	}
+	AuthorizationFree(authRef, kAuthorizationFlagDefaults);
+
+	return result;
+}
+
+- (void)processProgress:(xpc_object_t)progress {
+	NSString *file = [NSString stringWithUTF8String:xpc_dictionary_get_string(progress, "file")];
+	uint64_t size = xpc_dictionary_get_uint64(progress, "size");
+	bytesSaved += size;
+	
+	if (logFile)
+		fprintf(logFile, "%s: %llu\n", [file UTF8String], size);
+
+	NSString *message;
+	if (mode == ModeArchitectures) {
+		message = NSLocalizedString(@"Removing architecture from universal binary", "");
+	} else {
+		/* parse file name */
+		NSString *lang = nil;
+		NSString *app = nil;
+		NSString *layout = nil;
+		NSString *im = nil;
+		BOOL cache = NO;
+
+		if (mode == ModeLanguages) {
+			NSArray *pathComponents = [file componentsSeparatedByString:@"/"];
+			for (NSString *pathComponent in pathComponents) {
+				if ([pathComponent hasSuffix:@".app"]) {
+					app = [pathComponent substringToIndex:pathComponent.length - 4];
+				} else if ([pathComponent hasSuffix:@".bundle"]) {
+					layout = [pathComponent substringToIndex:pathComponent.length - 7];
+				} else if ([pathComponent hasSuffix:@".component"]) {
+					im = [pathComponent substringToIndex:pathComponent.length - 10];
+				} else if ([pathComponent hasSuffix:@".lproj"]) {
+					for (NSDictionary *language in self.languages) {
+						NSArray *folders = [language objectForKey:@"Folders"];
+						if ([folders containsObject:pathComponent]) {
+							lang = [language objectForKey:@"DisplayName"];
+							break;
+						}
+					}
+				} else if ([pathComponent hasPrefix:@"com.apple.IntlDataCache"]) {
+					cache = YES;
+				}
+			}
+		}
+		if (layout && [file hasPrefix:@"/System/Library/"]) {
+			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing keyboard layout", ""), layout, (unsigned short)0x2026];
+		} else if (im && [file hasPrefix:@"/System/Library/"]) {
+			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing input method", ""), layout, (unsigned short)0x2026];
+		} else if (cache) {
+			message = [NSString stringWithFormat:@"%@%C", NSLocalizedString(@"Clearing cache", ""), (unsigned short)0x2026];
+		} else if (app) {
+			message = [NSString stringWithFormat:@"%@ %@ %@ %@%C", NSLocalizedString(@"Removing language", ""), lang, NSLocalizedString(@"from", ""), app, (unsigned short)0x2026];
+		} else if (lang) {
+			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing language", ""), lang, (unsigned short)0x2026];
+		} else {
+			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing", ""), file, (unsigned short)0x2026];
 		}
 	}
 
-	argv[0] = path;
+	[progressWindowController setText:message];
+	[progressWindowController setFile:file];
+	[NSApp setWindowsNeedUpdate:YES];
+}
+
+- (void) finishedProcessing {
+	[NSApp endSheet:[progressWindowController window]];
+	[[progressWindowController window] orderOut:self];
+	[progressWindowController stop];
+	
+	if (processApplication) {
+		[self removeArchitectures:nil];
+		processApplication = nil;
+	} else {
+		char hbuf[LONGEST_HUMAN_READABLE + 1];
+
+		[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
+		
+		NSBeginAlertSheet(NSLocalizedString(@"Removal completed", ""),
+						  nil, nil, nil, parentWindow, self, NULL, NULL,
+						  NULL,
+						  NSLocalizedString(@"Files removed. Space saved: %s.", ""),
+						  human_readable(bytesSaved, hbuf, 1024));
+		[self scanLayouts];
+		if (logFile) {
+			fclose(logFile);
+			logFile = NULL;
+		}
+	}
+}
+
+- (void) runDeleteHelperWithArgs:(xpc_object_t)arguments
+{
+	bytesSaved = 0ULL;
+
+	NSError *error = nil;
+	NSDictionary *installedHelperJobData = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, CFSTR("net.sourceforge.MonolingualHelper"));
+	BOOL needToInstall = YES;
+
+	if (installedHelperJobData) {
+		NSLog(@"helperJobData: %@", installedHelperJobData );
+    
+		NSString  		*installedPath 			= [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
+		NSURL			*installedPathURL		= [NSURL fileURLWithPath:installedPath];
+		
+		NSDictionary 	*installedInfoPlist 	= (__bridge NSDictionary *)CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)installedPathURL);
+		NSString		*installedBundleVersion	= [installedInfoPlist objectForKey:@"CFBundleVersion"];
+		NSInteger		installedVersion		= [installedBundleVersion integerValue];
+
+		NSLog(@"installedVersion: %ld", (long)installedVersion );
+
+		NSURL			*appBundleURL	= [[NSBundle mainBundle] bundleURL];
+    
+		NSLog(@"appBundleURL: %@", appBundleURL );
+    
+		NSURL			*currentHelperToolURL	= [appBundleURL URLByAppendingPathComponent:@"Contents/Library/LaunchServices/net.sourceforge.MonolingualHelper"];
+		NSDictionary 	*currentInfoPlist 		= (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (__bridge CFURLRef)currentHelperToolURL );
+		NSString		*currentBundleVersion	= [currentInfoPlist objectForKey:@"CFBundleVersion"];
+		NSInteger		currentVersion			= [currentBundleVersion integerValue];
+
+		NSLog(@"currentVersion: %ld", (long)currentVersion);
+    
+		if (currentVersion == installedVersion) {
+			SecRequirementRef	requirement;
+			OSStatus 			stErr;
+
+			stErr = SecRequirementCreateWithString( CFSTR( "identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = \"3rd Party Mac Developer Application: Business Solution Group\"" ), kSecCSDefaultFlags, &requirement);
+
+			if (stErr == noErr) {
+				SecStaticCodeRef staticCodeRef;
+
+				stErr = SecStaticCodeCreateWithPath( (__bridge CFURLRef)installedPathURL, kSecCSDefaultFlags, &staticCodeRef );
+
+				if (stErr == noErr) {
+					stErr = SecStaticCodeCheckValidity( staticCodeRef, kSecCSDefaultFlags, requirement );
+
+					needToInstall = NO;
+				}
+			}
+		}
+	}
+
+	if (needToInstall && ![self blessHelperWithLabel:@"net.sourceforge.MonolingualHelper" error:&error]) {
+		NSLog(@"Failed to bless helper. Error: %@", error);
+		return;
+	}
+
+	xpc_connection_t connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
+
+	if (!connection) {
+		NSLog(@"Failed to create XPC connection.");
+		return;
+	}
+
+	xpc_connection_set_event_handler(connection, ^(xpc_object_t event) {
+		xpc_type_t type = xpc_get_type(event);
+
+		if (type == XPC_TYPE_ERROR) {
+			if (event == XPC_ERROR_CONNECTION_INTERRUPTED) {
+				NSLog(@"XPC connection interrupted.");
+			} else if (event == XPC_ERROR_CONNECTION_INVALID) {
+				NSLog(@"XPC connection invalid, releasing.");
+				xpc_release(connection);
+			} else {
+				NSLog(@"Unexpected XPC connection error.");
+			}
+		} else {
+			NSLog(@"Unexpected XPC connection event.");
+		}
+	});
+
+	dispatch_queue_t listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", NULL);
+	assert(listener_queue != NULL);
+	
+	// Create an anonymous listener connection that collects progress updates.
+	progressConnection = xpc_connection_create(NULL, listener_queue);
+	
+	if (progressConnection) {
+		xpc_connection_set_event_handler(progressConnection, ^(xpc_object_t event) {
+			xpc_type_t type = xpc_get_type(event);
+			
+			if (type == XPC_TYPE_ERROR) {
+				if (event == XPC_ERROR_TERMINATION_IMMINENT) {
+					NSLog(@"received XPC_ERROR_TERMINATION_IMMINENT");
+				} else if (event == XPC_ERROR_CONNECTION_INVALID) {
+					NSLog(@"progress connection is closed");
+				}
+			} else if (XPC_TYPE_CONNECTION == type) {
+				xpc_connection_t peer = (xpc_connection_t)event;
+				
+				char *queue_name = NULL;
+				asprintf(&queue_name, "%s-peer-%d", "net.sourceforge.Monolingual.ProgressPanel",
+						 xpc_connection_get_pid(peer));
+				dispatch_queue_t peer_event_queue = dispatch_queue_create(queue_name, NULL);
+				assert(peer_event_queue != NULL);
+				free(queue_name);
+				
+				xpc_connection_set_target_queue(peer, peer_event_queue);
+				xpc_connection_set_event_handler(peer, ^(xpc_object_t nevent) {
+					xpc_type_t ntype = xpc_get_type(nevent);
+					
+					if (XPC_TYPE_DICTIONARY == ntype) {
+						[self processProgress:nevent];
+					}
+				});
+				xpc_connection_resume(peer);
+			}
+		});
+		xpc_connection_resume(progressConnection);
+
+		xpc_dictionary_set_connection(arguments, "connection", progressConnection);
+	} else {
+		NSLog(@"Couldn't create progress connection");
+	}
+
+	xpc_connection_resume(connection);
+	
+	// DEBUG
+	xpc_dictionary_set_bool(arguments, "dry_run", TRUE);
+
+	xpc_connection_send_message_with_reply(connection, arguments, dispatch_get_main_queue(), ^(xpc_object_t event) {
+		[self finishedProcessing];
+	});
 
 	parentWindow = [NSApp mainWindow];
 	[progressWindowController start];
@@ -872,126 +705,81 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 	   didEndSelector:nil
 		  contextInfo:nil];
 
-	status = AuthorizationExecuteWithPrivileges(authorizationRef, path, kAuthorizationFlagDefaults, (char * const *)argv, &fp_pipe);
-	if (errAuthorizationSuccess == status) {
-		CFSocketContext context = { 0, self, NULL, NULL, NULL };
-
-		[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)startedNotificationInfo];
-
-		bytesSaved = 0ULL;
-		pipeBuffer = CFDataCreateMutable(kCFAllocatorDefault, 0);
-		pipeDescriptor = fileno(fp_pipe);
-		pipeSocket = CFSocketCreateWithNative(kCFAllocatorDefault, pipeDescriptor, kCFSocketDataCallBack, dataCallback, &context);
-		pipeRunLoopSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, pipeSocket, 0);
-		CFRunLoopAddSource(CFRunLoopGetCurrent(), pipeRunLoopSource, kCFRunLoopCommonModes);
-	} else {
-		/* TODO */
-		NSBeep();
-	}
-
-	AuthorizationFree(authorizationRef, kAuthorizationFlagDefaults);
+	[GrowlApplicationBridge notifyWithDictionary:startedNotificationInfo];
 }
 
 - (void) removeLayoutsWarning:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-#pragma unused(sheet)
-	CFIndex         i;
-	CFIndex         count;
-	int				idx;
-	CFDictionaryRef	row;
-	BOOL			trash;
-	const char		**argv;
-
 	if (NSAlertDefaultReturn == returnCode) {
-		CFStringRef title = CFCopyLocalizedString(CFSTR("Nothing done"), "");
-		CFStringRef msg = CFCopyLocalizedString(CFSTR("Monolingual is stopping without making any changes. Your OS has not been modified."), "");
-		NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+		NSBeginAlertSheet(NSLocalizedString(@"Nothing done", ""), nil, nil, nil,
 						  [NSApp mainWindow], self, NULL, NULL, contextInfo,
-						  (NSString *)msg);
-		CFRelease(msg);
-		CFRelease(title);
+						  NSLocalizedString(@"Monolingual is stopping without making any changes. Your OS has not been modified.", ""));
 	} else {
-		CFIndex num_args;
-		mode = MODE_LAYOUTS;
+		mode = ModeLayouts;
 		logFile = fopen(logFileName, "at");
 		if (logFile) {
 			time_t now = time(NULL);
 			fprintf(logFile, "Monolingual started at %sRemoving layouts: ", ctime(&now));
 		}
 
-		count = CFArrayGetCount(layouts);
-		num_args = count + count + 9;
-		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
-		if (trash)
-			++num_args;
-		argv = (const char **)malloc(num_args*sizeof(char *));
-		argv[1] = "-f";
-		argv[2] = "/System/Library/Caches/com.apple.IntlDataCache";
-		argv[3] = "-f";
-		argv[4] = "/System/Library/Caches/com.apple.IntlDataCache.kbdx";
-		argv[5] = "-f";
-		argv[6] = "/System/Library/Caches/com.apple.IntlDataCache.sbdl";
-		argv[7] = "-f";
-		argv[8] = "/System/Library/Caches/com.apple.IntlDataCache.tecx";
-		idx = 9;
-		if (trash)
-			argv[idx++] = "-t";
-		int rCount = 0;
-		for (i=0; i<count; ++i) {
-			row = CFArrayGetValueAtIndex(layouts, i);
-			if (CFBooleanGetValue(CFDictionaryGetValue(row, CFSTR("Enabled")))) {
-				argv[idx++] = "-f";
-				argv[idx++] = [(NSString *)CFDictionaryGetValue(row, CFSTR("Path")) fileSystemRepresentation];
+		xpc_object_t files = xpc_array_create(NULL, 0);
+		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache");
+		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache.kbdx");
+		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache.sbdl");
+		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache.tecx");
+		NSInteger rCount = 0;
+		for (NSDictionary *layout in self.layouts) {
+			if ([layout[@"Enabled"] boolValue]) {
+				xpc_array_set_string(files, XPC_ARRAY_APPEND, [layout[@"Path"] UTF8String]);
 				if (logFile) {
-					if (rCount++)
+					if (rCount)
 						fputs(" ", logFile);
-					NSString *displayName = (NSString *)CFDictionaryGetValue(row, CFSTR("DisplayName"));
+					NSString *displayName = layout[@"DisplayName"];
 					fputs([displayName UTF8String], logFile);
 				}
+				rCount++;
 			}
 		}
+		
 		if (logFile)
 			fputs("\nDeleted files: \n", logFile);
+
 		if (rCount) {
-			argv[idx] = NULL;
-			[self runDeleteHelperWithArgs:argv];
+			xpc_object_t xpc_message = xpc_dictionary_create(NULL, NULL, 0);
+			xpc_dictionary_set_bool(xpc_message, "trash", [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"]);
+			xpc_dictionary_set_value(xpc_message, "files", files);
+			
+			[self runDeleteHelperWithArgs:xpc_message];
+
+			xpc_release(xpc_message);
 		} else {
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
 		}
-		free(argv);
+		
+		xpc_release(files);
 	}
 }
 
 - (void) warningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-#pragma unused(sheet,contextInfo)
 	CFIndex i;
 	CFIndex lCount;
 
 	if (NSAlertDefaultReturn != returnCode) {
-		lCount = CFArrayGetCount(languages);
-		for (i=0; i<lCount; ++i) {
-			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
-			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("Enabled"))) && CFEqual(CFArrayGetValueAtIndex(CFDictionaryGetValue(language, CFSTR("Folders")), 0U), CFSTR("en.lproj"))) {
+		for (NSDictionary *language in self.languages) {
+			if ([language[@"Enabled"] boolValue] && [language[@"Folders"][0U] isEqualToString:@"en.lproj"]) {
 				/* Display a warning */
-				CFStringRef title = CFCopyLocalizedString(CFSTR("WARNING!"), "");
-				CFStringRef defaultButton = CFCopyLocalizedString(CFSTR("Stop"), "");
-				CFStringRef alternateButton = CFCopyLocalizedString(CFSTR("Continue"), "");
-				CFStringRef msg = CFCopyLocalizedString(CFSTR("You are about to delete the English language files. Are you sure you want to do that?"), "");
-				NSBeginCriticalAlertSheet((NSString *)title,
-										  (NSString *)defaultButton,
-										  (NSString *)alternateButton, nil,
+				NSBeginCriticalAlertSheet(NSLocalizedString(@"WARNING!", ""),
+										  NSLocalizedString(@"Stop", ""),
+										  NSLocalizedString(@"Continue", ""),
+										  nil,
 										  [NSApp mainWindow], self, NULL,
 										  @selector(englishWarningSelector:returnCode:contextInfo:),
 										  nil,
-										  (NSString *)msg);
-				CFRelease(msg);
-				CFRelease(alternateButton);
-				CFRelease(defaultButton);
-				CFRelease(title);
+										  NSLocalizedString(@"You are about to delete the English language files. Are you sure you want to do that?", ""));
 				return;
 			}
 		}
@@ -1001,18 +789,7 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 
 - (void) englishWarningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-#pragma unused(sheet,contextInfo)
-	CFIndex			i;
-	CFIndex			rCount;
-	CFIndex			lCount;
-	unsigned int	idx;
-	const char		**argv;
-	CFArrayRef		roots;
-	CFIndex			roots_count;
-	CFIndex			blacklist_count;
-	BOOL			trash;
-
-	mode = MODE_LANGUAGES;
+	mode = ModeLanguages;
 
 	logFile = fopen(logFileName, "at");
 	if (logFile) {
@@ -1020,354 +797,272 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		fprintf(logFile, "Monolingual started at %sRemoving languages: ", ctime(&now));
 	}
 
-	if (processApplication)
-		roots = processApplication;
-	else
-		roots = (CFArrayRef)[[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
-	roots_count = CFArrayGetCount(roots);
+	NSArray *roots = processApplication ? processApplication : [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 
-	for (i=0; i<roots_count; ++i) {
-		CFBooleanRef enabled = CFDictionaryGetValue(CFArrayGetValueAtIndex(roots, i), CFSTR("Languages"));
-		if (enabled && CFBooleanGetValue(enabled))
+	BOOL languageEnabled = NO;
+	for (NSDictionary *root in roots) {
+		if ([root[@"Languages"] boolValue]) {
+			languageEnabled = YES;
 			break;
+		}
 	}
-	if (i==roots_count)
-		/* No active roots */
-		roots_count = 0;
 
-	if (NSAlertDefaultReturn == returnCode || !roots_count) {
-		CFStringRef title = CFCopyLocalizedString(CFSTR("Nothing done"), "");
-		CFStringRef msg = CFCopyLocalizedString(CFSTR("Monolingual is stopping without making any changes. Your OS has not been modified."), "");
-		NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+	if (NSAlertDefaultReturn == returnCode || !languageEnabled) {
+		NSBeginAlertSheet(NSLocalizedString(@"Nothing done", ""), nil, nil, nil,
 						  [NSApp mainWindow], self, NULL, NULL, NULL,
-						  (NSString *)msg);
-		CFRelease(msg);
-		CFRelease(title);
+						  NSLocalizedString(@"Monolingual is stopping without making any changes. Your OS has not been modified.", ""));
 	} else {
-		rCount = 0;
-		lCount = CFArrayGetCount(languages);
-		blacklist_count = CFArrayGetCount(blacklist);
-		argv = (const char **)malloc((4+lCount+lCount+lCount+roots_count+roots_count+blacklist_count+blacklist_count)*sizeof(char *));
-		idx = 1U;
-		trash = [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"];
-		if (trash)
-			argv[idx++] = "-t";
-		for (i=0; i<roots_count; ++i) {
-			CFDictionaryRef root = CFArrayGetValueAtIndex(roots, i);
-			CFBooleanRef langEnabled = CFDictionaryGetValue(root, CFSTR("Languages"));
-			Boolean enabled = langEnabled ? CFBooleanGetValue(langEnabled) : false;
-			NSString *path = (NSString *)CFDictionaryGetValue(root, CFSTR("Path"));
-			if (enabled) {
+		xpc_object_t includes = xpc_array_create(NULL, 0);
+		xpc_object_t excludes = xpc_array_create(NULL, 0);
+		for (NSDictionary *root in roots) {
+			NSString *path = root[@"Path"];
+			if ([root[@"Languages"] boolValue]) {
 				NSLog(@"Adding root %@", path);
-				argv[idx++] = "-r";
+				xpc_array_set_string(includes, XPC_ARRAY_APPEND, [path fileSystemRepresentation]);
 			} else {
 				NSLog(@"Excluding root %@", path);
-				argv[idx++] = "-x";
+				xpc_array_set_string(excludes, XPC_ARRAY_APPEND, [path fileSystemRepresentation]);
 			}
-			argv[idx++] = [path fileSystemRepresentation];
 		}
-		for (i=0; i<blacklist_count; ++i) {
-			CFDictionaryRef item = CFArrayGetValueAtIndex(blacklist, i);
-			CFBooleanRef languagesEnabled = CFDictionaryGetValue(item, CFSTR("languages"));
-			Boolean enabled = languagesEnabled ? CFBooleanGetValue(languagesEnabled) : false;
-			NSString *bundle = (NSString *)CFDictionaryGetValue(item, CFSTR("bundle"));
-			if (enabled) {
+		xpc_object_t bl = xpc_array_create(NULL, 0);
+		for (NSDictionary *item in self.blacklist) {
+			if ([item[@"languages"] boolValue]) {
+				NSString *bundle = item[@"bundle"];
 				NSLog(@"Blacklisting %@", bundle);
-				argv[idx++] = "-b";
-				argv[idx++] = [bundle fileSystemRepresentation];
+				xpc_array_set_string(bl, XPC_ARRAY_APPEND, [bundle UTF8String]);
 			}
 		}
-		for (i=0; i<lCount; ++i) {
-			CFDictionaryRef language = CFArrayGetValueAtIndex(languages, i);
-			if (CFBooleanGetValue(CFDictionaryGetValue(language, CFSTR("Enabled")))) {
-				CFArrayRef paths = CFDictionaryGetValue(language, CFSTR("Folders"));
-				CFIndex paths_count = CFArrayGetCount(paths);
-				for (CFIndex j=0; j<paths_count; ++j) {
-					NSString *path = (NSString *)CFArrayGetValueAtIndex(paths, j);
-					char const *pathname = [path fileSystemRepresentation];
+
+		NSUInteger rCount = 0;
+		xpc_object_t files = xpc_array_create(NULL, 0);
+		for (NSDictionary *language in self.languages) {
+			if ([language[@"Enabled"] boolValue]) {
+				NSArray *paths = language[@"Folders"];
+				for (NSString *path in paths) {
+					xpc_array_set_string(files, XPC_ARRAY_APPEND, [path fileSystemRepresentation]);
 					if (logFile) {
-						if (rCount || paths_count)
+						if (rCount)
 							fputs(" ", logFile);
-						fputs(pathname, logFile);
+						fputs([path fileSystemRepresentation], logFile);
 					}
-					argv[idx++] = pathname;
+					rCount++;
 				}
-				++rCount;
 			}
 		}
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"NIB"])
-			argv[idx++] = "designable.nib";
+			xpc_array_set_string(files, XPC_ARRAY_APPEND, "designable.nib");
 
 		if (logFile)
 			fputs("\nDeleted files: \n", logFile);
-		if (rCount == lCount)  {
-			CFStringRef title = CFCopyLocalizedString(CFSTR("Cannot remove all languages"), "");
-			CFStringRef msg = CFCopyLocalizedString(CFSTR("Removing all languages will make Mac OS X inoperable. Please keep at least one language and try again."), "");
-			NSBeginAlertSheet((NSString *)title, nil, nil, nil,
+		if (rCount == self.languages.count)  {
+			NSBeginAlertSheet(NSLocalizedString(@"Cannot remove all languages", ""), nil, nil, nil,
 							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  (NSString *)msg);
-			CFRelease(msg);
-			CFRelease(title);
+							  NSLocalizedString(@"Removing all languages will make OS X inoperable. Please keep at least one language and try again.", ""));
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
 		} else if (rCount) {
 			/* start things off if we have something to remove! */
-			argv[idx] = NULL;
-			[self runDeleteHelperWithArgs:argv];
+			
+			xpc_object_t xpc_message = xpc_dictionary_create(NULL, NULL, 0);
+			xpc_dictionary_set_bool(xpc_message, "trash", [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"]);
+			xpc_dictionary_set_value(xpc_message, "blacklist", bl);
+			xpc_dictionary_set_value(xpc_message, "includes", includes);
+			xpc_dictionary_set_value(xpc_message, "excludes", excludes);
+			xpc_dictionary_set_value(xpc_message, "directories", files);
+
+			[self runDeleteHelperWithArgs:xpc_message];
+			
+			xpc_release(xpc_message);
 		} else {
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
 		}
-		free(argv);
+
+		xpc_release(bl);
+		xpc_release(includes);
+		xpc_release(excludes);
+		xpc_release(files);
 	}
 }
 
-- (void) dealloc
-{
-	if (blacklist)
-		CFRelease(blacklist);
-	CFRelease(blacklistURL);
-	CFRelease(donateURL);
-	CFRelease(layouts);
-	CFRelease(languages);
-	CFRelease(startedNotificationInfo);
-	CFRelease(finishedNotificationInfo);
-	[super dealloc];
-}
 
 - (void) awakeFromNib
 {
 	[bundlesOutlineView setAutoresizesOutlineColumn: NO];
 
-	blacklistURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/blacklist.plist"), NULL);
-	donateURL = CFURLCreateWithString(kCFAllocatorDefault, CFSTR("http://monolingual.sourceforge.net/donate.php"), NULL);
+	donateURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/donate.php"];
 
-	CFArrayRef languagePref = (CFArrayRef) CFPreferencesCopyValue(CFSTR("AppleLanguages"),
-																  kCFPreferencesAnyApplication,
-																  kCFPreferencesCurrentUser,
-																  kCFPreferencesAnyHost);
-	CFIndex count = languagePref ? CFArrayGetCount(languagePref) : 0;
-	CFMutableSetRef userLanguages = CFSetCreateMutable(kCFAllocatorDefault, count, &kCFTypeSetCallBacks);
-
-	for (CFIndex i=0; i<count; ++i)
-		CFSetAddValue(userLanguages, CFArrayGetValueAtIndex(languagePref, i));
-	if (languagePref)
-		CFRelease(languagePref);
+	NSArray *languagePref = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
+	NSMutableSet *userLanguages = [NSMutableSet setWithArray:languagePref];
+	
+	// never check "English" by default
+	[userLanguages addObject:@"en"];
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
 #define NUM_KNOWN_LANGUAGES	133
-	CFMutableArrayRef knownLanguages = CFArrayCreateMutable(kCFAllocatorDefault, NUM_KNOWN_LANGUAGES, &kCFTypeArrayCallBacks);
-#define ADD_LANGUAGE_BEGIN(name) \
-	do { \
-		CFMutableDictionaryRef language = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks); \
-		CFStringRef languageName = CFCopyLocalizedString(CFSTR(name), ""); \
-		CFDictionarySetValue(language, CFSTR("DisplayName"), languageName); \
-		CFRelease(languageName);
-#define ADD_LANGUAGE_END \
-		CFDictionarySetValue(language, CFSTR("Folders"), foldersArray); \
-		CFRelease(foldersArray); \
-		CFArrayAppendValue(knownLanguages, language); \
-		CFRelease(language); \
-	} while(0)
-#define ADD_LANGUAGE_0(code, name, folder) \
-	ADD_LANGUAGE_BEGIN(name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
-		CFStringRef folders[1]; \
-		folders[0] = CFSTR(folder ".lproj"); \
-		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 1, &kCFTypeArrayCallBacks); \
-	ADD_LANGUAGE_END
-#define ADD_LANGUAGE_1(code, name, folder1, folder2) \
-	ADD_LANGUAGE_BEGIN(name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
-		CFStringRef folders[2]; \
-		folders[0] = CFSTR(folder1 ".lproj"); \
-		folders[1] = CFSTR(folder2 ".lproj"); \
-		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 2, &kCFTypeArrayCallBacks); \
-	ADD_LANGUAGE_END
-#define ADD_LANGUAGE_2(code, name, folder1, folder2, folder3) \
-	ADD_LANGUAGE_BEGIN(name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
-		CFStringRef folders[3]; \
-		folders[0] = CFSTR(folder1 ".lproj"); \
-		folders[1] = CFSTR(folder2 ".lproj"); \
-		folders[2] = CFSTR(folder3 ".lproj"); \
-		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 3, &kCFTypeArrayCallBacks); \
-	ADD_LANGUAGE_END
-#define ADD_LANGUAGE_3(code, name, folder1, folder2, folder3, folder4) \
-	ADD_LANGUAGE_BEGIN(name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), CFSetContainsValue(userLanguages, (code)) ? kCFBooleanFalse : kCFBooleanTrue); \
-		CFStringRef folders[4]; \
-		folders[0] = CFSTR(folder1 ".lproj"); \
-		folders[1] = CFSTR(folder2 ".lproj"); \
-		folders[2] = CFSTR(folder3 ".lproj"); \
-		folders[3] = CFSTR(folder4 ".lproj"); \
-		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 4, &kCFTypeArrayCallBacks); \
-	ADD_LANGUAGE_END
-#define ADD_LANGUAGE_EN(code, name, folder1, folder2) \
-	ADD_LANGUAGE_BEGIN(name) \
-		CFDictionarySetValue(language, CFSTR("Enabled"), kCFBooleanFalse); \
-		CFStringRef folders[2]; \
-		folders[0] = CFSTR(folder1 ".lproj"); \
-		folders[1] = CFSTR(folder2 ".lproj"); \
-		CFArrayRef foldersArray = CFArrayCreate(kCFAllocatorDefault, (const void **)folders, 2, &kCFTypeArrayCallBacks); \
-	ADD_LANGUAGE_END
+	NSMutableArray *knownLanguages = [NSMutableArray arrayWithCapacity:NUM_KNOWN_LANGUAGES];
 
-	ADD_LANGUAGE_1(CFSTR("af"),    "Afrikaans",            "af", "Afrikaans");
-	ADD_LANGUAGE_1(CFSTR("am"),    "Amharic",              "am", "Amharic");
-	ADD_LANGUAGE_1(CFSTR("ar"),    "Arabic",               "ar", "Arabic");
-	ADD_LANGUAGE_1(CFSTR("as"),    "Assamese",             "as", "Assamese");
-	ADD_LANGUAGE_1(CFSTR("ay"),    "Aymara",               "ay", "Aymara");
-	ADD_LANGUAGE_1(CFSTR("az"),    "Azerbaijani",          "az", "Azerbaijani");
-	ADD_LANGUAGE_1(CFSTR("be"),    "Byelorussian",         "be", "Byelorussian");
-	ADD_LANGUAGE_1(CFSTR("bg"),    "Bulgarian",            "bg", "Bulgarian");
-	ADD_LANGUAGE_1(CFSTR("bi"),    "Bislama",              "bi", "Bislama");
-	ADD_LANGUAGE_1(CFSTR("bn"),    "Bengali",              "bn", "Bengali");
-	ADD_LANGUAGE_1(CFSTR("bo"),    "Tibetan",              "bo", "Tibetan");
-	ADD_LANGUAGE_1(CFSTR("br"),    "Breton",               "bt", "Breton");
-	ADD_LANGUAGE_1(CFSTR("ca"),    "Catalan",              "ca", "Catalan");
-	ADD_LANGUAGE_1(CFSTR("chr"),   "Cherokee",             "chr", "Cherokee");
-	ADD_LANGUAGE_2(CFSTR("cs"),    "Czech",                "cs", "cs_CZ", "Czech");
-	ADD_LANGUAGE_1(CFSTR("cy"),    "Welsh",                "cy", "Welsh");
-	ADD_LANGUAGE_2(CFSTR("da"),    "Danish",               "da", "da_DK", "Danish");
-	ADD_LANGUAGE_2(CFSTR("de"),    "German",               "de", "de_DE", "German");
-	ADD_LANGUAGE_0(CFSTR("de-AT"), "German (Austria)",      "de_AT");
-	ADD_LANGUAGE_0(CFSTR("de-CH"), "German (Switzerland)",  "de_CH");
-	ADD_LANGUAGE_1(CFSTR("dz"),    "Dzongkha",             "dz", "Dzongkha");
-	ADD_LANGUAGE_2(CFSTR("el"),    "Greek",                "el", "el_GR", "Greek");
-	ADD_LANGUAGE_EN(CFSTR("en"),   "English",              "en", "English");
-	ADD_LANGUAGE_0(CFSTR("en-AU"), "English (Australia)",      "en_AU");
-	ADD_LANGUAGE_0(CFSTR("en-CA"), "English (Canada)",         "en_CA");
-	ADD_LANGUAGE_0(CFSTR("en-GB"), "English (United Kingdom)", "en_GB");
-	ADD_LANGUAGE_0(CFSTR("en-NZ"), "English (New Zealand)",    "en_NZ");
-	ADD_LANGUAGE_0(CFSTR("en-US"), "English (United States)",  "en_US");
-	ADD_LANGUAGE_1(CFSTR("eo"),    "Esperanto",            "eo", "Esperanto");
-	ADD_LANGUAGE_2(CFSTR("es"),    "Spanish",              "es", "es_ES", "Spanish");
-	ADD_LANGUAGE_1(CFSTR("et"),    "Estonian",             "et", "Estonian");
-	ADD_LANGUAGE_1(CFSTR("eu"),    "Basque",               "eu", "Basque");
-	ADD_LANGUAGE_1(CFSTR("fa"),    "Farsi",                "fa", "Farsi");
-	ADD_LANGUAGE_2(CFSTR("fi"),    "Finnish",              "fi", "fi_FI", "Finnish");
-	ADD_LANGUAGE_1(CFSTR("fo"),    "Faroese",              "fo", "Faroese");
-	ADD_LANGUAGE_2(CFSTR("fr"),    "French",               "fr", "fr_FR", "French");
-	ADD_LANGUAGE_0(CFSTR("fr-CA"), "French (Canada)",      "fr_CA");
-	ADD_LANGUAGE_0(CFSTR("fr-CH"), "French (Switzerland)", "fr_CH");
-	ADD_LANGUAGE_1(CFSTR("ga"),    "Irish",                "ga", "Irish");
-	ADD_LANGUAGE_1(CFSTR("gd"),    "Scottish",             "gd", "Scottish");
-	ADD_LANGUAGE_1(CFSTR("gl"),    "Galician",             "gl", "Galician");
-	ADD_LANGUAGE_1(CFSTR("gn"),    "Guarani",              "gn", "Guarani");
-	ADD_LANGUAGE_1(CFSTR("gu"),    "Gujarati",             "gu", "Gujarati");
-	ADD_LANGUAGE_1(CFSTR("gv"),    "Manx",                 "gv", "Manx");
-	ADD_LANGUAGE_1(CFSTR("haw"),   "Hawaiian",             "haw", "Hawaiian");
-	ADD_LANGUAGE_1(CFSTR("he"),    "Hebrew",               "he", "Hebrew");
-	ADD_LANGUAGE_1(CFSTR("hi"),    "Hindi",                "hi", "Hindi");
-	ADD_LANGUAGE_1(CFSTR("hr"),    "Croatian",             "hr", "Croatian");
-	ADD_LANGUAGE_2(CFSTR("hu"),    "Hungarian",            "hu", "hu_HU", "Hungarian");
-	ADD_LANGUAGE_1(CFSTR("hy"),    "Armenian",             "hy", "Armenian");
-	ADD_LANGUAGE_1(CFSTR("id"),    "Indonesian",           "id", "Indonesian");
-	ADD_LANGUAGE_1(CFSTR("is"),    "Icelandic",            "is", "Icelandic");
-	ADD_LANGUAGE_2(CFSTR("it"),    "Italian",              "it", "it_IT", "Italian");
-	ADD_LANGUAGE_1(CFSTR("iu"),    "Inuktitut",            "iu", "Inuktitut");
-	ADD_LANGUAGE_2(CFSTR("ja"),    "Japanese",             "ja", "ja_JP", "Japanese");
-	ADD_LANGUAGE_1(CFSTR("jv"),    "Javanese",             "jv", "Javanese");
-	ADD_LANGUAGE_1(CFSTR("ka"),    "Georgian",             "ka", "Georgian");
-	ADD_LANGUAGE_1(CFSTR("kk"),    "Kazakh",               "kk", "Kazakh");
-	ADD_LANGUAGE_0(CFSTR("kk-Cyrl"), "Kazakh (Cyrillic)",  "kk-Cyrl");
-	ADD_LANGUAGE_1(CFSTR("kl"),    "Greenlandic",          "kl", "Greenlandic");
-	ADD_LANGUAGE_1(CFSTR("km"),    "Khmer",                "km", "Khmer");
-	ADD_LANGUAGE_1(CFSTR("kn"),    "Kannada",              "kn", "Kannada");
-	ADD_LANGUAGE_2(CFSTR("ko"),    "Korean",               "ko", "ko_KR", "Korean");
-	ADD_LANGUAGE_1(CFSTR("ks"),    "Kashmiri",             "ks", "Kashmiri");
-	ADD_LANGUAGE_1(CFSTR("ku"),    "Kurdish",              "ku", "Kurdish");
-	ADD_LANGUAGE_1(CFSTR("kw"),    "Kernowek",             "kw", "Kernowek");
-	ADD_LANGUAGE_1(CFSTR("ky"),    "Kirghiz",              "ky", "Kirghiz");
-	ADD_LANGUAGE_1(CFSTR("la"),    "Latin",                "la", "Latin");
-	ADD_LANGUAGE_1(CFSTR("lo"),    "Lao",                  "lo", "Lao");
-	ADD_LANGUAGE_1(CFSTR("lt"),    "Lithuanian",           "lt", "Lithuanian");
-	ADD_LANGUAGE_1(CFSTR("lv"),    "Latvian",              "lv", "Latvian");
-	ADD_LANGUAGE_1(CFSTR("mg"),    "Malagasy",             "mg", "Malagasy");
-	ADD_LANGUAGE_1(CFSTR("mi"),    "Maori",                "mi", "Maori");
-	ADD_LANGUAGE_1(CFSTR("mk"),    "Macedonian",           "mk", "Macedonian");
-	ADD_LANGUAGE_1(CFSTR("mr"),    "Marathi",              "mr", "Marathi");
-	ADD_LANGUAGE_1(CFSTR("ml"),    "Malayalam",            "ml", "Malayalam");
-	ADD_LANGUAGE_1(CFSTR("mn"),    "Mongolian",            "mn", "Mongolian");
-	ADD_LANGUAGE_1(CFSTR("mo"),    "Moldavian",            "mo", "Moldavian");
-	ADD_LANGUAGE_1(CFSTR("ms"),    "Malay",                "ms", "Malay");
-	ADD_LANGUAGE_1(CFSTR("mt"),    "Maltese",              "mt", "Maltese");
-	ADD_LANGUAGE_1(CFSTR("my"),    "Burmese",              "my", "Burmese");
-	ADD_LANGUAGE_1(CFSTR("ne"),    "Nepali",               "ne", "Nepali");
-	ADD_LANGUAGE_2(CFSTR("nl"),    "Dutch",                "nl", "nl_NL", "Dutch");
-	ADD_LANGUAGE_0(CFSTR("nl-BE"), "Flemish",              "nl_BE");
-	ADD_LANGUAGE_2(CFSTR("no"),    "Norwegian",            "no", "no_NO", "Norwegian");
-	ADD_LANGUAGE_0(CFSTR("nb"),    "Norwegian Bokmal",     "nb");
-	ADD_LANGUAGE_0(CFSTR("nn"),    "Norwegian Nynorsk",    "nn");
-	ADD_LANGUAGE_1(CFSTR("om"),    "Oromo",                "om", "Oromo");
-	ADD_LANGUAGE_1(CFSTR("or"),    "Oriya",                "or", "Oriya");
-	ADD_LANGUAGE_1(CFSTR("pa"),    "Punjabi",              "pa", "Punjabi");
-	ADD_LANGUAGE_2(CFSTR("pl"),    "Polish",               "pl", "pl_PL", "Polish");
-	ADD_LANGUAGE_1(CFSTR("ps"),    "Pashto",               "ps", "Pashto");
-	ADD_LANGUAGE_3(CFSTR("pt"),    "Portuguese",           "pt", "pt_PT", "pt-PT", "Portuguese");
-	ADD_LANGUAGE_2(CFSTR("pt-BR"), "Portuguese (Brazil)",  "pt_BR", "PT_br", "pt-BR");
-	ADD_LANGUAGE_1(CFSTR("qu"),    "Quechua",              "qu", "Quechua");
-	ADD_LANGUAGE_1(CFSTR("rn"),    "Rundi",                "rn", "Rundi");
-	ADD_LANGUAGE_1(CFSTR("ro"),    "Romanian",             "ro", "Romanian");
-	ADD_LANGUAGE_1(CFSTR("ru"),    "Russian",              "ru", "Russian");
-	ADD_LANGUAGE_1(CFSTR("rw"),    "Kinyarwanda",          "rw", "Kinyarwanda");
-	ADD_LANGUAGE_1(CFSTR("sa"),    "Sanskrit",             "sa", "Sanskrit");
-	ADD_LANGUAGE_1(CFSTR("sd"),    "Sindhi",               "sd", "Sindhi");
-	ADD_LANGUAGE_1(CFSTR("se"),    "Sami",                 "se", "Sami");
-	ADD_LANGUAGE_1(CFSTR("si"),    "Sinhalese",            "si", "Sinhalese");
-	ADD_LANGUAGE_1(CFSTR("sk"),    "Slovak",               "sk", "Slovak");
-	ADD_LANGUAGE_1(CFSTR("sl"),    "Slovenian",            "sl", "Slovenian");
-	ADD_LANGUAGE_1(CFSTR("so"),    "Somali",               "so", "Somali");
-	ADD_LANGUAGE_1(CFSTR("sq"),    "Albanian",             "sq", "Albanian");
-	ADD_LANGUAGE_1(CFSTR("sr"),    "Serbian",              "sr", "Serbian");
-	ADD_LANGUAGE_1(CFSTR("su"),    "Sundanese",            "su", "Sundanese");
-	ADD_LANGUAGE_2(CFSTR("sv"),    "Swedish",              "sv", "sv_SE", "Swedish");
-	ADD_LANGUAGE_1(CFSTR("sw"),    "Swahili",              "sw", "Swahili");
-	ADD_LANGUAGE_1(CFSTR("ta"),    "Tamil",                "ta", "Tamil");
-	ADD_LANGUAGE_1(CFSTR("te"),    "Telugu",               "te", "Telugu");
-	ADD_LANGUAGE_1(CFSTR("tg"),    "Tajiki",               "tg", "Tajiki");
-	ADD_LANGUAGE_1(CFSTR("th"),    "Thai",                 "th", "Thai");
-	ADD_LANGUAGE_1(CFSTR("ti"),    "Tigrinya",             "ti", "Tigrinya");
-	ADD_LANGUAGE_1(CFSTR("tk"),    "Turkmen",              "tk", "Turkmen");
-	ADD_LANGUAGE_0(CFSTR("tk-Cyrl"), "Turkmen (Cyrillic)", "tk-Cyrl");
-	ADD_LANGUAGE_0(CFSTR("tk-Latn"), "Turkmen (Latin)",    "tk-Latn");
-	ADD_LANGUAGE_1(CFSTR("tl"),    "Tagalog",              "tl", "Tagalog");
-	ADD_LANGUAGE_1(CFSTR("tlh"),   "Klingon",              "tlh", "Klingon");
-	ADD_LANGUAGE_2(CFSTR("tr"),    "Turkish",              "tr", "tr_TR", "Turkish");
-	ADD_LANGUAGE_1(CFSTR("tt"),    "Tatar",                "tt", "Tatar");
-	ADD_LANGUAGE_1(CFSTR("to"),    "Tongan",               "to", "Tongan");
-	ADD_LANGUAGE_1(CFSTR("ug"),    "Uighur",               "ug", "Uighur");
-	ADD_LANGUAGE_1(CFSTR("uk"),    "Ukrainian",            "uk", "Ukrainian");
-	ADD_LANGUAGE_1(CFSTR("ur"),    "Urdu",                 "ur", "Urdu");
-	ADD_LANGUAGE_1(CFSTR("uz"),    "Uzbek",                "uz", "Uzbek");
-	ADD_LANGUAGE_1(CFSTR("vi"),    "Vietnamese",           "vi", "Vietnamese");
-	ADD_LANGUAGE_1(CFSTR("yi"),    "Yiddish",              "yi", "Yiddish");
-	ADD_LANGUAGE_0(CFSTR("zh"),    "Chinese",              "zh");
-	ADD_LANGUAGE_3(CFSTR("zh-Hans"), "Chinese (Simplified Han)",   "zh_Hans", "zh-Hans", "zh_CN", "zh_SC");
-	ADD_LANGUAGE_3(CFSTR("zh-Hant"), "Chinese (Traditional Han)",  "zh_Hant", "zh-Hant", "zh_TW", "zh_HK");
-	CFRelease(userLanguages);
-	CFArraySortValues(knownLanguages, CFRangeMake(0, NUM_KNOWN_LANGUAGES), languageCompare, NULL);
-	[self setLanguages:(NSMutableArray *)knownLanguages];
-	CFRelease(knownLanguages);
+#define ADD_LANGUAGE(code, name, ...) [knownLanguages addObject:@{ @"DisplayName" : NSLocalizedString(name, ""), @"Folders" : @[ __VA_ARGS__ ], @"Enabled" : [userLanguages containsObject:(code)] ? @NO : @YES }];
+
+	ADD_LANGUAGE(@"af",      @"Afrikaans",            @"af.lproj", @"Afrikaans.lproj");
+	ADD_LANGUAGE(@"am",      @"Amharic",              @"am.lproj", @"Amharic.lproj");
+	ADD_LANGUAGE(@"ar",      @"Arabic",               @"ar.lproj", @"Arabic.lproj");
+	ADD_LANGUAGE(@"as",      @"Assamese",             @"as.lproj", @"Assamese.lproj");
+	ADD_LANGUAGE(@"ay",      @"Aymara",               @"ay.lproj", @"Aymara.lproj.lproj");
+	ADD_LANGUAGE(@"az",      @"Azerbaijani",          @"az.lproj", @"Azerbaijani.lproj");
+	ADD_LANGUAGE(@"be",      @"Byelorussian",         @"be.lproj", @"Byelorussian.lproj");
+	ADD_LANGUAGE(@"bg",      @"Bulgarian",            @"bg.lproj", @"Bulgarian.lproj");
+	ADD_LANGUAGE(@"bi",      @"Bislama",              @"bi.lproj", @"Bislama.lproj");
+	ADD_LANGUAGE(@"bn",      @"Bengali",              @"bn.lproj", @"Bengali.lproj");
+	ADD_LANGUAGE(@"bo",      @"Tibetan",              @"bo.lproj", @"Tibetan.lproj");
+	ADD_LANGUAGE(@"br",      @"Breton",               @"bt.lproj", @"Breton.lproj");
+	ADD_LANGUAGE(@"ca",      @"Catalan",              @"ca.lproj", @"Catalan.lproj");
+	ADD_LANGUAGE(@"chr",     @"Cherokee",             @"chr.lproj", @"Cherokee.lproj");
+	ADD_LANGUAGE(@"cs",      @"Czech",                @"cs.lproj", @"cs_CZ.lproj", @"Czech.lproj");
+	ADD_LANGUAGE(@"cy",      @"Welsh",                @"cy.lproj", @"Welsh.lproj");
+	ADD_LANGUAGE(@"da",      @"Danish",               @"da.lproj", @"da_DK.lproj", @"Danish.lproj");
+	ADD_LANGUAGE(@"de",      @"German",               @"de.lproj", @"de_DE.lproj", @"German.lproj");
+	ADD_LANGUAGE(@"de-AT",   @"German (Austria)",     @"de_AT.lproj");
+	ADD_LANGUAGE(@"de-CH",   @"German (Switzerland)", @"de_CH.lproj");
+	ADD_LANGUAGE(@"dz",      @"Dzongkha",             @"dz.lproj", @"Dzongkha.lproj");
+	ADD_LANGUAGE(@"el",      @"Greek",                @"el.lproj", @"el_GR.lproj", @"Greek.lproj");
+	ADD_LANGUAGE(@"en",      @"English",              @"en.lproj", @"English.lproj");
+	ADD_LANGUAGE(@"en-AU",   @"English (Australia)",      @"en_AU.lproj");
+	ADD_LANGUAGE(@"en-CA",   @"English (Canada)",         @"en_CA.lproj");
+	ADD_LANGUAGE(@"en-GB",   @"English (United Kingdom)", @"en_GB.lproj");
+	ADD_LANGUAGE(@"en-NZ",   @"English (New Zealand)",    @"en_NZ.lproj");
+	ADD_LANGUAGE(@"en-US",   @"English (United States)",  @"en_US.lproj");
+	ADD_LANGUAGE(@"eo",      @"Esperanto",            @"eo.lproj", @"Esperanto.lproj");
+	ADD_LANGUAGE(@"es",      @"Spanish",              @"es.lproj", @"es_ES.lproj", @"Spanish.lproj");
+	ADD_LANGUAGE(@"et",      @"Estonian",             @"et.lproj", @"Estonian.lproj");
+	ADD_LANGUAGE(@"eu",      @"Basque",               @"eu.lproj", @"Basque.lproj");
+	ADD_LANGUAGE(@"fa",      @"Farsi",                @"fa.lproj", @"Farsi.lproj");
+	ADD_LANGUAGE(@"fi",      @"Finnish",              @"fi.lproj", @"fi_FI.lproj", @"Finnish.lproj");
+	ADD_LANGUAGE(@"fo",      @"Faroese",              @"fo.lproj", @"Faroese.lproj");
+	ADD_LANGUAGE(@"fr",      @"French",               @"fr.lproj", @"fr_FR.lproj", @"French.lproj");
+	ADD_LANGUAGE(@"fr-CA",   @"French (Canada)",      @"fr_CA.lproj");
+	ADD_LANGUAGE(@"fr-CH",   @"French (Switzerland)", @"fr_CH.lproj");
+	ADD_LANGUAGE(@"ga",      @"Irish",                @"ga.lproj", @"Irish.lproj");
+	ADD_LANGUAGE(@"gd",      @"Scottish",             @"gd.lproj", @"Scottish.lproj");
+	ADD_LANGUAGE(@"gl",      @"Galician",             @"gl.lproj", @"Galician.lproj");
+	ADD_LANGUAGE(@"gn",      @"Guarani",              @"gn.lproj", @"Guarani.lproj");
+	ADD_LANGUAGE(@"gu",      @"Gujarati",             @"gu.lproj", @"Gujarati.lproj");
+	ADD_LANGUAGE(@"gv",      @"Manx",                 @"gv.lproj", @"Manx.lproj");
+	ADD_LANGUAGE(@"haw",     @"Hawaiian",             @"haw.lproj", @"Hawaiian.lproj");
+	ADD_LANGUAGE(@"he",      @"Hebrew",               @"he.lproj", @"Hebrew.lproj");
+	ADD_LANGUAGE(@"hi",      @"Hindi",                @"hi.lproj", @"Hindi.lproj");
+	ADD_LANGUAGE(@"hr",      @"Croatian",             @"hr.lproj", @"Croatian.lproj");
+	ADD_LANGUAGE(@"hu",      @"Hungarian",            @"hu.lproj", @"hu_HU.lproj", @"Hungarian.lproj");
+	ADD_LANGUAGE(@"hy",      @"Armenian",             @"hy.lproj", @"Armenian.lproj");
+	ADD_LANGUAGE(@"id",      @"Indonesian",           @"id.lproj", @"Indonesian.lproj");
+	ADD_LANGUAGE(@"is",      @"Icelandic",            @"is.lproj", @"Icelandic.lproj");
+	ADD_LANGUAGE(@"it",      @"Italian",              @"it.lproj", @"it_IT.lproj", @"Italian.lproj");
+	ADD_LANGUAGE(@"iu",      @"Inuktitut",            @"iu.lproj", @"Inuktitut.lproj");
+	ADD_LANGUAGE(@"ja",      @"Japanese",             @"ja.lproj", @"ja_JP.lproj", @"Japanese.lproj");
+	ADD_LANGUAGE(@"jv",      @"Javanese",             @"jv.lproj", @"Javanese.lproj");
+	ADD_LANGUAGE(@"ka",      @"Georgian",             @"ka.lproj", @"Georgian.lproj");
+	ADD_LANGUAGE(@"kk",      @"Kazakh",               @"kk.lproj", @"Kazakh.lproj");
+	ADD_LANGUAGE(@"kk-Cyrl", @"Kazakh (Cyrillic)",    @"kk-Cyrl.lproj");
+	ADD_LANGUAGE(@"kl",      @"Greenlandic",          @"kl.lproj", @"Greenlandic.lproj");
+	ADD_LANGUAGE(@"km",      @"Khmer",                @"km.lproj", @"Khmer.lproj");
+	ADD_LANGUAGE(@"kn",      @"Kannada",              @"kn.lproj", @"Kannada.lproj");
+	ADD_LANGUAGE(@"ko",      @"Korean",               @"ko.lproj", @"ko_KR.lproj", @"Korean.lproj");
+	ADD_LANGUAGE(@"ks",      @"Kashmiri",             @"ks.lproj", @"Kashmiri.lproj");
+	ADD_LANGUAGE(@"ku",      @"Kurdish",              @"ku.lproj", @"Kurdish.lproj");
+	ADD_LANGUAGE(@"kw",      @"Kernowek",             @"kw.lproj", @"Kernowek.lproj");
+	ADD_LANGUAGE(@"ky",      @"Kirghiz",              @"ky.lproj", @"Kirghiz.lproj");
+	ADD_LANGUAGE(@"la",      @"Latin",                @"la.lproj", @"Latin.lproj");
+	ADD_LANGUAGE(@"lo",      @"Lao",                  @"lo.lproj", @"Lao.lproj");
+	ADD_LANGUAGE(@"lt",      @"Lithuanian",           @"lt.lproj", @"Lithuanian.lproj");
+	ADD_LANGUAGE(@"lv",      @"Latvian",              @"lv.lproj", @"Latvian.lproj");
+	ADD_LANGUAGE(@"mg",      @"Malagasy",             @"mg.lproj", @"Malagasy.lproj");
+	ADD_LANGUAGE(@"mi",      @"Maori",                @"mi.lproj", @"Maori.lproj");
+	ADD_LANGUAGE(@"mk",      @"Macedonian",           @"mk.lproj", @"Macedonian.lproj");
+	ADD_LANGUAGE(@"mr",      @"Marathi",              @"mr.lproj", @"Marathi.lproj");
+	ADD_LANGUAGE(@"ml",      @"Malayalam",            @"ml.lproj", @"Malayalam.lproj");
+	ADD_LANGUAGE(@"mn",      @"Mongolian",            @"mn.lproj", @"Mongolian.lproj");
+	ADD_LANGUAGE(@"mo",      @"Moldavian",            @"mo.lproj", @"Moldavian.lproj");
+	ADD_LANGUAGE(@"ms",      @"Malay",                @"ms.lproj", @"Malay.lproj");
+	ADD_LANGUAGE(@"mt",      @"Maltese",              @"mt.lproj", @"Maltese.lproj");
+	ADD_LANGUAGE(@"my",      @"Burmese",              @"my.lproj", @"Burmese.lproj");
+	ADD_LANGUAGE(@"ne",      @"Nepali",               @"ne.lproj", @"Nepali.lproj");
+	ADD_LANGUAGE(@"nl",      @"Dutch",                @"nl.lproj", @"nl_NL.lproj", @"Dutch.lproj");
+	ADD_LANGUAGE(@"nl-BE",   @"Flemish",              @"nl_BE.lproj");
+	ADD_LANGUAGE(@"no",      @"Norwegian",            @"no.lproj", @"no_NO.lproj", @"Norwegian.lproj");
+	ADD_LANGUAGE(@"nb",      @"Norwegian Bokmal",     @"nb.lproj");
+	ADD_LANGUAGE(@"nn",      @"Norwegian Nynorsk",    @"nn.lproj");
+	ADD_LANGUAGE(@"om",      @"Oromo",                @"om.lproj", @"Oromo.lproj");
+	ADD_LANGUAGE(@"or",      @"Oriya",                @"or.lproj", @"Oriya.lproj");
+	ADD_LANGUAGE(@"pa",      @"Punjabi",              @"pa.lproj", @"Punjabi.lproj");
+	ADD_LANGUAGE(@"pl",      @"Polish",               @"pl.lproj", @"pl_PL.lproj", @"Polish.lproj");
+	ADD_LANGUAGE(@"ps",      @"Pashto",               @"ps.lproj", @"Pashto.lproj");
+	ADD_LANGUAGE(@"pt",      @"Portuguese",           @"pt.lproj", @"pt_PT.lproj", @"pt-PT.lproj", @"Portuguese.lproj");
+	ADD_LANGUAGE(@"pt-BR",   @"Portuguese (Brazil)",  @"pt_BR.lproj", @"PT_br.lproj", @"pt-BR.lproj");
+	ADD_LANGUAGE(@"qu",      @"Quechua",              @"qu.lproj", @"Quechua.lproj");
+	ADD_LANGUAGE(@"rn",      @"Rundi",                @"rn.lproj", @"Rundi.lproj");
+	ADD_LANGUAGE(@"ro",      @"Romanian",             @"ro.lproj", @"Romanian.lproj");
+	ADD_LANGUAGE(@"ru",      @"Russian",              @"ru.lproj", @"Russian.lproj");
+	ADD_LANGUAGE(@"rw",      @"Kinyarwanda",          @"rw.lproj", @"Kinyarwanda.lproj");
+	ADD_LANGUAGE(@"sa",      @"Sanskrit",             @"sa.lproj", @"Sanskrit.lproj");
+	ADD_LANGUAGE(@"sd",      @"Sindhi",               @"sd.lproj", @"Sindhi.lproj");
+	ADD_LANGUAGE(@"se",      @"Sami",                 @"se.lproj", @"Sami.lproj");
+	ADD_LANGUAGE(@"si",      @"Sinhalese",            @"si.lproj", @"Sinhalese.lproj");
+	ADD_LANGUAGE(@"sk",      @"Slovak",               @"sk.lproj", @"Slovak.lproj");
+	ADD_LANGUAGE(@"sl",      @"Slovenian",            @"sl.lproj", @"Slovenian.lproj");
+	ADD_LANGUAGE(@"so",      @"Somali",               @"so.lproj", @"Somali.lproj");
+	ADD_LANGUAGE(@"sq",      @"Albanian",             @"sq.lproj", @"Albanian.lproj");
+	ADD_LANGUAGE(@"sr",      @"Serbian",              @"sr.lproj", @"Serbian.lproj");
+	ADD_LANGUAGE(@"su",      @"Sundanese",            @"su.lproj", @"Sundanese.lproj");
+	ADD_LANGUAGE(@"sv",      @"Swedish",              @"sv.lproj", @"sv_SE.lproj", @"Swedish.lproj");
+	ADD_LANGUAGE(@"sw",      @"Swahili",              @"sw.lproj", @"Swahili.lproj");
+	ADD_LANGUAGE(@"ta",      @"Tamil",                @"ta.lproj", @"Tamil.lproj");
+	ADD_LANGUAGE(@"te",      @"Telugu",               @"te.lproj", @"Telugu.lproj");
+	ADD_LANGUAGE(@"tg",      @"Tajiki",               @"tg.lproj", @"Tajiki.lproj");
+	ADD_LANGUAGE(@"th",      @"Thai",                 @"th.lproj", @"Thai.lproj");
+	ADD_LANGUAGE(@"ti",      @"Tigrinya",             @"ti.lproj", @"Tigrinya.lproj");
+	ADD_LANGUAGE(@"tk",      @"Turkmen",              @"tk.lproj", @"Turkmen.lproj");
+	ADD_LANGUAGE(@"tk-Cyrl", @"Turkmen (Cyrillic)",   @"tk-Cyrl.lproj");
+	ADD_LANGUAGE(@"tk-Latn", @"Turkmen (Latin)",      @"tk-Latn.lproj");
+	ADD_LANGUAGE(@"tl",      @"Tagalog",              @"tl.lproj", @"Tagalog.lproj");
+	ADD_LANGUAGE(@"tlh",     @"Klingon",              @"tlh.lproj", @"Klingon.lproj");
+	ADD_LANGUAGE(@"tr",      @"Turkish",              @"tr.lproj", @"tr_TR.lproj", @"Turkish.lproj");
+	ADD_LANGUAGE(@"tt",      @"Tatar",                @"tt.lproj", @"Tatar.lproj");
+	ADD_LANGUAGE(@"to",      @"Tongan",               @"to.lproj", @"Tongan.lproj");
+	ADD_LANGUAGE(@"ug",      @"Uighur",               @"ug.lproj", @"Uighur.lproj");
+	ADD_LANGUAGE(@"uk",      @"Ukrainian",            @"uk.lproj", @"Ukrainian.lproj");
+	ADD_LANGUAGE(@"ur",      @"Urdu",                 @"ur.lproj", @"Urdu.lproj");
+	ADD_LANGUAGE(@"uz",      @"Uzbek",                @"uz.lproj", @"Uzbek.lproj");
+	ADD_LANGUAGE(@"vi",      @"Vietnamese",           @"vi.lproj", @"Vietnamese.lproj");
+	ADD_LANGUAGE(@"yi",      @"Yiddish",              @"yi.lproj", @"Yiddish.lproj");
+	ADD_LANGUAGE(@"zh",      @"Chinese",              @"zh.lproj");
+	ADD_LANGUAGE(@"zh-Hans", @"Chinese (Simplified Han)",   @"zh_Hans.lproj", @"zh-Hans.lproj", @"zh_CN.lproj", @"zh_SC.lproj");
+	ADD_LANGUAGE(@"zh-Hant", @"Chinese (Traditional Han)",  @"zh_Hant.lproj", @"zh-Hant.lproj", @"zh_TW.lproj", @"zh_HK.lproj");
+
+	[knownLanguages sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+		NSDictionary *lang1 = (NSDictionary *)obj1;
+		NSDictionary *lang2 = (NSDictionary *)obj2;
+		return [lang1[@"DisplayName"] compare:lang2[@"DisplayName"]];
+	}];
+	self.languages = knownLanguages;
 
 	[self scanLayouts];
 
 	const arch_info_t archs[10] = {
-		{ CFSTR("arm"),       CFSTR("ARM"),               CPU_TYPE_ARM,       CPU_SUBTYPE_ARM_ALL},
-		{ CFSTR("ppc"),       CFSTR("PowerPC"),           CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL},
-		{ CFSTR("ppc750"),    CFSTR("PowerPC G3"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_750},
-		{ CFSTR("ppc7400"),   CFSTR("PowerPC G4"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7400},
-		{ CFSTR("ppc7450"),   CFSTR("PowerPC G4+"),       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7450},
-		{ CFSTR("ppc970"),    CFSTR("PowerPC G5"),        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_970},
-		{ CFSTR("ppc64"),     CFSTR("PowerPC 64-bit"),    CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_ALL},
-		{ CFSTR("ppc970-64"), CFSTR("PowerPC G5 64-bit"), CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_970},
-		{ CFSTR("x86"),       CFSTR("Intel"),             CPU_TYPE_X86,       CPU_SUBTYPE_X86_ALL},
-		{ CFSTR("x86_64"),    CFSTR("Intel 64-bit"),      CPU_TYPE_X86_64,    CPU_SUBTYPE_X86_64_ALL}
+		{ "arm",       "ARM",               CPU_TYPE_ARM,       CPU_SUBTYPE_ARM_ALL},
+		{ "ppc",       "PowerPC",           CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL},
+		{ "ppc750",    "PowerPC G3",        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_750},
+		{ "ppc7400",   "PowerPC G4",        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7400},
+		{ "ppc7450",   "PowerPC G4+",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7450},
+		{ "ppc970",    "PowerPC G5",        CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_970},
+		{ "ppc64",     "PowerPC 64-bit",    CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_ALL},
+		{ "ppc970-64", "PowerPC G5 64-bit", CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_970},
+		{ "x86",       "Intel",             CPU_TYPE_X86,       CPU_SUBTYPE_X86_ALL},
+		{ "x86_64",    "Intel 64-bit",      CPU_TYPE_X86_64,    CPU_SUBTYPE_X86_64_ALL}
 	};
 
 	host_basic_info_data_t hostInfo;
@@ -1389,145 +1084,53 @@ static void dataCallback(CFSocketRef s, CFSocketCallBackType callbackType,
 		}
 	}
 
-	[currentArchitecture setStringValue:(NSString *)CFSTR("unknown")];
-	CFMutableArrayRef knownArchitectures = CFArrayCreateMutable(kCFAllocatorDefault, NELEMS(archs), &kCFTypeArrayCallBacks);
+	[currentArchitecture setStringValue:@"unknown"];
+
+	NSMutableArray *knownArchitectures = [NSMutableArray arrayWithCapacity:NELEMS(archs)];
 	for (unsigned i=0U; i<NELEMS(archs); ++i) {
-		CFMutableDictionaryRef architecture = CFDictionaryCreateMutable(kCFAllocatorDefault, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		CFDictionarySetValue(architecture, CFSTR("Enabled"), (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype) && (!(hostInfo.cpu_type & CPU_ARCH_ABI64) || (archs[i].cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64)))) ? kCFBooleanTrue : kCFBooleanFalse);
-		CFDictionarySetValue(architecture, CFSTR("Name"), archs[i].name);
-		CFDictionarySetValue(architecture, CFSTR("DisplayName"), archs[i].displayName);
-		CFArrayAppendValue(knownArchitectures, architecture);
-		CFRelease(architecture);
+		NSDictionary *architecture = @{
+			@"Enabled" : (ret == KERN_SUCCESS && (hostInfo.cpu_type != archs[i].cpu_type || hostInfo.cpu_subtype < archs[i].cpu_subtype) && (!(hostInfo.cpu_type & CPU_ARCH_ABI64) || (archs[i].cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64)))) ? @YES : @NO,
+			@"Name" : @(archs[i].name),
+			@"DisplayName" : @(archs[i].displayName)
+		};
+		[knownArchitectures addObject:architecture];
 		if (hostInfo.cpu_type == archs[i].cpu_type && hostInfo.cpu_subtype == archs[i].cpu_subtype) {
-			CFStringRef format = CFCopyLocalizedString(CFSTR("Current architecture: %@"), "");
-			CFStringRef label = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, format, archs[i].displayName);
-			CFRelease(format);
-			[currentArchitecture setStringValue:(NSString *)label];
-			CFRelease(label);
+			NSString *label = [NSString stringWithFormat:NSLocalizedString(@"Current architecture: %@", ""), @(archs[i].displayName)];
+			[currentArchitecture setStringValue:label];
 		}
 	}
-	[self setArchitectures:(NSMutableArray *)knownArchitectures];
-	CFRelease(knownArchitectures);
+	self.architectures = knownArchitectures;
 
 	/* set ourself as the Growl delegate */
 	[GrowlApplicationBridge setGrowlDelegate:self];
 
-	NSString *keys[4] = {
-		GROWL_APP_NAME,
-		GROWL_NOTIFICATION_NAME,
-		GROWL_NOTIFICATION_TITLE,
-		GROWL_NOTIFICATION_DESCRIPTION
-	};
-	CFStringRef values[4];
-	CFStringRef description;
+	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", "");
+	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", "");
 
-	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
-	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
-
-	description = CFCopyLocalizedString(CFSTR("Started removing files"), "");
-	values[0] = CFSTR("Monolingual");
-	values[1] = startedNotificationName;
-	values[2] = startedNotificationName;
-	values[3] = description;
-	startedNotificationInfo = CFDictionaryCreate(kCFAllocatorDefault, (const void **)keys, (const void **)values, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFRelease(startedNotificationName);
-	CFRelease(description);
-
-	description = CFCopyLocalizedString(CFSTR("Finished removing files"), "");
-	values[1] = finishedNotificationName;
-	values[2] = finishedNotificationName;
-	values[3] = description;
-	finishedNotificationInfo = CFDictionaryCreate(kCFAllocatorDefault, (const void **)keys, (const void **)values, 4, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	CFRelease(finishedNotificationName);
-	CFRelease(description);
+	startedNotificationInfo = @{ GROWL_APP_NAME : @"Monolingual", GROWL_NOTIFICATION_NAME : startedNotificationName, GROWL_NOTIFICATION_TITLE : startedNotificationName, GROWL_NOTIFICATION_DESCRIPTION : NSLocalizedString(@"Started removing files", "") };
+	finishedNotificationInfo = @{ GROWL_APP_NAME : @"Monolingual", GROWL_NOTIFICATION_NAME : finishedNotificationName, GROWL_NOTIFICATION_TITLE : finishedNotificationName, GROWL_NOTIFICATION_DESCRIPTION : NSLocalizedString(@"Finished removing files", "") };
 
 	// load blacklist from URL
-	CFDataRef blacklistData;
-	if (CFURLCreateDataAndPropertiesFromResource(kCFAllocatorDefault, blacklistURL, &blacklistData, NULL, NULL, NULL)) {
-		blacklist = CFPropertyListCreateFromXMLData(kCFAllocatorDefault, blacklistData, kCFPropertyListImmutable, NULL);
-		CFRelease(blacklistData);
-	}
+	NSURL *blacklistURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/blacklist.plist"];
+	self.blacklist = [NSArray arrayWithContentsOfURL:blacklistURL];
 
 	// use blacklist from bundle as a fallback
-	if (!blacklist) {
-		CFURLRef blacklistBundleURL = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("blacklist"), CFSTR("plist"), NULL);
-		CFReadStreamRef blacklistStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, blacklistBundleURL);
-		CFRelease(blacklistBundleURL);
-		if (blacklistStream) {
-			if (CFReadStreamOpen(blacklistStream)) {
-				CFPropertyListFormat format;
-				blacklist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
-															blacklistStream,
-															/*streamLength*/ 0,
-															kCFPropertyListImmutable,
-															&format,
-															/*errorString*/ NULL);
-				CFReadStreamClose(blacklistStream);
-			}
-			CFRelease(blacklistStream);
-		}
+	if (!self.blacklist) {
+		NSString *blacklistBundle = [[NSBundle mainBundle] pathForResource:@"blacklist" ofType:@"plist"];
+		self.blacklist = [NSArray arrayWithContentsOfFile:blacklistBundle];
 	}
 }
 
 - (NSDictionary *) registrationDictionaryForGrowl
 {
-	CFStringRef startedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual started"), "");
-	CFStringRef finishedNotificationName = CFCopyLocalizedString(CFSTR("Monolingual finished"), "");
-	CFTypeRef notificationNames[2] = { startedNotificationName, finishedNotificationName };
+	NSArray *defaultAndAllNotifications = @[ NSLocalizedString(@"Monolingual started", ""), NSLocalizedString(@"Monolingual finished", "") ];
 
-	CFArrayRef defaultAndAllNotifications = CFArrayCreate(kCFAllocatorDefault, notificationNames, 2, &kCFTypeArrayCallBacks);
-	CFTypeRef registrationKeys[4] = { GROWL_APP_NAME, GROWL_APP_ID, GROWL_NOTIFICATIONS_ALL, GROWL_NOTIFICATIONS_DEFAULT };
-	CFTypeRef registrationValues[4] = { CFSTR("Monolingual"), CFSTR("net.sourceforge.Monolingual"), defaultAndAllNotifications, defaultAndAllNotifications };
-	CFDictionaryRef registrationDictionary = CFDictionaryCreate(kCFAllocatorDefault,
-																registrationKeys,
-																registrationValues,
-																4,
-																&kCFTypeDictionaryKeyCallBacks,
-																&kCFTypeDictionaryValueCallBacks);
-	CFRelease(defaultAndAllNotifications);
-	CFRelease(startedNotificationName);
-	CFRelease(finishedNotificationName);
-
-	return [(NSDictionary *)registrationDictionary autorelease];
-}
-
-- (NSMutableArray *) languages {
-	return (NSMutableArray *)languages;
-}
-
-- (void) setLanguages:(NSMutableArray *)inArray {
-	if ((CFMutableArrayRef)inArray != languages) {
-		if (languages)
-			CFRelease(languages);
-		languages = (CFMutableArrayRef)inArray;
-		CFRetain(languages);
-	}
-}
-
-- (NSMutableArray *) layouts {
-	return (NSMutableArray *)layouts;
-}
-
-- (void) setLayouts:(NSMutableArray *)inArray {
-	if ((CFMutableArrayRef)inArray != layouts) {
-		if (layouts)
-			CFRelease(layouts);
-		layouts = (CFMutableArrayRef)inArray;
-		CFRetain(layouts);
-	}
-}
-
-- (NSMutableArray *) architectures {
-	return (NSMutableArray *)architectures;
-}
-
-- (void) setArchitectures:(NSMutableArray *)inArray {
-	if ((CFMutableArrayRef)inArray != architectures) {
-		if (architectures)
-			CFRelease(architectures);
-		architectures = (CFMutableArrayRef)inArray;
-		CFRetain(architectures);
-	}
+	return @{
+		GROWL_APP_NAME : @"Monolingual",
+		GROWL_APP_ID : @"net.sourceforge.Monolingual",
+		GROWL_NOTIFICATIONS_ALL : defaultAndAllNotifications,
+		GROWL_NOTIFICATIONS_DEFAULT : defaultAndAllNotifications
+	};
 }
 
 @end

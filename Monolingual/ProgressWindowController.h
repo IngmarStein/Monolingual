@@ -34,8 +34,8 @@
 - (IBAction) cancelButton: (id)sender;
 - (void) start;
 - (void) stop;
-- (void) setText:(CFStringRef)text;
-- (void) setFile:(CFStringRef)file;
+- (void) setText:(NSString *)text;
+- (void) setFile:(NSString *)file;
 - (void) windowDidLoad;
 
 @end
