@@ -10,6 +10,8 @@
 
 @implementation PreferencesController
 
+@synthesize roots;
+
 - (void) awakeFromNib
 {
 	[[self window] setFrameAutosaveName:@"PreferencesWindow"];
@@ -28,9 +30,9 @@
 	[oPanel beginWithCompletionHandler:^(NSInteger result) {
 		if (NSOKButton == result) {
 			for (NSURL *url in [oPanel URLs]) {
-				[roots addObject:@{ @"Path" : [url path],
-									@"Languages" : @YES,
-									@"Architectures" : @YES}];
+				[self.roots addObject:@{ @"Path" : [url path],
+										 @"Languages" : @YES,
+										 @"Architectures" : @YES}];
 			}
 		}
 	}];

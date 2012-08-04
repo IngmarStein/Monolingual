@@ -9,7 +9,8 @@
 #import <Cocoa/Cocoa.h>
 
 @interface ISTableView : NSTableView {
-	IBOutlet NSArrayController *arrayController;
 }
+
+@property (nonatomic, strong) IBOutlet NSArrayController *arrayController;
 
 @end

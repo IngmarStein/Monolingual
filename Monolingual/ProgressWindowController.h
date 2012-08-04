@@ -25,11 +25,12 @@
 
 @interface ProgressWindowController : NSWindowController
 {
-	IBOutlet id progressBar;
-	IBOutlet id applicationText;
-	IBOutlet id fileText;
-	IBOutlet id parent;
 }
+
+@property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
+@property (nonatomic, weak) IBOutlet NSTextField *applicationText;
+@property (nonatomic, weak) IBOutlet NSTextField * fileText;
+@property (nonatomic, weak) IBOutlet id parent;
 
 - (IBAction) cancelButton: (id)sender;
 - (void) start;

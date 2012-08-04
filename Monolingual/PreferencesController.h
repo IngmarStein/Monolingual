@@ -9,7 +9,10 @@
 #import <Cocoa/Cocoa.h>
 
 @interface PreferencesController : NSWindowController {
-	IBOutlet NSArrayController *roots;
 }
+
+@property(nonatomic, strong) IBOutlet NSArrayController *roots;
+
 - (IBAction) add: (id)sender;
+
 @end

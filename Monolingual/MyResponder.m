@@ -164,6 +164,10 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 @synthesize layouts;
 @synthesize architectures;
 
+@synthesize progressWindowController;
+@synthesize preferencesController;
+@synthesize currentArchitecture;
+
 + (void) initialize
 {
 	NSDictionary *applications = @{ @"Path" : @"/Applications", @"Languages" : @YES, @"Architectures" : @YES };
@@ -212,9 +216,11 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
 
+	char hbuf[LONGEST_HUMAN_READABLE + 1];
 	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
 					  [NSApp mainWindow], self, NULL, NULL, NULL,
-					  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not.", ""));
+					  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %s.", ""),
+					  human_readable(bytesSaved, hbuf, 1000));
 
 	if (processApplication) {
 		processApplication = nil;
@@ -555,7 +561,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 						  nil, nil, nil, parentWindow, self, NULL, NULL,
 						  NULL,
 						  NSLocalizedString(@"Files removed. Space saved: %s.", ""),
-						  human_readable(bytesSaved, hbuf, 1024));
+						  human_readable(bytesSaved, hbuf, 1000));
 		[self scanLayouts];
 		if (logFile) {
 			fclose(logFile);
@@ -691,7 +697,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	xpc_connection_resume(connection);
 	
 	// DEBUG
-	xpc_dictionary_set_bool(arguments, "dry_run", TRUE);
+	//xpc_dictionary_set_bool(arguments, "dry_run", TRUE);
 
 	xpc_connection_send_message_with_reply(connection, arguments, dispatch_get_main_queue(), ^(xpc_object_t event) {
 		[self finishedProcessing];
@@ -892,8 +898,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (void) awakeFromNib
 {
-	[bundlesOutlineView setAutoresizesOutlineColumn: NO];
-
 	donateURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/donate.php"];
 
 	NSArray *languagePref = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];

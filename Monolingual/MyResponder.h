@@ -28,11 +28,12 @@
 
 @interface MyResponder : NSWindowController<GrowlApplicationBridgeDelegate>
 {
-	IBOutlet ProgressWindowController *progressWindowController;
-	IBOutlet PreferencesController *preferencesController;
-	IBOutlet NSTextField *currentArchitecture;
-	IBOutlet NSOutlineView *bundlesOutlineView;
 }
+
+@property (nonatomic, strong) IBOutlet ProgressWindowController *progressWindowController;
+@property (nonatomic, strong) IBOutlet PreferencesController *preferencesController;
+@property (nonatomic, weak) IBOutlet NSTextField *currentArchitecture;
+
 + (void) initialize;
 - (IBAction) documentationBundler:(id)sender;
 - (IBAction) openWebsite:(id)sender;
