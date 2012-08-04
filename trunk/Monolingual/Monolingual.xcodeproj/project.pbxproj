@@ -94,7 +94,6 @@
 		9531D78B0C7B15D0008B48AA /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D78C0C7B15DC008B48AA /* Polish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Polish; path = Polish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D78D0C7B15E5008B48AA /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Swedish; path = Swedish.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9534F842072707D200CAB28E /* GrowlDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GrowlDefines.h; sourceTree = "<group>"; };
 		9539D83711453596007E698C /* blacklist.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = blacklist.plist; sourceTree = "<group>"; };
 		953AAA9D0C7B945F009B69EA /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = German.lproj/Credits.html; sourceTree = "<group>"; };
@@ -109,10 +108,6 @@
 		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		9589977615CABF4E008A2593 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		9589977A15CABF4E008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
-		9589977C15CABF4E008A2593 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		9589977E15CABF4E008A2593 /* MonolingualHelper-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MonolingualHelper-Prefix.pch"; sourceTree = "<group>"; };
-		9589977F15CABF4E008A2593 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9589978415CB32C6008A2593 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
 		95A0BEA106346AD3007510F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
@@ -172,7 +167,6 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				9534F842072707D200CAB28E /* GrowlDefines.h */,
 				00ECF787010242A17F000001 /* MyResponder.h */,
 				00ECF788010242A17F000001 /* MyResponder.m */,
 				10400F480164385C7F000001 /* ProgressWindowController.h */,
@@ -223,7 +217,6 @@
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
-				9589977815CABF4E008A2593 /* MonolingualHelper */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -272,25 +265,6 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		9589977815CABF4E008A2593 /* MonolingualHelper */ = {
-			isa = PBXGroup;
-			children = (
-				9589977F15CABF4E008A2593 /* main.m */,
-				9589977915CABF4E008A2593 /* Supporting Files */,
-			);
-			path = MonolingualHelper;
-			sourceTree = "<group>";
-		};
-		9589977915CABF4E008A2593 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				9589977A15CABF4E008A2593 /* MonolingualHelper-Info.plist */,
-				9589977B15CABF4E008A2593 /* InfoPlist.strings */,
-				9589977E15CABF4E008A2593 /* MonolingualHelper-Prefix.pch */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -477,14 +451,6 @@
 				95852A7F1119CDA400B54346 /* Spanish */,
 			);
 			name = Credits.html;
-			sourceTree = "<group>";
-		};
-		9589977B15CABF4E008A2593 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9589977C15CABF4E008A2593 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 		F51C1B3401F29B1C0120C6FA /* Localizable.strings */ = {

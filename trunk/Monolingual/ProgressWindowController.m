@@ -9,6 +9,10 @@
 
 @implementation ProgressWindowController
 
+@synthesize progressBar;
+@synthesize applicationText;
+@synthesize fileText;
+@synthesize parent;
 
 - (IBAction) cancelButton: (id)sender
 {
