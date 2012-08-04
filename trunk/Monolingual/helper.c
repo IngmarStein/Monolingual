@@ -606,7 +606,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 		if (XPC_TYPE_ERROR == type &&
 			XPC_ERROR_CONNECTION_INTERRUPTED == event) {
 			syslog(LOG_NOTICE, "Stopping MonolingualHelper\n");
-            context.should_exit = 1;
+			context.should_exit = 1;
 		}
 	});
 	xpc_connection_resume(context.connection);
@@ -690,10 +690,12 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	CFRelease(context.file_blacklist);
 	CFRelease(context.bundle_blacklist);
 	CFRelease(context.directories);
+	
+	xpc_dictionary_set_int64(reply, "exit_code", context.should_exit);
 
 	if (context.connection) {
 		xpc_connection_suspend(context.connection);
-		xpc_release(context.connection);
+		//xpc_release(context.connection);
 	}
 }
 
@@ -765,6 +767,7 @@ int main(int argc, const char *argv[])
 
 	dispatch_main();
 
+	// dead code:
 	//xpc_release(service);
 
 	//return EXIT_SUCCESS;

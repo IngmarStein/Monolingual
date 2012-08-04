@@ -147,6 +147,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	unsigned long long bytesSaved;
 	MonolingualMode    mode;
 	NSArray            *processApplication;
+	xpc_connection_t   connection;
 	xpc_connection_t   progressConnection;
 }
 
@@ -201,13 +202,19 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	return YES;
 }
 
-- (void) cancelRemove
-{
+- (void) closeConnection {
 	if (progressConnection) {
 		// Cancel and release the anonymous connection which signals the remote
 		// service to stop, if working.
 		xpc_connection_cancel(progressConnection);
 		xpc_release(progressConnection);
+		progressConnection = NULL;
+	}
+
+	if (connection) {
+		xpc_connection_cancel(connection);
+		xpc_release(connection);
+		connection = NULL;
 	}
 
 	[NSApp endSheet:[progressWindowController window]];
@@ -215,21 +222,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	[progressWindowController stop];
 
 	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
-
-	char hbuf[LONGEST_HUMAN_READABLE + 1];
-	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
-					  [NSApp mainWindow], self, NULL, NULL, NULL,
-					  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %s.", ""),
-					  human_readable(bytesSaved, hbuf, 1000));
-
-	if (processApplication) {
-		processApplication = nil;
-	}
-
-	if (logFile) {
-		fclose(logFile);
-		logFile = NULL;
-	}
 }
 
 - (IBAction) documentationBundler:(id)sender
@@ -544,25 +536,44 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	[NSApp setWindowsNeedUpdate:YES];
 }
 
-- (void) finishedProcessing {
-	[NSApp endSheet:[progressWindowController window]];
-	[[progressWindowController window] orderOut:self];
-	[progressWindowController stop];
+- (void) cancelRemove
+{
+	[self closeConnection];
+		
+	char hbuf[LONGEST_HUMAN_READABLE + 1];
+	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
+					  [NSApp mainWindow], self, NULL, NULL, NULL,
+					  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %s.", ""),
+					  human_readable(bytesSaved, hbuf, 1000));
 	
+	[self scanLayouts];
+
+	if (processApplication) {
+		processApplication = nil;
+	}
+	
+	if (logFile) {
+		fclose(logFile);
+		logFile = NULL;
+	}
+}
+
+- (void) finishedProcessing {
+	[self closeConnection];
+
 	if (processApplication) {
 		[self removeArchitectures:nil];
 		processApplication = nil;
 	} else {
 		char hbuf[LONGEST_HUMAN_READABLE + 1];
 
-		[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
-		
 		NSBeginAlertSheet(NSLocalizedString(@"Removal completed", ""),
 						  nil, nil, nil, parentWindow, self, NULL, NULL,
 						  NULL,
 						  NSLocalizedString(@"Files removed. Space saved: %s.", ""),
 						  human_readable(bytesSaved, hbuf, 1000));
 		[self scanLayouts];
+
 		if (logFile) {
 			fclose(logFile);
 			logFile = NULL;
@@ -626,7 +637,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		return;
 	}
 
-	xpc_connection_t connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
+	connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
 
 	if (!connection) {
 		NSLog(@"Failed to create XPC connection.");
@@ -640,8 +651,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			if (event == XPC_ERROR_CONNECTION_INTERRUPTED) {
 				NSLog(@"XPC connection interrupted.");
 			} else if (event == XPC_ERROR_CONNECTION_INVALID) {
-				NSLog(@"XPC connection invalid, releasing.");
-				xpc_release(connection);
+				NSLog(@"XPC connection invalid.");
 			} else {
 				NSLog(@"Unexpected XPC connection error.");
 			}
@@ -700,7 +710,13 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	//xpc_dictionary_set_bool(arguments, "dry_run", TRUE);
 
 	xpc_connection_send_message_with_reply(connection, arguments, dispatch_get_main_queue(), ^(xpc_object_t event) {
-		[self finishedProcessing];
+		xpc_type_t type = xpc_get_type(event);
+		if (XPC_TYPE_DICTIONARY == type) {
+			int64_t exit_code = xpc_dictionary_get_int64(event, "exit_code");
+			NSLog(@"helper finished with exit code: %lld", exit_code);
+			if (!exit_code)
+				[self finishedProcessing];
+		}
 	});
 
 	parentWindow = [NSApp mainWindow];
