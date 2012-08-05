@@ -440,6 +440,9 @@ int setup_lipo(const char *archs[], unsigned num_archs)
 {
 	nremove_arch_flags = num_archs;
 	remove_arch_flags = malloc(num_archs * sizeof(struct arch_flag));
+	if (!remove_arch_flags)
+		return 0;
+	
 	for (unsigned i = 0U; i < num_archs; ++i) {
 		if (!get_arch_from_flag(archs[i], &remove_arch_flags[i])) {
 			syslog(LOG_ERR, "unknown architecture specification flag: %s", archs[i]);

@@ -216,6 +216,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		xpc_release(connection);
 		connection = NULL;
 	}
+	
+	[[NSProcessInfo processInfo] enableSuddenTermination];
 
 	[NSApp endSheet:[progressWindowController window]];
 	[[progressWindowController window] orderOut:self];
@@ -586,7 +588,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	bytesSaved = 0ULL;
 
 	NSError *error = nil;
-	NSDictionary *installedHelperJobData = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, CFSTR("net.sourceforge.MonolingualHelper"));
+	NSDictionary *installedHelperJobData = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, CFSTR("net.sourceforge.MonolingualHelper")));
 	BOOL needToInstall = YES;
 
 	if (installedHelperJobData) {
@@ -595,7 +597,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		NSString  		*installedPath 			= [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
 		NSURL			*installedPathURL		= [NSURL fileURLWithPath:installedPath];
 		
-		NSDictionary 	*installedInfoPlist 	= (__bridge NSDictionary *)CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)installedPathURL);
+		NSDictionary 	*installedInfoPlist 	= CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)installedPathURL));
 		NSString		*installedBundleVersion	= [installedInfoPlist objectForKey:@"CFBundleVersion"];
 		NSInteger		installedVersion		= [installedBundleVersion integerValue];
 
@@ -606,7 +608,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		NSLog(@"appBundleURL: %@", appBundleURL );
     
 		NSURL			*currentHelperToolURL	= [appBundleURL URLByAppendingPathComponent:@"Contents/Library/LaunchServices/net.sourceforge.MonolingualHelper"];
-		NSDictionary 	*currentInfoPlist 		= (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (__bridge CFURLRef)currentHelperToolURL );
+		NSDictionary 	*currentInfoPlist 		= CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)currentHelperToolURL));
 		NSString		*currentBundleVersion	= [currentInfoPlist objectForKey:@"CFBundleVersion"];
 		NSInteger		currentVersion			= [currentBundleVersion integerValue];
 
@@ -616,17 +618,19 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			SecRequirementRef	requirement;
 			OSStatus 			stErr;
 
-			stErr = SecRequirementCreateWithString( CFSTR( "identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = \"3rd Party Mac Developer Application: Business Solution Group\"" ), kSecCSDefaultFlags, &requirement);
+			stErr = SecRequirementCreateWithString(CFSTR("identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = \"3rd Party Mac Developer Application: Business Solution Group\"" ), kSecCSDefaultFlags, &requirement);
 
 			if (stErr == noErr) {
 				SecStaticCodeRef staticCodeRef;
 
-				stErr = SecStaticCodeCreateWithPath( (__bridge CFURLRef)installedPathURL, kSecCSDefaultFlags, &staticCodeRef );
+				stErr = SecStaticCodeCreateWithPath((__bridge CFURLRef)installedPathURL, kSecCSDefaultFlags, &staticCodeRef);
 
 				if (stErr == noErr) {
-					stErr = SecStaticCodeCheckValidity( staticCodeRef, kSecCSDefaultFlags, requirement );
+					stErr = SecStaticCodeCheckValidity(staticCodeRef, kSecCSDefaultFlags, requirement);
 
-					needToInstall = NO;
+					if (stErr == noErr) {
+						needToInstall = NO;
+					}
 				}
 			}
 		}
@@ -643,6 +647,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		NSLog(@"Failed to create XPC connection.");
 		return;
 	}
+
+	[[NSProcessInfo processInfo] disableSuddenTermination];
 
 	xpc_connection_set_event_handler(connection, ^(xpc_object_t event) {
 		xpc_type_t type = xpc_get_type(event);
