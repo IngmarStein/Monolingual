@@ -248,45 +248,45 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			NSString *displayName = NSLocalizedString([file stringByDeletingPathExtension], "");
 			NSString *type = NSLocalizedString(@"Keyboard Layout", "");
 			NSDictionary *layout = @{ @"Enabled" : @NO, @"DisplayName" : displayName, @"Type" : type, @"Path" : [layoutPath stringByAppendingPathComponent:file] };
-			[scannedLayouts addObject:layout];
+			[scannedLayouts addObject:[layout mutableCopy]];
 		}
 	}
 	NSString *inputMethod = NSLocalizedString(@"Input Method","");
 	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/Kotoeri.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/Kotoeri.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/XPIM.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/XPIM.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/TCIM.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/TCIM.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/SCIM.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/SCIM.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Murasu Anjal Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/AnjalIM.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Murasu Anjal Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/AnjalIM.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/HangulIM.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/HangulIM.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Input Methods/KoreanIM.app", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Korean", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/KoreanIM.component" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Korean", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/KoreanIM.component" } mutableCopy]];
 	}
 	if (stat("/System/Library/Input Methods/Kotoeri.app", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/Kotoeri.app" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/Kotoeri.app" } mutableCopy]];
 	}
 	if (stat("/System/Library/Input Methods/SCIM.app", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/SCIM.app" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/SCIM.app" } mutableCopy]];
 	}
 	if (stat("/System/Library/Input Methods/TCIM.app", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TCIM.app" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TCIM.app" } mutableCopy]];
 	}
 	if (stat("/System/Library/Input Methods/TamilIM.app", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TamilIM.app" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TamilIM.app" } mutableCopy]];
 	}
 	if (stat("/System/Library/Input Methods/VietnameseIM.app", &st) != -1) {
-		[scannedLayouts addObject:@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Vietnamese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/VietnameseIM.app" }];
+		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Vietnamese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/VietnameseIM.app" } mutableCopy]];
 	}
 	self.layouts = scannedLayouts;
 }
@@ -933,7 +933,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 #define NUM_KNOWN_LANGUAGES	133
 	NSMutableArray *knownLanguages = [NSMutableArray arrayWithCapacity:NUM_KNOWN_LANGUAGES];
 
-#define ADD_LANGUAGE(code, name, ...) [knownLanguages addObject:@{ @"DisplayName" : NSLocalizedString(name, ""), @"Folders" : @[ __VA_ARGS__ ], @"Enabled" : [userLanguages containsObject:(code)] ? @NO : @YES }];
+#define ADD_LANGUAGE(code, name, ...) [knownLanguages addObject:[@{ @"DisplayName" : NSLocalizedString(name, ""), @"Folders" : @[ __VA_ARGS__ ], @"Enabled" : [userLanguages containsObject:(code)] ? @NO : @YES } mutableCopy]];
 
 	ADD_LANGUAGE(@"af",      @"Afrikaans",            @"af.lproj", @"Afrikaans.lproj");
 	ADD_LANGUAGE(@"am",      @"Amharic",              @"am.lproj", @"Amharic.lproj");
@@ -1119,7 +1119,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			@"Name" : @(archs[i].name),
 			@"DisplayName" : @(archs[i].displayName)
 		};
-		[knownArchitectures addObject:architecture];
+		[knownArchitectures addObject:[architecture mutableCopy]];
 		if (hostInfo.cpu_type == archs[i].cpu_type && hostInfo.cpu_subtype == archs[i].cpu_subtype) {
 			NSString *label = [NSString stringWithFormat:NSLocalizedString(@"Current architecture: %@", ""), @(archs[i].displayName)];
 			[currentArchitecture setStringValue:label];
