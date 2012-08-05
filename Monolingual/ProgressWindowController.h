@@ -30,7 +30,7 @@
 @property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
 @property (nonatomic, weak) IBOutlet NSTextField *applicationText;
 @property (nonatomic, weak) IBOutlet NSTextField * fileText;
-@property (nonatomic, weak) IBOutlet id parent;
+@property (nonatomic, unsafe_unretained) IBOutlet id parent;
 
 - (IBAction) cancelButton: (id)sender;
 - (void) start;
