@@ -41,10 +41,6 @@ typedef struct arch_info_s {
 	cpu_subtype_t cpu_subtype;
 } arch_info_t;
 
-static int                pipeDescriptor;
-static CFSocketRef        pipeSocket;
-static CFMutableDataRef   pipeBuffer;
-static CFRunLoopSourceRef pipeRunLoopSource;
 static FILE               *logFile;
 static char               logFileName[PATH_MAX];
 
@@ -793,9 +789,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (void) warningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-	CFIndex i;
-	CFIndex lCount;
-
 	if (NSAlertDefaultReturn != returnCode) {
 		for (NSDictionary *language in self.languages) {
 			if ([language[@"Enabled"] boolValue] && [language[@"Folders"][0U] isEqualToString:@"en.lproj"]) {
