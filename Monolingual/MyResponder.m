@@ -298,7 +298,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (IBAction) removeLanguages:(id)sender
 {
-#pragma unused(sender)
 	/* Display a warning first */
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!", ""),
 					  NSLocalizedString(@"Stop", ""),
@@ -313,7 +312,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (IBAction) removeLayouts:(id)sender
 {
-#pragma unused(sender)
 	/* Display a warning first */
 	NSBeginAlertSheet(NSLocalizedString(@"WARNING!", ""),
 					  NSLocalizedString(@"Stop", ""),

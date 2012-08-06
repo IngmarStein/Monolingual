@@ -23,6 +23,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class MyResponder;
+
 @interface ProgressWindowController : NSWindowController
 {
 }
@@ -30,7 +32,9 @@
 @property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
 @property (nonatomic, weak) IBOutlet NSTextField *applicationText;
 @property (nonatomic, weak) IBOutlet NSTextField * fileText;
-@property (nonatomic, unsafe_unretained) IBOutlet id parent;
+
+// cannot use weak properties to NSWindowControllers on OS X 10.7
+@property (nonatomic, unsafe_unretained) IBOutlet MyResponder *parent;
 
 - (IBAction) cancelButton: (id)sender;
 - (void) start;

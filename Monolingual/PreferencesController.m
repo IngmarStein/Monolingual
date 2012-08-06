@@ -19,7 +19,6 @@
 
 - (IBAction) add: (id)sender
 {
-#pragma unused(sender)
     NSOpenPanel *oPanel = [NSOpenPanel openPanel];
 
     [oPanel setAllowsMultipleSelection:YES];
