@@ -1,4 +1,4 @@
-Changelog for Monolingual 1.5.1
+Changelog for Monolingual 1.5.2
 ===============================
 
 * Restored compatibility with Mac OS X 10.7
