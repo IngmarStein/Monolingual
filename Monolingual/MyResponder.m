@@ -612,7 +612,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			SecRequirementRef	requirement;
 			OSStatus 			stErr;
 
-			stErr = SecRequirementCreateWithString(CFSTR("identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = \"3rd Party Mac Developer Application: Business Solution Group\"" ), kSecCSDefaultFlags, &requirement);
+			stErr = SecRequirementCreateWithString(CFSTR("identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = \"Developer ID Application: ti und m AG\"" ), kSecCSDefaultFlags, &requirement);
 
 			if (stErr == noErr) {
 				SecStaticCodeRef staticCodeRef;
