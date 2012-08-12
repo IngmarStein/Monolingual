@@ -5,30 +5,25 @@
  */
 
 #import "ProgressWindowController.h"
-#import "MyResponder.h"
 
 @implementation ProgressWindowController
 
 @synthesize progressBar;
 @synthesize applicationText;
 @synthesize fileText;
-@synthesize parent;
 
-- (IBAction) cancelButton: (id)sender
+- (IBAction)cancelButton:(id)sender
 {
 	[applicationText setStringValue:NSLocalizedString(@"Canceling operation...", "")];
 	[fileText setStringValue:@""];
-	[NSApp updateWindows];
-	[parent cancelRemove];
-}
 
-- (void) windowDidLoad
-{
-	[self start];
+	[self.window orderOut:sender];
+	[NSApp endSheet:self.window returnCode:1];
 }
 
 - (void) start
 {
+	[progressBar setUsesThreadedAnimation:YES];
 	[progressBar startAnimation:self];
 	[applicationText setStringValue:NSLocalizedString(@"Removing...", "")];
 	[fileText setStringValue:@""];

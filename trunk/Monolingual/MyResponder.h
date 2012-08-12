@@ -26,7 +26,7 @@
 
 @class ProgressWindowController, PreferencesController;
 
-@interface MyResponder : NSWindowController<GrowlApplicationBridgeDelegate>
+@interface MyResponder : NSWindowController<GrowlApplicationBridgeDelegate, NSApplicationDelegate>
 {
 }
 
@@ -34,17 +34,13 @@
 @property (nonatomic, strong) IBOutlet PreferencesController *preferencesController;
 @property (nonatomic, weak) IBOutlet NSTextField *currentArchitecture;
 
-+ (void) initialize;
 - (IBAction) documentationBundler:(id)sender;
 - (IBAction) openWebsite:(id)sender;
 - (IBAction) removeLanguages:(id)sender;
-- (IBAction) removeLayouts:(id)sender;
 - (IBAction) removeArchitectures:(id)sender;
 - (IBAction) showPreferences:(id)sender;
 - (IBAction) donate:(id)sender;
-- (void) scanLayouts;
-- (BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication *)theApplication;
-- (void) cancelRemove;
+
 - (void) warningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) englishWarningSelector: (NSWindow *)sheet returnCode: (int)returnCode contextInfo: (void *)contextInfo;
 - (void) awakeFromNib;
