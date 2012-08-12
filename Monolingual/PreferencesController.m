@@ -26,12 +26,13 @@
 	[oPanel setCanChooseFiles:NO];
 	[oPanel setTreatsFilePackagesAsDirectories:YES];
 
+	__weak __typeof__(self) wself = self;
 	[oPanel beginWithCompletionHandler:^(NSInteger result) {
 		if (NSOKButton == result) {
 			for (NSURL *url in [oPanel URLs]) {
-				[self.roots addObject:@{ @"Path" : [url path],
-										 @"Languages" : @YES,
-										 @"Architectures" : @YES}];
+				[wself.roots addObject:@{ @"Path" : [url path],
+										  @"Languages" : @YES,
+										  @"Architectures" : @YES}];
 			}
 		}
 	}];

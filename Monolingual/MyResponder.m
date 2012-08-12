@@ -26,8 +26,7 @@
 
 typedef enum {
 	ModeLanguages = 0,
-	ModeLayouts = 1,
-	ModeArchitectures = 2
+	ModeArchitectures = 1
 } MonolingualMode;
 
 #ifndef NELEMS
@@ -41,8 +40,8 @@ typedef struct arch_info_s {
 	cpu_subtype_t cpu_subtype;
 } arch_info_t;
 
-static FILE               *logFile;
-static char               logFileName[PATH_MAX];
+static FILE *logFile;
+static char logFileName[PATH_MAX];
 
 static const char suffixes[9] =
 {
@@ -143,13 +142,14 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	unsigned long long bytesSaved;
 	MonolingualMode    mode;
 	NSArray            *processApplication;
+	dispatch_queue_t   listener_queue;
+	dispatch_queue_t   peer_event_queue;
 	xpc_connection_t   connection;
 	xpc_connection_t   progressConnection;
 }
 
 @property(nonatomic, strong) NSArray *blacklist;
 @property(nonatomic, strong) NSArray *languages;
-@property(nonatomic, strong) NSMutableArray *layouts;
 @property(nonatomic, strong) NSArray *architectures;
 
 @end
@@ -158,14 +158,13 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 @synthesize blacklist;
 @synthesize languages;
-@synthesize layouts;
 @synthesize architectures;
 
 @synthesize progressWindowController;
 @synthesize preferencesController;
 @synthesize currentArchitecture;
 
-+ (void) initialize
+- (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
 	NSDictionary *applications = @{ @"Path" : @"/Applications", @"Languages" : @YES, @"Architectures" : @YES };
 	NSDictionary *developer    = @{ @"Path" : @"/Developer",    @"Languages" : @YES, @"Architectures" : @YES };
@@ -198,28 +197,10 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	return YES;
 }
 
-- (void) closeConnection {
-	if (progressConnection) {
-		// Cancel and release the anonymous connection which signals the remote
-		// service to stop, if working.
-		xpc_connection_cancel(progressConnection);
-		xpc_release(progressConnection);
-		progressConnection = NULL;
-	}
-
-	if (connection) {
-		xpc_connection_cancel(connection);
-		xpc_release(connection);
-		connection = NULL;
-	}
-	
-	[[NSProcessInfo processInfo] enableSuddenTermination];
-
-	[NSApp endSheet:[progressWindowController window]];
+- (void) finishProcessing {
 	[[progressWindowController window] orderOut:self];
 	[progressWindowController stop];
-
-	[GrowlApplicationBridge notifyWithDictionary:(NSDictionary *)finishedNotificationInfo];
+	[NSApp endSheet:[progressWindowController window] returnCode:0];
 }
 
 - (IBAction) documentationBundler:(id)sender
@@ -233,66 +214,13 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://monolingual.sourceforge.net/"]];
 }
 
-- (void) scanLayouts
-{
-	struct stat st;
-	NSString *layoutPath = @"/System/Library/Keyboard Layouts";
-	NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:layoutPath error:NULL];
-	NSMutableArray *scannedLayouts = [NSMutableArray arrayWithCapacity:files.count + 6];
-	for (NSString *file in files) {
-		if ([file hasSuffix:@".bundle"] && ![file isEqualToString:@"Roman.bundle"]) {
-			NSString *displayName = NSLocalizedString([file stringByDeletingPathExtension], "");
-			NSString *type = NSLocalizedString(@"Keyboard Layout", "");
-			NSDictionary *layout = @{ @"Enabled" : @NO, @"DisplayName" : displayName, @"Type" : type, @"Path" : [layoutPath stringByAppendingPathComponent:file] };
-			[scannedLayouts addObject:[layout mutableCopy]];
-		}
-	}
-	NSString *inputMethod = NSLocalizedString(@"Input Method","");
-	if (stat("/System/Library/Components/Kotoeri.component", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/Kotoeri.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Components/XPIM.component", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/XPIM.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Components/TCIM.component", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/TCIM.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Components/SCIM.component", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/SCIM.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Components/AnjalIM.component", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Murasu Anjal Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/AnjalIM.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Components/HangulIM.component", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Hangul", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Components/HangulIM.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Input Methods/KoreanIM.app", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Korean", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/KoreanIM.component" } mutableCopy]];
-	}
-	if (stat("/System/Library/Input Methods/Kotoeri.app", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Kotoeri", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/Kotoeri.app" } mutableCopy]];
-	}
-	if (stat("/System/Library/Input Methods/SCIM.app", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Simplified Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/SCIM.app" } mutableCopy]];
-	}
-	if (stat("/System/Library/Input Methods/TCIM.app", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Traditional Chinese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TCIM.app" } mutableCopy]];
-	}
-	if (stat("/System/Library/Input Methods/TamilIM.app", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Tamil", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/TamilIM.app" } mutableCopy]];
-	}
-	if (stat("/System/Library/Input Methods/VietnameseIM.app", &st) != -1) {
-		[scannedLayouts addObject:[@{ @"Enabled" : @NO, @"DisplayName" : NSLocalizedString(@"Vietnamese", ""), @"Type" : inputMethod, @"Path" : @"/System/Library/Input Methods/VietnameseIM.app" } mutableCopy]];
-	}
-	self.layouts = scannedLayouts;
-}
-
 - (IBAction) showPreferences:(id)sender
 {
 	[preferencesController showWindow:self];
 }
 
-- (IBAction) donate:(id)sender {
+- (IBAction) donate:(id)sender
+{
 	[[NSWorkspace sharedWorkspace] openURL:donateURL];
 }
 
@@ -307,19 +235,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 					  self, NULL,
 					  @selector(warningSelector:returnCode:contextInfo:),
 					  nil,
-					  NSLocalizedString(@"Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", ""));
-}
-
-- (IBAction) removeLayouts:(id)sender
-{
-	/* Display a warning first */
-	NSBeginAlertSheet(NSLocalizedString(@"WARNING!", ""),
-					  NSLocalizedString(@"Stop", ""),
-					  NSLocalizedString(@"Continue", ""),
-					  nil,
-					  [NSApp mainWindow],
-					  self, NULL,
-					  @selector(removeLayoutsWarning:returnCode:contextInfo:),(__bridge void *)(self),
 					  NSLocalizedString(@"Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", ""));
 }
 
@@ -346,7 +261,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			}
 		}
 	}];
-	
+
 	if (logFile)
 		fputs("\nModified files:\n", logFile);
 
@@ -472,6 +387,9 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 }
 
 - (void)processProgress:(xpc_object_t)progress {
+	if (!xpc_dictionary_get_count(progress))
+		return;
+	
 	NSString *file = [NSString stringWithUTF8String:xpc_dictionary_get_string(progress, "file")];
 	uint64_t size = xpc_dictionary_get_uint64(progress, "size");
 	bytesSaved += size;
@@ -486,19 +404,12 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		/* parse file name */
 		NSString *lang = nil;
 		NSString *app = nil;
-		NSString *layout = nil;
-		NSString *im = nil;
-		BOOL cache = NO;
 
 		if (mode == ModeLanguages) {
 			NSArray *pathComponents = [file componentsSeparatedByString:@"/"];
 			for (NSString *pathComponent in pathComponents) {
 				if ([pathComponent hasSuffix:@".app"]) {
 					app = [pathComponent substringToIndex:pathComponent.length - 4];
-				} else if ([pathComponent hasSuffix:@".bundle"]) {
-					layout = [pathComponent substringToIndex:pathComponent.length - 7];
-				} else if ([pathComponent hasSuffix:@".component"]) {
-					im = [pathComponent substringToIndex:pathComponent.length - 10];
 				} else if ([pathComponent hasSuffix:@".lproj"]) {
 					for (NSDictionary *language in self.languages) {
 						NSArray *folders = [language objectForKey:@"Folders"];
@@ -507,18 +418,10 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 							break;
 						}
 					}
-				} else if ([pathComponent hasPrefix:@"com.apple.IntlDataCache"]) {
-					cache = YES;
 				}
 			}
 		}
-		if (layout && [file hasPrefix:@"/System/Library/"]) {
-			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing keyboard layout", ""), layout, (unsigned short)0x2026];
-		} else if (im && [file hasPrefix:@"/System/Library/"]) {
-			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing input method", ""), layout, (unsigned short)0x2026];
-		} else if (cache) {
-			message = [NSString stringWithFormat:@"%@%C", NSLocalizedString(@"Clearing cache", ""), (unsigned short)0x2026];
-		} else if (app) {
+		if (app) {
 			message = [NSString stringWithFormat:@"%@ %@ %@ %@%C", NSLocalizedString(@"Removing language", ""), lang, NSLocalizedString(@"from", ""), app, (unsigned short)0x2026];
 		} else if (lang) {
 			message = [NSString stringWithFormat:@"%@ %@%C", NSLocalizedString(@"Removing language", ""), lang, (unsigned short)0x2026];
@@ -530,51 +433,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	[progressWindowController setText:message];
 	[progressWindowController setFile:file];
 	[NSApp setWindowsNeedUpdate:YES];
-}
-
-- (void) cancelRemove
-{
-	[self closeConnection];
-		
-	char hbuf[LONGEST_HUMAN_READABLE + 1];
-	NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
-					  [NSApp mainWindow], self, NULL, NULL, NULL,
-					  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %s.", ""),
-					  human_readable(bytesSaved, hbuf, 1000));
-	
-	[self scanLayouts];
-
-	if (processApplication) {
-		processApplication = nil;
-	}
-	
-	if (logFile) {
-		fclose(logFile);
-		logFile = NULL;
-	}
-}
-
-- (void) finishedProcessing {
-	[self closeConnection];
-
-	if (processApplication) {
-		[self removeArchitectures:nil];
-		processApplication = nil;
-	} else {
-		char hbuf[LONGEST_HUMAN_READABLE + 1];
-
-		NSBeginAlertSheet(NSLocalizedString(@"Removal completed", ""),
-						  nil, nil, nil, parentWindow, self, NULL, NULL,
-						  NULL,
-						  NSLocalizedString(@"Files removed. Space saved: %s.", ""),
-						  human_readable(bytesSaved, hbuf, 1000));
-		[self scanLayouts];
-
-		if (logFile) {
-			fclose(logFile);
-			logFile = NULL;
-		}
-	}
 }
 
 - (void) runDeleteHelperWithArgs:(xpc_object_t)arguments
@@ -625,7 +483,10 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 					if (stErr == noErr) {
 						needToInstall = NO;
 					}
+					
+					CFRelease(staticCodeRef);
 				}
+				CFRelease(requirement);
 			}
 		}
 	}
@@ -660,12 +521,10 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		}
 	});
 
-	dispatch_queue_t listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", NULL);
-	assert(listener_queue != NULL);
-	
 	// Create an anonymous listener connection that collects progress updates.
 	progressConnection = xpc_connection_create(NULL, listener_queue);
-	
+
+	__weak __typeof__(self) wself = self;
 	if (progressConnection) {
 		xpc_connection_set_event_handler(progressConnection, ^(xpc_object_t event) {
 			xpc_type_t type = xpc_get_type(event);
@@ -679,19 +538,12 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			} else if (XPC_TYPE_CONNECTION == type) {
 				xpc_connection_t peer = (xpc_connection_t)event;
 				
-				char *queue_name = NULL;
-				asprintf(&queue_name, "%s-peer-%d", "net.sourceforge.Monolingual.ProgressPanel",
-						 xpc_connection_get_pid(peer));
-				dispatch_queue_t peer_event_queue = dispatch_queue_create(queue_name, NULL);
-				assert(peer_event_queue != NULL);
-				free(queue_name);
-				
 				xpc_connection_set_target_queue(peer, peer_event_queue);
 				xpc_connection_set_event_handler(peer, ^(xpc_object_t nevent) {
 					xpc_type_t ntype = xpc_get_type(nevent);
-					
+
 					if (XPC_TYPE_DICTIONARY == ntype) {
-						[self processProgress:nevent];
+						[wself processProgress:nevent];
 					}
 				});
 				xpc_connection_resume(peer);
@@ -715,74 +567,83 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			int64_t exit_code = xpc_dictionary_get_int64(event, "exit_code");
 			NSLog(@"helper finished with exit code: %lld", exit_code);
 			if (!exit_code)
-				[self finishedProcessing];
+				[wself finishProcessing];
 		}
 	});
 
-	parentWindow = [NSApp mainWindow];
 	[progressWindowController start];
-	[NSApp beginSheet:[progressWindowController window]
-	   modalForWindow:parentWindow
-		modalDelegate:nil
-	   didEndSelector:nil
+	[NSApp beginSheet:progressWindowController.window
+	   modalForWindow:self.window
+		modalDelegate:self
+	   didEndSelector:@selector(progressDidEnd:returnCode:contextInfo:)
 		  contextInfo:nil];
 
-	[GrowlApplicationBridge notifyWithDictionary:startedNotificationInfo];
+	if ([NSUserNotificationCenter class]) {
+		NSUserNotification *notification = [NSUserNotification new];
+		notification.title = NSLocalizedString(@"Monolingual started", "");
+		notification.informativeText = NSLocalizedString(@"Started removing files", "");
+		
+		NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
+		[center deliverNotification:notification];
+	} else {
+		[GrowlApplicationBridge notifyWithDictionary:startedNotificationInfo];
+	}
 }
 
-- (void) removeLayoutsWarning:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void) progressDidEnd:(NSWindow *)panel returnCode:(int)returnCode contextInfo:(void *)context
 {
-	if (NSAlertDefaultReturn == returnCode) {
-		NSBeginAlertSheet(NSLocalizedString(@"Nothing done", ""), nil, nil, nil,
-						  [NSApp mainWindow], self, NULL, NULL, contextInfo,
-						  NSLocalizedString(@"Monolingual is stopping without making any changes. Your OS has not been modified.", ""));
-	} else {
-		mode = ModeLayouts;
-		logFile = fopen(logFileName, "at");
-		if (logFile) {
-			time_t now = time(NULL);
-			fprintf(logFile, "Monolingual started at %sRemoving layouts: ", ctime(&now));
-		}
+	char hbuf[LONGEST_HUMAN_READABLE + 1];
 
-		xpc_object_t files = xpc_array_create(NULL, 0);
-		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache");
-		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache.kbdx");
-		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache.sbdl");
-		xpc_array_set_string(files, XPC_ARRAY_APPEND, "/System/Library/Caches/com.apple.IntlDataCache.tecx");
-		NSInteger rCount = 0;
-		for (NSDictionary *layout in self.layouts) {
-			if ([layout[@"Enabled"] boolValue]) {
-				xpc_array_set_string(files, XPC_ARRAY_APPEND, [layout[@"Path"] UTF8String]);
-				if (logFile) {
-					if (rCount)
-						fputs(" ", logFile);
-					NSString *displayName = layout[@"DisplayName"];
-					fputs([displayName UTF8String], logFile);
-				}
-				rCount++;
-			}
-		}
-		
-		if (logFile)
-			fputs("\nDeleted files: \n", logFile);
-
-		if (rCount) {
-			xpc_object_t xpc_message = xpc_dictionary_create(NULL, NULL, 0);
-			xpc_dictionary_set_bool(xpc_message, "trash", [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"]);
-			xpc_dictionary_set_value(xpc_message, "files", files);
-			
-			[self runDeleteHelperWithArgs:xpc_message];
-
-			xpc_release(xpc_message);
-		} else {
-			if (logFile) {
-				fclose(logFile);
-				logFile = NULL;
-			}
-		}
-		
-		xpc_release(files);
+	if (processApplication) {
+		processApplication = nil;
 	}
+	
+	if (returnCode == 1) {
+		if (progressConnection) {
+			// Cancel and release the anonymous connection which signals the remote
+			// service to stop, if working.
+			NSLog(@"Closing progress connection");
+			xpc_connection_cancel(progressConnection);
+			xpc_release(progressConnection);
+			progressConnection = NULL;
+		}
+
+		NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
+						  [NSApp mainWindow], self, NULL, NULL, NULL,
+						  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %s.", ""),
+						  human_readable(bytesSaved, hbuf, 1000));
+	} else {
+		NSBeginAlertSheet(NSLocalizedString(@"Removal completed", ""),
+						  nil, nil, nil, parentWindow, self, NULL, NULL,
+						  NULL,
+						  NSLocalizedString(@"Files removed. Space saved: %s.", ""),
+						  human_readable(bytesSaved, hbuf, 1000));
+		
+		if ([NSUserNotificationCenter class]) {
+			NSUserNotification *notification = [NSUserNotification new];
+			notification.title = NSLocalizedString(@"Monolingual finished", "");
+			notification.informativeText = NSLocalizedString(@"Finished removing files", "");
+			
+			NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
+			[center deliverNotification:notification];
+		} else {
+			[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
+		}
+	}
+
+	if (connection) {
+		NSLog(@"Closing connection");
+		xpc_connection_cancel(connection);
+		xpc_release(connection);
+		connection = NULL;
+	}
+	
+	if (logFile) {
+		fclose(logFile);
+		logFile = NULL;
+	}
+
+	[[NSProcessInfo processInfo] enableSuddenTermination];
 }
 
 - (void) warningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
@@ -908,11 +769,16 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	}
 }
 
-
 - (void) awakeFromNib
 {
 	donateURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/donate.php"];
 
+	listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", NULL);
+	assert(listener_queue != NULL);
+
+	peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", NULL);
+	assert(peer_event_queue != NULL);
+	
 	NSArray *languagePref = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 	NSMutableSet *userLanguages = [NSMutableSet setWithArray:languagePref];
 	
@@ -1067,8 +933,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	}];
 	self.languages = knownLanguages;
 
-	[self scanLayouts];
-
 	const arch_info_t archs[10] = {
 		{ "arm",       "ARM",               CPU_TYPE_ARM,       CPU_SUBTYPE_ARM_ALL},
 		{ "ppc",       "PowerPC",           CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL},
@@ -1090,7 +954,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	mach_port_deallocate(mach_task_self(), my_mach_host_self);
 
 	if (hostInfo.cpu_type == CPU_TYPE_X86) {
-		/* fix host_info */
+		// fix host_info
 		int x86_64;
 		size_t x86_64_size = sizeof(x86_64);
 		if (!sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, NULL, 0)) {
@@ -1118,7 +982,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	}
 	self.architectures = knownArchitectures;
 
-	/* set ourself as the Growl delegate */
+	// set ourself as the Growl delegate
 	[GrowlApplicationBridge setGrowlDelegate:self];
 
 	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", "");
@@ -1148,6 +1012,15 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		GROWL_NOTIFICATIONS_ALL : defaultAndAllNotifications,
 		GROWL_NOTIFICATIONS_DEFAULT : defaultAndAllNotifications
 	};
+}
+
+- (BOOL) hasNetworkClientEntitlement {
+	return YES;
+}
+
+- (void)dealloc {
+	dispatch_release(listener_queue);
+	dispatch_release(peer_event_queue);
 }
 
 @end

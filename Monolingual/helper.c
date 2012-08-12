@@ -588,7 +588,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	__block helper_context_t context;
 
 	context.should_exit = 0;
-	
+
 	context.connection = xpc_dictionary_create_connection(request, "connection");
 
 	// Check XPC Connection
@@ -601,15 +601,20 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	// cancel notification.
 	xpc_connection_set_event_handler(context.connection, ^(xpc_object_t event) {
 		xpc_type_t type = xpc_get_type(event);
-		
+
 		// If the remote end of this connection has gone away then stop download
 		if (XPC_TYPE_ERROR == type &&
 			XPC_ERROR_CONNECTION_INTERRUPTED == event) {
-			syslog(LOG_NOTICE, "Stopping MonolingualHelper\n");
+			syslog(LOG_NOTICE, "Stopping MonolingualHelper");
 			context.should_exit = 1;
 		}
 	});
 	xpc_connection_resume(context.connection);
+
+	// send at least one message to allow the progress connection to be canceled
+	xpc_object_t ping = xpc_dictionary_create(NULL, NULL, 0);
+	xpc_connection_send_message(context.connection, ping);
+	xpc_release(ping);
 
 	context.remove_func = delete_recursively;
 	
@@ -700,7 +705,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 }
 
 static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
-	syslog(LOG_NOTICE, "Received event in helper.");
+	syslog(LOG_NOTICE, "Received event in helper on queue %s.", dispatch_queue_get_label(dispatch_get_current_queue()));
 
 	xpc_type_t type = xpc_get_type(event);
 
@@ -734,6 +739,9 @@ static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 
 		xpc_connection_send_message(peer, replyMessage);
 		xpc_release(replyMessage);
+
+		// exit after one job
+		exit(EXIT_SUCCESS);
 	}
 }
 

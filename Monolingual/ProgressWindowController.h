@@ -31,16 +31,12 @@
 
 @property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
 @property (nonatomic, weak) IBOutlet NSTextField *applicationText;
-@property (nonatomic, weak) IBOutlet NSTextField * fileText;
-
-// cannot use weak properties to NSWindowControllers on OS X 10.7
-@property (nonatomic, unsafe_unretained) IBOutlet MyResponder *parent;
+@property (nonatomic, weak) IBOutlet NSTextField *fileText;
 
 - (IBAction) cancelButton: (id)sender;
 - (void) start;
 - (void) stop;
 - (void) setText:(NSString *)text;
 - (void) setFile:(NSString *)file;
-- (void) windowDidLoad;
 
 @end
