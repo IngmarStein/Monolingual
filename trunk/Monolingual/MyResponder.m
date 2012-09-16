@@ -592,10 +592,16 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (void) progressDidEnd:(NSWindow *)panel returnCode:(int)returnCode contextInfo:(void *)context
 {
-	char hbuf[LONGEST_HUMAN_READABLE + 1];
-
 	if (processApplication) {
 		processApplication = nil;
+	}
+	
+	NSString *byteCount;
+	if ([NSByteCountFormatter class]) {
+		byteCount = [NSByteCountFormatter stringFromByteCount:bytesSaved countStyle:NSByteCountFormatterCountStyleFile];
+	} else {
+		char hbuf[LONGEST_HUMAN_READABLE + 1];
+		byteCount = @(human_readable(bytesSaved, hbuf, 1000));
 	}
 	
 	if (returnCode == 1) {
@@ -610,14 +616,14 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 		NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
 						  [NSApp mainWindow], self, NULL, NULL, NULL,
-						  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %s.", ""),
-						  human_readable(bytesSaved, hbuf, 1000));
+						  NSLocalizedString(@"You cancelled the removal. Some files were erased, some were not. Space saved: %@.", ""),
+						  byteCount);
 	} else {
 		NSBeginAlertSheet(NSLocalizedString(@"Removal completed", ""),
 						  nil, nil, nil, parentWindow, self, NULL, NULL,
 						  NULL,
-						  NSLocalizedString(@"Files removed. Space saved: %s.", ""),
-						  human_readable(bytesSaved, hbuf, 1000));
+						  NSLocalizedString(@"Files removed. Space saved: %@.", ""),
+						  byteCount);
 		
 		if ([NSUserNotificationCenter class]) {
 			NSUserNotification *notification = [NSUserNotification new];
