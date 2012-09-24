@@ -740,8 +740,10 @@ static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 		xpc_connection_send_message(peer, replyMessage);
 		xpc_release(replyMessage);
 
-		// exit after one job
-		exit(EXIT_SUCCESS);
+		dispatch_async(dispatch_get_main_queue(), ^ __attribute__((noreturn)) {
+			// exit after one job
+			exit(EXIT_SUCCESS);
+		});
 	}
 }
 
