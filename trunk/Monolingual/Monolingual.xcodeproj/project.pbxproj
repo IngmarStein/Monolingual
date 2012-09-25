@@ -520,6 +520,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = Info.plist;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					Foundation,
+				);
 				PRODUCT_NAME = Monolingual;
 				WRAPPER_EXTENSION = app;
 			};
@@ -536,6 +540,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = Info.plist;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					Foundation,
+				);
 				PRODUCT_NAME = Monolingual;
 				WRAPPER_EXTENSION = app;
 			};
