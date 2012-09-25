@@ -524,7 +524,9 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	// Create an anonymous listener connection that collects progress updates.
 	progressConnection = xpc_connection_create(NULL, listener_queue);
 
-	__weak __typeof__(self) wself = self;
+	// Weak references to NSWindowControllers are not supported on 10.7
+	//__weak __typeof__(self) wself = self;
+	__unsafe_unretained __typeof__(self) wself = self;
 	if (progressConnection) {
 		xpc_connection_set_event_handler(progressConnection, ^(xpc_object_t event) {
 			xpc_type_t type = xpc_get_type(event);
