@@ -600,7 +600,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	
 	NSString *byteCount;
 	char hbuf[LONGEST_HUMAN_READABLE + 1];
-	if ([NSByteCountFormatter class]) {
+	if ([NSByteCountFormatter class] && [[NSByteCountFormatter class] respondsToSelector:@selector(stringFromByteCount:countStyle:)]) {
 		byteCount = [NSByteCountFormatter stringFromByteCount:bytesSaved countStyle:NSByteCountFormatterCountStyleFile];
 	} else {
 		byteCount = @(human_readable(bytesSaved, hbuf, 1000));
