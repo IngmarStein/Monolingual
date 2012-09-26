@@ -26,7 +26,9 @@
 	[oPanel setCanChooseFiles:NO];
 	[oPanel setTreatsFilePackagesAsDirectories:YES];
 
-	__weak __typeof__(self) wself = self;
+	// Weak references to NSWindowControllers are not supported on 10.7
+	//__weak __typeof__(self) wself = self;
+	__unsafe_unretained __typeof__(self) wself = self;
 	[oPanel beginWithCompletionHandler:^(NSInteger result) {
 		if (NSOKButton == result) {
 			for (NSURL *url in [oPanel URLs]) {
