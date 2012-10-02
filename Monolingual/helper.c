@@ -729,21 +729,20 @@ static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 		
 		syslog(LOG_NOTICE, "received message from peer(%d)\n:%s", xpc_connection_get_pid(peer), messageDescription);
 		free(messageDescription);
+		
+		if (xpc_dictionary_get_value(requestMessage, "exit_code")) {
+			exit(xpc_dictionary_get_int64(requestMessage, "exit_code"));
+		} else {
+			xpc_object_t replyMessage = xpc_dictionary_create_reply(requestMessage);
+			process_request(requestMessage, replyMessage);
 
-		xpc_object_t replyMessage = xpc_dictionary_create_reply(requestMessage);
-		process_request(requestMessage, replyMessage);
+			messageDescription = xpc_copy_description(replyMessage);
+			syslog(LOG_NOTICE, "reply message to peer(%d)\n: %s", xpc_connection_get_pid(peer), messageDescription);
+			free(messageDescription);
 
-		messageDescription = xpc_copy_description(replyMessage);
-		syslog(LOG_NOTICE, "reply message to peer(%d)\n: %s", xpc_connection_get_pid(peer), messageDescription);
-		free(messageDescription);
-
-		xpc_connection_send_message(peer, replyMessage);
-		xpc_release(replyMessage);
-
-		dispatch_async(dispatch_get_main_queue(), ^ __attribute__((noreturn)) {
-			// exit after one job
-			exit(EXIT_SUCCESS);
-		});
+			xpc_connection_send_message(peer, replyMessage);
+			xpc_release(replyMessage);
+		}
 	}
 }
 

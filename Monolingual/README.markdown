@@ -1,4 +1,4 @@
-Changelog for Monolingual 1.5.4
+Changelog for Monolingual 1.5.5
 ===============================
 
-* Restored compatibility with Mac OS X 10.7 Lion.
+* Miscellaneous bugfixes.
