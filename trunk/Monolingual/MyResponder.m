@@ -568,6 +568,14 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		if (XPC_TYPE_DICTIONARY == type) {
 			int64_t exit_code = xpc_dictionary_get_int64(event, "exit_code");
 			NSLog(@"helper finished with exit code: %lld", exit_code);
+
+			if (connection) {
+				xpc_object_t exit_message = xpc_dictionary_create(NULL, NULL, 0);
+				xpc_dictionary_set_int64(exit_message, "exit_code", exit_code);
+				xpc_connection_send_message(connection, exit_message);
+				xpc_release(exit_message);
+			}
+
 			if (!exit_code)
 				[wself finishProcessing];
 		}
@@ -608,6 +616,13 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	
 	if (returnCode == 1) {
 		if (progressConnection) {
+			if (connection) {
+				xpc_object_t exit_message = xpc_dictionary_create(NULL, NULL, 0);
+				xpc_dictionary_set_int64(exit_message, "exit_code", EXIT_FAILURE);
+				xpc_connection_send_message(connection, exit_message);
+				xpc_release(exit_message);
+			}
+
 			// Cancel and release the anonymous connection which signals the remote
 			// service to stop, if working.
 			NSLog(@"Closing progress connection");
