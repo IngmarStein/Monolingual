@@ -124,6 +124,7 @@ static int has_code_signature(const char *path)
 		return -1;
 	}
 	size = (size_t)stat_buf.st_size;
+	fcntl(fd, F_NOCACHE, 1);
 
 	addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (MAP_FAILED == addr) {
