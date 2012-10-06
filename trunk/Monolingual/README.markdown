@@ -1,4 +1,4 @@
-Changelog for Monolingual 1.5.5
+Changelog for Monolingual 1.5.6
 ===============================
 
-* Miscellaneous bugfixes.
+* Fixed helper tool upgrade process.
