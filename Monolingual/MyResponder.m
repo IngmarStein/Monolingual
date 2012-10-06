@@ -444,29 +444,27 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	BOOL needToInstall = YES;
 
 	if (installedHelperJobData) {
-		NSLog(@"helperJobData: %@", installedHelperJobData );
+		NSLog(@"helperJobData: %@", installedHelperJobData);
     
 		NSString  		*installedPath 			= [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
 		NSURL			*installedPathURL		= [NSURL fileURLWithPath:installedPath];
 		
 		NSDictionary 	*installedInfoPlist 	= CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)installedPathURL));
 		NSString		*installedBundleVersion	= [installedInfoPlist objectForKey:@"CFBundleVersion"];
-		NSInteger		installedVersion		= [installedBundleVersion integerValue];
 
-		NSLog(@"installedVersion: %ld", (long)installedVersion );
+		NSLog(@"installedVersion: %@", installedBundleVersion);
 
 		NSURL			*appBundleURL	= [[NSBundle mainBundle] bundleURL];
     
-		NSLog(@"appBundleURL: %@", appBundleURL );
-    
+		NSLog(@"appBundleURL: %@", appBundleURL);
+
 		NSURL			*currentHelperToolURL	= [appBundleURL URLByAppendingPathComponent:@"Contents/Library/LaunchServices/net.sourceforge.MonolingualHelper"];
 		NSDictionary 	*currentInfoPlist 		= CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)currentHelperToolURL));
 		NSString		*currentBundleVersion	= [currentInfoPlist objectForKey:@"CFBundleVersion"];
-		NSInteger		currentVersion			= [currentBundleVersion integerValue];
 
-		NSLog(@"currentVersion: %ld", (long)currentVersion);
+		NSLog(@"currentVersion: %@", currentBundleVersion);
     
-		if (currentVersion == installedVersion) {
+		if ([currentBundleVersion isEqualToString:installedBundleVersion]) {
 			SecRequirementRef	requirement;
 			OSStatus 			stErr;
 
