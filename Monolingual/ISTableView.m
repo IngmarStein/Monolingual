@@ -10,8 +10,6 @@
 
 @implementation ISTableView
 
-@synthesize arrayController;
-
 - (void) keyDown:(NSEvent *)theEvent
 {
 	NSInteger row;
@@ -21,7 +19,7 @@
 		case ' ':
 			row = [self selectedRow];
 			if (row != -1) {
-				NSMutableDictionary *dict = [arrayController arrangedObjects][row];
+				NSMutableDictionary *dict = [self.arrayController arrangedObjects][row];
 				if (dict) {
 					dict[@"Enabled"] = @(![dict[@"Enabled"] boolValue]);
 				}

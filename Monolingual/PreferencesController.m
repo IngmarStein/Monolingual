@@ -10,8 +10,6 @@
 
 @implementation PreferencesController
 
-@synthesize roots;
-
 - (void) awakeFromNib
 {
 	[[self window] setFrameAutosaveName:@"PreferencesWindow"];

@@ -8,14 +8,10 @@
 
 @implementation ProgressWindowController
 
-@synthesize progressBar;
-@synthesize applicationText;
-@synthesize fileText;
-
 - (IBAction)cancelButton:(id)sender
 {
-	[applicationText setStringValue:NSLocalizedString(@"Canceling operation...", "")];
-	[fileText setStringValue:@""];
+	[self.applicationText setStringValue:NSLocalizedString(@"Canceling operation...", "")];
+	[self.fileText setStringValue:@""];
 
 	[self.window orderOut:sender];
 	[NSApp endSheet:self.window returnCode:1];
@@ -23,25 +19,25 @@
 
 - (void) start
 {
-	[progressBar setUsesThreadedAnimation:YES];
-	[progressBar startAnimation:self];
-	[applicationText setStringValue:NSLocalizedString(@"Removing...", "")];
-	[fileText setStringValue:@""];
+	[self.progressBar setUsesThreadedAnimation:YES];
+	[self.progressBar startAnimation:self];
+	[self.applicationText setStringValue:NSLocalizedString(@"Removing...", "")];
+	[self.fileText setStringValue:@""];
 }
 
 - (void) stop
 {
-	[progressBar stopAnimation:self];
+	[self.progressBar stopAnimation:self];
 }
 
 - (void) setFile:(NSString *)file
 {
-	[fileText setStringValue:file];
+	[self.fileText setStringValue:file];
 }
 
 - (void) setText:(NSString *)text
 {
-	[applicationText setStringValue:text];
+	[self.applicationText setStringValue:text];
 }
 
 @end
