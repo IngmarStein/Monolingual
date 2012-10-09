@@ -156,14 +156,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 @implementation MyResponder
 
-@synthesize blacklist;
-@synthesize languages;
-@synthesize architectures;
-
-@synthesize progressWindowController;
-@synthesize preferencesController;
-@synthesize currentArchitecture;
-
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
 	NSDictionary *applications = @{ @"Path" : @"/Applications", @"Languages" : @YES, @"Architectures" : @YES };
@@ -198,9 +190,9 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 }
 
 - (void) finishProcessing {
-	[[progressWindowController window] orderOut:self];
-	[progressWindowController stop];
-	[NSApp endSheet:[progressWindowController window] returnCode:0];
+	[[self.progressWindowController window] orderOut:self];
+	[self.progressWindowController stop];
+	[NSApp endSheet:[self.progressWindowController window] returnCode:0];
 }
 
 - (IBAction) documentationBundler:(id)sender
@@ -216,7 +208,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (IBAction) showPreferences:(id)sender
 {
-	[preferencesController showWindow:self];
+	[self.preferencesController showWindow:self];
 }
 
 - (IBAction) donate:(id)sender
@@ -430,8 +422,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		}
 	}
 
-	[progressWindowController setText:message];
-	[progressWindowController setFile:file];
+	[self.progressWindowController setText:message];
+	[self.progressWindowController setFile:file];
 	[NSApp setWindowsNeedUpdate:YES];
 }
 
@@ -579,8 +571,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		}
 	});
 
-	[progressWindowController start];
-	[NSApp beginSheet:progressWindowController.window
+	[self.progressWindowController start];
+	[NSApp beginSheet:self.progressWindowController.window
 	   modalForWindow:self.window
 		modalDelegate:self
 	   didEndSelector:@selector(progressDidEnd:returnCode:contextInfo:)
@@ -986,7 +978,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		}
 	}
 
-	[currentArchitecture setStringValue:@"unknown"];
+	[self.currentArchitecture setStringValue:@"unknown"];
 
 	NSMutableArray *knownArchitectures = [NSMutableArray arrayWithCapacity:NELEMS(archs)];
 	for (unsigned i=0U; i<NELEMS(archs); ++i) {
@@ -998,7 +990,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		[knownArchitectures addObject:[architecture mutableCopy]];
 		if (hostInfo.cpu_type == archs[i].cpu_type && hostInfo.cpu_subtype == archs[i].cpu_subtype) {
 			NSString *label = [NSString stringWithFormat:NSLocalizedString(@"Current architecture: %@", ""), @(archs[i].displayName)];
-			[currentArchitecture setStringValue:label];
+			[self.currentArchitecture setStringValue:label];
 		}
 	}
 	self.architectures = knownArchitectures;
