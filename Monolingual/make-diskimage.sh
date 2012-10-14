@@ -8,7 +8,6 @@
 #                       <eula_resource_file>
 
 set -e;
-set -x;
 
 DMG_DIRNAME=`dirname $1`
 DMG_DIR=`cd $DMG_DIRNAME > /dev/null; pwd`
