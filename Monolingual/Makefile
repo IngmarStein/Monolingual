@@ -27,7 +27,7 @@ release: deployment
 	mkdir -p $(RELEASE_DIR)/build
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/COPYING.txt $(RELEASE_DIR)/build
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
-	cp -R dmg-bg.tiff $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
+	cp dmg-bg.tiff $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.scpt
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \

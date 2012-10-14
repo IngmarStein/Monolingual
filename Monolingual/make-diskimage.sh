@@ -1,3 +1,4 @@
+#!/bin/sh
 # Create a read-only disk image of the contents of a folder
 #
 # Usage: make-diskimage <image_file>
@@ -7,6 +8,7 @@
 #                       <eula_resource_file>
 
 set -e;
+set -x;
 
 DMG_DIRNAME=`dirname $1`
 DMG_DIR=`cd $DMG_DIRNAME > /dev/null; pwd`
@@ -14,6 +16,7 @@ DMG_NAME=`basename $1`
 DMG_TEMP_NAME=${DMG_DIR}/rw.${DMG_NAME}
 SRC_FOLDER=`cd $2 > /dev/null; pwd`
 VOLUME_NAME=$3
+DEVELOPER=`xcode-select --print-path`
 
 # optional arguments
 APPLESCRIPT=$4
@@ -31,6 +34,7 @@ DEV_NAME=`hdiutil attach -readwrite -noverify -noautoopen $DMG_TEMP_NAME | egrep
 
 # run applescript
 if [ ! -z "${APPLESCRIPT}" -a "${APPLESCRIPT}" != "-null-" ]; then
+	echo "running ${APPLESCRIPT}"
 	/usr/bin/osascript $APPLESCRIPT
 fi
 
@@ -40,7 +44,9 @@ chmod -Rf go-w ${MOUNT_DIR} || true
 
 # make the top window open itself on mount:
 if [ -x /usr/local/bin/openUp ]; then
-    /usr/local/bin/openUp ${MOUNT_DIR}
+	/usr/local/bin/openUp ${MOUNT_DIR}
+elif [ -x ~/bin/openUp ]; then
+	~/bin/openUp ${MOUNT_DIR}
 fi
 
 # unmount
@@ -54,10 +60,10 @@ rm -f $DMG_TEMP_NAME
 
 # adding EULA resources
 if [ ! -z "${EULA_RSRC}" -a "${EULA_RSRC}" != "-null-" ]; then
-        echo "adding EULA resources"
-        hdiutil unflatten ${DMG_DIR}/${DMG_NAME}
-        /Developer/Tools/ResMerger -a ${EULA_RSRC} -o ${DMG_DIR}/${DMG_NAME}
-        hdiutil flatten ${DMG_DIR}/${DMG_NAME}
+	echo "adding EULA resources"
+	hdiutil unflatten ${DMG_DIR}/${DMG_NAME}
+	"$DEVELOPER/Tools/ResMerger" -a ${EULA_RSRC} -o ${DMG_DIR}/${DMG_NAME}
+	hdiutil flatten ${DMG_DIR}/${DMG_NAME}
 fi
 
 echo "disk image done"
