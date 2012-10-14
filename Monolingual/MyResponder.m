@@ -7,10 +7,8 @@
 #import "MyResponder.h"
 #import "ProgressWindowController.h"
 #import "PreferencesController.h"
+#import "MonolingualHelperClient.h"
 #import <Growl/GrowlDefines.h>
-#include <ServiceManagement/ServiceManagement.h>
-#include <Security/Authorization.h>
-#include <Security/AuthorizationTags.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
@@ -314,70 +312,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	xpc_release(archs);
 }
 
-- (BOOL)blessHelperWithLabel:(NSString *)label error:(NSError **)error {
-	BOOL result = NO;
-	
-	AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
-	AuthorizationRights authRights	= { 1, &authItem };
-	AuthorizationFlags flags		=	kAuthorizationFlagDefaults				| 
-										kAuthorizationFlagInteractionAllowed	|
-										kAuthorizationFlagPreAuthorize			|
-										kAuthorizationFlagExtendRights;
-	
-	AuthorizationRef authRef = NULL;
-	
-	/* Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper). */
-	OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
-	switch (status) {
-		case errAuthorizationSuccess: {
-			/* This does all the work of verifying the helper tool against the application
-			 * and vice-versa. Once verification has passed, the embedded launchd.plist
-			 * is extracted and placed in /Library/LaunchDaemons and then loaded. The
-			 * executable is placed in /Library/PrivilegedHelperTools.
-			 */
-			CFErrorRef cfError = NULL;
-			result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, authRef, &cfError);
-			if (error)
-				*error = (__bridge NSError *)cfError;
-			break;
-		}
-		case errAuthorizationDenied: {
-			/* If you can't do it because you're not administrator, then let the user know! */
-			NSBeginAlertSheet(NSLocalizedString(@"Permission Error", ""), nil, nil, nil,
-							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  NSLocalizedString(@"You entered an incorrect administrator password.", ""));
-			if (logFile) {
-				fclose(logFile);
-				logFile = NULL;
-			}
-			break;
-		}
-		case errAuthorizationCanceled: {
-			NSBeginAlertSheet(NSLocalizedString(@"Nothing done", ""), nil, nil, nil,
-							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  NSLocalizedString(@"Monolingual is stopping without making any changes. Your OS has not been modified.", ""));
-			if (logFile) {
-				fclose(logFile);
-				logFile = NULL;
-			}
-			break;
-		}
-		default: {
-			NSBeginAlertSheet(NSLocalizedString(@"Authorization Error", ""), nil, nil, nil,
-							  [NSApp mainWindow], self, NULL, NULL, NULL,
-							  NSLocalizedString(@"Failed to authorize as an administrator.", ""));
-			if (logFile) {
-				fclose(logFile);
-				logFile = NULL;
-			}
-			break;
-		}
-	}
-	AuthorizationFree(authRef, kAuthorizationFlagDefaults);
-
-	return result;
-}
-
 - (void)processProgress:(xpc_object_t)progress {
 	if (!xpc_dictionary_get_count(progress))
 		return;
@@ -432,57 +366,46 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	bytesSaved = 0ULL;
 
 	NSError *error = nil;
-	NSDictionary *installedHelperJobData = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, CFSTR("net.sourceforge.MonolingualHelper")));
-	BOOL needToInstall = YES;
-
-	if (installedHelperJobData) {
-		NSLog(@"helperJobData: %@", installedHelperJobData);
-    
-		NSString  		*installedPath 			= [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
-		NSURL			*installedPathURL		= [NSURL fileURLWithPath:installedPath];
-		
-		NSDictionary 	*installedInfoPlist 	= CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)installedPathURL));
-		NSString		*installedBundleVersion	= [installedInfoPlist objectForKey:@"CFBundleVersion"];
-
-		NSLog(@"installedVersion: %@", installedBundleVersion);
-
-		NSURL			*appBundleURL	= [[NSBundle mainBundle] bundleURL];
-    
-		NSLog(@"appBundleURL: %@", appBundleURL);
-
-		NSURL			*currentHelperToolURL	= [appBundleURL URLByAppendingPathComponent:@"Contents/Library/LaunchServices/net.sourceforge.MonolingualHelper"];
-		NSDictionary 	*currentInfoPlist 		= CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)currentHelperToolURL));
-		NSString		*currentBundleVersion	= [currentInfoPlist objectForKey:@"CFBundleVersion"];
-
-		NSLog(@"currentVersion: %@", currentBundleVersion);
-    
-		if ([currentBundleVersion isEqualToString:installedBundleVersion]) {
-			SecRequirementRef	requirement;
-			OSStatus 			stErr;
-
-			stErr = SecRequirementCreateWithString(CFSTR("identifier net.sourceforge.MonolingualHelper and certificate leaf[subject.CN] = \"Developer ID Application: ti und m AG\"" ), kSecCSDefaultFlags, &requirement);
-
-			if (stErr == noErr) {
-				SecStaticCodeRef staticCodeRef;
-
-				stErr = SecStaticCodeCreateWithPath((__bridge CFURLRef)installedPathURL, kSecCSDefaultFlags, &staticCodeRef);
-
-				if (stErr == noErr) {
-					stErr = SecStaticCodeCheckValidity(staticCodeRef, kSecCSDefaultFlags, requirement);
-
-					if (stErr == noErr) {
-						needToInstall = NO;
-					}
-					
-					CFRelease(staticCodeRef);
+	if (![MonolingualHelperClient installWithPrompt:nil error:&error]) {
+		switch (error.code) {
+			default:
+			case SMJErrorCodeBundleNotFound:
+			case SMJErrorCodeUnsignedBundle:
+			case SMJErrorCodeBadBundleSecurity:
+			case SMJErrorCodeBadBundleCodeSigningDictionary:
+			case SMJErrorUnableToBless:
+				NSLog(@"Failed to bless helper. Error: %@", error);
+				return;
+			case SMJAuthorizationDenied:
+				/* If you can't do it because you're not administrator, then let the user know! */
+				NSBeginAlertSheet(NSLocalizedString(@"Permission Error", ""), nil, nil, nil,
+								  [NSApp mainWindow], self, NULL, NULL, NULL,
+								  NSLocalizedString(@"You entered an incorrect administrator password.", ""));
+				if (logFile) {
+					fclose(logFile);
+					logFile = NULL;
 				}
-				CFRelease(requirement);
-			}
+				break;
+			case SMJAuthorizationCanceled:
+				NSBeginAlertSheet(NSLocalizedString(@"Nothing done", ""), nil, nil, nil,
+								  [NSApp mainWindow], self, NULL, NULL, NULL,
+								  NSLocalizedString(@"Monolingual is stopping without making any changes. Your OS has not been modified.", ""));
+				if (logFile) {
+					fclose(logFile);
+					logFile = NULL;
+				}
+				break;
+			case SMJAuthorizationInteractionNotAllowed:
+			case SMJAuthorizationFailed:
+				NSBeginAlertSheet(NSLocalizedString(@"Authorization Error", ""), nil, nil, nil,
+								  [NSApp mainWindow], self, NULL, NULL, NULL,
+								  NSLocalizedString(@"Failed to authorize as an administrator.", ""));
+				if (logFile) {
+					fclose(logFile);
+					logFile = NULL;
+				}
+				break;
 		}
-	}
-
-	if (needToInstall && ![self blessHelperWithLabel:@"net.sourceforge.MonolingualHelper" error:&error]) {
-		NSLog(@"Failed to bless helper. Error: %@", error);
 		return;
 	}
 
