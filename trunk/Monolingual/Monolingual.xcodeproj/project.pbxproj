@@ -17,6 +17,10 @@
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = F5A6E37F01A07759016596AB /* COPYING.txt */; };
 		956E31D70A4B4056004E91ED /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 956E31D60A4B4056004E91ED /* main.c */; };
+		957B0B70162AC99100051EE7 /* SMJClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 957B0B69162AC99100051EE7 /* SMJClient.m */; };
+		957B0B71162AC99100051EE7 /* SMJClientUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 957B0B6B162AC99100051EE7 /* SMJClientUtility.m */; };
+		957B0B72162AC99100051EE7 /* SMJError.m in Sources */ = {isa = PBXBuildFile; fileRef = 957B0B6D162AC99100051EE7 /* SMJError.m */; };
+		957B0BA4162ACC1300051EE7 /* MonolingualHelperClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 957B0BA3162ACC1300051EE7 /* MonolingualHelperClient.m */; };
 		9589978515CB32C7008A2593 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9589978415CB32C6008A2593 /* ServiceManagement.framework */; };
 		9595189A07E48934004A4471 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
 		9595190107E48C30004A4471 /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
@@ -97,6 +101,17 @@
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
 		956E31D60A4B4056004E91ED /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		957B0B68162AC99100051EE7 /* SMJClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMJClient.h; sourceTree = "<group>"; };
+		957B0B69162AC99100051EE7 /* SMJClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMJClient.m; sourceTree = "<group>"; };
+		957B0B6A162AC99100051EE7 /* SMJClientUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMJClientUtility.h; sourceTree = "<group>"; };
+		957B0B6B162AC99100051EE7 /* SMJClientUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMJClientUtility.m; sourceTree = "<group>"; };
+		957B0B6C162AC99100051EE7 /* SMJError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMJError.h; sourceTree = "<group>"; };
+		957B0B6D162AC99100051EE7 /* SMJError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMJError.m; sourceTree = "<group>"; };
+		957B0B6E162AC99100051EE7 /* SMJErrorTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMJErrorTypes.h; sourceTree = "<group>"; };
+		957B0B6F162AC99100051EE7 /* SMJobKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMJobKit.h; sourceTree = "<group>"; };
+		957B0BA1162ACBA200051EE7 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
+		957B0BA2162ACC1300051EE7 /* MonolingualHelperClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MonolingualHelperClient.h; sourceTree = "<group>"; };
+		957B0BA3162ACC1300051EE7 /* MonolingualHelperClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonolingualHelperClient.m; sourceTree = "<group>"; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Italian.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95852A7C1119CD7C00B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Spanish; path = Spanish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Spanish.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -171,6 +186,9 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				957B0B74162AC99B00051EE7 /* SMJobKit */,
+				957B0BA2162ACC1300051EE7 /* MonolingualHelperClient.h */,
+				957B0BA3162ACC1300051EE7 /* MonolingualHelperClient.m */,
 				00ECF787010242A17F000001 /* MyResponder.h */,
 				00ECF788010242A17F000001 /* MyResponder.m */,
 				10400F480164385C7F000001 /* ProgressWindowController.h */,
@@ -212,6 +230,7 @@
 				95BC963D0991F2C9001DEF94 /* lipo.c */,
 				95BC989F099228D5001DEF94 /* lipo.h */,
 				95D7A8AC098D42F800DCE08D /* helper.c */,
+				957B0BA1162ACBA200051EE7 /* Prefix.pch */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -253,6 +272,21 @@
 				95AAAC9C15F22F0B00858304 /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		957B0B74162AC99B00051EE7 /* SMJobKit */ = {
+			isa = PBXGroup;
+			children = (
+				957B0B68162AC99100051EE7 /* SMJClient.h */,
+				957B0B69162AC99100051EE7 /* SMJClient.m */,
+				957B0B6A162AC99100051EE7 /* SMJClientUtility.h */,
+				957B0B6B162AC99100051EE7 /* SMJClientUtility.m */,
+				957B0B6C162AC99100051EE7 /* SMJError.h */,
+				957B0B6D162AC99100051EE7 /* SMJError.m */,
+				957B0B6E162AC99100051EE7 /* SMJErrorTypes.h */,
+				957B0B6F162AC99100051EE7 /* SMJobKit.h */,
+			);
+			name = SMJobKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -377,6 +411,10 @@
 				95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */,
 				956E31D70A4B4056004E91ED /* main.c in Sources */,
 				9531D7790C7B0E61008B48AA /* ISTableView.m in Sources */,
+				957B0B70162AC99100051EE7 /* SMJClient.m in Sources */,
+				957B0B71162AC99100051EE7 /* SMJClientUtility.m in Sources */,
+				957B0B72162AC99100051EE7 /* SMJError.m in Sources */,
+				957B0BA4162ACC1300051EE7 /* MonolingualHelperClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,6 +557,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = Monolingual;
 				WRAPPER_EXTENSION = app;
@@ -535,6 +574,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = Monolingual;
 				WRAPPER_EXTENSION = app;

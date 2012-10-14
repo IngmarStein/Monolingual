@@ -1,0 +1,6 @@
+#ifdef __OBJC__
+#import <Cocoa/Cocoa.h>
+#import <ServiceManagement/ServiceManagement.h>
+#import "SMJErrorTypes.h"
+#import "SMJError.h"
+#endif
