@@ -723,7 +723,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
-#define NUM_KNOWN_LANGUAGES	133
+#define NUM_KNOWN_LANGUAGES	134
 	NSMutableArray *knownLanguages = [NSMutableArray arrayWithCapacity:NUM_KNOWN_LANGUAGES];
 
 #define ADD_LANGUAGE(code, name, ...) [knownLanguages addObject:[@{ @"DisplayName" : NSLocalizedString(name, ""), @"Folders" : @[ __VA_ARGS__ ], @"Enabled" : [userLanguages containsObject:(code)] ? @NO : @YES } mutableCopy]];
@@ -757,11 +757,12 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	ADD_LANGUAGE(@"en-NZ",   @"English (New Zealand)",    @"en_NZ.lproj");
 	ADD_LANGUAGE(@"en-US",   @"English (United States)",  @"en_US.lproj");
 	ADD_LANGUAGE(@"eo",      @"Esperanto",            @"eo.lproj", @"Esperanto.lproj");
-	ADD_LANGUAGE(@"es",      @"Spanish",              @"es.lproj", @"es_ES.lproj", @"Spanish.lproj");
+	ADD_LANGUAGE(@"es",      @"Spanish",              @"es.lproj", @"es_ES.lproj", @"es_419.lproj", @"Spanish.lproj");
 	ADD_LANGUAGE(@"et",      @"Estonian",             @"et.lproj", @"Estonian.lproj");
 	ADD_LANGUAGE(@"eu",      @"Basque",               @"eu.lproj", @"Basque.lproj");
 	ADD_LANGUAGE(@"fa",      @"Farsi",                @"fa.lproj", @"Farsi.lproj");
 	ADD_LANGUAGE(@"fi",      @"Finnish",              @"fi.lproj", @"fi_FI.lproj", @"Finnish.lproj");
+	ADD_LANGUAGE(@"fil",     @"Filipino",             @"fil.lproj");
 	ADD_LANGUAGE(@"fo",      @"Faroese",              @"fo.lproj", @"Faroese.lproj");
 	ADD_LANGUAGE(@"fr",      @"French",               @"fr.lproj", @"fr_FR.lproj", @"French.lproj");
 	ADD_LANGUAGE(@"fr-CA",   @"French (Canada)",      @"fr_CA.lproj");
