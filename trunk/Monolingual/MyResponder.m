@@ -831,7 +831,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	ADD_LANGUAGE(@"sd",      @"Sindhi",               @"sd.lproj", @"Sindhi.lproj");
 	ADD_LANGUAGE(@"se",      @"Sami",                 @"se.lproj", @"Sami.lproj");
 	ADD_LANGUAGE(@"si",      @"Sinhalese",            @"si.lproj", @"Sinhalese.lproj");
-	ADD_LANGUAGE(@"sk",      @"Slovak",               @"sk.lproj", @"Slovak.lproj");
+	ADD_LANGUAGE(@"sk",      @"Slovak",               @"sk.lproj", @"sk_SK.lproj", @"Slovak.lproj");
 	ADD_LANGUAGE(@"sl",      @"Slovenian",            @"sl.lproj", @"Slovenian.lproj");
 	ADD_LANGUAGE(@"so",      @"Somali",               @"so.lproj", @"Somali.lproj");
 	ADD_LANGUAGE(@"sq",      @"Albanian",             @"sq.lproj", @"Albanian.lproj");
