@@ -4,7 +4,7 @@
  *  strips away extra language .lproj from OSX to save space
  *
  *   Copyright (C) 2001, 2002 Joshua Schrier (jschrier@mac.com),
- *   2004-2012 Ingmar Stein
+ *   2004-2013 Ingmar Stein
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
+@import Cocoa;
 
 @class MyResponder;
 

@@ -3,7 +3,7 @@
 //  Monolingual
 //
 //  Created by Ingmar Stein on Tue Mar 23 2004.
-//  Copyright (c) 2004-2012 Ingmar Stein. All rights reserved.
+//  Copyright (c) 2004-2013 Ingmar Stein. All rights reserved.
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by

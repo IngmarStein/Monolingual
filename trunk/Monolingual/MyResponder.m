@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *                2004-2012 Ingmar Stein
+ *                2004-2013 Ingmar Stein
  *  Released under the GNU GPL.  For more information, see the header file.
  */
 
@@ -9,18 +9,18 @@
 #import "PreferencesController.h"
 #import "MonolingualHelperClient.h"
 #import <Growl/GrowlDefines.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <sys/sysctl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <mach/mach_host.h>
-#include <mach/mach_port.h>
-#include <mach/machine.h>
-#include <mach-o/arch.h>
-#include <pwd.h>
+@import Darwin.POSIX.sys.types;
+@import Darwin.POSIX.sys.stat;
+@import Darwin.sys.param;
+@import Darwin.sys.sysctl;
+@import Darwin.C.string;
+@import Darwin.C.stdlib;
+@import Darwin.POSIX.unistd;
+@import Darwin.Mach.mach_host;
+@import Darwin.Mach.mach_port;
+@import Darwin.Mach.machine;
+@import MachO.arch;
+@import Darwin.POSIX.pwd;
 
 typedef enum {
 	ModeLanguages = 0,
