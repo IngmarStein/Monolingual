@@ -133,22 +133,23 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 }
 
 @interface MyResponder() {
-	NSWindow           *parentWindow;
-	NSDictionary       *startedNotificationInfo;
-	NSDictionary       *finishedNotificationInfo;
-	NSURL              *donateURL;
-	unsigned long long bytesSaved;
-	MonolingualMode    mode;
-	NSArray            *processApplication;
-	dispatch_queue_t   listener_queue;
-	dispatch_queue_t   peer_event_queue;
-	xpc_connection_t   connection;
-	xpc_connection_t   progressConnection;
 }
 
 @property(nonatomic, strong) NSArray *blacklist;
 @property(nonatomic, strong) NSArray *languages;
 @property(nonatomic, strong) NSArray *architectures;
+
+@property(nonatomic, strong) NSWindow           *parentWindow;
+@property(nonatomic, strong) NSDictionary       *startedNotificationInfo;
+@property(nonatomic, strong) NSDictionary       *finishedNotificationInfo;
+@property(nonatomic, strong) NSURL              *donateURL;
+@property(nonatomic, assign) unsigned long long bytesSaved;
+@property(nonatomic, assign) MonolingualMode    mode;
+@property(nonatomic, strong) NSArray            *processApplication;
+@property(nonatomic, assign) dispatch_queue_t   listener_queue;
+@property(nonatomic, assign) dispatch_queue_t   peer_event_queue;
+@property(nonatomic, assign) xpc_connection_t   connection;
+@property(nonatomic, assign) xpc_connection_t   progressConnection;
 
 @end
 
@@ -180,7 +181,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 {
 	NSDictionary *dict = @{ @"Path" : filename, @"Language" : @YES, @"Architectures" : @YES };
 
-	processApplication = @[ dict ];
+	self.processApplication = @[ dict ];
 
 	[self warningSelector:nil returnCode:NSAlertAlternateReturn contextInfo:nil];
 
@@ -211,7 +212,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (IBAction) donate:(id)sender
 {
-	[[NSWorkspace sharedWorkspace] openURL:donateURL];
+	[[NSWorkspace sharedWorkspace] openURL:self.donateURL];
 }
 
 - (IBAction) removeLanguages:(id)sender
@@ -230,7 +231,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (IBAction) removeArchitectures:(id)sender
 {
-	mode = ModeArchitectures;
+	self.mode = ModeArchitectures;
 
 	logFile = fopen(logFileName, "at");
 	if (logFile) {
@@ -238,7 +239,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		fprintf(logFile, "Monolingual started at %sRemoving architectures: ", ctime(&now));
 	}
 
-	NSArray *roots = processApplication ? processApplication : [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	NSArray *roots = self.processApplication ? self.processApplication : [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 
 	xpc_object_t archs = xpc_array_create(NULL, 0);
 	[self.architectures enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -318,20 +319,20 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	
 	NSString *file = [NSString stringWithUTF8String:xpc_dictionary_get_string(progress, "file")];
 	uint64_t size = xpc_dictionary_get_uint64(progress, "size");
-	bytesSaved += size;
+	self.bytesSaved += size;
 	
 	if (logFile)
 		fprintf(logFile, "%s: %llu\n", [file UTF8String], size);
 
 	NSString *message;
-	if (mode == ModeArchitectures) {
+	if (self.mode == ModeArchitectures) {
 		message = NSLocalizedString(@"Removing architecture from universal binary", "");
 	} else {
 		/* parse file name */
 		NSString *lang = nil;
 		NSString *app = nil;
 
-		if (mode == ModeLanguages) {
+		if (self.mode == ModeLanguages) {
 			NSArray *pathComponents = [file componentsSeparatedByString:@"/"];
 			for (NSString *pathComponent in pathComponents) {
 				if ([pathComponent hasSuffix:@".app"]) {
@@ -363,7 +364,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (void) runDeleteHelperWithArgs:(xpc_object_t)arguments
 {
-	bytesSaved = 0ULL;
+	self.bytesSaved = 0ULL;
 
 	NSError *error = nil;
 	if (![MonolingualHelperClient installWithPrompt:nil error:&error]) {
@@ -409,16 +410,16 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		return;
 	}
 
-	connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
+	self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
 
-	if (!connection) {
+	if (!self.connection) {
 		NSLog(@"Failed to create XPC connection.");
 		return;
 	}
 
 	[[NSProcessInfo processInfo] disableSuddenTermination];
 
-	xpc_connection_set_event_handler(connection, ^(xpc_object_t event) {
+	xpc_connection_set_event_handler(self.connection, ^(xpc_object_t event) {
 		xpc_type_t type = xpc_get_type(event);
 
 		if (type == XPC_TYPE_ERROR) {
@@ -435,13 +436,13 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	});
 
 	// Create an anonymous listener connection that collects progress updates.
-	progressConnection = xpc_connection_create(NULL, listener_queue);
+	self.progressConnection = xpc_connection_create(NULL, self.listener_queue);
 
 	// Weak references to NSWindowControllers are not supported on 10.7
 	//__weak __typeof__(self) wself = self;
 	__unsafe_unretained __typeof__(self) wself = self;
-	if (progressConnection) {
-		xpc_connection_set_event_handler(progressConnection, ^(xpc_object_t event) {
+	if (self.progressConnection) {
+		xpc_connection_set_event_handler(self.progressConnection, ^(xpc_object_t event) {
 			xpc_type_t type = xpc_get_type(event);
 			
 			if (type == XPC_TYPE_ERROR) {
@@ -453,7 +454,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			} else if (XPC_TYPE_CONNECTION == type) {
 				xpc_connection_t peer = (xpc_connection_t)event;
 				
-				xpc_connection_set_target_queue(peer, peer_event_queue);
+				xpc_connection_set_target_queue(peer, self.peer_event_queue);
 				xpc_connection_set_event_handler(peer, ^(xpc_object_t nevent) {
 					xpc_type_t ntype = xpc_get_type(nevent);
 
@@ -464,28 +465,28 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 				xpc_connection_resume(peer);
 			}
 		});
-		xpc_connection_resume(progressConnection);
+		xpc_connection_resume(self.progressConnection);
 
-		xpc_dictionary_set_connection(arguments, "connection", progressConnection);
+		xpc_dictionary_set_connection(arguments, "connection", self.progressConnection);
 	} else {
 		NSLog(@"Couldn't create progress connection");
 	}
 
-	xpc_connection_resume(connection);
+	xpc_connection_resume(self.connection);
 	
 	// DEBUG
 	//xpc_dictionary_set_bool(arguments, "dry_run", TRUE);
 
-	xpc_connection_send_message_with_reply(connection, arguments, dispatch_get_main_queue(), ^(xpc_object_t event) {
+	xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue(), ^(xpc_object_t event) {
 		xpc_type_t type = xpc_get_type(event);
 		if (XPC_TYPE_DICTIONARY == type) {
 			int64_t exit_code = xpc_dictionary_get_int64(event, "exit_code");
 			NSLog(@"helper finished with exit code: %lld", exit_code);
 
-			if (connection) {
+			if (self.connection) {
 				xpc_object_t exit_message = xpc_dictionary_create(NULL, NULL, 0);
 				xpc_dictionary_set_int64(exit_message, "exit_code", exit_code);
-				xpc_connection_send_message(connection, exit_message);
+				xpc_connection_send_message(self.connection, exit_message);
 				xpc_release(exit_message);
 			}
 
@@ -509,39 +510,39 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
 		[center deliverNotification:notification];
 	} else {
-		[GrowlApplicationBridge notifyWithDictionary:startedNotificationInfo];
+		[GrowlApplicationBridge notifyWithDictionary:self.startedNotificationInfo];
 	}
 }
 
 - (void) progressDidEnd:(NSWindow *)panel returnCode:(int)returnCode contextInfo:(void *)context
 {
-	if (processApplication) {
-		processApplication = nil;
+	if (self.processApplication) {
+		self.processApplication = nil;
 	}
 	
 	NSString *byteCount;
 	char hbuf[LONGEST_HUMAN_READABLE + 1];
 	if ([NSByteCountFormatter class] && [[NSByteCountFormatter class] respondsToSelector:@selector(stringFromByteCount:countStyle:)]) {
-		byteCount = [NSByteCountFormatter stringFromByteCount:bytesSaved countStyle:NSByteCountFormatterCountStyleFile];
+		byteCount = [NSByteCountFormatter stringFromByteCount:self.bytesSaved countStyle:NSByteCountFormatterCountStyleFile];
 	} else {
-		byteCount = @(human_readable(bytesSaved, hbuf, 1000));
+		byteCount = @(human_readable(self.bytesSaved, hbuf, 1000));
 	}
 	
 	if (returnCode == 1) {
-		if (progressConnection) {
-			if (connection) {
+		if (self.progressConnection) {
+			if (self.connection) {
 				xpc_object_t exit_message = xpc_dictionary_create(NULL, NULL, 0);
 				xpc_dictionary_set_int64(exit_message, "exit_code", EXIT_FAILURE);
-				xpc_connection_send_message(connection, exit_message);
+				xpc_connection_send_message(self.connection, exit_message);
 				xpc_release(exit_message);
 			}
 
 			// Cancel and release the anonymous connection which signals the remote
 			// service to stop, if working.
 			NSLog(@"Closing progress connection");
-			xpc_connection_cancel(progressConnection);
-			xpc_release(progressConnection);
-			progressConnection = NULL;
+			xpc_connection_cancel(self.progressConnection);
+			xpc_release(self.progressConnection);
+			self.progressConnection = NULL;
 		}
 
 		NSBeginAlertSheet(NSLocalizedString(@"Removal cancelled", ""), nil, nil, nil,
@@ -550,7 +551,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 						  byteCount);
 	} else {
 		NSBeginAlertSheet(NSLocalizedString(@"Removal completed", ""),
-						  nil, nil, nil, parentWindow, self, NULL, NULL,
+						  nil, nil, nil, self.parentWindow, self, NULL, NULL,
 						  NULL,
 						  NSLocalizedString(@"Files removed. Space saved: %@.", ""),
 						  byteCount);
@@ -563,15 +564,15 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
 			[center deliverNotification:notification];
 		} else {
-			[GrowlApplicationBridge notifyWithDictionary:finishedNotificationInfo];
+			[GrowlApplicationBridge notifyWithDictionary:self.finishedNotificationInfo];
 		}
 	}
 
-	if (connection) {
+	if (self.connection) {
 		NSLog(@"Closing connection");
-		xpc_connection_cancel(connection);
-		xpc_release(connection);
-		connection = NULL;
+		xpc_connection_cancel(self.connection);
+		xpc_release(self.connection);
+		self.connection = NULL;
 	}
 	
 	if (logFile) {
@@ -605,7 +606,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (void) englishWarningSelector:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-	mode = ModeLanguages;
+	self.mode = ModeLanguages;
 
 	logFile = fopen(logFileName, "at");
 	if (logFile) {
@@ -613,7 +614,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		fprintf(logFile, "Monolingual started at %sRemoving languages: ", ctime(&now));
 	}
 
-	NSArray *roots = processApplication ? processApplication : [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
+	NSArray *roots = self.processApplication ? self.processApplication : [[NSUserDefaults standardUserDefaults] arrayForKey:@"Roots"];
 
 	BOOL languageEnabled = NO;
 	for (NSDictionary *root in roots) {
@@ -707,13 +708,13 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (void) awakeFromNib
 {
-	donateURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/donate.php"];
+	self.donateURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/donate.php"];
 
-	listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", NULL);
-	assert(listener_queue != NULL);
+	self.listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", NULL);
+	assert(self.listener_queue != NULL);
 
-	peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", NULL);
-	assert(peer_event_queue != NULL);
+	self.peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", NULL);
+	assert(self.peer_event_queue != NULL);
 	
 	NSArray *languagePref = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 	NSMutableSet *userLanguages = [NSMutableSet setWithArray:languagePref];
@@ -925,8 +926,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	NSString *startedNotificationName = NSLocalizedString(@"Monolingual started", "");
 	NSString *finishedNotificationName = NSLocalizedString(@"Monolingual finished", "");
 
-	startedNotificationInfo = @{ GROWL_APP_NAME : @"Monolingual", GROWL_NOTIFICATION_NAME : startedNotificationName, GROWL_NOTIFICATION_TITLE : startedNotificationName, GROWL_NOTIFICATION_DESCRIPTION : NSLocalizedString(@"Started removing files", "") };
-	finishedNotificationInfo = @{ GROWL_APP_NAME : @"Monolingual", GROWL_NOTIFICATION_NAME : finishedNotificationName, GROWL_NOTIFICATION_TITLE : finishedNotificationName, GROWL_NOTIFICATION_DESCRIPTION : NSLocalizedString(@"Finished removing files", "") };
+	self.startedNotificationInfo = @{ GROWL_APP_NAME : @"Monolingual", GROWL_NOTIFICATION_NAME : startedNotificationName, GROWL_NOTIFICATION_TITLE : startedNotificationName, GROWL_NOTIFICATION_DESCRIPTION : NSLocalizedString(@"Started removing files", "") };
+	self.finishedNotificationInfo = @{ GROWL_APP_NAME : @"Monolingual", GROWL_NOTIFICATION_NAME : finishedNotificationName, GROWL_NOTIFICATION_TITLE : finishedNotificationName, GROWL_NOTIFICATION_DESCRIPTION : NSLocalizedString(@"Finished removing files", "") };
 
 	// load blacklist from URL
 	NSURL *blacklistURL = [NSURL URLWithString:@"http://monolingual.sourceforge.net/blacklist.plist"];
@@ -956,8 +957,8 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 }
 
 - (void)dealloc {
-	dispatch_release(listener_queue);
-	dispatch_release(peer_event_queue);
+	dispatch_release(self.listener_queue);
+	dispatch_release(self.peer_event_queue);
 }
 
 @end
