@@ -1,5 +1,5 @@
-#import <Foundation/NSObject.h>
-#import <Foundation/NSError.h>
+@import Foundation.NSObject;
+@import Foundation.NSError;
 
 // An abstract superclass for system-level launchd helper jobs
 @interface SMJClient : NSObject

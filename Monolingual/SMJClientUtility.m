@@ -1,6 +1,6 @@
 #import "SMJClientUtility.h"
 
-#import <Security/SecCode.h>
+@import Security.SecCode;
 
 
 @implementation SMJClientUtility
