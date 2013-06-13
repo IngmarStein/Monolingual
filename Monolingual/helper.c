@@ -683,7 +683,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 		}
 												
 		if (setup_lipo(archs, num_archs)) {
-			size_t num_roots = xpc_array_get_count(roots);
+			size_t num_roots = roots ? xpc_array_get_count(roots) : 0;
 			for (size_t i=0; i<num_roots && !context.should_exit; ++i) {
 				thin_recursively(xpc_array_get_string(roots, i), &context);
 			}
