@@ -9,6 +9,7 @@
 #import "PreferencesController.h"
 #import "MonolingualHelperClient.h"
 #import <Growl/GrowlDefines.h>
+#import "SMJErrorTypes.h"
 @import Darwin.POSIX.sys.types;
 @import Darwin.POSIX.sys.stat;
 @import Darwin.sys.param;
