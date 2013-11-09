@@ -3,24 +3,20 @@ RELEASE_VERSION=1.5.8
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
 BUILD_DIR=build/Release
-CHECK_DIR=$(PWD)/check
 
-.PHONY: all release development deployment clean check
+.PHONY: all release development deployment clean
 
 all: deployment
 
 development:
-	xcodebuild -target Monolingual -configuration Debug build
+	xcodebuild -workspace Monolingual -configuration Debug build
 
 deployment:
-	xcodebuild -target Monolingual -configuration Release build
+	xcodebuild -workspace Monolingual -configuration Release build
 
 clean:
 	xcodebuild -alltargets clean
 	-rm -rf $(RELEASE_DIR) $(CHECK_DIR)
-
-check:
-	scan-build -o $(CHECK_DIR) -v xcodebuild -target Monolingual -configuration Debug
 
 release: deployment
 	rm -rf $(RELEASE_DIR)
