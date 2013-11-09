@@ -9,7 +9,7 @@ How to create a Monolingual release
 2) Add changelog to readmes
 3) make release
 4) Copy release/*.dmg to htdocs/files
-5) Tag release (svn copy https://monolingual.svn.sourceforge.net/svnroot/monolingual/trunk https://monolingual.svn.sourceforge.net/svnroot/monolingual/tags/RELEASE_X_Y_Z -m "Tag version XXX")
+5) Tag release (svn copy https://svn.code.sf.net/p/monolingual/code/trunk https://svn.code.sf.net/p/monolingual/code/tags/RELEASE_X_Y_Z -m "Tag version XXX")
 6) Update index.php
 7) Update changelog.php
 8) Update appcast.xml
