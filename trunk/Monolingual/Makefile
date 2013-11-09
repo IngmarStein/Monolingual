@@ -9,10 +9,10 @@ BUILD_DIR=build/Release
 all: deployment
 
 development:
-	xcodebuild -workspace Monolingual -configuration Debug build
+	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug build
 
 deployment:
-	xcodebuild -workspace Monolingual -configuration Release build
+	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build
 
 clean:
 	xcodebuild -alltargets clean
