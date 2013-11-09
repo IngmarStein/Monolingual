@@ -1,21 +1,23 @@
+TOP=$(shell pwd)
 RELEASE_DIR=release
 RELEASE_VERSION=1.5.8
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
-BUILD_DIR=build/Release
+BUILD_DIR=$(TOP)/build/Release
 
 .PHONY: all release development deployment clean
 
 all: deployment
 
 development:
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug build
+	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
 
 deployment:
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build
+	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
 
 clean:
-	xcodebuild -alltargets clean
+	xcodebuild -workspace Monolingual.xcworkspace  -scheme Monolingual -configuration Debug clean CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
+	xcodebuild -workspace Monolingual.xcworkspace  -scheme Monolingual -configuration Release clean CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
 	-rm -rf $(RELEASE_DIR) $(CHECK_DIR)
 
 release: deployment
