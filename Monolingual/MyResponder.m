@@ -718,10 +718,23 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	assert(self.peer_event_queue != NULL);
 	
 	NSArray *languagePref = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
-	NSMutableSet *userLanguages = [NSMutableSet setWithArray:languagePref];
 	
+	// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
+	NSUInteger numUserLanguages = [[NSUserDefaults standardUserDefaults] integerForKey:@"AppleUserLanguages"];
+	if (numUserLanguages && numUserLanguages <= languagePref.count) {
+		languagePref = [languagePref subarrayWithRange:NSMakeRange(0, numUserLanguages)];
+	}
+
+	NSMutableSet *userLanguages = [NSMutableSet setWithArray:languagePref];
+
 	// never check "English" by default
 	[userLanguages addObject:@"en"];
+	
+	// never check user locale by default
+	NSString *appleLocale = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleLocale"];
+	if (appleLocale) {
+		[userLanguages addObject:[appleLocale stringByReplacingOccurrencesOfString:@"_" withString:@"-"]];
+	}
 
 	[[self window] setFrameAutosaveName:@"MainWindow"];
 
