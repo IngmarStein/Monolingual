@@ -22,7 +22,6 @@
 		9595190107E48C30004A4471 /* Growl.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
 		95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A0BEA206346AD3007510F1 /* PreferencesController.m */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
-		95A130350608F92F00D8E30C /* Monolingual.icns in Resources */ = {isa = PBXBuildFile; fileRef = F585B20B01E4DA180100012D /* Monolingual.icns */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A130390608F92F00D8E30C /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ECF788010242A17F000001 /* MyResponder.m */; };
 		95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 10400F490164385C7F000001 /* ProgressWindowController.m */; };
@@ -140,7 +139,6 @@
 		F5230A6E028CE07101D970AB /* Swedish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Swedish; path = Swedish.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F52C8EEB02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Polish; path = Polish.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F52C8EEC02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Polish; path = Polish.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		F585B20B01E4DA180100012D /* Monolingual.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Monolingual.icns; sourceTree = "<group>"; };
 		F5A6E37F01A07759016596AB /* COPYING.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = COPYING.txt; sourceTree = "<group>"; };
 		F5DF00D801EC02150120C6FA /* Japanese */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Japanese; path = Japanese.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 /* End PBXFileReference section */
@@ -238,7 +236,6 @@
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				95A130420608F92F00D8E30C /* Info.plist */,
 				F5A6E37F01A07759016596AB /* COPYING.txt */,
-				F585B20B01E4DA180100012D /* Monolingual.icns */,
 				9558F78F0615953200F6DE23 /* Credits.html */,
 				9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */,
 				9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */,
@@ -347,7 +344,6 @@
 				95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */,
 				9558F816061598BA00F6DE23 /* README.rtfd in Resources */,
 				95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */,
-				95A130350608F92F00D8E30C /* Monolingual.icns in Resources */,
 				95A130360608F92F00D8E30C /* Localizable.strings in Resources */,
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
