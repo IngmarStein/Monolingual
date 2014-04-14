@@ -44,7 +44,7 @@
                                         <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="528">
                                             <rect key="frame" x="20" y="52" width="346" height="277"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <clipView key="contentView" id="BqA-73-yMO">
+                                            <clipView key="contentView" id="H56-7X-ouE">
                                                 <rect key="frame" x="1" y="17" width="344" height="259"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -63,7 +63,7 @@
                                                                 </tableHeaderCell>
                                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" inset="2" id="532">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="titleBar" size="12"/>
+                                                                    <font key="font" metaFont="cellTitle"/>
                                                                 </buttonCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <connections>
@@ -81,7 +81,7 @@
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
                                                                 <textFieldCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="702">
-                                                                    <font key="font" metaFont="titleBar" size="12"/>
+                                                                    <font key="font" metaFont="cellTitle"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </textFieldCell>
@@ -107,7 +107,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="708">
-                                                <rect key="frame" x="329" y="17" width="16" height="259"/>
+                                                <rect key="frame" x="330" y="17" width="15" height="259"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="710">
@@ -142,12 +142,12 @@
                                         <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="585">
                                             <rect key="frame" x="20" y="52" width="346" height="277"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <clipView key="contentView" id="xFc-zk-Irx">
-                                                <rect key="frame" x="1" y="17" width="329" height="244"/>
+                                            <clipView key="contentView" id="yPX-3a-IGd">
+                                                <rect key="frame" x="1" y="17" width="329" height="243"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" headerView="713" id="586" customClass="ISTableView">
-                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="244"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="243"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -161,7 +161,7 @@
                                                                 </tableHeaderCell>
                                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" inset="2" id="588">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="titleBar" size="12"/>
+                                                                    <font key="font" metaFont="cellTitle"/>
                                                                 </buttonCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <connections>
@@ -175,7 +175,7 @@
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
                                                                 <textFieldCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" alignment="left" id="703">
-                                                                    <font key="font" metaFont="titleBar" size="12"/>
+                                                                    <font key="font" metaFont="cellTitle"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </textFieldCell>
@@ -197,11 +197,11 @@
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
                                             <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="712">
-                                                <rect key="frame" x="1" y="261" width="329" height="15"/>
+                                                <rect key="frame" x="1" y="260" width="329" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="711">
-                                                <rect key="frame" x="330" y="17" width="15" height="244"/>
+                                                <rect key="frame" x="330" y="17" width="15" height="243"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="713">
@@ -469,7 +469,7 @@
                                 <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="652">
                                     <rect key="frame" x="17" y="47" width="367" height="151"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <clipView key="contentView" id="Iz7-3p-Meo">
+                                    <clipView key="contentView" id="AAp-F6-QtY">
                                         <rect key="frame" x="1" y="17" width="365" height="133"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <subviews>
@@ -488,7 +488,7 @@
                                                         </tableHeaderCell>
                                                         <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" inset="2" id="656">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                            <font key="font" metaFont="titleBar" size="12"/>
+                                                            <font key="font" metaFont="cellTitle"/>
                                                             <connections>
                                                                 <binding destination="643" name="value" keyPath="selection.Languages" id="731"/>
                                                             </connections>
