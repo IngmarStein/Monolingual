@@ -25,6 +25,7 @@
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A130390608F92F00D8E30C /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ECF788010242A17F000001 /* MyResponder.m */; };
 		95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 10400F490164385C7F000001 /* ProgressWindowController.m */; };
+		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
 		95AAACA115F22F7100858304 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA015F22F7100858304 /* AppKit.framework */; };
 		95AAACA315F22F8500858304 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA215F22F8500858304 /* Cocoa.framework */; };
 		95AAACA515F22F9F00858304 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA415F22F9F00858304 /* CoreFoundation.framework */; };
@@ -113,8 +114,11 @@
 		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
 		95A0BEA106346AD3007510F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PreferencesController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		95A0BEA206346AD3007510F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PreferencesController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
+		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95A75A8418FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = el; path = el.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		95AAACA015F22F7100858304 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		95AAACA215F22F8500858304 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		95AAACA415F22F9F00858304 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -308,6 +312,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 0500;
+				TargetAttributes = {
+					95A130250608F92F00D8E30C = {
+						DevelopmentTeam = 4N2G277B4M;
+					};
+				};
 			};
 			buildConfigurationList = 95AAF5680856C2DC007CEE36 /* Build configuration list for PBXProject "Monolingual" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -323,6 +332,7 @@
 				Italian,
 				Spanish,
 				en,
+				el,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			projectDirPath = "";
@@ -344,6 +354,7 @@
 				95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */,
 				9558F816061598BA00F6DE23 /* README.rtfd in Resources */,
 				95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */,
+				95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */,
 				95A130360608F92F00D8E30C /* Localizable.strings in Resources */,
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
@@ -477,6 +488,7 @@
 				9531D78C0C7B15DC008B48AA /* Polish */,
 				9531D78D0C7B15E5008B48AA /* Swedish */,
 				95852A7C1119CD7C00B54346 /* Spanish */,
+				95A75A8418FC6C9300BD2E36 /* el */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -488,6 +500,7 @@
 				9558F7940615953D00F6DE23 /* German */,
 				2BCD7FCA097D043900FE7723 /* Italian */,
 				95852A7F1119CDA400B54346 /* Spanish */,
+				95A75A8118FC6C8100BD2E36 /* el */,
 			);
 			name = Credits.html;
 			sourceTree = "<group>";
@@ -503,6 +516,7 @@
 				95EDCC84062C3B83007229A3 /* French */,
 				95CB1AFE06E8DDDD00293B60 /* Italian */,
 				95852A7D1119CD8F00B54346 /* Spanish */,
+				95A75A8318FC6C9300BD2E36 /* el */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
