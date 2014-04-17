@@ -26,10 +26,6 @@
 		95A130390608F92F00D8E30C /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ECF788010242A17F000001 /* MyResponder.m */; };
 		95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 10400F490164385C7F000001 /* ProgressWindowController.m */; };
 		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
-		95AAACA115F22F7100858304 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA015F22F7100858304 /* AppKit.framework */; };
-		95AAACA315F22F8500858304 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA215F22F8500858304 /* Cocoa.framework */; };
-		95AAACA515F22F9F00858304 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA415F22F9F00858304 /* CoreFoundation.framework */; };
-		95AAACA615F22FE700858304 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95AAACA415F22F9F00858304 /* CoreFoundation.framework */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95C3AA3715CC316D0017352A /* net.sourceforge.MonolingualHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; };
@@ -110,7 +106,6 @@
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Spanish.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
-		9589977615CABF4E008A2593 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
 		95A0BEA106346AD3007510F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PreferencesController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		95A0BEA206346AD3007510F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PreferencesController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -119,9 +114,6 @@
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95A75A8418FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = el; path = el.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		95AAACA015F22F7100858304 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		95AAACA215F22F8500858304 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		95AAACA415F22F9F00858304 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
 		95BC963D0991F2C9001DEF94 /* lipo.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = lipo.c; sourceTree = "<group>"; };
 		95BC989F099228D5001DEF94 /* lipo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = lipo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -152,9 +144,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95AAACA515F22F9F00858304 /* CoreFoundation.framework in Frameworks */,
-				95AAACA315F22F8500858304 /* Cocoa.framework in Frameworks */,
-				95AAACA115F22F7100858304 /* AppKit.framework in Frameworks */,
 				953AAAB00C7B947E009B69EA /* Sparkle.framework in Frameworks */,
 				9595189A07E48934004A4471 /* Growl.framework in Frameworks */,
 				D9460549CB4643FC8AD5E6D0 /* libPods.a in Frameworks */,
@@ -165,7 +154,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95AAACA615F22FE700858304 /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,10 +240,6 @@
 			children = (
 				953AAA9D0C7B945F009B69EA /* Sparkle.framework */,
 				9595189907E48934004A4471 /* Growl.framework */,
-				95AAACA415F22F9F00858304 /* CoreFoundation.framework */,
-				95AAACA215F22F8500858304 /* Cocoa.framework */,
-				95AAACA015F22F7100858304 /* AppKit.framework */,
-				9589977615CABF4E008A2593 /* Foundation.framework */,
 				5B555B5E7B2C4EA6A081D013 /* libPods.a */,
 			);
 			name = Frameworks;
@@ -579,9 +563,7 @@
 			baseConfigurationReference = 10818E82971949539B96D336 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -600,9 +582,7 @@
 			baseConfigurationReference = 10818E82971949539B96D336 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -619,6 +599,7 @@
 		95AAF5690856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application: ti und m AG";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = NO;
@@ -645,6 +626,7 @@
 		95AAF56A0856C2DC007CEE36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application: ti und m AG";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
