@@ -1,3 +1,3 @@
-# Changelog for Monolingual 1.5.9
+# Changelog for Monolingual 1.5.10
 
-* Added Greek translation.
+* .
