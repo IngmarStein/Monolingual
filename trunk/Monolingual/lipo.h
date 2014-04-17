@@ -3,7 +3,7 @@
  *  Monolingual
  *
  *  Created by Ingmar Stein on 02.02.06.
- *  Copyright 2006-2013 Ingmar Stein. All rights reserved.
+ *  Copyright 2006-2014 Ingmar Stein. All rights reserved.
  *
  */
 
