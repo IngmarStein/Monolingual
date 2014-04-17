@@ -685,6 +685,7 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			
 			xpc_object_t xpc_message = xpc_dictionary_create(NULL, NULL, 0);
 			xpc_dictionary_set_bool(xpc_message, "trash", [[NSUserDefaults standardUserDefaults] boolForKey:@"Trash"]);
+			xpc_dictionary_set_int64(xpc_message, "uid", getuid());
 			xpc_dictionary_set_value(xpc_message, "blacklist", bl);
 			xpc_dictionary_set_value(xpc_message, "includes", includes);
 			xpc_dictionary_set_value(xpc_message, "excludes", excludes);
