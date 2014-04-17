@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <ar.h>
 #include <errno.h>
 #include <utime.h>
@@ -188,11 +189,72 @@ static uint32_t rnd(uint32_t v, uint32_t r)
 }
 
 /*
+ * allocate() is just a wrapper around malloc that prints an error message and
+ * exits if the malloc fails.
+ */
+static
+void *
+allocate(
+		 size_t size)
+{
+    void *p;
+	
+	if(size == 0)
+	    return(NULL);
+	if((p = malloc(size)) == NULL)
+	    syslog(LOG_ERR, "virtual memory exhausted (malloc failed)");
+	return(p);
+}
+
+/*
+ * Makestr() creates a string that is the concatenation of a variable number of
+ * strings.  It is pass a variable number of pointers to strings and the last
+ * pointer is NULL.  It returns the pointer to the string it created.  The
+ * storage for the string is malloc()'ed can be free()'ed when nolonger needed.
+ */
+static
+char *
+makestr(
+		const char *args,
+		...)
+{
+    va_list ap;
+    char *s, *p;
+    long size;
+	
+	size = 0;
+	if(args != NULL){
+	    size += strlen(args);
+	    va_start(ap, args);
+	    p = (char *)va_arg(ap, char *);
+	    while(p != NULL){
+			size += strlen(p);
+			p = (char *)va_arg(ap, char *);
+	    }
+	}
+	s = allocate(size + 1);
+	*s = '\0';
+	
+	if(args != NULL){
+	    (void)strcat(s, args);
+	    va_start(ap, args);
+	    p = (char *)va_arg(ap, char *);
+	    while(p != NULL){
+			(void)strcat(s, p);
+			p = (char *)va_arg(ap, char *);
+	    }
+	    va_end(ap);
+	}
+	return(s);
+}
+
+/*
  * create_fat() creates a fat output file from the thin files.
  */
 static int create_fat(size_t *newsize)
 {
 	uint32_t i;
+	char *rename_file;
 	int fd;
 
 	/*
@@ -201,9 +263,10 @@ static int create_fat(size_t *newsize)
 	 * allows the file to be removed and thus created (since the file
 	 * may not be there the return code of the unlink() is ignored).
 	 */
-	unlink(output_file);
-	if ((fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, output_filemode)) == -1) {
-		syslog(LOG_ERR, "can't create output file: %s", output_file);
+	rename_file = makestr(output_file, ".lipo", NULL);
+	if((fd = open(rename_file, O_WRONLY | O_CREAT | O_TRUNC,
+				  output_filemode)) == -1) {
+		syslog(LOG_ERR, "can't create temporary output file: %s", rename_file);
 		return 1;
 	}
 
@@ -233,7 +296,7 @@ static int create_fat(size_t *newsize)
 		swap_fat_header(&fat_header, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		if (write(fd, &fat_header, sizeof(struct fat_header)) != sizeof(struct fat_header)) {
-			syslog(LOG_ERR, "can't write fat header to output file: %s", output_file);
+			syslog(LOG_ERR, "can't write fat header to output file: %s", rename_file);
 			close(fd);
 			return 1;
 		}
@@ -242,7 +305,7 @@ static int create_fat(size_t *newsize)
 			swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
 			if (write(fd, &(thin_files[i].fat_arch), sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
-				syslog(LOG_ERR, "can't write fat arch to output file: %s", output_file);
+				syslog(LOG_ERR, "can't write fat arch to output file: %s", rename_file);
 				close(fd);
 				return 1;
 			}
@@ -254,12 +317,12 @@ static int create_fat(size_t *newsize)
 	for (i = 0; i < nthin_files; ++i) {
 		if (nthin_files != 1)
 			if (lseek(fd, thin_files[i].fat_arch.offset, L_SET) == -1) {
-				syslog(LOG_ERR, "can't lseek in output file: %s", output_file);
+				syslog(LOG_ERR, "can't lseek in output file: %s", rename_file);
 				close(fd);
 				return 1;
 			}
 		if (write(fd, thin_files[i].addr, thin_files[i].fat_arch.size) != (int)(thin_files[i].fat_arch.size)) {
-			syslog(LOG_ERR, "can't write to output file: %s", output_file);
+			syslog(LOG_ERR, "can't write to output file: %s", rename_file);
 			close(fd);
 			return 1;
 		}
@@ -273,8 +336,10 @@ static int create_fat(size_t *newsize)
 	fchown(fd, output_uid, output_gid);	
 	fchmod(fd, output_filemode);
 	
-	if (close(fd) == -1)
-		syslog(LOG_WARNING, "can't close output file: %s", output_file);
+	if(rename(rename_file, output_file) == -1)
+	    syslog(LOG_WARNING, "can't move temporary file: %s to file: %s",
+					 rename_file, output_file);
+	free(rename_file);
 
 	return 0;
 }
