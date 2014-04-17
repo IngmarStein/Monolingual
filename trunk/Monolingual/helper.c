@@ -44,6 +44,7 @@ typedef struct helper_context_s {
 	int should_exit;
 	int dry_run;
 	int do_strip;
+	uid_t uid;
 	void (*remove_func)(const char *path, const struct helper_context_s *);
 	xpc_connection_t connection;
 	CFMutableSetRef directories;
@@ -394,17 +395,19 @@ static void trash_file(const char *path, const helper_context_t *context)
 				sep_pos[1] = '\0';
 				strncat(userTrash, ".Trashes", sizeof(userTrash) - strlen(userTrash) - 1);
 				mkdir(userTrash, 0700);
-				snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", getuid());
+				snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", context->uid);
 				validTrash = 1;
 			}
 		} else {
-			struct passwd *pwd = getpwuid(getuid());
+			struct passwd *pwd = getpwuid(context->uid);
 			if (pwd) {
 				strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
 				strncat(userTrash, "/.Trash", sizeof(userTrash) - strlen(userTrash) - 1);
+				syslog(LOG_NOTICE, "userTrash: %s", userTrash);
 				validTrash = 1;
 			}
 		}
+		syslog(LOG_NOTICE, "validTrash: %d", validTrash);
 		if (validTrash) {
 			char destination[PATH_MAX];
 			mkdir(userTrash, 0700);
@@ -589,7 +592,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	__block helper_context_t context;
 
 	context.should_exit = 0;
-
+	
 	context.connection = xpc_dictionary_create_connection(request, "connection");
 
 	// Check XPC Connection
@@ -621,6 +624,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	
 	context.dry_run = xpc_dictionary_get_bool(request, "dry_run");
 	context.do_strip = xpc_dictionary_get_bool(request, "strip");
+	context.uid = xpc_dictionary_get_int64(request, "uid");
 	if (xpc_dictionary_get_bool(request, "trash"))
 		context.remove_func = trash_file;
 
