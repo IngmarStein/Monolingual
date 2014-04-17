@@ -621,7 +621,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	
 	context.dry_run = xpc_dictionary_get_bool(request, "dry_run");
 	context.do_strip = xpc_dictionary_get_bool(request, "strip");
-	if (xpc_dictionary_get_bool(request, "strip"))
+	if (xpc_dictionary_get_bool(request, "trash"))
 		context.remove_func = trash_file;
 
 	xpc_object_t files = xpc_dictionary_get_value(request, "files");
