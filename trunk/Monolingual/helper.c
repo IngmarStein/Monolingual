@@ -710,7 +710,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 }
 
 static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
-	syslog(LOG_NOTICE, "Received event in helper on queue %s.", dispatch_queue_get_label(dispatch_get_current_queue()));
+	syslog(LOG_NOTICE, "Received event in helper");
 
 	xpc_type_t type = xpc_get_type(event);
 

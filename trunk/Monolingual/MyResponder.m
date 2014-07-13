@@ -5,9 +5,7 @@
  */
 
 #import "MyResponder.h"
-#import "ProgressWindowController.h"
-#import "PreferencesController.h"
-#import "MonolingualHelperClient.h"
+#import "Monolingual-Swift.h"
 #import <Growl/GrowlDefines.h>
 #import "SMJErrorTypes.h"
 @import Darwin.POSIX.sys.types;
@@ -147,10 +145,10 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 @property(nonatomic, assign) unsigned long long bytesSaved;
 @property(nonatomic, assign) MonolingualMode    mode;
 @property(nonatomic, strong) NSArray            *processApplication;
-@property(nonatomic, assign) dispatch_queue_t   listener_queue;
-@property(nonatomic, assign) dispatch_queue_t   peer_event_queue;
-@property(nonatomic, assign) xpc_connection_t   connection;
-@property(nonatomic, assign) xpc_connection_t   progressConnection;
+@property(nonatomic, strong) dispatch_queue_t   listener_queue;
+@property(nonatomic, strong) dispatch_queue_t   peer_event_queue;
+@property(nonatomic, strong) xpc_connection_t   connection;
+@property(nonatomic, strong) xpc_connection_t   progressConnection;
 
 @end
 
@@ -297,21 +295,14 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 		xpc_dictionary_set_value(xpc_message, "includes", includes);
 		xpc_dictionary_set_value(xpc_message, "excludes", excludes);
 		xpc_dictionary_set_value(xpc_message, "thin", archs);
-		xpc_release(bl);
-		xpc_release(includes);
-		xpc_release(excludes);
 
 		[self runDeleteHelperWithArgs:xpc_message];
-		
-		xpc_release(xpc_message);
 	} else {
 		if (logFile) {
 			fclose(logFile);
 			logFile = NULL;
 		}
 	}
-	
-	xpc_release(archs);
 }
 
 - (void)processProgress:(xpc_object_t)progress {
@@ -488,7 +479,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 				xpc_object_t exit_message = xpc_dictionary_create(NULL, NULL, 0);
 				xpc_dictionary_set_int64(exit_message, "exit_code", exit_code);
 				xpc_connection_send_message(self.connection, exit_message);
-				xpc_release(exit_message);
 			}
 
 			if (!exit_code)
@@ -535,14 +525,12 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 				xpc_object_t exit_message = xpc_dictionary_create(NULL, NULL, 0);
 				xpc_dictionary_set_int64(exit_message, "exit_code", EXIT_FAILURE);
 				xpc_connection_send_message(self.connection, exit_message);
-				xpc_release(exit_message);
 			}
 
 			// Cancel and release the anonymous connection which signals the remote
 			// service to stop, if working.
 			NSLog(@"Closing progress connection");
 			xpc_connection_cancel(self.progressConnection);
-			xpc_release(self.progressConnection);
 			self.progressConnection = NULL;
 		}
 
@@ -572,7 +560,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 	if (self.connection) {
 		NSLog(@"Closing connection");
 		xpc_connection_cancel(self.connection);
-		xpc_release(self.connection);
 		self.connection = NULL;
 	}
 	
@@ -692,19 +679,12 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 			xpc_dictionary_set_value(xpc_message, "directories", files);
 
 			[self runDeleteHelperWithArgs:xpc_message];
-			
-			xpc_release(xpc_message);
 		} else {
 			if (logFile) {
 				fclose(logFile);
 				logFile = NULL;
 			}
 		}
-
-		xpc_release(bl);
-		xpc_release(includes);
-		xpc_release(excludes);
-		xpc_release(files);
 	}
 }
 
@@ -969,11 +949,6 @@ static char * human_readable(unsigned long long amt, char *buf, unsigned int bas
 
 - (BOOL) hasNetworkClientEntitlement {
 	return YES;
-}
-
-- (void)dealloc {
-	dispatch_release(self.listener_queue);
-	dispatch_release(self.peer_event_queue);
 }
 
 @end
