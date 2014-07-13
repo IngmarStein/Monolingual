@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D43" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="14A283o" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1070" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
@@ -45,11 +44,11 @@
                                             <rect key="frame" x="20" y="52" width="346" height="277"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="H56-7X-ouE">
-                                                <rect key="frame" x="1" y="17" width="344" height="259"/>
+                                                <rect key="frame" x="1" y="17" width="329" height="243"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" headerView="710" id="530" customClass="ISTableView">
-                                                        <rect key="frame" x="0.0" y="0.0" width="344" height="259"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="243"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -74,7 +73,7 @@
                                                                     </binding>
                                                                 </connections>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Name" editable="NO" width="273.01416015625" minWidth="59.51416015625" maxWidth="1000" id="529">
+                                                            <tableColumn identifier="Name" editable="NO" width="258.01416015625" minWidth="59.51416015625" maxWidth="1000" id="529">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Idioma">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -103,15 +102,15 @@
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
                                             <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="709">
-                                                <rect key="frame" x="1" y="260" width="344" height="16"/>
+                                                <rect key="frame" x="1" y="260" width="329" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="708">
-                                                <rect key="frame" x="329" y="17" width="16" height="259"/>
+                                                <rect key="frame" x="330" y="17" width="15" height="243"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="710">
-                                                <rect key="frame" x="0.0" y="0.0" width="344" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="329" height="17"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                             <connections>
@@ -137,14 +136,14 @@
                             <tabViewItem label="Arquitecturas" identifier="" id="583">
                                 <view key="view" id="584">
                                     <rect key="frame" x="10" y="33" width="386" height="329"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="585">
                                             <rect key="frame" x="20" y="52" width="346" height="277"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="yPX-3a-IGd">
                                                 <rect key="frame" x="1" y="17" width="329" height="243"/>
-                                                <autoresizingMask key="autoresizingMask"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" headerView="713" id="586" customClass="ISTableView">
                                                         <rect key="frame" x="0.0" y="0.0" width="329" height="243"/>
@@ -471,7 +470,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <clipView key="contentView" id="AAp-F6-QtY">
                                         <rect key="frame" x="1" y="17" width="365" height="133"/>
-                                        <autoresizingMask key="autoresizingMask"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnSelection="YES" headerView="727" id="653">
                                                 <rect key="frame" x="0.0" y="0.0" width="365" height="133"/>

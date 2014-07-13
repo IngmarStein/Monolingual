@@ -1,7 +1,6 @@
 /*
  * monolingual -
- *  front end for monolingual.pl (included in this package), which
- *  strips away extra language .lproj from OSX to save space
+ *  strips away extra language .lproj from OS X to save space
  *
  *   Copyright (C) 2001, 2002 Joshua Schrier (jschrier@mac.com),
  *   2004-2014 Ingmar Stein
@@ -21,22 +20,6 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-@import Cocoa;
+import Cocoa
 
-@class MyResponder;
-
-@interface ProgressWindowController : NSWindowController
-{
-}
-
-@property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
-@property (nonatomic, weak) IBOutlet NSTextField *applicationText;
-@property (nonatomic, weak) IBOutlet NSTextField *fileText;
-
-- (IBAction) cancelButton: (id)sender;
-- (void) start;
-- (void) stop;
-- (void) setText:(NSString *)text;
-- (void) setFile:(NSString *)file;
-
-@end
+NSApplicationMain(C_ARGC, C_ARGV)

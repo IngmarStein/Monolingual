@@ -7,28 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9531D7790C7B0E61008B48AA /* ISTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9531D7780C7B0E61008B48AA /* ISTableView.m */; };
 		9531D7830C7B1020008B48AA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9531D7810C7B1020008B48AA /* MainMenu.xib */; };
 		9539D83811453596007E698C /* blacklist.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9539D83711453596007E698C /* blacklist.plist */; };
-		953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; };
+		953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		953AAAB00C7B947E009B69EA /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; };
 		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = F5A6E37F01A07759016596AB /* COPYING.txt */; };
-		956E31D70A4B4056004E91ED /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 956E31D60A4B4056004E91ED /* main.c */; };
-		957B0BA4162ACC1300051EE7 /* MonolingualHelperClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 957B0BA3162ACC1300051EE7 /* MonolingualHelperClient.m */; };
+		956E31D70A4B4056004E91ED /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E31D60A4B4056004E91ED /* main.swift */; };
 		9595189A07E48934004A4471 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
-		9595190107E48C30004A4471 /* Growl.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
-		95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A0BEA206346AD3007510F1 /* PreferencesController.m */; };
+		9595190107E48C30004A4471 /* Growl.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		959CEEAB197140FC00A433C0 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
+		959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEED919714E0500A433C0 /* ISTableView.swift */; };
+		959CEEDE19714E0500A433C0 /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDA19714E0500A433C0 /* MyResponder.m */; };
+		959CEEDF19714E0500A433C0 /* PreferencesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDB19714E0500A433C0 /* PreferencesController.swift */; };
+		959CEEE019714E0500A433C0 /* ProgressWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDC19714E0500A433C0 /* ProgressWindowController.swift */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
-		95A130390608F92F00D8E30C /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ECF788010242A17F000001 /* MyResponder.m */; };
-		95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 10400F490164385C7F000001 /* ProgressWindowController.m */; };
 		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
-		95C3AA3715CC316D0017352A /* net.sourceforge.MonolingualHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; };
+		95C3AA3715CC316D0017352A /* net.sourceforge.MonolingualHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		95D7A8AD098D42F800DCE08D /* helper.c in Sources */ = {isa = PBXBuildFile; fileRef = 95D7A8AC098D42F800DCE08D /* helper.c */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
@@ -74,15 +74,10 @@
 
 /* Begin PBXFileReference section */
 		00ECF787010242A17F000001 /* MyResponder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MyResponder.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		00ECF788010242A17F000001 /* MyResponder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MyResponder.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		10400F480164385C7F000001 /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ProgressWindowController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		10400F490164385C7F000001 /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ProgressWindowController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		10818E82971949539B96D336 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 		2BCD7FCA097D043900FE7723 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Italian; path = Italian.lproj/Credits.html; sourceTree = "<group>"; };
 		5B555B5E7B2C4EA6A081D013 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		9531D7770C7B0E61008B48AA /* ISTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ISTableView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		9531D7780C7B0E61008B48AA /* ISTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ISTableView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		9531D7820C7B1020008B48AA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D7880C7B15AE008B48AA /* French */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = French; path = French.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D7890C7B15B7008B48AA /* German */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = German; path = German.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -95,10 +90,8 @@
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = German.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
-		956E31D60A4B4056004E91ED /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = main.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		956E31D60A4B4056004E91ED /* main.swift */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = main.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		957B0BA1162ACBA200051EE7 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
-		957B0BA2162ACC1300051EE7 /* MonolingualHelperClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MonolingualHelperClient.h; sourceTree = "<group>"; };
-		957B0BA3162ACC1300051EE7 /* MonolingualHelperClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonolingualHelperClient.m; sourceTree = "<group>"; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Italian.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95852A7C1119CD7C00B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Spanish; path = Spanish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Spanish.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -107,8 +100,12 @@
 		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
-		95A0BEA106346AD3007510F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PreferencesController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		95A0BEA206346AD3007510F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PreferencesController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		959CEEA9197140FC00A433C0 /* Monolingual-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Monolingual-Bridging-Header.h"; sourceTree = "<group>"; };
+		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonolingualHelperClient.swift; sourceTree = "<group>"; };
+		959CEED919714E0500A433C0 /* ISTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ISTableView.swift; sourceTree = "<group>"; };
+		959CEEDA19714E0500A433C0 /* MyResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyResponder.m; sourceTree = "<group>"; };
+		959CEEDB19714E0500A433C0 /* PreferencesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesController.swift; sourceTree = "<group>"; };
+		959CEEDC19714E0500A433C0 /* ProgressWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressWindowController.swift; sourceTree = "<group>"; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
@@ -163,16 +160,13 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				957B0BA2162ACC1300051EE7 /* MonolingualHelperClient.h */,
-				957B0BA3162ACC1300051EE7 /* MonolingualHelperClient.m */,
+				959CEED919714E0500A433C0 /* ISTableView.swift */,
+				959CEEA9197140FC00A433C0 /* Monolingual-Bridging-Header.h */,
+				959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */,
 				00ECF787010242A17F000001 /* MyResponder.h */,
-				00ECF788010242A17F000001 /* MyResponder.m */,
-				10400F480164385C7F000001 /* ProgressWindowController.h */,
-				10400F490164385C7F000001 /* ProgressWindowController.m */,
-				95A0BEA106346AD3007510F1 /* PreferencesController.h */,
-				95A0BEA206346AD3007510F1 /* PreferencesController.m */,
-				9531D7770C7B0E61008B48AA /* ISTableView.h */,
-				9531D7780C7B0E61008B48AA /* ISTableView.m */,
+				959CEEDA19714E0500A433C0 /* MyResponder.m */,
+				959CEEDB19714E0500A433C0 /* PreferencesController.swift */,
+				959CEEDC19714E0500A433C0 /* ProgressWindowController.swift */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -203,7 +197,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				956E31D60A4B4056004E91ED /* main.c */,
+				956E31D60A4B4056004E91ED /* main.swift */,
 				95BC963D0991F2C9001DEF94 /* lipo.c */,
 				95BC989F099228D5001DEF94 /* lipo.h */,
 				95D7A8AC098D42F800DCE08D /* helper.c */,
@@ -295,7 +289,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0600;
 				TargetAttributes = {
 					95A130250608F92F00D8E30C = {
 						DevelopmentTeam = 4N2G277B4M;
@@ -417,12 +411,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95A130390608F92F00D8E30C /* MyResponder.m in Sources */,
-				95A1303A0608F92F00D8E30C /* ProgressWindowController.m in Sources */,
-				95A0BEA406346AD3007510F1 /* PreferencesController.m in Sources */,
-				956E31D70A4B4056004E91ED /* main.c in Sources */,
-				9531D7790C7B0E61008B48AA /* ISTableView.m in Sources */,
-				957B0BA4162ACC1300051EE7 /* MonolingualHelperClient.m in Sources */,
+				959CEEDE19714E0500A433C0 /* MyResponder.m in Sources */,
+				959CEEDF19714E0500A433C0 /* PreferencesController.swift in Sources */,
+				959CEEAB197140FC00A433C0 /* MonolingualHelperClient.swift in Sources */,
+				956E31D70A4B4056004E91ED /* main.swift in Sources */,
+				959CEEE019714E0500A433C0 /* ProgressWindowController.swift in Sources */,
+				959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,7 +557,9 @@
 			baseConfigurationReference = 10818E82971949539B96D336 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -572,7 +568,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = Monolingual;
+				SWIFT_OBJC_BRIDGING_HEADER = "Monolingual-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -582,7 +581,9 @@
 			baseConfigurationReference = 10818E82971949539B96D336 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -591,7 +592,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = Monolingual;
+				SWIFT_OBJC_BRIDGING_HEADER = "Monolingual-Bridging-Header.h";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -609,7 +612,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PROVISIONING_PROFILE = "";
@@ -638,7 +641,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PROVISIONING_PROFILE = "";
 				RUN_CLANG_STATIC_ANALYZER = YES;
