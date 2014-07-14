@@ -11,7 +11,6 @@ import Cocoa
 class ISTableView : NSTableView {
 	@IBOutlet var arrayController: NSArrayController
 
-	/*
 	override func keyDown(theEvent: NSEvent!) {
 		var row: Int
 		let key = theEvent.charactersIgnoringModifiers.substringToIndex(1)
@@ -20,19 +19,13 @@ class ISTableView : NSTableView {
 			case " ":
 				row = self.selectedRow
 				if row != -1 {
-					var dict = self.arrayController.arrangedObjects[row] as? NSMutableDictionary
-					if let d = dict {
-						let enabled = d["Enabled"] as NSNumber
-						d["Enabled"] = !enabled.boolValue
-					}
+					let arrangedObjects = self.arrayController.arrangedObjects as [NSMutableDictionary]
+					var dict = arrangedObjects[row]
+					dict["Enabled"] = !dict["Enabled"].boolValue
 				}
-			break;
 			default:
 				super.keyDown(theEvent)
-				break;
 		}
 	}
-	*/
-
 }
 

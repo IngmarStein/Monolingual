@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		95283993197402B3002D995E /* compat.m in Sources */ = {isa = PBXBuildFile; fileRef = 95283992197402B3002D995E /* compat.m */; };
 		9531D7830C7B1020008B48AA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9531D7810C7B1020008B48AA /* MainMenu.xib */; };
 		9539D83811453596007E698C /* blacklist.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9539D83711453596007E698C /* blacklist.plist */; };
 		953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -16,13 +17,11 @@
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = F5A6E37F01A07759016596AB /* COPYING.txt */; };
 		956E31D70A4B4056004E91ED /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E31D60A4B4056004E91ED /* main.swift */; };
-		9595189A07E48934004A4471 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; };
-		9595190107E48C30004A4471 /* Growl.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 9595189907E48934004A4471 /* Growl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		959CEEAB197140FC00A433C0 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
 		959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEED919714E0500A433C0 /* ISTableView.swift */; };
-		959CEEDE19714E0500A433C0 /* MyResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDA19714E0500A433C0 /* MyResponder.m */; };
 		959CEEDF19714E0500A433C0 /* PreferencesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDB19714E0500A433C0 /* PreferencesController.swift */; };
 		959CEEE019714E0500A433C0 /* ProgressWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDC19714E0500A433C0 /* ProgressWindowController.swift */; };
+		959CEEE21972F29B00A433C0 /* MyResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEE11972F29B00A433C0 /* MyResponder.swift */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
@@ -54,7 +53,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */,
-				9595190107E48C30004A4471 /* Growl.framework in Copy Embedded Frameworks */,
 			);
 			name = "Copy Embedded Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,11 +71,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		00ECF787010242A17F000001 /* MyResponder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MyResponder.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		10818E82971949539B96D336 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 		2BCD7FCA097D043900FE7723 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Italian; path = Italian.lproj/Credits.html; sourceTree = "<group>"; };
 		5B555B5E7B2C4EA6A081D013 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		95283992197402B3002D995E /* compat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compat.m; sourceTree = "<group>"; };
+		9528399419740300002D995E /* compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
 		9531D7820C7B1020008B48AA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D7880C7B15AE008B48AA /* French */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = French; path = French.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9531D7890C7B15B7008B48AA /* German */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = German; path = German.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -99,13 +98,12 @@
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Spanish.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
-		9595189907E48934004A4471 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Growl.framework; sourceTree = "<group>"; };
 		959CEEA9197140FC00A433C0 /* Monolingual-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Monolingual-Bridging-Header.h"; sourceTree = "<group>"; };
 		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonolingualHelperClient.swift; sourceTree = "<group>"; };
 		959CEED919714E0500A433C0 /* ISTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ISTableView.swift; sourceTree = "<group>"; };
-		959CEEDA19714E0500A433C0 /* MyResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyResponder.m; sourceTree = "<group>"; };
 		959CEEDB19714E0500A433C0 /* PreferencesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesController.swift; sourceTree = "<group>"; };
 		959CEEDC19714E0500A433C0 /* ProgressWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressWindowController.swift; sourceTree = "<group>"; };
+		959CEEE11972F29B00A433C0 /* MyResponder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyResponder.swift; sourceTree = "<group>"; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				953AAAB00C7B947E009B69EA /* Sparkle.framework in Frameworks */,
-				9595189A07E48934004A4471 /* Growl.framework in Frameworks */,
 				D9460549CB4643FC8AD5E6D0 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -163,8 +160,7 @@
 				959CEED919714E0500A433C0 /* ISTableView.swift */,
 				959CEEA9197140FC00A433C0 /* Monolingual-Bridging-Header.h */,
 				959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */,
-				00ECF787010242A17F000001 /* MyResponder.h */,
-				959CEEDA19714E0500A433C0 /* MyResponder.m */,
+				959CEEE11972F29B00A433C0 /* MyResponder.swift */,
 				959CEEDB19714E0500A433C0 /* PreferencesController.swift */,
 				959CEEDC19714E0500A433C0 /* ProgressWindowController.swift */,
 			);
@@ -197,6 +193,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				95283992197402B3002D995E /* compat.m */,
+				9528399419740300002D995E /* compat.h */,
 				956E31D60A4B4056004E91ED /* main.swift */,
 				95BC963D0991F2C9001DEF94 /* lipo.c */,
 				95BC989F099228D5001DEF94 /* lipo.h */,
@@ -233,7 +231,6 @@
 			isa = PBXGroup;
 			children = (
 				953AAA9D0C7B945F009B69EA /* Sparkle.framework */,
-				9595189907E48934004A4471 /* Growl.framework */,
 				5B555B5E7B2C4EA6A081D013 /* libPods.a */,
 			);
 			name = Frameworks;
@@ -411,9 +408,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				959CEEDE19714E0500A433C0 /* MyResponder.m in Sources */,
 				959CEEDF19714E0500A433C0 /* PreferencesController.swift in Sources */,
+				95283993197402B3002D995E /* compat.m in Sources */,
 				959CEEAB197140FC00A433C0 /* MonolingualHelperClient.swift in Sources */,
+				959CEEE21972F29B00A433C0 /* MyResponder.swift in Sources */,
 				956E31D70A4B4056004E91ED /* main.swift in Sources */,
 				959CEEE019714E0500A433C0 /* ProgressWindowController.swift in Sources */,
 				959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */,

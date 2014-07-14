@@ -1,2 +1,14 @@
 #import "SMJClient.h"
-#import <Growl/GrowlApplicationBridge.h>
+#import "SMJErrorTypes.h"
+#import "compat.h"
+@import Darwin.POSIX.sys.types;
+@import Darwin.POSIX.sys.stat;
+@import Darwin.sys.param;
+@import Darwin.sys.sysctl;
+@import Darwin.C.string;
+@import Darwin.C.stdlib;
+@import Darwin.POSIX.unistd;
+@import Darwin.Mach.mach_host;
+@import Darwin.Mach.mach_port;
+@import Darwin.Mach.machine;
+@import MachO.arch;
