@@ -43,7 +43,7 @@ enum SMJErrorCodeSwift : Int {
 	case AuthorizationFailed = 1023
 }
 
-class MyResponder : NSWindowController, NSApplicationDelegate {
+class MainViewController : NSViewController {
 
 	@IBOutlet strong var progressWindowController : ProgressWindowController!
 	@IBOutlet strong var preferencesController : PreferencesController!
@@ -53,7 +53,6 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 	var languages : NSArray!
 	var architectures : NSArray!
 
-	let donateURL : NSURL = NSURL(string:"http://monolingual.sourceforge.net/donate.php")
 	var bytesSaved : CUnsignedLongLong = 0
 	var mode : MonolingualMode = .Languages
 	var processApplication : NSArray?
@@ -62,69 +61,22 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 	var connection : xpc_connection_t?
 	var progressConnection : xpc_connection_t?
 
-	var logFile : NSFileHandle! = nil
-	var logFileName : NSURL! = nil
-	
 	init() {
 		super.init()
 	}
 	
-	init(window: NSWindow!) {
-		super.init(window: window)
-	}
-
 	init(coder: NSCoder!) {
 		super.init(coder: coder)
 	}
 
-	func applicationDidFinishLaunching(notification: NSNotification) {
-		let applications = [ "Path" : "/Applications", "Languages" : true, "Architectures" : true ]
-		let developer    = [ "Path" : "/Developer",    "Languages" : true, "Architectures" : true ]
-		let library      = [ "Path" : "/Library",      "Languages" : true, "Architectures" : true ]
-		let systemPath   = [ "Path" : "/System",       "Languages" : true, "Architectures" : false ]
-		let defaultRoots = [ applications, developer, library, systemPath ]
-		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false ]
-
-		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict)
-
-		self.logFileName = NSURL(fileURLWithPath:"\(NSHomeDirectory())/Library/Logs/Monolingual.log", isDirectory: false)
-	}
-
-	func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!) -> Bool {
-		return true
-	}
-
-	func application(sender: NSApplication!, openFile filename: String!) -> Bool {
-		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
-
-		self.processApplication = [ dict ]
-
-		warningSelector(NSAlertAlternateReturn)
-	
-		return true
-	}
-	
 	func finishProcessing() {
 		self.progressWindowController.window.orderOut(self)
 		self.progressWindowController.stop()
 		NSApp.endSheet(self.progressWindowController.window, returnCode:0)
 	}
-		
-	@IBAction func documentationBundler(sender : NSMenuItem) {
-		let docURL = NSBundle.mainBundle().URLForResource(sender.title, withExtension:nil)
-		NSWorkspace.sharedWorkspace().openURL(docURL)
-	}
 
-	@IBAction func openWebsite(sender: AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"http://monolingual.sourceforge.net/"))
-	}
-	
 	@IBAction func showPreferences(sender: AnyObject) {
 		self.preferencesController.showWindow(self)
-	}
-	
-	@IBAction func donate(sender: AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(self.donateURL)
 	}
 	
 	@IBAction func removeLanguages(sender: AnyObject) {
@@ -140,17 +92,13 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 		})
 	}
 	
-	func log(message: String) {
-		logFile?.writeData(message.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false))
-	}
-	
 	@IBAction func removeArchitectures(sender: AnyObject) {
 		self.mode = .Architectures
 
-		logFile = NSFileHandle.fileHandleForWritingToURL(logFileName, error: nil)
-
+		log.open()
+		
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
-		log("Monolingual started at \(now)Removing architectures: ")
+		log.message("Monolingual started at \(now)Removing architectures: ")
 
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 	
@@ -162,11 +110,11 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 			if enabled.boolValue {
 				let arch = dict["Name"] as NSString
 				xpc_array_set_string(archs, kXPC_ARRAY_APPEND, arch.UTF8String)
-				self.log(" \(arch)")
+				log.message(" \(arch)")
 			}
 		}
 	
-		log("\nModified files:\n")
+		log.message("\nModified files:\n")
 	
 		let num_archs = xpc_array_get_count(archs)
 		if num_archs == self.architectures.count {
@@ -175,10 +123,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 			alert.messageText = NSLocalizedString("Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", comment:"")
 			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
 			//NSLocalizedString("Cannot remove all architectures", "")
-			if logFile {
-				logFile.closeFile()
-				logFile = nil
-			}
+			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
 			let includes = xpc_array_create(nil, 0)
@@ -212,10 +157,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 		
 			self.runDeleteHelperWithArgs(xpc_message)
 		} else {
-			if logFile {
-				logFile.closeFile()
-				logFile = nil
-			}
+			log.close()
 		}
 	}
 	
@@ -228,7 +170,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 		let size = xpc_dictionary_get_uint64(progress, "size")
 		self.bytesSaved += size
 		
-		log("\(file): \(size)\n")
+		log.message("\(file): \(size)\n")
 
 		var message : String
 		if self.mode == .Architectures {
@@ -288,32 +230,21 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 				alert.messageText = NSLocalizedString("You entered an incorrect administrator password.", comment:"")
 				// NSLocalizedString("Permission Error", "")
 				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
-				if logFile {
-					logFile.closeFile()
-					logFile = nil
-				}
 			case .AuthorizationCanceled:
 				let alert = NSAlert()
 				alert.alertStyle = .CriticalAlertStyle
 				alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
 				//NSLocalizedString("Nothing done", comment:"")
 				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
-				if logFile {
-					logFile.closeFile()
-					logFile = nil
-				}
 			case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
 				let alert = NSAlert()
 				alert.alertStyle = .CriticalAlertStyle
 				alert.messageText = NSLocalizedString("Failed to authorize as an administrator.", comment:"")
 				//NSLocalizedString("Authorization Error", comment:"")
 				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
-				if logFile {
-					logFile.closeFile()
-					logFile = nil
-				}
 			default: ()
 			}
+			log.close()
 			return
 		}
 	
@@ -404,7 +335,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 		}
 	
 		self.progressWindowController.start()
-		self.progressWindowController.window.beginSheet(self.window) {
+		self.progressWindowController.window.beginSheet(NSApp.mainWindow) {
 			(response: NSModalResponse) in
 			self.progressDidEnd(response)
 		}
@@ -461,10 +392,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 			self.connection = nil
 		}
 	
-		if logFile {
-			logFile.closeFile()
-			logFile = nil
-		}
+		log.close()
 	
 		NSProcessInfo.processInfo().enableSuddenTermination()
 	}
@@ -497,11 +425,9 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 	func englishWarningSelector(returnCode: Int) {
 		self.mode = .Languages
 	
-		logFile = NSFileHandle.fileHandleForWritingToURL(logFileName, error: nil)
-		if logFile {
-			let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
-			log("Monolingual started at \(now)Removing languages: ")
-		}
+		log.open()
+		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
+		log.message("Monolingual started at \(now)Removing languages: ")
 	
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 
@@ -549,9 +475,9 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 					for path in paths {
 						xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
 						if rCount != 0 {
-							log(" ")
+							log.message(" ")
 						}
-						log(path)
+						log.message(path)
 						rCount++
 					}
 				}
@@ -560,18 +486,14 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 				xpc_array_set_string(files, kXPC_ARRAY_APPEND, "designable.nib")
 			}
 		
-			log("\nDeleted files: \n")
+			log.message("\nDeleted files: \n")
 			if rCount == self.languages.count {
 				let alert = NSAlert()
 				alert.alertStyle = .InformationalAlertStyle
 				alert.messageText = NSLocalizedString("Cannot remove all languages", comment:"")
 				alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment:"")
 				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
-				
-				if logFile {
-					logFile.closeFile()
-					logFile = nil
-				}
+				log.close()
 			} else if rCount > 0 {
 				/* start things off if we have something to remove! */
 			
@@ -585,10 +507,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 			
 				runDeleteHelperWithArgs(xpc_message)
 			} else {
-				if logFile {
-					logFile.closeFile()
-					logFile = nil
-				}
+				log.close()
 			}
 		}
 	}
@@ -618,8 +537,6 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 		if appleLocale {
 			userLanguages.addObject(appleLocale.stringByReplacingOccurrencesOfString("_", withString:"-"))
 		}
-
-		self.window.setFrameAutosaveName("MainWindow")
 
 		let numKnownLanguages = 134
 		var knownLanguages = NSMutableArray(capacity: numKnownLanguages)
@@ -818,7 +735,7 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 				}
 			}
 		}
-			
+
 		self.currentArchitecture.stringValue = "unknown"
 
 		var knownArchitectures = NSMutableArray(capacity: archs.count)
@@ -846,9 +763,5 @@ class MyResponder : NSWindowController, NSApplicationDelegate {
 			let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist")
 			self.blacklist = NSArray(contentsOfFile:blacklistBundle)
 		}
-	}
-		
-	func hasNetworkClientEntitlement() -> Bool {
-		return true
 	}
 }
