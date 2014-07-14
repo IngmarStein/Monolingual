@@ -45,9 +45,8 @@ enum SMJErrorCodeSwift : Int {
 
 class MainViewController : NSViewController {
 
-	@IBOutlet strong var progressWindowController : ProgressWindowController!
-	@IBOutlet strong var preferencesController : PreferencesController!
-	@IBOutlet var currentArchitecture : NSTextField!
+	//@IBOutlet strong var progressWindowController : ProgressWindowController
+	@IBOutlet var currentArchitecture : NSTextField
 
 	var blacklist : NSArray!
 	var languages : NSArray!
@@ -70,15 +69,13 @@ class MainViewController : NSViewController {
 	}
 
 	func finishProcessing() {
+		/*
 		self.progressWindowController.window.orderOut(self)
 		self.progressWindowController.stop()
 		NSApp.endSheet(self.progressWindowController.window, returnCode:0)
+*/
 	}
 
-	@IBAction func showPreferences(sender: AnyObject) {
-		self.preferencesController.showWindow(self)
-	}
-	
 	@IBAction func removeLanguages(sender: AnyObject) {
 		// Display a warning first
 		let alert = NSAlert()
@@ -209,8 +206,8 @@ class MainViewController : NSViewController {
 			}
 		}
 		
-		self.progressWindowController.setText(message)
-		self.progressWindowController.setFile(file)
+		//self.progressWindowController.setText(message)
+		//self.progressWindowController.setFile(file)
 		NSApp.setWindowsNeedUpdate(true)
 	}
 		
@@ -334,11 +331,13 @@ class MainViewController : NSViewController {
 			}
 		}
 	
+		/*
 		self.progressWindowController.start()
 		self.progressWindowController.window.beginSheet(NSApp.mainWindow) {
 			(response: NSModalResponse) in
 			self.progressDidEnd(response)
 		}
+*/
 	
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")

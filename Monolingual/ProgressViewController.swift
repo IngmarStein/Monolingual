@@ -5,7 +5,7 @@
 
 import Cocoa
 
-class ProgressWindowController : NSWindowController {
+class ProgressViewController : NSViewController {
 	@IBOutlet var progressBar: NSProgressIndicator
 	@IBOutlet var applicationText: NSTextField
 	@IBOutlet var fileText: NSTextField
@@ -14,8 +14,8 @@ class ProgressWindowController : NSWindowController {
 		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
 		self.fileText.stringValue = ""
 
-		self.window.orderOut(sender)
-		NSApp.endSheet(self.window, returnCode:1)
+		self.view.window.orderOut(sender)
+		NSApp.endSheet(self.view.window, returnCode:1)
 	}
 
 	func start() {
