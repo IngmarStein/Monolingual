@@ -1,5 +1,5 @@
 //
-//  PreferencesController.swift
+//  PreferencesViewController
 //  Monolingual
 //
 //  Created by Ingmar Stein on Mon Apr 19 2004.
@@ -8,13 +8,9 @@
 
 import Cocoa
 
-class PreferencesController : NSWindowController {
+class PreferencesViewController : NSViewController {
 
 	@IBOutlet var roots: NSArrayController
-
-	override func awakeFromNib() {
-		self.window.setFrameAutosaveName("PreferencesWindow")
-	}
 
 	@IBAction func add(sender: AnyObject) {
 		let oPanel = NSOpenPanel()

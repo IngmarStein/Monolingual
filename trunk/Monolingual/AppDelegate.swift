@@ -53,4 +53,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	@IBAction func donate(sender: AnyObject) {
 		NSWorkspace.sharedWorkspace().openURL(self.donateURL)
 	}
+
+	@IBAction func showPreferences(sender: AnyObject) {
+		let storyboard = NSStoryboard(name:"Main", bundle:nil)
+		let windowController = storyboard.instantiateControllerWithIdentifier("PreferencesWindow") as NSWindowController
+		windowController.showWindow(self)
+	}
 }
