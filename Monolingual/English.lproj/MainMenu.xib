@@ -146,7 +146,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" headerView="713" id="586" customClass="ISTableView" customModule="Monolingual" customModuleProvider="target">
-                                                        <rect key="frame" x="0.0" y="0.0" width="344" height="19"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="19"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -167,7 +167,7 @@
                                                                     <binding destination="591" name="value" keyPath="arrangedObjects.Enabled" id="680"/>
                                                                 </connections>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Name" editable="NO" width="258.17822265625" minWidth="73.17822265625" maxWidth="1000" id="589">
+                                                            <tableColumn identifier="Name" editable="NO" width="273.17822265625" minWidth="73.17822265625" maxWidth="1000" id="589">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Architecture">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
