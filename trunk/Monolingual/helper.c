@@ -403,11 +403,9 @@ static void trash_file(const char *path, const helper_context_t *context)
 			if (pwd) {
 				strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
 				strncat(userTrash, "/.Trash", sizeof(userTrash) - strlen(userTrash) - 1);
-				syslog(LOG_NOTICE, "userTrash: %s", userTrash);
 				validTrash = 1;
 			}
 		}
-		syslog(LOG_NOTICE, "validTrash: %d", validTrash);
 		if (validTrash) {
 			char destination[PATH_MAX];
 			mkdir(userTrash, 0700);
