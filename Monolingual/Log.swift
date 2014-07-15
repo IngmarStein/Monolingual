@@ -14,6 +14,7 @@ class Log {
 	
 	func open() {
 		logFile = NSFileHandle.fileHandleForWritingToURL(logFileName, error: nil)
+		logFile?.seekToEndOfFile()
 	}
 
 	func message(message: String) {
