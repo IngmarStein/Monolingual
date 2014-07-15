@@ -259,7 +259,7 @@ static int is_blacklisted(const char *path, const helper_context_t *context)
 		}
 		if (streamOpened) {
 			CFPropertyListFormat format;
-			CFPropertyListRef plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+			CFPropertyListRef plist = CFPropertyListCreateWithStream(kCFAllocatorDefault,
 																	 infoPlistStream,
 																	 /*streamLength*/ 0,
 																	 kCFPropertyListImmutable,
@@ -289,7 +289,7 @@ static int is_blacklisted(const char *path, const helper_context_t *context)
 	if (codeResourcesStream) {
 		if (CFReadStreamOpen(codeResourcesStream)) {
 			CFPropertyListFormat format;
-			CFPropertyListRef plist = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+			CFPropertyListRef plist = CFPropertyListCreateWithStream(kCFAllocatorDefault,
 																	 codeResourcesStream,
 																	 /*streamLength*/ 0,
 																	 kCFPropertyListImmutable,
