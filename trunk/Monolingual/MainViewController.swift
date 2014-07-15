@@ -85,12 +85,12 @@ class MainViewController : NSViewController {
 		alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
 		alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
-		alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: {
+		alert.beginSheetModalForWindow(NSApp.mainWindow) {
 			(responseCode: Int) in
 			if NSAlertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
 			}
-		})
+		}
 	}
 	
 	@IBAction func removeArchitectures(sender: AnyObject) {
@@ -99,7 +99,7 @@ class MainViewController : NSViewController {
 		log.open()
 		
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
-		log.message("Monolingual started at \(now)Removing architectures: ")
+		log.message("Monolingual started at \(now)\nRemoving architectures: ")
 
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 	
@@ -131,7 +131,8 @@ class MainViewController : NSViewController {
 			let excludes = xpc_array_create(nil, 0)
 			for root in roots as [NSDictionary] {
 				let path = root["Path"] as NSString
-				if root["Architectures"].boolValue {
+				let architectures = root["Architectures"] as NSNumber
+				if architectures.boolValue {
 					NSLog("Adding root %@", path)
 					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.UTF8String)
 				} else {
@@ -144,7 +145,8 @@ class MainViewController : NSViewController {
 		
 			let bl = xpc_array_create(nil, 0)
 			for item in self.blacklist as [NSDictionary] {
-				if item["architectures"].boolValue {
+				let architectures = item["architectures"] as NSNumber
+				if architectures.boolValue {
 					xpc_array_set_string(bl, kXPC_ARRAY_APPEND, item["bundle"].UTF8String)
 				}
 			}
@@ -316,7 +318,7 @@ class MainViewController : NSViewController {
 		xpc_connection_resume(self.connection)
 	
 		// DEBUG
-		//xpc_dictionary_set_bool(arguments, "dry_run", true)
+		xpc_dictionary_set_bool(arguments, "dry_run", true)
 
 		xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue()) {
 			(event: xpc_object_t!) in
@@ -343,7 +345,7 @@ class MainViewController : NSViewController {
 			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
 		}
 		self.progressViewController?.start()
-		self.progressWindowController?.window.beginSheet(NSApp.mainWindow) {
+		self.view.window.beginSheet(self.progressWindowController?.window) {
 			(response: NSModalResponse) in
 			self.progressDidEnd(response)
 		}
@@ -415,7 +417,8 @@ class MainViewController : NSViewController {
 		var languageEnabled = false
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 		for root in roots as [NSDictionary] {
-			if root["Languages"].boolValue {
+			let languages = root["Languages"] as NSNumber
+			if languages.boolValue {
 				languageEnabled = true
 				break
 			}
@@ -436,9 +439,9 @@ class MainViewController : NSViewController {
 		var englishChecked = false
 		for language in self.languages as [NSDictionary] {
 			let folders = language["Folders"] as [String]
-			let enabled = language["Enabled"].boolValue
+			let enabled = language["Enabled"] as NSNumber
 			
-			if enabled && folders[0] as NSString == "en.lproj" {
+			if enabled.boolValue && folders[0] as NSString == "en.lproj" {
 				englishChecked = true
 				break
 			}
@@ -468,7 +471,7 @@ class MainViewController : NSViewController {
 	
 		log.open()
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
-		log.message("Monolingual started at \(now)Removing languages: ")
+		log.message("Monolingual started at \(now)\nRemoving languages: ")
 	
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 
@@ -476,7 +479,8 @@ class MainViewController : NSViewController {
 		let excludes = xpc_array_create(nil, 0)
 		for root in roots as [NSDictionary] {
 			let path = root["Path"] as NSString
-			if root["Languages"].boolValue {
+			let languages = root["Languages"] as NSNumber
+			if languages.boolValue {
 				NSLog("Adding root %@", path)
 				xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
 			} else {
@@ -486,7 +490,8 @@ class MainViewController : NSViewController {
 		}
 		let bl = xpc_array_create(nil, 0)
 		for item in self.blacklist as [NSDictionary] {
-			if item["languages"].boolValue {
+			let languages = item["languages"] as NSNumber
+			if languages.boolValue {
 				let bundle = item["bundle"] as NSString
 				NSLog("Blacklisting %@", bundle)
 				xpc_array_set_string(bl, kXPC_ARRAY_APPEND, bundle.UTF8String)
@@ -496,7 +501,8 @@ class MainViewController : NSViewController {
 		var rCount = 0
 		let files = xpc_array_create(nil, 0)
 		for language in self.languages as [NSDictionary] {
-			if language["Enabled"].boolValue {
+			let enabled = language["Enabled"] as NSNumber
+			if enabled.boolValue {
 				let paths = language["Folders"] as [NSString]
 				for path in paths {
 					xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
