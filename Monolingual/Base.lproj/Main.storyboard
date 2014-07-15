@@ -67,6 +67,11 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
                                     <items>
+                                        <menuItem title="Close" keyEquivalent="w" id="rCa-FF-cP0">
+                                            <connections>
+                                                <action selector="performClose:" target="Ady-hI-5gd" id="dwO-HE-Jau"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem title="Minimize" keyEquivalent="m" id="OY7-WF-poV">
                                             <connections>
                                                 <action selector="performMiniaturize:" target="Ady-hI-5gd" id="VwT-WD-YPe"/>
@@ -162,7 +167,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="r1H-q7-SOJ">
-                                <rect key="frame" x="18" y="392" width="231" height="17"/>
+                                <rect key="frame" x="18" y="392" width="393" height="17"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="Select the items you wish to remove:" id="z6z-xJ-Pjk">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -262,6 +267,7 @@
                                                         <string key="keyEquivalent"></string>
                                                     </buttonCell>
                                                     <connections>
+                                                        <action selector="removeLanguages:" target="XfG-lQ-9wD" id="mW6-Oo-J1O"/>
                                                         <outlet property="nextKeyView" destination="3Kl-1z-1DJ" id="d5h-ax-eSV"/>
                                                     </connections>
                                                 </button>
@@ -361,6 +367,7 @@
                                                         <string key="keyEquivalent"></string>
                                                     </buttonCell>
                                                     <connections>
+                                                        <action selector="removeArchitectures:" target="XfG-lQ-9wD" id="3tA-tz-8JR"/>
                                                         <outlet property="nextKeyView" destination="3Kl-1z-1DJ" id="P7b-ya-VAy"/>
                                                     </connections>
                                                 </button>
@@ -396,6 +403,7 @@
                             <constraint firstAttribute="trailing" secondItem="3Kl-1z-1DJ" secondAttribute="trailing" constant="19" id="G7G-nv-rnW"/>
                             <constraint firstItem="3Kl-1z-1DJ" firstAttribute="top" secondItem="r1H-q7-SOJ" secondAttribute="bottom" constant="8" id="USV-dL-gOF"/>
                             <constraint firstItem="r1H-q7-SOJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="qnZ-Th-qrQ"/>
+                            <constraint firstAttribute="trailing" secondItem="r1H-q7-SOJ" secondAttribute="trailing" constant="20" symbolic="YES" id="t85-wT-n6g"/>
                         </constraints>
                     </view>
                     <connections>
@@ -684,13 +692,6 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EFT-7p-uKL">
-                                <rect key="frame" x="323" y="13" width="83" height="32"/>
-                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="vMP-PK-qKF">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                            </button>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="m2T-xo-c0U">
                                 <rect key="frame" x="18" y="68" width="384" height="17"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="Application" id="2Hg-My-pnU">
@@ -699,6 +700,16 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EFT-7p-uKL">
+                                <rect key="frame" x="323" y="13" width="83" height="32"/>
+                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="vMP-PK-qKF">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="cancelButton:" target="M12-nr-lB2" id="m5K-JT-0DV"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="f9B-Zg-VSa" firstAttribute="leading" secondItem="WE0-wO-Apd" secondAttribute="leading" constant="20" symbolic="YES" id="3UA-GO-Kt0"/>
