@@ -10,6 +10,8 @@ import Cocoa
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 	let donateURL : NSURL = NSURL(string:"http://monolingual.sourceforge.net/donate.php")
+	
+	var preferencesWindowController : NSWindowController?
 
 	func applicationDidFinishLaunching(notification: NSNotification) {
 		let applications = [ "Path" : "/Applications", "Languages" : true, "Architectures" : true ]
@@ -55,8 +57,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	@IBAction func showPreferences(sender: AnyObject) {
-		let storyboard = NSStoryboard(name:"Main", bundle:nil)
-		let windowController = storyboard.instantiateControllerWithIdentifier("PreferencesWindow") as NSWindowController
-		windowController.showWindow(self)
+		if preferencesWindowController == nil {
+			let storyboard = NSStoryboard(name:"Main", bundle:nil)
+			preferencesWindowController = storyboard.instantiateControllerWithIdentifier("PreferencesWindow") as? NSWindowController
+		}
+		preferencesWindowController?.showWindow(sender)
 	}
 }

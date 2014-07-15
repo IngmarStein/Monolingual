@@ -9,7 +9,25 @@ class ProgressViewController : NSViewController {
 	@IBOutlet var progressBar: NSProgressIndicator
 	@IBOutlet var applicationText: NSTextField
 	@IBOutlet var fileText: NSTextField
+	
+	var file : String {
+	get {
+		return self.fileText.stringValue
+	}
+	set {
+		self.fileText.stringValue = newValue
+	}
+	}
 
+	var text : String {
+	get {
+		return self.applicationText.stringValue
+	}
+	set {
+		self.applicationText.stringValue = newValue
+	}
+	}
+	
 	@IBAction func cancelButton(sender: AnyObject) {
 		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
 		self.fileText.stringValue = ""
@@ -28,13 +46,4 @@ class ProgressViewController : NSViewController {
 	func stop() {
 		self.progressBar.stopAnimation(self)
 	}
-
-	func setFile(file: String) {
-		self.fileText.stringValue = file
-	}
-
-	func setText(text: String) {
-		self.applicationText.stringValue = text
-	}
-
 }

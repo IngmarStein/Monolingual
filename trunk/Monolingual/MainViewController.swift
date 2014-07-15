@@ -45,8 +45,10 @@ enum SMJErrorCodeSwift : Int {
 
 class MainViewController : NSViewController {
 
-	//@IBOutlet strong var progressWindowController : ProgressWindowController
 	@IBOutlet var currentArchitecture : NSTextField
+
+	var progressWindowController : NSWindowController?
+	var progressViewController : ProgressViewController?
 
 	var blacklist : NSArray!
 	var languages : NSArray!
@@ -69,11 +71,11 @@ class MainViewController : NSViewController {
 	}
 
 	func finishProcessing() {
-		/*
-		self.progressWindowController.window.orderOut(self)
-		self.progressWindowController.stop()
-		NSApp.endSheet(self.progressWindowController.window, returnCode:0)
-*/
+		if let windowController = self.progressWindowController {
+			windowController.window.orderOut(self)
+			self.progressViewController?.stop()
+			NSApp.endSheet(windowController.window, returnCode:0)
+		}
 	}
 
 	@IBAction func removeLanguages(sender: AnyObject) {
@@ -206,8 +208,10 @@ class MainViewController : NSViewController {
 			}
 		}
 		
-		//self.progressWindowController.setText(message)
-		//self.progressWindowController.setFile(file)
+		if let viewController = self.progressViewController {
+			viewController.text = message
+			viewController.file = file
+		}
 		NSApp.setWindowsNeedUpdate(true)
 	}
 		
@@ -330,14 +334,17 @@ class MainViewController : NSViewController {
 				}
 			}
 		}
-	
-		/*
-		self.progressWindowController.start()
-		self.progressWindowController.window.beginSheet(NSApp.mainWindow) {
+
+		if !self.progressWindowController {
+			let storyboard = NSStoryboard(name:"Main", bundle:nil)
+			self.progressWindowController = storyboard.instantiateControllerWithIdentifier("ProgressWindow") as? NSWindowController
+			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
+		}
+		self.progressViewController?.start()
+		self.progressWindowController?.window.beginSheet(NSApp.mainWindow) {
 			(response: NSModalResponse) in
 			self.progressDidEnd(response)
 		}
-*/
 	
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
@@ -511,7 +518,7 @@ class MainViewController : NSViewController {
 		}
 	}
 	
-	override func awakeFromNib() {
+	override func viewDidLoad() {
 		self.listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", nil)
 		assert(self.listener_queue != nil)
 		
@@ -711,7 +718,7 @@ class MainViewController : NSViewController {
 			return host_info(my_mach_host_self, HOST_BASIC_INFO, UnsafePointer<integer_t>(pointer), &infoCount)
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
-			
+
 		if hostInfo.cpu_type == kCPU_TYPE_X86 {
 			// fix host_info
 			var x86_64 : Int? = nil
