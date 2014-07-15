@@ -130,6 +130,13 @@
 		95F7771C0ECC2644009C621B /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		95FAA327197507E400C506EE /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Main.strings; sourceTree = "<group>"; };
 		95FAA329197507F500C506EE /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA32B19752A5300C506EE /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA32D19752A5D00C506EE /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA32F19752A6300C506EE /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA33119752A6700C506EE /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA33319752A6B00C506EE /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA33519752A7200C506EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
+		95FAA33719752AA900C506EE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		F505F4EC0300C29D01E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = German; path = German.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F505F4ED0300C2B001E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F51C1B3501F29B1C0120C6FA /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -322,6 +329,11 @@
 				Base,
 				de,
 				fr,
+				sv,
+				pl,
+				it,
+				es,
+				ja,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			projectDirPath = "";
@@ -504,6 +516,13 @@
 				95A74F39197410EF005D3792 /* Base */,
 				95FAA327197507E400C506EE /* de */,
 				95FAA329197507F500C506EE /* fr */,
+				95FAA32B19752A5300C506EE /* sv */,
+				95FAA32D19752A5D00C506EE /* pl */,
+				95FAA32F19752A6300C506EE /* it */,
+				95FAA33119752A6700C506EE /* es */,
+				95FAA33319752A6B00C506EE /* el */,
+				95FAA33519752A7200C506EE /* ja */,
+				95FAA33719752AA900C506EE /* en */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
