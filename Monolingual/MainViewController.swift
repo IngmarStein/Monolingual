@@ -87,7 +87,9 @@ class MainViewController : NSViewController {
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
 		alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: {
 			(responseCode: Int) in
-			self.warningSelector(responseCode)
+			if NSAlertSecondButtonReturn == responseCode {
+				self.checkAndRemove()
+			}
 		})
 	}
 	
@@ -403,32 +405,65 @@ class MainViewController : NSViewController {
 		NSProcessInfo.processInfo().enableSuddenTermination()
 	}
 	
-	func warningSelector(returnCode:Int) {
-		if NSAlertDefaultReturn != returnCode {
-			for language in self.languages as [NSDictionary] {
-				let folders = language["Folders"] as [String]
-				let enabled = language["Enabled"].boolValue
-
-				if enabled && folders[0] as NSString == "en.lproj" {
-					// Display a warning
-					let alert = NSAlert()
-					alert.alertStyle = .CriticalAlertStyle
-					alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
-					alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
-					alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
-
-					alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: {
-						(response: NSModalResponse) in
-						self.englishWarningSelector(response)
-					})
-					return
-				}
-			}
-			englishWarningSelector(NSAlertSecondButtonReturn)
+	func checkAndRemove() {
+		if checkRoots() && checkLanguages() {
+			doRemoveLanguages()
 		}
 	}
 	
-	func englishWarningSelector(returnCode: Int) {
+	func checkRoots() -> Bool {
+		var languageEnabled = false
+		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
+		for root in roots as [NSDictionary] {
+			if root["Languages"].boolValue {
+				languageEnabled = true
+				break
+			}
+		}
+		
+		if !languageEnabled {
+			let alert = NSAlert()
+			alert.alertStyle = .InformationalAlertStyle
+			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
+			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+			//NSLocalizedString("Nothing done", comment:"")
+		}
+		
+		return languageEnabled
+	}
+	
+	func checkLanguages() -> Bool {
+		var englishChecked = false
+		for language in self.languages as [NSDictionary] {
+			let folders = language["Folders"] as [String]
+			let enabled = language["Enabled"].boolValue
+			
+			if enabled && folders[0] as NSString == "en.lproj" {
+				englishChecked = true
+				break
+			}
+		}
+		
+		if englishChecked {
+			// Display a warning
+			let alert = NSAlert()
+			alert.alertStyle = .CriticalAlertStyle
+			alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
+			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
+			
+			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: {
+				(response: NSModalResponse) in
+				if response == NSAlertSecondButtonReturn {
+					self.doRemoveLanguages()
+				}
+			})
+		}
+		
+		return !englishChecked
+	}
+	
+	func doRemoveLanguages() {
 		self.mode = .Languages
 	
 		log.open()
@@ -437,84 +472,68 @@ class MainViewController : NSViewController {
 	
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 
-		var languageEnabled = false
+		let includes = xpc_array_create(nil, 0)
+		let excludes = xpc_array_create(nil, 0)
 		for root in roots as [NSDictionary] {
+			let path = root["Path"] as NSString
 			if root["Languages"].boolValue {
-				languageEnabled = true
-				break
+				NSLog("Adding root %@", path)
+				xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
+			} else {
+				NSLog("Excluding root %@", path)
+				xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
 			}
 		}
+		let bl = xpc_array_create(nil, 0)
+		for item in self.blacklist as [NSDictionary] {
+			if item["languages"].boolValue {
+				let bundle = item["bundle"] as NSString
+				NSLog("Blacklisting %@", bundle)
+				xpc_array_set_string(bl, kXPC_ARRAY_APPEND, bundle.UTF8String)
+			}
+		}
+		
+		var rCount = 0
+		let files = xpc_array_create(nil, 0)
+		for language in self.languages as [NSDictionary] {
+			if language["Enabled"].boolValue {
+				let paths = language["Folders"] as [NSString]
+				for path in paths {
+					xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
+					if rCount != 0 {
+						log.message(" ")
+					}
+					log.message(path)
+					rCount++
+				}
+			}
+		}
+		if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
+			xpc_array_set_string(files, kXPC_ARRAY_APPEND, "designable.nib")
+		}
 	
-		if NSAlertFirstButtonReturn == returnCode || !languageEnabled {
+		log.message("\nDeleted files: \n")
+		if rCount == self.languages.count {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
+			alert.messageText = NSLocalizedString("Cannot remove all languages", comment:"")
+			alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment:"")
 			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
-			//NSLocalizedString("Nothing done", comment:"")
-		} else {
-			let includes = xpc_array_create(nil, 0)
-			let excludes = xpc_array_create(nil, 0)
-			for root in roots as [NSDictionary] {
-				let path = root["Path"] as NSString
-				if root["Languages"].boolValue {
-					NSLog("Adding root %@", path)
-					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
-				} else {
-					NSLog("Excluding root %@", path)
-					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
-				}
-			}
-			let bl = xpc_array_create(nil, 0)
-			for item in self.blacklist as [NSDictionary] {
-				if item["languages"].boolValue {
-					let bundle = item["bundle"] as NSString
-					NSLog("Blacklisting %@", bundle)
-					xpc_array_set_string(bl, kXPC_ARRAY_APPEND, bundle.UTF8String)
-				}
-			}
-			
-			var rCount = 0
-			let files = xpc_array_create(nil, 0)
-			for language in self.languages as [NSDictionary] {
-				if language["Enabled"].boolValue {
-					let paths = language["Folders"] as [NSString]
-					for path in paths {
-						xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
-						if rCount != 0 {
-							log.message(" ")
-						}
-						log.message(path)
-						rCount++
-					}
-				}
-			}
-			if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
-				xpc_array_set_string(files, kXPC_ARRAY_APPEND, "designable.nib")
-			}
+			log.close()
+		} else if rCount > 0 {
+			/* start things off if we have something to remove! */
 		
-			log.message("\nDeleted files: \n")
-			if rCount == self.languages.count {
-				let alert = NSAlert()
-				alert.alertStyle = .InformationalAlertStyle
-				alert.messageText = NSLocalizedString("Cannot remove all languages", comment:"")
-				alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment:"")
-				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
-				log.close()
-			} else if rCount > 0 {
-				/* start things off if we have something to remove! */
-			
-				let xpc_message = xpc_dictionary_create(nil, nil, 0)
-				xpc_dictionary_set_bool(xpc_message, "trash", NSUserDefaults.standardUserDefaults().boolForKey("Trash"))
-				xpc_dictionary_set_int64(xpc_message, "uid", Int64(getuid()))
-				xpc_dictionary_set_value(xpc_message, "blacklist", bl)
-				xpc_dictionary_set_value(xpc_message, "includes", includes)
-				xpc_dictionary_set_value(xpc_message, "excludes", excludes)
-				xpc_dictionary_set_value(xpc_message, "directories", files)
-			
-				runDeleteHelperWithArgs(xpc_message)
-			} else {
-				log.close()
-			}
+			let xpc_message = xpc_dictionary_create(nil, nil, 0)
+			xpc_dictionary_set_bool(xpc_message, "trash", NSUserDefaults.standardUserDefaults().boolForKey("Trash"))
+			xpc_dictionary_set_int64(xpc_message, "uid", Int64(getuid()))
+			xpc_dictionary_set_value(xpc_message, "blacklist", bl)
+			xpc_dictionary_set_value(xpc_message, "includes", includes)
+			xpc_dictionary_set_value(xpc_message, "excludes", excludes)
+			xpc_dictionary_set_value(xpc_message, "directories", files)
+		
+			runDeleteHelperWithArgs(xpc_message)
+		} else {
+			log.close()
 		}
 	}
 	

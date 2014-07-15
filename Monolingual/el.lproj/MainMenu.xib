@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="14A283o" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6185.7" systemVersion="14A283o" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6185.7"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -40,6 +40,19 @@
                                     <rect key="frame" x="10" y="33" width="386" height="329"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
+                                        <button verticalHuggingPriority="750" id="533">
+                                            <rect key="frame" x="270" y="4" width="102" height="32"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="push" title="Αφαίρεση" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="690">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                                <string key="keyEquivalent"></string>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="removeLanguages:" target="210" id="543"/>
+                                                <outlet property="nextKeyView" destination="515" id="599"/>
+                                            </connections>
+                                        </button>
                                         <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="528">
                                             <rect key="frame" x="20" y="52" width="346" height="277"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -48,7 +61,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" headerView="710" id="530" customClass="ISTableView">
-                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="243"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="19"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -73,7 +86,7 @@
                                                                     </binding>
                                                                 </connections>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Name" editable="NO" width="258.01416015625" minWidth="59.51416015625" maxWidth="1000" id="529">
+                                                            <tableColumn identifier="Name" editable="NO" width="273.01416015625" minWidth="59.51416015625" maxWidth="1000" id="529">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Γλώσσα">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -117,19 +130,6 @@
                                                 <outlet property="nextKeyView" destination="533" id="598"/>
                                             </connections>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" id="533">
-                                            <rect key="frame" x="270" y="4" width="102" height="32"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                            <buttonCell key="cell" type="push" title="Αφαίρεση" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="690">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                                <string key="keyEquivalent"></string>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="removeLanguages:" target="210" id="543"/>
-                                                <outlet property="nextKeyView" destination="515" id="599"/>
-                                            </connections>
-                                        </button>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -146,7 +146,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" headerView="713" id="586" customClass="ISTableView">
-                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="243"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="19"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -167,7 +167,7 @@
                                                                     <binding destination="591" name="value" keyPath="arrangedObjects.Enabled" id="680"/>
                                                                 </connections>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Name" editable="NO" width="258.17822265625" minWidth="73.17822265625" maxWidth="1000" id="589">
+                                                            <tableColumn identifier="Name" editable="NO" width="273.17822265625" minWidth="73.17822265625" maxWidth="1000" id="589">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Αρχιτεκτονική">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -473,7 +473,7 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnSelection="YES" headerView="727" id="653">
-                                                <rect key="frame" x="0.0" y="0.0" width="365" height="133"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="365" height="19"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <size key="intercellSpacing" width="3" height="2"/>
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -614,6 +614,15 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField verticalHuggingPriority="750" id="760">
+                        <rect key="frame" x="17" y="95" width="386" height="17"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="Εφαρμογή" id="761">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <button verticalHuggingPriority="750" id="759">
                         <rect key="frame" x="298" y="13" width="108" height="32"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -625,15 +634,6 @@
                             <action selector="cancelButton:" target="634" id="764"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" id="760">
-                        <rect key="frame" x="17" y="95" width="386" height="17"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="Εφαρμογή" id="761">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                 </subviews>
             </view>
         </window>
