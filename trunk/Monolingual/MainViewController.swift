@@ -212,7 +212,7 @@ class MainViewController : NSViewController {
 						app = pathComponent.substringToIndex(pathComponent.length - 4)
 					} else if pathComponent.hasSuffix(".lproj") {
 						for language in self.languages {
-							if find(language.folders, pathComponent as String) {
+							if contains(language.folders, pathComponent as String) {
 								lang = language.displayName
 								break
 							}
@@ -565,24 +565,24 @@ class MainViewController : NSViewController {
 		
 		self.peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", nil)
 		assert(self.peer_event_queue != nil)
-			
-		var languagePref = NSUserDefaults.standardUserDefaults().objectForKey("AppleLanguages") as NSArray
-			
+
+		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as [String]
+
 		// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
-		let numUserLanguages = NSUserDefaults.standardUserDefaults().integerForKey("AppleUserLanguages")
-		if numUserLanguages != 0 && numUserLanguages <= languagePref.count {
-			languagePref = languagePref.subarrayWithRange(NSRange(location: 0, length: numUserLanguages))
+		var numUserLanguages = NSUserDefaults.standardUserDefaults().integerForKey("AppleUserLanguages")
+		if numUserLanguages == 0 {
+			numUserLanguages = languagePref.count
 		}
-		
-		var userLanguages = NSMutableSet(array: languagePref)
+
+		var userLanguages = Set<String>(languagePref[0..<numUserLanguages])
 
 		// never check "English" by default
-		userLanguages.addObject("en")
+		userLanguages.insert("en")
 		
 		// never check user locale by default
 		let appleLocale = NSUserDefaults.standardUserDefaults().stringForKey("AppleLocale")
 		if appleLocale {
-			userLanguages.addObject(appleLocale.stringByReplacingOccurrencesOfString("_", withString:"-"))
+			userLanguages.insert(appleLocale.stringByReplacingOccurrencesOfString("_", withString:"-"))
 		}
 
 		let numKnownLanguages = 134
@@ -590,7 +590,7 @@ class MainViewController : NSViewController {
 		knownLanguages.reserveCapacity(numKnownLanguages)
 
 		func addLanguage(code:String, name:String, folders: String...) {
-			knownLanguages.append(LanguageSetting(enabled: !userLanguages.containsObject(code),
+			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
 												  folders: folders,
 												  displayName: NSLocalizedString(name, comment:"")))
 		}
