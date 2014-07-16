@@ -27,6 +27,7 @@
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
 		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
+		95AEC3C7197688B80038920C /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95AEC3C6197688B80038920C /* Set.swift */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95C3AA3715CC316D0017352A /* net.sourceforge.MonolingualHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -114,6 +115,7 @@
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95A75A8418FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = el; path = el.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		95AEC3C6197688B80038920C /* Set.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
 		95BC963D0991F2C9001DEF94 /* lipo.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = lipo.c; sourceTree = "<group>"; };
 		95BC989F099228D5001DEF94 /* lipo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = lipo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -179,6 +181,7 @@
 				959CEEE11972F29B00A433C0 /* MainViewController.swift */,
 				959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */,
 				959CEEDC19714E0500A433C0 /* ProgressViewController.swift */,
+				95AEC3C6197688B80038920C /* Set.swift */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -433,6 +436,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				95AEC3C7197688B80038920C /* Set.swift in Sources */,
 				959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */,
 				95283993197402B3002D995E /* compat.m in Sources */,
 				95527CE519741A930092C744 /* Log.swift in Sources */,
