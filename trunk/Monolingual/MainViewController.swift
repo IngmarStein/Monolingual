@@ -43,6 +43,31 @@ enum SMJErrorCodeSwift : Int {
 	case AuthorizationFailed = 1023
 }
 
+// Cocoa Bindings requires NSObject
+class ArchitectureSetting : NSObject {
+	var enabled: Bool
+	var name : String
+	var displayName : String
+	
+	init(enabled : Bool, name : String, displayName : String) {
+		self.enabled = enabled
+		self.name = name
+		self.displayName = displayName
+	}
+}
+
+class LanguageSetting : NSObject {
+	var enabled: Bool
+	var folders : [String]
+	var displayName : String
+	
+	init(enabled : Bool, folders : [String], displayName : String) {
+		self.enabled = enabled
+		self.folders = folders
+		self.displayName = displayName
+	}
+}
+
 class MainViewController : NSViewController {
 
 	@IBOutlet var currentArchitecture : NSTextField
@@ -51,8 +76,8 @@ class MainViewController : NSViewController {
 	var progressViewController : ProgressViewController?
 
 	var blacklist : NSArray!
-	var languages : NSArray!
-	var architectures : NSArray!
+	var languages : [LanguageSetting]!
+	var architectures : [ArchitectureSetting]!
 
 	var bytesSaved : CUnsignedLongLong = 0
 	var mode : MonolingualMode = .Languages
@@ -104,13 +129,10 @@ class MainViewController : NSViewController {
 		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
 	
 		let archs = xpc_array_create(nil, 0)
-		self.architectures.enumerateObjectsUsingBlock {
-			(obj: AnyObject!, idx: Int, stop: UnsafePointer<ObjCBool>) in
-			let dict = obj as NSDictionary
-			let enabled = dict["Enabled"] as NSNumber
-			if enabled.boolValue {
-				let arch = dict["Name"] as NSString
-				xpc_array_set_string(archs, kXPC_ARRAY_APPEND, arch.UTF8String)
+		for architecture in self.architectures {
+			if architecture.enabled {
+				let arch = architecture.name
+				xpc_array_set_string(archs, kXPC_ARRAY_APPEND, arch.bridgeToObjectiveC().UTF8String)
 				log.message(" \(arch)")
 			}
 		}
@@ -189,10 +211,9 @@ class MainViewController : NSViewController {
 					if pathComponent.hasSuffix(".app") {
 						app = pathComponent.substringToIndex(pathComponent.length - 4)
 					} else if pathComponent.hasSuffix(".lproj") {
-						for language in self.languages as [NSDictionary] {
-							let folders = language.objectForKey("Folders") as NSArray
-							if folders.containsObject(pathComponent) {
-								lang = language.objectForKey("DisplayName") as? String
+						for language in self.languages {
+							if find(language.folders, pathComponent as String) {
+								lang = language.displayName
 								break
 							}
 						}
@@ -437,11 +458,8 @@ class MainViewController : NSViewController {
 	
 	func checkLanguages() -> Bool {
 		var englishChecked = false
-		for language in self.languages as [NSDictionary] {
-			let folders = language["Folders"] as [String]
-			let enabled = language["Enabled"] as NSNumber
-			
-			if enabled.boolValue && folders[0] as NSString == "en.lproj" {
+		for language in self.languages {
+			if language.enabled && language.folders[0] == "en.lproj" {
 				englishChecked = true
 				break
 			}
@@ -500,12 +518,10 @@ class MainViewController : NSViewController {
 		
 		var rCount = 0
 		let files = xpc_array_create(nil, 0)
-		for language in self.languages as [NSDictionary] {
-			let enabled = language["Enabled"] as NSNumber
-			if enabled.boolValue {
-				let paths = language["Folders"] as [NSString]
-				for path in paths {
-					xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
+		for language in self.languages {
+			if language.enabled {
+				for path in language.folders {
+					xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 					if rCount != 0 {
 						log.message(" ")
 					}
@@ -570,13 +586,13 @@ class MainViewController : NSViewController {
 		}
 
 		let numKnownLanguages = 134
-		var knownLanguages = NSMutableArray(capacity: numKnownLanguages)
+		var knownLanguages = Array<LanguageSetting>()
+		knownLanguages.reserveCapacity(numKnownLanguages)
 
 		func addLanguage(code:String, name:String, folders: String...) {
-			knownLanguages.addObject([ "DisplayName" : NSLocalizedString(name, comment:""),
-									   "Folders" : folders,
-									   "Enabled" : !userLanguages.containsObject(code)
-									 ].mutableCopy())
+			knownLanguages.append(LanguageSetting(enabled: !userLanguages.containsObject(code),
+												  folders: folders,
+												  displayName: NSLocalizedString(name, comment:"")))
 		}
 		
 		addLanguage("af",      "Afrikaans",            "af.lproj", "Afrikaans.lproj")
@@ -713,12 +729,9 @@ class MainViewController : NSViewController {
 		addLanguage("zh",      "Chinese",              "zh.lproj")
 		addLanguage("zh-Hans", "Chinese (Simplified Han)",   "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh_SC.lproj")
 		addLanguage("zh-Hant", "Chinese (Traditional Han)",  "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh_HK.lproj")
-		
-		knownLanguages.sortUsingComparator {
-			(obj1: AnyObject!, obj2: AnyObject!) in
-			let lang1 = obj1 as NSDictionary
-			let lang2 = obj2 as NSDictionary
-			return lang1["DisplayName"].compare(lang2["DisplayName"])
+
+		knownLanguages.sort() {
+			(lang1 : LanguageSetting, lang2: LanguageSetting) in return lang1.displayName < lang2.displayName
 		}
 		self.languages = knownLanguages
 			
@@ -769,15 +782,12 @@ class MainViewController : NSViewController {
 
 		self.currentArchitecture.stringValue = "unknown"
 
-		var knownArchitectures = NSMutableArray(capacity: archs.count)
+		var knownArchitectures = Array<ArchitectureSetting>()
+		knownArchitectures.reserveCapacity(archs.count)
 		for arch in archs {
 			let enabled = (ret == KERN_SUCCESS && (hostInfo.cpu_type != arch.cpu_type || hostInfo.cpu_subtype < arch.cpu_subtype) && ((hostInfo.cpu_type & CPU_ARCH_ABI64) == 0 || (arch.cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64))))
-			let architecture : NSDictionary = [
-				"Enabled" : enabled,
-				"Name" : arch.name,
-				"DisplayName" : arch.displayName
-			]
-			knownArchitectures.addObject(architecture.mutableCopy())
+			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
+			knownArchitectures.append(architecture)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
 				let label = NSString(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
 				self.currentArchitecture.stringValue = label
