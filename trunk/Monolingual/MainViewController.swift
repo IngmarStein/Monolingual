@@ -43,31 +43,6 @@ enum SMJErrorCodeSwift : Int {
 	case AuthorizationFailed = 1023
 }
 
-// Cocoa Bindings requires NSObject
-class ArchitectureSetting : NSObject {
-	var enabled: Bool
-	var name : String
-	var displayName : String
-	
-	init(enabled : Bool, name : String, displayName : String) {
-		self.enabled = enabled
-		self.name = name
-		self.displayName = displayName
-	}
-}
-
-class LanguageSetting : NSObject {
-	var enabled: Bool
-	var folders : [String]
-	var displayName : String
-	
-	init(enabled : Bool, folders : [String], displayName : String) {
-		self.enabled = enabled
-		self.folders = folders
-		self.displayName = displayName
-	}
-}
-
 class MainViewController : NSViewController {
 
 	@IBOutlet var currentArchitecture : NSTextField
@@ -75,17 +50,36 @@ class MainViewController : NSViewController {
 	var progressWindowController : NSWindowController?
 	var progressViewController : ProgressViewController?
 
-	var blacklist : NSArray!
+	var blacklist : [BlacklistEntry]!
 	var languages : [LanguageSetting]!
 	var architectures : [ArchitectureSetting]!
 
 	var bytesSaved : CUnsignedLongLong = 0
 	var mode : MonolingualMode = .Languages
-	var processApplication : NSArray?
+	var processApplication : Root?
+	var processApplicationObserver : NSObjectProtocol!
 	var listener_queue : dispatch_queue_t?
 	var peer_event_queue : dispatch_queue_t?
 	var connection : xpc_connection_t?
 	var progressConnection : xpc_connection_t?
+	
+	var roots : [Root] {
+	get {
+		if self.processApplication {
+			return [ self.processApplication! ]
+		} else {
+			var roots = [Root]()
+			let pref = NSUserDefaults.standardUserDefaults().arrayForKey("Roots") as? [NSDictionary]
+			if let array = pref {
+				roots.reserveCapacity(array.count)
+				for root in array {
+					roots.append(Root(dictionary: root))
+				}
+			}
+			return roots
+		}
+	}
+	}
 
 	init() {
 		super.init()
@@ -126,8 +120,8 @@ class MainViewController : NSViewController {
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
 		log.message("Monolingual started at \(now)\nRemoving architectures: ")
 
-		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
-	
+		let roots = self.roots
+
 		let archs = xpc_array_create(nil, 0)
 		for architecture in self.architectures {
 			if architecture.enabled {
@@ -151,25 +145,22 @@ class MainViewController : NSViewController {
 			// start things off if we have something to remove!
 			let includes = xpc_array_create(nil, 0)
 			let excludes = xpc_array_create(nil, 0)
-			for root in roots as [NSDictionary] {
-				let path = root["Path"] as NSString
-				let architectures = root["Architectures"] as NSNumber
-				if architectures.boolValue {
-					NSLog("Adding root %@", path)
-					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.UTF8String)
+			for root in roots {
+				if root.architectures {
+					NSLog("Adding root %@", root.path)
+					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, root.path.bridgeToObjectiveC().UTF8String)
 				} else {
-					NSLog("Excluding root %@", path)
-					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.UTF8String)
+					NSLog("Excluding root %@", root.path)
+					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, root.path.bridgeToObjectiveC().UTF8String)
 				}
 			}
 			xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, "/System/Library/Frameworks")
 			xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, "/System/Library/PrivateFrameworks")
 		
 			let bl = xpc_array_create(nil, 0)
-			for item in self.blacklist as [NSDictionary] {
-				let architectures = item["architectures"] as NSNumber
-				if architectures.boolValue {
-					xpc_array_set_string(bl, kXPC_ARRAY_APPEND, item["bundle"].UTF8String)
+			for item in self.blacklist {
+				if item.architectures {
+					xpc_array_set_string(bl, kXPC_ARRAY_APPEND, item.bundle.bridgeToObjectiveC().UTF8String)
 				}
 			}
 		
@@ -339,7 +330,7 @@ class MainViewController : NSViewController {
 		xpc_connection_resume(self.connection)
 	
 		// DEBUG
-		xpc_dictionary_set_bool(arguments, "dry_run", true)
+		//xpc_dictionary_set_bool(arguments, "dry_run", true)
 
 		xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue()) {
 			(event: xpc_object_t!) in
@@ -436,10 +427,9 @@ class MainViewController : NSViewController {
 	
 	func checkRoots() -> Bool {
 		var languageEnabled = false
-		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
-		for root in roots as [NSDictionary] {
-			let languages = root["Languages"] as NSNumber
-			if languages.boolValue {
+		let roots = self.roots
+		for root in roots {
+			if root.languages {
 				languageEnabled = true
 				break
 			}
@@ -491,28 +481,25 @@ class MainViewController : NSViewController {
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
 		log.message("Monolingual started at \(now)\nRemoving languages: ")
 	
-		let roots = self.processApplication != nil ? self.processApplication : NSUserDefaults.standardUserDefaults().arrayForKey("Roots")
+		let roots = self.roots
 
 		let includes = xpc_array_create(nil, 0)
 		let excludes = xpc_array_create(nil, 0)
-		for root in roots as [NSDictionary] {
-			let path = root["Path"] as NSString
-			let languages = root["Languages"] as NSNumber
-			if languages.boolValue {
+		for root in roots {
+			let path = root.path
+			if root.languages {
 				NSLog("Adding root %@", path)
-				xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
+				xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 			} else {
 				NSLog("Excluding root %@", path)
-				xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.fileSystemRepresentation)
+				xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 			}
 		}
 		let bl = xpc_array_create(nil, 0)
-		for item in self.blacklist as [NSDictionary] {
-			let languages = item["languages"] as NSNumber
-			if languages.boolValue {
-				let bundle = item["bundle"] as NSString
-				NSLog("Blacklisting %@", bundle)
-				xpc_array_set_string(bl, kXPC_ARRAY_APPEND, bundle.UTF8String)
+		for item in self.blacklist {
+			if item.languages {
+				NSLog("Blacklisting %@", item.bundle)
+				xpc_array_set_string(bl, kXPC_ARRAY_APPEND, item.bundle.bridgeToObjectiveC().UTF8String)
 			}
 		}
 		
@@ -565,7 +552,7 @@ class MainViewController : NSViewController {
 		
 		self.peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", nil)
 		assert(self.peer_event_queue != nil)
-
+		
 		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as [String]
 
 		// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
@@ -797,12 +784,37 @@ class MainViewController : NSViewController {
 		
 		// load blacklist from URL
 		let blacklistURL = NSURL(string:"http://monolingual.sourceforge.net/blacklist.plist")
-		self.blacklist = NSArray(contentsOfURL:blacklistURL)
-			
+		setBlacklistFromArray(NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]])
+		
+		println(self.blacklist)
+
 		// use blacklist from bundle as a fallback
-		if self.blacklist == nil {
+		if !self.blacklist {
 			let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist")
-			self.blacklist = NSArray(contentsOfFile:blacklistBundle)
+			setBlacklistFromArray(NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]])
+		}
+		
+		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) {
+			(notification: NSNotification!) in
+			self.processApplication = Root(dictionary: notification.userInfo)
 		}
 	}
+	
+	func setBlacklistFromArray(array: [[NSObject:AnyObject]]?) {
+		if let entries = array {
+			var result = [BlacklistEntry]()
+			result.reserveCapacity(entries.count)
+			for entry in entries {
+				result.append(BlacklistEntry(dictionary: entry))
+			}
+			self.blacklist = result
+		}
+	}
+	
+	deinit {
+		if self.processApplicationObserver {
+			NSNotificationCenter.defaultCenter().removeObserver(self.processApplicationObserver)
+		}
+	}
+	
 }
