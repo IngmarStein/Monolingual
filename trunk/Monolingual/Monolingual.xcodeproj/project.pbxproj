@@ -182,15 +182,12 @@
 			isa = PBXGroup;
 			children = (
 				95527CE219741A540092C744 /* AppDelegate.swift */,
-				959CEED919714E0500A433C0 /* ISTableView.swift */,
-				95527CE419741A930092C744 /* Log.swift */,
+				950ED26F1976AA8900BAC239 /* Model */,
 				959CEEA9197140FC00A433C0 /* Monolingual-Bridging-Header.h */,
 				959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */,
-				959CEEE11972F29B00A433C0 /* MainViewController.swift */,
-				959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */,
-				959CEEDC19714E0500A433C0 /* ProgressViewController.swift */,
-				95AEC3C6197688B80038920C /* Set.swift */,
-				950ED26F1976AA8900BAC239 /* Model */,
+				950ED2741976AC0600BAC239 /* Util */,
+				950ED2751976AC1A00BAC239 /* ViewControllers */,
+				950ED2761976AC2100BAC239 /* Views */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -274,6 +271,33 @@
 				950ED2721976AAB600BAC239 /* Root.swift */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		950ED2741976AC0600BAC239 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				95527CE419741A930092C744 /* Log.swift */,
+				95AEC3C6197688B80038920C /* Set.swift */,
+			);
+			name = Util;
+			sourceTree = "<group>";
+		};
+		950ED2751976AC1A00BAC239 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				959CEEE11972F29B00A433C0 /* MainViewController.swift */,
+				959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */,
+				959CEEDC19714E0500A433C0 /* ProgressViewController.swift */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
+		950ED2761976AC2100BAC239 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				959CEED919714E0500A433C0 /* ISTableView.swift */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
