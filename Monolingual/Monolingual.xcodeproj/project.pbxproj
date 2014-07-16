@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
+		950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */; };
+		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
+		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
 		95283993197402B3002D995E /* compat.m in Sources */ = {isa = PBXBuildFile; fileRef = 95283992197402B3002D995E /* compat.m */; };
 		9539D83811453596007E698C /* blacklist.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9539D83711453596007E698C /* blacklist.plist */; };
 		953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -78,6 +82,10 @@
 		10818E82971949539B96D336 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 		2BCD7FCA097D043900FE7723 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Italian; path = it.lproj/Credits.html; sourceTree = "<group>"; };
 		5B555B5E7B2C4EA6A081D013 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		950ED26B1976AA6400BAC239 /* LanguageSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSetting.swift; sourceTree = "<group>"; };
+		950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlacklistEntry.swift; sourceTree = "<group>"; };
+		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchitectureSetting.swift; sourceTree = "<group>"; };
+		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Root.swift; sourceTree = "<group>"; };
 		95283992197402B3002D995E /* compat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compat.m; sourceTree = "<group>"; };
 		9528399419740300002D995E /* compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
 		9531D7820C7B1020008B48AA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -182,6 +190,7 @@
 				959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */,
 				959CEEDC19714E0500A433C0 /* ProgressViewController.swift */,
 				95AEC3C6197688B80038920C /* Set.swift */,
+				950ED26F1976AA8900BAC239 /* Model */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -254,6 +263,17 @@
 				5B555B5E7B2C4EA6A081D013 /* libPods.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		950ED26F1976AA8900BAC239 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */,
+				950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */,
+				950ED26B1976AA6400BAC239 /* LanguageSetting.swift */,
+				950ED2721976AAB600BAC239 /* Root.swift */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -438,10 +458,14 @@
 			files = (
 				95AEC3C7197688B80038920C /* Set.swift in Sources */,
 				959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */,
+				950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */,
+				950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */,
 				95283993197402B3002D995E /* compat.m in Sources */,
+				950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */,
 				95527CE519741A930092C744 /* Log.swift in Sources */,
 				959CEEAB197140FC00A433C0 /* MonolingualHelperClient.swift in Sources */,
 				95527CE319741A540092C744 /* AppDelegate.swift in Sources */,
+				950ED2731976AAB600BAC239 /* Root.swift in Sources */,
 				959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */,
 				956E31D70A4B4056004E91ED /* main.swift in Sources */,
 				959CEEE019714E0500A433C0 /* ProgressViewController.swift in Sources */,

@@ -8,6 +8,8 @@
 
 import Cocoa
 
+let ProcessApplicationNotification = "ProcessApplicationNotification"
+
 class AppDelegate: NSObject, NSApplicationDelegate {
 	let donateURL : NSURL = NSURL(string:"http://monolingual.sourceforge.net/donate.php")
 	
@@ -29,14 +31,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func application(sender: NSApplication!, openFile filename: String!) -> Bool {
-		// TODO
-		/*
 		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
 		
-		self.processApplication = [ dict ]
-		
-		warningSelector(NSAlertAlternateReturn)
-		*/
+		NSNotificationCenter.defaultCenter().postNotificationName(ProcessApplicationNotification, object: self, userInfo: dict)
 		
 		return true
 	}
