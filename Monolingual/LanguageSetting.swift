@@ -8,15 +8,14 @@
 
 import Foundation
 
-// Cocoa Bindings requires NSObject
-class LanguageSetting : NSObject {
-	var enabled: Bool
+class LanguageSetting : Setting {
 	var folders : [String]
 	var displayName : String
 	
 	init(enabled : Bool, folders : [String], displayName : String) {
-		self.enabled = enabled
 		self.folders = folders
 		self.displayName = displayName
+
+		super.init(enabled: enabled)
 	}
 }
