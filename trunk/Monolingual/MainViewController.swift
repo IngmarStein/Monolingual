@@ -785,8 +785,6 @@ class MainViewController : NSViewController {
 		// load blacklist from URL
 		let blacklistURL = NSURL(string:"http://monolingual.sourceforge.net/blacklist.plist")
 		setBlacklistFromArray(NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]])
-		
-		println(self.blacklist)
 
 		// use blacklist from bundle as a fallback
 		if !self.blacklist {

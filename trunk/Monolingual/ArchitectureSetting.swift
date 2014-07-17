@@ -8,15 +8,14 @@
 
 import Foundation
 
-// Cocoa Bindings requires NSObject
-class ArchitectureSetting : NSObject {
-	var enabled: Bool
+class ArchitectureSetting : Setting {
 	var name : String
 	var displayName : String
 	
 	init(enabled : Bool, name : String, displayName : String) {
-		self.enabled = enabled
 		self.name = name
 		self.displayName = displayName
+		
+		super.init(enabled: enabled)
 	}
 }

@@ -19,13 +19,12 @@ class ISTableView : NSTableView {
 			case " ":
 				row = self.selectedRow
 				if row != -1 {
-					let arrangedObjects = self.arrayController.arrangedObjects as [NSMutableDictionary]
-					var dict = arrangedObjects[row]
-					dict["Enabled"] = !dict["Enabled"].boolValue
+					let arrangedObjects = self.arrayController.arrangedObjects as [Setting]
+					var setting = arrangedObjects[row]
+					setting.enabled = !setting.enabled
 				}
 			default:
 				super.keyDown(theEvent)
 		}
 	}
 }
-
