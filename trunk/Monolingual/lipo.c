@@ -61,64 +61,73 @@ struct arch_flag {
 	cpu_subtype_t cpusubtype;
 };
 
+/* from arch.c */
 static const struct arch_flag arch_flags[] = {
-	{ "any",	    CPU_TYPE_ANY,	      CPU_SUBTYPE_MULTIPLE },
-	{ "little",	    CPU_TYPE_ANY,	      CPU_SUBTYPE_LITTLE_ENDIAN },
-	{ "big",	    CPU_TYPE_ANY,	      CPU_SUBTYPE_BIG_ENDIAN },
-
+	{ "any",	CPU_TYPE_ANY,	  CPU_SUBTYPE_MULTIPLE },
+	{ "little",	CPU_TYPE_ANY,	  CPU_SUBTYPE_LITTLE_ENDIAN },
+	{ "big",	CPU_TYPE_ANY,	  CPU_SUBTYPE_BIG_ENDIAN },
+	
 	/* 64-bit Mach-O architectures */
-
+	
 	/* architecture families */
-	{ "ppc64", 	    CPU_TYPE_POWERPC64,   CPU_SUBTYPE_POWERPC_ALL },
+	{ "ppc64",     CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_ALL },
+	{ "x86_64",    CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_ALL },
+	{ "x86_64h",   CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_H },
+	{ "arm64",     CPU_TYPE_ARM64,     CPU_SUBTYPE_ARM64_ALL },
 	/* specific architecture implementations */
-	{ "ppc970-64",  CPU_TYPE_POWERPC64,   CPU_SUBTYPE_POWERPC_970 },
-
+	{ "ppc970-64", CPU_TYPE_POWERPC64, CPU_SUBTYPE_POWERPC_970 },
+	
 	/* 32-bit Mach-O architectures */
-
+	
 	/* architecture families */
-	{ "ppc",	      CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_ALL },
-	{ "x86",          CPU_TYPE_X86,	      CPU_SUBTYPE_X86_ALL },
-	{ "x86_64",       CPU_TYPE_X86_64,    CPU_SUBTYPE_X86_64_ALL },
-	{ "m68k",         CPU_TYPE_MC680x0,   CPU_SUBTYPE_MC680x0_ALL },
-	{ "hppa",         CPU_TYPE_HPPA,	  CPU_SUBTYPE_HPPA_ALL },
-	{ "sparc",	      CPU_TYPE_SPARC,     CPU_SUBTYPE_SPARC_ALL },
-	{ "m88k",         CPU_TYPE_MC88000,   CPU_SUBTYPE_MC88000_ALL },
-	{ "i860",         CPU_TYPE_I860,	  CPU_SUBTYPE_I860_ALL },
-	{ "arm",	      CPU_TYPE_ARM,       CPU_SUBTYPE_ARM_ALL },
+	{ "ppc",    CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_ALL },
+	{ "i386",   CPU_TYPE_I386,    CPU_SUBTYPE_I386_ALL },
+	{ "m68k",   CPU_TYPE_MC680x0, CPU_SUBTYPE_MC680x0_ALL },
+	{ "hppa",   CPU_TYPE_HPPA,    CPU_SUBTYPE_HPPA_ALL },
+	{ "sparc",	CPU_TYPE_SPARC,   CPU_SUBTYPE_SPARC_ALL },
+	{ "m88k",   CPU_TYPE_MC88000, CPU_SUBTYPE_MC88000_ALL },
+	{ "i860",   CPU_TYPE_I860,    CPU_SUBTYPE_I860_ALL },
+//	{ "veo",    CPU_TYPE_VEO,     CPU_SUBTYPE_VEO_ALL },
+	{ "arm",    CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_ALL },
 	/* specific architecture implementations */
-	{ "ppc601",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_601 },
-	{ "ppc603",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_603 },
-	{ "ppc603e",      CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_603e },
-	{ "ppc603ev",     CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_603ev },
-	{ "ppc604",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_604 },
-	{ "ppc604e",      CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_604e },
-	{ "ppc750",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_750 },
-	{ "ppc7400",      CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7400 },
-	{ "ppc7450",      CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_7450 },
-	{ "ppc970",       CPU_TYPE_POWERPC,   CPU_SUBTYPE_POWERPC_970 },
-	{ "i486",         CPU_TYPE_X86,	      CPU_SUBTYPE_486 },
-	{ "i486SX",       CPU_TYPE_X86,	      CPU_SUBTYPE_486SX },
-	{ "pentium",      CPU_TYPE_X86,	      CPU_SUBTYPE_PENT }, /* same as i586 */
-	{ "i586",         CPU_TYPE_X86,	      CPU_SUBTYPE_586 },
-	{ "pentpro",      CPU_TYPE_X86,       CPU_SUBTYPE_PENTPRO }, /* same as i686 */
-	{ "i686",         CPU_TYPE_X86,       CPU_SUBTYPE_PENTPRO },
-	{ "pentIIm3",     CPU_TYPE_X86,       CPU_SUBTYPE_PENTII_M3 },
-	{ "pentIIm5",     CPU_TYPE_X86,       CPU_SUBTYPE_PENTII_M5 },
-	{ "celeron",      CPU_TYPE_X86,       CPU_SUBTYPE_CELERON },
-	{ "celeronm",     CPU_TYPE_X86,       CPU_SUBTYPE_CELERON_MOBILE },
-	{ "pentium3",     CPU_TYPE_X86,       CPU_SUBTYPE_PENTIUM_3 },
-	{ "pentium3m",    CPU_TYPE_X86,       CPU_SUBTYPE_PENTIUM_3_M },
-	{ "pentium3xeon", CPU_TYPE_X86,       CPU_SUBTYPE_PENTIUM_3_XEON },
-	{ "pentiumm",     CPU_TYPE_X86,       CPU_SUBTYPE_PENTIUM_M },
-	{ "pentium4",     CPU_TYPE_X86,       CPU_SUBTYPE_PENTIUM_4 },
-	{ "pentium4m",    CPU_TYPE_X86,       CPU_SUBTYPE_PENTIUM_4_M },
-	{ "itanium",      CPU_TYPE_X86,       CPU_SUBTYPE_ITANIUM },
-	{ "itanium2",     CPU_TYPE_X86,       CPU_SUBTYPE_ITANIUM_2 },
-	{ "xeon",         CPU_TYPE_X86,       CPU_SUBTYPE_XEON },
-	{ "xeonmp",       CPU_TYPE_X86,       CPU_SUBTYPE_XEON_MP },
-	{ "m68030",       CPU_TYPE_MC680x0,   CPU_SUBTYPE_MC68030_ONLY },
-	{ "m68040",       CPU_TYPE_MC680x0,   CPU_SUBTYPE_MC68040 },
-	{ "hppa7100LC",   CPU_TYPE_HPPA,      CPU_SUBTYPE_HPPA_7100LC },
+	{ "ppc601", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_601 },
+	{ "ppc603", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_603 },
+	{ "ppc603e",CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_603e },
+	{ "ppc603ev",CPU_TYPE_POWERPC,CPU_SUBTYPE_POWERPC_603ev },
+	{ "ppc604", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_604 },
+	{ "ppc604e",CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_604e },
+	{ "ppc750", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_750 },
+	{ "ppc7400",CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_7400 },
+	{ "ppc7450",CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_7450 },
+	{ "ppc970", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_970 },
+	{ "i486",   CPU_TYPE_I386,    CPU_SUBTYPE_486 },
+	{ "i486SX", CPU_TYPE_I386,    CPU_SUBTYPE_486SX },
+	{ "pentium",CPU_TYPE_I386,    CPU_SUBTYPE_PENT }, /* same as i586 */
+	{ "i586",   CPU_TYPE_I386,    CPU_SUBTYPE_586 },
+	{ "pentpro", CPU_TYPE_I386, CPU_SUBTYPE_PENTPRO }, /* same as i686 */
+	{ "i686",   CPU_TYPE_I386, CPU_SUBTYPE_PENTPRO },
+	{ "pentIIm3",CPU_TYPE_I386, CPU_SUBTYPE_PENTII_M3 },
+	{ "pentIIm5",CPU_TYPE_I386, CPU_SUBTYPE_PENTII_M5 },
+	{ "pentium4",CPU_TYPE_I386, CPU_SUBTYPE_PENTIUM_4 },
+	{ "m68030", CPU_TYPE_MC680x0, CPU_SUBTYPE_MC68030_ONLY },
+	{ "m68040", CPU_TYPE_MC680x0, CPU_SUBTYPE_MC68040 },
+	{ "hppa7100LC", CPU_TYPE_HPPA,  CPU_SUBTYPE_HPPA_7100LC },
+//	{ "veo1",   CPU_TYPE_VEO,     CPU_SUBTYPE_VEO_1 },
+//	{ "veo2",   CPU_TYPE_VEO,     CPU_SUBTYPE_VEO_2 },
+//	{ "veo3",   CPU_TYPE_VEO,     CPU_SUBTYPE_VEO_3 },
+//	{ "veo4",   CPU_TYPE_VEO,     CPU_SUBTYPE_VEO_4 },
+	{ "armv4t", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V4T},
+	{ "armv5",  CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V5TEJ},
+	{ "xscale", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_XSCALE},
+	{ "armv6",  CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V6 },
+	{ "armv6m", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V6M },
+	{ "armv7",  CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7 },
+	{ "armv7f", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7F },
+	{ "armv7s", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7S },
+	{ "armv7k", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7K },
+	{ "armv7m", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7M },
+	{ "armv7em", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7EM },
+	{ "arm64v8",CPU_TYPE_ARM64,   CPU_SUBTYPE_ARM64_V8 },
 	{ NULL,	0,		  0 }
 };
 
@@ -150,23 +159,33 @@ static struct utimbuf output_timep;
 static struct arch_flag *remove_arch_flags = NULL;
 static uint32_t nremove_arch_flags = 0U;
 
+static struct fat_arch *arm64_fat_arch = NULL;
+
+/* from arch.c */
 /*
  * get_arch_from_flag() is passed a name of an architecture flag and returns
  * zero if that flag is not known and non-zero if the flag is known.
  * If the pointer to the arch_flag is not NULL it is filled in with the
  * arch_flag struct that matches the name.
  */
-static int get_arch_from_flag(const char *name, struct arch_flag *arch_flag)
+static
+int
+get_arch_from_flag(
+				   char const *name,
+				   struct arch_flag *arch_flag)
 {
-	for (unsigned long i = 0UL; arch_flags[i].name; ++i) {
-		if (!strcmp(arch_flags[i].name, name)) {
-			if (arch_flag)
+	uint32_t i;
+	
+	for(i = 0; arch_flags[i].name != NULL; i++){
+		if(strcmp(arch_flags[i].name, name) == 0){
+			if(arch_flag != NULL)
 				*arch_flag = arch_flags[i];
-			return 1;
+			return(1);
 		}
 	}
-
-	return 0;
+	if(arch_flag != NULL)
+		memset(arch_flag, '\0', sizeof(struct arch_flag));
+	return(0);
 }
 
 /*
@@ -249,6 +268,32 @@ makestr(
 }
 
 /*
+ * get_arm64_fat_arch() will return a pointer to the fat_arch struct for the
+ * 64-bit arm slice in the thin_files[i] if it is present.  Else it returns
+ * NULL.
+ */
+static
+struct fat_arch *
+get_arm64_fat_arch(
+				   void)
+{
+	uint32_t i;
+	struct fat_arch *arm64_fat_arch;
+	
+	/*
+	 * Look for a 64-bit arm slice.
+	 */
+	arm64_fat_arch = NULL;
+	for(i = 0; i < nthin_files; i++){
+		if(thin_files[i].fat_arch.cputype == CPU_TYPE_ARM64){
+			arm64_fat_arch = &(thin_files[i].fat_arch);
+			return(arm64_fat_arch);
+		}
+	}
+	return(NULL);
+}
+
+/*
  * create_fat() creates a fat output file from the thin files.
  */
 static int create_fat(size_t *newsize)
@@ -282,6 +327,9 @@ static int create_fat(size_t *newsize)
 		struct fat_header fat_header;
 		uint32_t offset;
 
+		/* We will order the ARM64 slice last. */
+		arm64_fat_arch = get_arm64_fat_arch();
+		
 		/* Fill in the fat header and the fat_arch's offsets. */
 		fat_header.magic = FAT_MAGIC;
 		fat_header.nfat_arch = nthin_files;
@@ -301,6 +349,12 @@ static int create_fat(size_t *newsize)
 			return 1;
 		}
 		for (i = 0; i < nthin_files; ++i) {
+			/*
+			 * If we are ordering the ARM64 slice last of the fat_arch
+			 * structs, so skip it in this loop.
+			 */
+			if(arm64_fat_arch == &(thin_files[i].fat_arch))
+				continue;
 #ifdef __LITTLE_ENDIAN__
 			swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
 #endif /* __LITTLE_ENDIAN__ */
@@ -313,6 +367,25 @@ static int create_fat(size_t *newsize)
 			swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 		}
+	}
+	/*
+	 * We are ordering the ARM64 slice so it gets written last of the
+	 * fat_arch structs, so write it out here as it was skipped above.
+	 */
+	if(arm64_fat_arch){
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_arch(arm64_fat_arch, 1, NX_BigEndian);
+#endif /* __LITTLE_ENDIAN__ */
+		if(write(fd, arm64_fat_arch,
+				 sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
+			syslog(LOG_ERR, "can't write fat arch to output file: %s",
+						 rename_file);
+			close(fd);
+			return 1;
+		}
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_arch(arm64_fat_arch, 1, NX_LittleEndian);
+#endif /* __LITTLE_ENDIAN__ */
 	}
 	for (i = 0; i < nthin_files; ++i) {
 		if (nthin_files != 1)
@@ -364,7 +437,7 @@ static void process_input_file(struct input_file *input)
 	}
 	if (fstat(fd, &stat_buf) == -1) {
 		close(fd);
-		syslog(LOG_ERR, "Can't stat input file: %s", input->name);
+		syslog(LOG_ERR, "can't stat input file: %s", input->name);
 		return;
 	}
 	size = (size_t)stat_buf.st_size;
@@ -386,7 +459,7 @@ static void process_input_file(struct input_file *input)
 	}
 	addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (MAP_FAILED == addr) {
-		syslog(LOG_ERR, "Can't map input file: %s", input->name);
+		syslog(LOG_ERR, "can't map input file: %s", input->name);
 		close(fd);
 		return;
 	}
@@ -396,7 +469,7 @@ static void process_input_file(struct input_file *input)
 	 * is still there and the same file.
 	 */
 	if(fstat(fd, &stat_buf2) == -1) {
-	    syslog(LOG_ERR, "Can't stat input file: %s", input->name);
+	    syslog(LOG_ERR, "can't stat input file: %s", input->name);
 		close(fd);
 		return;
 	}
