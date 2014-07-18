@@ -89,13 +89,6 @@
 		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Root.swift; sourceTree = "<group>"; };
 		95283992197402B3002D995E /* compat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compat.m; sourceTree = "<group>"; };
 		9528399419740300002D995E /* compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
-		9531D7820C7B1020008B48AA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9531D7880C7B15AE008B48AA /* French */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = French; path = French.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9531D7890C7B15B7008B48AA /* German */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = German; path = German.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9531D78A0C7B15C7008B48AA /* Italian */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Italian; path = Italian.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9531D78B0C7B15D0008B48AA /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9531D78C0C7B15DC008B48AA /* Polish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Polish; path = Polish.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		9531D78D0C7B15E5008B48AA /* Swedish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Swedish; path = Swedish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9539D83711453596007E698C /* blacklist.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = blacklist.plist; sourceTree = "<group>"; };
 		953AAA9D0C7B945F009B69EA /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		95527CE219741A540092C744 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -107,7 +100,6 @@
 		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		957B0BA1162ACBA200051EE7 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		95852A7C1119CD7C00B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Spanish; path = Spanish.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95852A7F1119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Spanish; path = es.lproj/Credits.html; sourceTree = "<group>"; };
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -124,7 +116,6 @@
 		95A74F39197410EF005D3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
-		95A75A8418FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = el; path = el.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		95AEC3C6197688B80038920C /* Set.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
 		95BC963D0991F2C9001DEF94 /* lipo.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = lipo.c; sourceTree = "<group>"; };
@@ -238,7 +229,6 @@
 				95B9D1801769CF3A0072A7E0 /* Media.xcassets */,
 				9539D83711453596007E698C /* blacklist.plist */,
 				95F7771C0ECC2644009C621B /* dsa_pub.pem */,
-				9531D7810C7B1020008B48AA /* MainMenu.xib */,
 				95E8634115D81004004EF9ED /* Monolingual.entitlements */,
 				95D7A921098D48B700DCE08D /* Leggimi.rtfd */,
 				95EDCC87062C4264007229A3 /* LisezMoi.rtfd */,
@@ -534,22 +524,6 @@
 				95852A801119CDA400B54346 /* Spanish */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		9531D7810C7B1020008B48AA /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9531D7820C7B1020008B48AA /* English */,
-				9531D7880C7B15AE008B48AA /* French */,
-				9531D7890C7B15B7008B48AA /* German */,
-				9531D78A0C7B15C7008B48AA /* Italian */,
-				9531D78B0C7B15D0008B48AA /* Japanese */,
-				9531D78C0C7B15DC008B48AA /* Polish */,
-				9531D78D0C7B15E5008B48AA /* Swedish */,
-				95852A7C1119CD7C00B54346 /* Spanish */,
-				95A75A8418FC6C9300BD2E36 /* el */,
-			);
-			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
 		9558F78F0615953200F6DE23 /* Credits.html */ = {
