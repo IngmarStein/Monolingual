@@ -20,8 +20,7 @@ class PreferencesViewController : NSViewController {
 		oPanel.canChooseFiles = false
 		oPanel.treatsFilePackagesAsDirectories = true
 
-		oPanel.beginWithCompletionHandler {
-			(result: NSInteger) in
+		oPanel.beginWithCompletionHandler { result in
 			if NSOKButton == result {
 				for obj in oPanel.URLs {
 					let url = obj as NSURL
