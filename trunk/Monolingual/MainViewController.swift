@@ -54,7 +54,7 @@ class MainViewController : NSViewController {
 	var languages : [LanguageSetting]!
 	var architectures : [ArchitectureSetting]!
 
-	var bytesSaved : CUnsignedLongLong = 0
+	var bytesSaved : UInt64 = 0
 	var mode : MonolingualMode = .Languages
 	var processApplication : Root?
 	var processApplicationObserver : NSObjectProtocol!
@@ -64,7 +64,6 @@ class MainViewController : NSViewController {
 	var progressConnection : xpc_connection_t?
 	
 	var roots : [Root] {
-	get {
 		if self.processApplication {
 			return [ self.processApplication! ]
 		} else {
@@ -78,7 +77,6 @@ class MainViewController : NSViewController {
 			}
 			return roots
 		}
-	}
 	}
 
 	init() {
@@ -104,8 +102,7 @@ class MainViewController : NSViewController {
 		alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
 		alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
-		alert.beginSheetModalForWindow(NSApp.mainWindow) {
-			(responseCode: Int) in
+		alert.beginSheetModalForWindow(NSApp.mainWindow) { responseCode in
 			if NSAlertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
 			}
@@ -275,8 +272,7 @@ class MainViewController : NSViewController {
 	
 		NSProcessInfo.processInfo().disableSuddenTermination()
 	
-		xpc_connection_set_event_handler(self.connection) {
-			(event: xpc_object_t!) in
+		xpc_connection_set_event_handler(self.connection) { event in
 			let type = xpc_get_type(event)
 		
 			if type == xpc_type_error {
@@ -296,8 +292,7 @@ class MainViewController : NSViewController {
 		self.progressConnection = xpc_connection_create(CString(UnsafePointer<CChar>.null()), self.listener_queue)
 	
 		if self.progressConnection {
-			xpc_connection_set_event_handler(self.progressConnection) {
-				(event: xpc_object_t!) in
+			xpc_connection_set_event_handler(self.progressConnection) { event in
 				let type = xpc_get_type(event)
 			
 				if type == xpc_type_error {
@@ -310,8 +305,7 @@ class MainViewController : NSViewController {
 					let peer = event as xpc_connection_t
 				
 					xpc_connection_set_target_queue(peer, self.peer_event_queue)
-					xpc_connection_set_event_handler(peer) {
-						(nevent: xpc_object_t!) in
+					xpc_connection_set_event_handler(peer) { nevent in
 						let ntype = xpc_get_type(nevent)
 					
 						if xpc_type_dictionary == ntype {
@@ -333,8 +327,7 @@ class MainViewController : NSViewController {
 		// DEBUG
 		//xpc_dictionary_set_bool(arguments, "dry_run", true)
 
-		xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue()) {
-			(event: xpc_object_t!) in
+		xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue()) { event in
 			let type = xpc_get_type(event)
 			if xpc_type_dictionary == type {
 				let exit_code = xpc_dictionary_get_int64(event, "exit_code")
@@ -358,8 +351,7 @@ class MainViewController : NSViewController {
 			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
 		}
 		self.progressViewController?.start()
-		self.view.window.beginSheet(self.progressWindowController?.window) {
-			(response: NSModalResponse) in
+		self.view.window.beginSheet(self.progressWindowController?.window) { response in
 			self.progressDidEnd(response)
 		}
 	
@@ -464,12 +456,11 @@ class MainViewController : NSViewController {
 			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
 			
-			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: {
-				(response: NSModalResponse) in
+			alert.beginSheetModalForWindow(NSApp.mainWindow) { response in
 				if response == NSAlertSecondButtonReturn {
 					self.doRemoveLanguages()
 				}
-			})
+			}
 		}
 		
 		return !englishChecked
@@ -718,9 +709,7 @@ class MainViewController : NSViewController {
 		addLanguage("zh-Hans", "Chinese (Simplified Han)",   "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh_SC.lproj")
 		addLanguage("zh-Hant", "Chinese (Traditional Han)",  "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh_HK.lproj")
 
-		knownLanguages.sort() {
-			(lang1 : LanguageSetting, lang2: LanguageSetting) in return lang1.displayName < lang2.displayName
-		}
+		knownLanguages.sort() { $0.displayName < $1.displayName }
 		self.languages = knownLanguages
 			
 		let archs = [
@@ -740,8 +729,8 @@ class MainViewController : NSViewController {
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
 		let my_mach_host_self = mach_host_self()
 		let ret = withUnsafePointer(&hostInfo) {
-			(pointer: UnsafePointer<host_basic_info_data_t>) -> kern_return_t in
-			return host_info(my_mach_host_self, HOST_BASIC_INFO, UnsafePointer<integer_t>(pointer), &infoCount)
+			(pointer: UnsafePointer<host_basic_info_data_t>) in
+			host_info(my_mach_host_self, HOST_BASIC_INFO, UnsafePointer<integer_t>(pointer), &infoCount)
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
@@ -793,8 +782,7 @@ class MainViewController : NSViewController {
 			setBlacklistFromArray(NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]])
 		}
 		
-		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) {
-			(notification: NSNotification!) in
+		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo)
 		}
 	}

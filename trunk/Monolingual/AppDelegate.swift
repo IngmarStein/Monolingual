@@ -11,11 +11,9 @@ import Cocoa
 let ProcessApplicationNotification = "ProcessApplicationNotification"
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-	let donateURL : NSURL = NSURL(string:"http://monolingual.sourceforge.net/donate.php")
-	
 	var preferencesWindowController : NSWindowController?
 
-	func applicationDidFinishLaunching(notification: NSNotification) {
+	func applicationDidFinishLaunching(NSNotification) {
 		let applications = [ "Path" : "/Applications", "Languages" : true, "Architectures" : true ]
 		let developer    = [ "Path" : "/Developer",    "Languages" : true, "Architectures" : true ]
 		let library      = [ "Path" : "/Library",      "Languages" : true, "Architectures" : true ]
@@ -26,7 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict)
 	}
 	
-	func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!) -> Bool {
+	func applicationShouldTerminateAfterLastWindowClosed(NSApplication!) -> Bool {
 		return true
 	}
 
@@ -45,12 +43,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		NSWorkspace.sharedWorkspace().openURL(docURL)
 	}
 	
-	@IBAction func openWebsite(sender: AnyObject) {
+	@IBAction func openWebsite(AnyObject) {
 		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"http://monolingual.sourceforge.net/"))
 	}
 	
-	@IBAction func donate(sender: AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(self.donateURL)
+	@IBAction func donate(AnyObject) {
+		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"http://monolingual.sourceforge.net/donate.php"))
 	}
 
 	@IBAction func showPreferences(sender: AnyObject) {
