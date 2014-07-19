@@ -148,10 +148,10 @@ class MainViewController : NSViewController {
 			for root in roots {
 				let path = root.path
 				if root.architectures {
-					NSLog("Adding root %@", path)
+					NSLog("Adding root \(path)")
 					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 				} else {
-					NSLog("Excluding root %@", path)
+					NSLog("Excluding root \(path)")
 					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 				}
 			}
@@ -240,7 +240,7 @@ class MainViewController : NSViewController {
 			let errorCode = SMJErrorCodeSwift.fromRaw(error!.code)
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
-				NSLog("Failed to bless helper. Error: %@", error!)
+				NSLog("Failed to bless helper. Error: \(error!)")
 			case .AuthorizationDenied:
 				// If you can't do it because you're not administrator, then let the user know!
 				let alert = NSAlert()
@@ -489,17 +489,17 @@ class MainViewController : NSViewController {
 		for root in roots {
 			let path = root.path
 			if root.languages {
-				NSLog("Adding root %@", path)
+				NSLog("Adding root \(path)")
 				xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 			} else {
-				NSLog("Excluding root %@", path)
+				NSLog("Excluding root \(path)")
 				xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 			}
 		}
 		let bl = xpc_array_create(nil, 0)
 		for item in self.blacklist {
 			if item.languages {
-				NSLog("Blacklisting %@", item.bundle)
+				NSLog("Blacklisting \(item.bundle)")
 				item.bundle.withCString { cstring in xpc_array_set_string(bl, kXPC_ARRAY_APPEND, cstring) }
 			}
 		}
