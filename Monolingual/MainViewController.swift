@@ -126,7 +126,7 @@ class MainViewController : NSViewController {
 		for architecture in self.architectures {
 			if architecture.enabled {
 				let arch = architecture.name
-				xpc_array_set_string(archs, kXPC_ARRAY_APPEND, arch.bridgeToObjectiveC().UTF8String)
+				arch.withCString { cstring in xpc_array_set_string(archs, kXPC_ARRAY_APPEND, cstring) }
 				log.message(" \(arch)")
 			}
 		}
@@ -146,12 +146,13 @@ class MainViewController : NSViewController {
 			let includes = xpc_array_create(nil, 0)
 			let excludes = xpc_array_create(nil, 0)
 			for root in roots {
+				let path = root.path
 				if root.architectures {
-					NSLog("Adding root %@", root.path)
-					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, root.path.bridgeToObjectiveC().UTF8String)
+					NSLog("Adding root %@", path)
+					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 				} else {
-					NSLog("Excluding root %@", root.path)
-					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, root.path.bridgeToObjectiveC().UTF8String)
+					NSLog("Excluding root %@", path)
+					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
 				}
 			}
 			xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, "/System/Library/Frameworks")
@@ -160,7 +161,7 @@ class MainViewController : NSViewController {
 			let bl = xpc_array_create(nil, 0)
 			for item in self.blacklist {
 				if item.architectures {
-					xpc_array_set_string(bl, kXPC_ARRAY_APPEND, item.bundle.bridgeToObjectiveC().UTF8String)
+					item.bundle.withCString { cstring in xpc_array_set_string(bl, kXPC_ARRAY_APPEND, cstring) }
 				}
 			}
 		
@@ -499,7 +500,7 @@ class MainViewController : NSViewController {
 		for item in self.blacklist {
 			if item.languages {
 				NSLog("Blacklisting %@", item.bundle)
-				xpc_array_set_string(bl, kXPC_ARRAY_APPEND, item.bundle.bridgeToObjectiveC().UTF8String)
+				item.bundle.withCString { cstring in xpc_array_set_string(bl, kXPC_ARRAY_APPEND, cstring) }
 			}
 		}
 		
@@ -748,7 +749,7 @@ class MainViewController : NSViewController {
 			// fix host_info
 			var x86_64 : Int? = nil
 			var x86_64_size = UInt(sizeof(Int))
-			let ret = sysctlbyname("hw.optional.x86_64".bridgeToObjectiveC().UTF8String, &x86_64, &x86_64_size, nil, 0)
+			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
 				if x86_64 {
 					hostInfo = host_basic_info_data_t(
