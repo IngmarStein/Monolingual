@@ -10,7 +10,7 @@ import Cocoa
 
 class PreferencesViewController : NSViewController {
 
-	@IBOutlet var roots: NSArrayController
+	@IBOutlet var roots: NSArrayController!
 
 	@IBAction func add(sender: AnyObject) {
 		let oPanel = NSOpenPanel()

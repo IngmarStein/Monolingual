@@ -8,21 +8,29 @@
 
 import Foundation
 
+/// A singleton type.
+struct Unit {}
+
+/// Unit is Equatable.
+extension Unit : Equatable {}
+
+func == (a: Unit, b: Unit) -> Bool { return true }
+
 /// A set of unique elements.
 struct Set<Element : Hashable> {
-	var _dictionary : [Element : Void]
+	var _dictionary : [Element : Unit]
 
 	init() {
-		_dictionary = [Element : Void]()
+		_dictionary = [Element : Unit]()
 	}
 	
 	init<S : Sequence where S.GeneratorType.Element == Element>(_ sequence: S) {
-		_dictionary = [Element : Void]()
+		_dictionary = [Element : Unit]()
 		extend(sequence)
 	}
 	
 	init(array: [Element]) {
-		_dictionary = [Element : Void](minimumCapacity: array.count)
+		_dictionary = [Element : Unit](minimumCapacity: array.count)
 		for value in array {
 			insert(value)
 		}
@@ -35,7 +43,7 @@ struct Set<Element : Hashable> {
 	}
 	
 	mutating func insert(element : Element) {
-		_dictionary[element] = ()
+		_dictionary[element] = Unit()
 	}
 	
 	mutating func remove(element : Element) {
@@ -45,7 +53,7 @@ struct Set<Element : Hashable> {
 
 /// Sequence conformance.
 extension Set : Sequence {
-	typealias GeneratorType = MapSequenceGenerator<Dictionary<Element, Void>.GeneratorType, Element>
+	typealias GeneratorType = MapSequenceGenerator<Dictionary<Element, Unit>.GeneratorType, Element>
 	
 	func generate() -> GeneratorType {
 		return _dictionary.keys.generate()
@@ -56,7 +64,7 @@ extension Set : Sequence {
 ///
 /// Does not actually conform to Collection because that crashes the compiler.
 extension Set {//: Swift.Collection {
-	typealias IndexType = DictionaryIndex<Element, Void>
+	typealias IndexType = DictionaryIndex<Element, Unit>
 	var startIndex: IndexType { return _dictionary.startIndex }
 	var endIndex: IndexType { return _dictionary.endIndex }
 
