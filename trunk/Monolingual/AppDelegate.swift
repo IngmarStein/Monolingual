@@ -20,7 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		let systemPath   = [ "Path" : "/System",       "Languages" : true, "Architectures" : false ]
 		let defaultRoots = [ applications, developer, library, systemPath ]
 		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false ]
-		
+
 		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict)
 	}
 	
