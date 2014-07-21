@@ -119,18 +119,14 @@ class MainViewController : NSViewController {
 
 		let roots = self.roots
 
-		let archs = xpc_array_create(nil, 0)
-		for architecture in self.architectures {
-			if architecture.enabled {
-				let arch = architecture.name
-				arch.withCString { cstring in xpc_array_set_string(archs, kXPC_ARRAY_APPEND, cstring) }
-				log.message(" \(arch)")
-			}
+		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
+		for arch in archs {
+			log.message(" \(arch)")
 		}
 	
 		log.message("\nModified files:\n")
 	
-		let num_archs = xpc_array_get_count(archs)
+		let num_archs = archs.count
 		if num_archs == self.architectures.count {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
@@ -140,36 +136,32 @@ class MainViewController : NSViewController {
 			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
-			let includes = xpc_array_create(nil, 0)
-			let excludes = xpc_array_create(nil, 0)
-			for root in roots {
-				let path = root.path
-				if root.architectures {
-					NSLog("Adding root \(path)")
-					xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
-				} else {
-					NSLog("Excluding root \(path)")
-					xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
-				}
+			let includes = roots.filter { $0.architectures } .map { XPCObject($0.path.bridgeToObjectiveC().fileSystemRepresentation) }
+			var excludes = roots.filter { !$0.architectures } .map  { XPCObject($0.path.bridgeToObjectiveC().fileSystemRepresentation) }
+			let bl = self.blacklist.filter { $0.architectures } .map { XPCObject($0.bundle) }
+
+			excludes.append(XPCObject("/System/Library/Frameworks"))
+			excludes.append(XPCObject("/System/Library/PrivateFrameworks"))
+
+			for item in bl {
+				NSLog("Blacklisting \(item)")
 			}
-			xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, "/System/Library/Frameworks")
-			xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, "/System/Library/PrivateFrameworks")
-		
-			let bl = xpc_array_create(nil, 0)
-			for item in self.blacklist {
-				if item.architectures {
-					item.bundle.withCString { cstring in xpc_array_set_string(bl, kXPC_ARRAY_APPEND, cstring) }
-				}
+			for include in includes {
+				NSLog("Adding root \(include)")
 			}
+			for exclude in excludes {
+				NSLog("Excluding root \(exclude)")
+			}
+
+			let xpc_message : XPCObject = [
+				"strip" : XPCObject(NSUserDefaults.standardUserDefaults().boolForKey("Strip")),
+				"blacklist" : XPCObject(bl),
+				"includes" : XPCObject(includes),
+				"excludes" : XPCObject(excludes),
+				"thin" : XPCObject(archs)
+			]
 		
-			let xpc_message = xpc_dictionary_create(nil, nil, 0)
-			xpc_dictionary_set_bool(xpc_message, "strip", NSUserDefaults.standardUserDefaults().boolForKey("Strip"))
-			xpc_dictionary_set_value(xpc_message, "blacklist", bl)
-			xpc_dictionary_set_value(xpc_message, "includes", includes)
-			xpc_dictionary_set_value(xpc_message, "excludes", excludes)
-			xpc_dictionary_set_value(xpc_message, "thin", archs)
-		
-			self.runDeleteHelperWithArgs(xpc_message)
+			self.runDeleteHelperWithArgs(xpc_message.object)
 		} else {
 			log.close()
 		}
@@ -351,9 +343,7 @@ class MainViewController : NSViewController {
 			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
 		}
 		self.progressViewController?.start()
-		self.view.window.beginSheet(self.progressWindowController?.window) { response in
-			self.progressDidEnd(response)
-		}
+		self.view.window.beginSheet(self.progressWindowController?.window) { self.progressDidEnd($0) }
 	
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
@@ -475,32 +465,26 @@ class MainViewController : NSViewController {
 	
 		let roots = self.roots
 
-		let includes = xpc_array_create(nil, 0)
-		let excludes = xpc_array_create(nil, 0)
-		for root in roots {
-			let path = root.path
-			if root.languages {
-				NSLog("Adding root \(path)")
-				xpc_array_set_string(includes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
-			} else {
-				NSLog("Excluding root \(path)")
-				xpc_array_set_string(excludes, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
-			}
+		let includes = roots.filter { $0.languages } .map { XPCObject($0.path) }
+		let excludes = roots.filter { !$0.languages } .map { XPCObject($0.path) }
+		let bl = self.blacklist.filter { $0.languages } .map { XPCObject($0.bundle) }
+		
+		for item in bl {
+			NSLog("Blacklisting \(item)")
 		}
-		let bl = xpc_array_create(nil, 0)
-		for item in self.blacklist {
-			if item.languages {
-				NSLog("Blacklisting \(item.bundle)")
-				item.bundle.withCString { cstring in xpc_array_set_string(bl, kXPC_ARRAY_APPEND, cstring) }
-			}
+		for include in includes {
+			NSLog("Adding root \(include)")
+		}
+		for exclude in excludes {
+			NSLog("Excluding root \(exclude)")
 		}
 		
 		var rCount = 0
-		let files = xpc_array_create(nil, 0)
+		var folders = [XPCObject]()
 		for language in self.languages {
 			if language.enabled {
 				for path in language.folders {
-					xpc_array_set_string(files, kXPC_ARRAY_APPEND, path.bridgeToObjectiveC().fileSystemRepresentation)
+					folders.append(XPCObject(path))
 					if rCount != 0 {
 						log.message(" ")
 					}
@@ -510,7 +494,7 @@ class MainViewController : NSViewController {
 			}
 		}
 		if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
-			xpc_array_set_string(files, kXPC_ARRAY_APPEND, "designable.nib")
+			folders.append(XPCObject("designable.nib"))
 		}
 	
 		log.message("\nDeleted files: \n")
@@ -523,16 +507,17 @@ class MainViewController : NSViewController {
 			log.close()
 		} else if rCount > 0 {
 			/* start things off if we have something to remove! */
+
+			let xpc_message : XPCObject = [
+				"trash" : XPCObject(NSUserDefaults.standardUserDefaults().boolForKey("Trash")),
+				"uid" : XPCObject(Int64(getuid())),
+				"blacklist" : XPCObject(bl),
+				"includes" : XPCObject(includes),
+				"excludes" : XPCObject(excludes),
+				"directories" : XPCObject(folders)
+			]
 		
-			let xpc_message = xpc_dictionary_create(nil, nil, 0)
-			xpc_dictionary_set_bool(xpc_message, "trash", NSUserDefaults.standardUserDefaults().boolForKey("Trash"))
-			xpc_dictionary_set_int64(xpc_message, "uid", Int64(getuid()))
-			xpc_dictionary_set_value(xpc_message, "blacklist", bl)
-			xpc_dictionary_set_value(xpc_message, "includes", includes)
-			xpc_dictionary_set_value(xpc_message, "excludes", excludes)
-			xpc_dictionary_set_value(xpc_message, "directories", files)
-		
-			runDeleteHelperWithArgs(xpc_message)
+			runDeleteHelperWithArgs(xpc_message.object)
 		} else {
 			log.close()
 		}

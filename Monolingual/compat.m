@@ -28,8 +28,15 @@ const mach_msg_type_number_t kHOST_BASIC_INFO_COUNT = HOST_BASIC_INFO_COUNT;
 const NSUInteger kXPC_CONNECTION_MACH_SERVICE_PRIVILEGED = XPC_CONNECTION_MACH_SERVICE_PRIVILEGED;
 const size_t kXPC_ARRAY_APPEND = XPC_ARRAY_APPEND;
 
-const xpc_type_t xpc_type_error = XPC_TYPE_ERROR;
+const xpc_type_t xpc_type_bool = XPC_TYPE_BOOL;
+const xpc_type_t xpc_type_int64 = XPC_TYPE_INT64;
+const xpc_type_t xpc_type_uint64 = XPC_TYPE_UINT64;
+const xpc_type_t xpc_type_string = XPC_TYPE_STRING;
+const xpc_type_t xpc_type_double = XPC_TYPE_DOUBLE;
+const xpc_type_t xpc_type_data = XPC_TYPE_DATA;
+const xpc_type_t xpc_type_array = XPC_TYPE_ARRAY;
 const xpc_type_t xpc_type_dictionary = XPC_TYPE_DICTIONARY;
+const xpc_type_t xpc_type_error = XPC_TYPE_ERROR;
 const xpc_type_t xpc_type_connection = XPC_TYPE_CONNECTION;
 
 const xpc_object_t xpc_error_connection_interrupted = XPC_ERROR_CONNECTION_INTERRUPTED;
