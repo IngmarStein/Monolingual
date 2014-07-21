@@ -61,9 +61,7 @@ extension Set : Sequence {
 }
 
 /// Collection conformance.
-///
-/// Does not actually conform to Collection because that crashes the compiler.
-extension Set {//: Swift.Collection {
+extension Set : Swift.Collection {
 	typealias IndexType = DictionaryIndex<Element, Unit>
 	var startIndex: IndexType { return _dictionary.startIndex }
 	var endIndex: IndexType { return _dictionary.endIndex }
@@ -79,9 +77,7 @@ extension Set {//: Swift.Collection {
 }
 
 /// ExtensibleCollection conformance.
-///
-/// Does not actually conform to ExtensibleCollection because that crashes the compiler.
-extension Set {//: Swift.ExtensibleCollection {
+extension Set : Swift.ExtensibleCollection {
 	/// In theory, reserve capacity for \c n elements. However, Dictionary does not implement reserveCapacity(), so we just silently ignore it.
 	func reserveCapacity(n: IndexType.DistanceType) {}
 	
