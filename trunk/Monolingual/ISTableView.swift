@@ -9,22 +9,18 @@
 import Cocoa
 
 class ISTableView : NSTableView {
-	@IBOutlet var arrayController: NSArrayController
+	@IBOutlet var arrayController: NSArrayController!
 
 	override func keyDown(theEvent: NSEvent!) {
-		var row: Int
-		let key = theEvent.charactersIgnoringModifiers.substringToIndex(1)
-
-		switch (key) {
-			case " ":
-				row = self.selectedRow
-				if row != -1 {
-					let arrangedObjects = self.arrayController.arrangedObjects as [Setting]
-					var setting = arrangedObjects[row]
-					setting.enabled = !setting.enabled
-				}
-			default:
-				super.keyDown(theEvent)
+		if theEvent.charactersIgnoringModifiers.hasPrefix(" ") {
+			let row = self.selectedRow
+			if row != -1 {
+				let arrangedObjects = self.arrayController.arrangedObjects as [Setting]
+				var setting = arrangedObjects[row]
+				setting.enabled = !setting.enabled
+			}
+		} else {
+			super.keyDown(theEvent)
 		}
 	}
 }

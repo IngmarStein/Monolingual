@@ -56,10 +56,6 @@ enum XPCObject : Printable {
 		self = .XPCUInt64(xpc_uint64_create(value))
 	}
 	
-	init(_ value : CString) {
-		self = .XPCString(xpc_string_create(value))
-	}
-	
 	init(_ value : String) {
 		self = .XPCString(xpc_string_create(value.bridgeToObjectiveC().UTF8String))
 	}

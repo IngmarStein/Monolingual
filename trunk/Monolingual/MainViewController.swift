@@ -45,7 +45,7 @@ enum SMJErrorCodeSwift : Int {
 
 class MainViewController : NSViewController {
 
-	@IBOutlet var currentArchitecture : NSTextField
+	@IBOutlet var currentArchitecture : NSTextField!
 
 	var progressWindowController : NSWindowController?
 	var progressViewController : ProgressViewController?
@@ -136,8 +136,8 @@ class MainViewController : NSViewController {
 			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
-			let includes = roots.filter { $0.architectures } .map { XPCObject($0.path.bridgeToObjectiveC().fileSystemRepresentation) }
-			var excludes = roots.filter { !$0.architectures } .map  { XPCObject($0.path.bridgeToObjectiveC().fileSystemRepresentation) }
+			let includes = roots.filter { $0.architectures } .map { XPCObject($0.path) }
+			var excludes = roots.filter { !$0.architectures } .map { XPCObject($0.path) }
 			let bl = self.blacklist.filter { $0.architectures } .map { XPCObject($0.bundle) }
 
 			excludes.append(XPCObject("/System/Library/Frameworks"))
@@ -281,8 +281,8 @@ class MainViewController : NSViewController {
 		}
 	
 		// Create an anonymous listener connection that collects progress updates.
-		self.progressConnection = xpc_connection_create(CString(UnsafePointer<CChar>.null()), self.listener_queue)
-	
+		self.progressConnection = xpc_connection_create(ConstUnsafePointer<Int8>.null(), self.listener_queue)
+
 		if self.progressConnection {
 			xpc_connection_set_event_handler(self.progressConnection) { event in
 				let type = xpc_get_type(event)
