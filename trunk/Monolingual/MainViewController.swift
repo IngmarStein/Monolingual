@@ -45,7 +45,7 @@ enum SMJErrorCodeSwift : Int {
 
 class MainViewController : NSViewController {
 
-	@IBOutlet var currentArchitecture : NSTextField!
+	@IBOutlet weak var currentArchitecture : NSTextField!
 
 	var progressWindowController : NSWindowController?
 	var progressViewController : ProgressViewController?

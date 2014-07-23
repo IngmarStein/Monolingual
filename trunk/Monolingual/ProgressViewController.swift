@@ -6,9 +6,9 @@
 import Cocoa
 
 class ProgressViewController : NSViewController {
-	@IBOutlet var progressBar: NSProgressIndicator!
-	@IBOutlet var applicationText: NSTextField!
-	@IBOutlet var fileText: NSTextField!
+	@IBOutlet weak var progressBar: NSProgressIndicator!
+	@IBOutlet weak var applicationText: NSTextField!
+	@IBOutlet weak var fileText: NSTextField!
 	
 	var file : String {
 	get {
