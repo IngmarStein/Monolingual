@@ -572,6 +572,82 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		954A746E1981997E0061396C /* Travis */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				LLVM_LTO = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				ONLY_ACTIVE_ARCH = YES;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PROVISIONING_PROFILE = "";
+				RUN_CLANG_STATIC_ANALYZER = NO;
+				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-objc-missing-property-synthesis",
+				);
+			};
+			name = Travis;
+		};
+		954A746F1981997E0061396C /* Travis */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 10818E82971949539B96D336 /* Pods.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = Monolingual;
+				SWIFT_OBJC_BRIDGING_HEADER = "Monolingual-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Travis;
+		};
+		954A74701981997E0061396C /* Travis */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-sectcreate",
+					__TEXT,
+					__info_plist,
+					"MonolingualHelper-Info.plist",
+					"-sectcreate",
+					__TEXT,
+					__launchd_plist,
+					"MonolingualHelper-launchd.plist",
+				);
+				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-cast-align",
+					"-Wno-padded",
+				);
+			};
+			name = Travis;
+		};
 		95AAF5610856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -731,6 +807,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				95AAF5610856C2DC007CEE36 /* Debug */,
+				954A74701981997E0061396C /* Travis */,
 				95AAF5620856C2DC007CEE36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -740,6 +817,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				95AAF5650856C2DC007CEE36 /* Debug */,
+				954A746F1981997E0061396C /* Travis */,
 				95AAF5660856C2DC007CEE36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -749,6 +827,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				95AAF5690856C2DC007CEE36 /* Debug */,
+				954A746E1981997E0061396C /* Travis */,
 				95AAF56A0856C2DC007CEE36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
