@@ -1,0 +1,59 @@
+---
+layout: default
+title: Monolingual - Frequently Asked Questions
+---
+		<h2>Frequently Asked Questions</h2>
+		<dl class="faq">
+			<dt>Q. Monolingual made my OS X installation unusable.</dt>
+			<dd>A. Chances are that you have accidently removed the English language files.
+Some language packs are only a subset of other language packs (for example
+&quot;English (United States)&quot; is a subset of &quot;English&quot;), so you will
+have an incomplete OS X installation if you remove &quot;English&quot; but
+not &quot;English (United States)&quot;.
+In general, you should <strong>never remove
+the English language files</strong> unless you know what you are doing.
+			<br /><br /></dd>
+<!--
+<dt>Q. My keyboard appears not to be working after using Monolingual.</dt>
+<dd>A. Most likely, you deleted the keyboard layout for your default
+input language. For English, German, etc. (which are all roman languages)
+this is the Roman keyboard layout. You can restore the layout by copying
+it from another Mac to the correct location.
+<br /><br /></dd>
+-->
+		<dt>Q. Should I remove the non-Intel architectures on my Intel based Mac?</dt>
+		<dd>A. You can use Monolingual to remove non-Intel architectures for your installed
+	applications (even if some of the applications are PowerPC-only; Monolingual is
+	smart enough not to remove PPC forks if those are the only ones in the universal
+	binary). However, you should <strong>not strip the System frameworks if you want
+	to use Rosetta</strong>. Rosetta needs the PowerPC code for all frameworks used
+	by the emulated application and if it can&apos;t find it, you may see messages such
+	as the following in the console:
+	<pre>/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:
+	mach-o, but wrong architecture</pre></dd>
+<dt>Q. Monolingual doesn&apos;t remember my preferences of which languages to remove.</dt>
+<dd>A. Monolingual by default removes those languages that are not listed in
+	System Preferences / International / Languages.<br /><br /></dd>
+<dt>Q. What does this cost?</dt>
+<dd>A. NOTHING. Monolingual is freeware. If you like this program and want to support its development, you can
+	donate a small amount via Monolingual&apos;s
+	<a href="http://monolingual.sourceforge.net/donate.php">donation page</a>.<br /><br /></dd>
+<dt>Q. My Adobe applications want to be reinstalled after running Monolingual.</dt>
+<dd>A. Adobe&apos;s newer applications have a self-heal feature which checks for the existence of certain files
+	and refuses to launch the application if one of those files is missing. This feature does not distinguish
+	between files that are critical components of the program and those files which are not needed, e.g.
+	localization files. Therefore, you should exclude Adobe's from being processed by Monolingual. Open
+	Monolingual&apos;s preferences window, add &quot;<code>/Applications/Adobe Acrobat 7.0
+	Professional</code>&quot; (for example) and deselect the checkbox next to the item.<br /><br /></dd>
+<dt>Q. Why can&apos;t Microsoft Office 2008 be updated after removing unneeded architectures?</dt>
+<dd>A. When the updater attempts to upgrade Office 2008 for the Mac, it looks for the presence of several files and their checksum values. If you run Monolingual on Office 2008 for the Mac, some of the changes made affect some of the files it is looking at. As a result, it will not find a valid copy of Office and tell the user that there is nothing to upgrade. You can either remove the checksum verification from the updater or reinstall Office to apply the update.<br /><br /></dd>
+<dt>Q. How is Monolingual distributed?</dt>
+<dd>A. Monolingual is distributed under the GNU Public License, which is
+	included as the file COPYING.txt, and is also available via the Monolingual &quot;Help&quot; menu.
+	If your copy of Monolingual did not include it, you may find it at
+<a href="http://www.gnu.org/copyleft/gpl.txt">http://www.gnu.org/copyleft/gpl.txt</a>.<br /><br /></dd>
+<dt>Q. I want to modify/utilize Monolingual. Can I do it?</dt>
+<dd>A. Sure, but follow the GPL. Source is available at <a href="http://sourceforge.net/scm/?type=svn&amp;group_id=106424">http://sourceforge.net/scm/?type=svn&amp;group_id=106424</a>.<br /><br /></dd>
+<dt>Q. You know, you should really add X feature...</dt>
+<dd>A. You can request the addition of a feature by going to <a href="http://sourceforge.net/apps/trac/monolingual/">http://sourceforge.net/apps/trac/monolingual/</a>.<br /><br /></dd>
+</dl>
