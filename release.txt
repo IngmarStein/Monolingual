@@ -9,11 +9,10 @@ How to create a Monolingual release
 2) Add changelog to readmes
 3) make release
 4) Copy release/*.dmg to htdocs/files
-5) Tag release (svn copy https://svn.code.sf.net/p/monolingual/code/trunk https://svn.code.sf.net/p/monolingual/code/tags/RELEASE_X_Y_Z -m "Tag version XXX")
-6) Update index.php
-7) Update changelog.php
+5) Tag release
+6) Update index.html
+7) Update changelog.html
 8) Update appcast.xml
 9) Upload website (upload.sh)
-10) Create release in SourceForge FRS
-11) Create version in Trac (https://sourceforge.net/apps/trac/monolingual/admin/ticket/versions)
-12) Announce release on http://www.macupdate.com
+10) Create release on GitHub
+11) Announce release on http://www.macupdate.com
