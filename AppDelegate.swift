@@ -44,11 +44,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	
 	@IBAction func openWebsite(AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"http://monolingual.sourceforge.net/"))
+		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual"))
 	}
 	
 	@IBAction func donate(AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"http://monolingual.sourceforge.net/donate.php"))
+		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html"))
 	}
 
 	@IBAction func showPreferences(sender: AnyObject) {
