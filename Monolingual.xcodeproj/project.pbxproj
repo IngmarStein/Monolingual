@@ -13,8 +13,6 @@
 		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
 		95283993197402B3002D995E /* compat.m in Sources */ = {isa = PBXBuildFile; fileRef = 95283992197402B3002D995E /* compat.m */; };
 		9539D83811453596007E698C /* blacklist.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9539D83711453596007E698C /* blacklist.plist */; };
-		953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		953AAAB00C7B947E009B69EA /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 953AAA9D0C7B945F009B69EA /* Sparkle.framework */; };
 		95527CE319741A540092C744 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE219741A540092C744 /* AppDelegate.swift */; };
 		95527CE519741A930092C744 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE419741A930092C744 /* Log.swift */; };
 		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
@@ -61,7 +59,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				953AAA9E0C7B945F009B69EA /* Sparkle.framework in Copy Embedded Frameworks */,
 			);
 			name = "Copy Embedded Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -91,7 +88,6 @@
 		95283992197402B3002D995E /* compat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compat.m; sourceTree = "<group>"; };
 		9528399419740300002D995E /* compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
 		9539D83711453596007E698C /* blacklist.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = blacklist.plist; sourceTree = "<group>"; };
-		953AAA9D0C7B945F009B69EA /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		95527CE219741A540092C744 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		95527CE419741A930092C744 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = de.lproj/Credits.html; sourceTree = "<group>"; };
@@ -159,7 +155,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				953AAAB00C7B947E009B69EA /* Sparkle.framework in Frameworks */,
 				D9460549CB4643FC8AD5E6D0 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,7 +246,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				953AAA9D0C7B945F009B69EA /* Sparkle.framework */,
 				5B555B5E7B2C4EA6A081D013 /* libPods.a */,
 			);
 			name = Frameworks;
