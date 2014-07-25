@@ -1,12 +1,4 @@
 /**
- *	Monolingual
- *	http://monolingual.sourceforge.net
- *
- *	Copyright (c) Ingmar Stein, Claudio Procida
- *
- */
-
-/**
  *	Opens "external"-class links in a new browser window
  */
 function override_external_links()
