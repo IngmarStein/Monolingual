@@ -15,8 +15,8 @@ Monolingual consists of two parts: the Monolingual app and a privileged helper p
 
 Monolingual uses CocoaPods to manage its dependencies. Currently, the following pods are used:
 
-- [SMJobKit][https://github.com/nevir/SMJobKit]
-- [Sparkle][https://github.com/sparkle-project/Sparkle]
+- [SMJobKit](https://github.com/nevir/SMJobKit)
+- [Sparkle](https://github.com/sparkle-project/Sparkle)
 
 ## Contributors
 
