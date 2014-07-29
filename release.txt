@@ -8,11 +8,11 @@ How to create a Monolingual release
    - README.markdown
 2) Add changelog to readmes
 3) make release
-4) Copy release/*.dmg to htdocs/files
-5) Tag release
+4) Tag release (git tag -s vX_Y_Z -m 'X_Y_Z')
+5) Push tags (git push --tags)
 6) Update index.html
 7) Update changelog.html
 8) Update appcast.xml
-9) Upload website (upload.sh)
+9) Upload website (git push origin gh-pages)
 10) Create release on GitHub
 11) Announce release on http://www.macupdate.com
