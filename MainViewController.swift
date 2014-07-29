@@ -12,6 +12,7 @@
 //
 
 import Cocoa
+import Set
 
 enum MonolingualMode : Int {
 	case Languages = 0
