@@ -65,7 +65,7 @@ class MainViewController : NSViewController {
 	var progressConnection : xpc_connection_t?
 	
 	var roots : [Root] {
-		if self.processApplication {
+		if self.processApplication != nil {
 			return [ self.processApplication! ]
 		} else {
 			var roots = [Root]()
@@ -80,11 +80,11 @@ class MainViewController : NSViewController {
 		}
 	}
 
-	init() {
+	override init() {
 		super.init()
 	}
 	
-	init(coder: NSCoder!) {
+	required init(coder: NSCoder!) {
 		super.init(coder: coder)
 	}
 
@@ -202,11 +202,11 @@ class MainViewController : NSViewController {
 					}
 				}
 			}
-			if app {
+			if app != nil {
 				let removing = NSLocalizedString("Removing language", comment:"")
 				let from = NSLocalizedString("from", comment:"")
 				message = "\(removing) \(lang) \(from) \(app)…"
-			} else if lang {
+			} else if lang != nil {
 				let removing = NSLocalizedString("Removing language", comment:"")
 				message = "\(removing) \(lang)…"
 			} else {
@@ -282,9 +282,9 @@ class MainViewController : NSViewController {
 		}
 	
 		// Create an anonymous listener connection that collects progress updates.
-		self.progressConnection = xpc_connection_create(ConstUnsafePointer<Int8>.null(), self.listener_queue)
+		self.progressConnection = xpc_connection_create(UnsafePointer<Int8>.null(), self.listener_queue)
 
-		if self.progressConnection {
+		if self.progressConnection != nil {
 			xpc_connection_set_event_handler(self.progressConnection) { event in
 				let type = xpc_get_type(event)
 			
@@ -326,7 +326,7 @@ class MainViewController : NSViewController {
 				let exit_code = xpc_dictionary_get_int64(event, "exit_code")
 				NSLog("helper finished with exit code: %lld", exit_code)
 			
-				if self.connection {
+				if self.connection != nil {
 					let exit_message = xpc_dictionary_create(nil, nil, 0)
 					xpc_dictionary_set_int64(exit_message, "exit_code", exit_code)
 					xpc_connection_send_message(self.connection, exit_message)
@@ -338,13 +338,13 @@ class MainViewController : NSViewController {
 			}
 		}
 
-		if !self.progressWindowController {
+		if self.progressWindowController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
 			self.progressWindowController = storyboard.instantiateControllerWithIdentifier("ProgressWindow") as? NSWindowController
 			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
 		}
 		self.progressViewController?.start()
-		self.view.window.beginSheet(self.progressWindowController?.window) { self.progressDidEnd($0) }
+		self.view.window?.beginSheet(self.progressWindowController?.window) { self.progressDidEnd($0) }
 	
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
@@ -359,8 +359,8 @@ class MainViewController : NSViewController {
 		let byteCount = NSByteCountFormatter.stringFromByteCount(Int64(self.bytesSaved), countStyle:.File)
 	
 		if returnCode == 1 {
-			if self.progressConnection {
-				if self.connection {
+			if self.progressConnection != nil {
+				if self.connection != nil {
 					let exit_message = xpc_dictionary_create(nil, nil, 0)
 					xpc_dictionary_set_int64(exit_message, "exit_code", Int64(EXIT_FAILURE))
 					xpc_connection_send_message(self.connection, exit_message)
@@ -392,7 +392,7 @@ class MainViewController : NSViewController {
 			NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 		}
 	
-		if self.connection {
+		if self.connection != nil {
 			NSLog("Closing connection")
 			xpc_connection_cancel(self.connection)
 			self.connection = nil
@@ -714,9 +714,9 @@ class MainViewController : NSViewController {
 		var infoCount : mach_msg_type_number_t = kHOST_BASIC_INFO_COUNT
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
 		let my_mach_host_self = mach_host_self()
-		let ret = withUnsafePointer(&hostInfo) {
-			(pointer: UnsafePointer<host_basic_info_data_t>) in
-			host_info(my_mach_host_self, HOST_BASIC_INFO, UnsafePointer<integer_t>(pointer), &infoCount)
+		let ret = withUnsafeMutablePointer(&hostInfo) {
+			(pointer: UnsafeMutablePointer<host_basic_info_data_t>) in
+			host_info(my_mach_host_self, HOST_BASIC_INFO, UnsafeMutablePointer<integer_t>(pointer), &infoCount)
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
@@ -726,7 +726,7 @@ class MainViewController : NSViewController {
 			var x86_64_size = UInt(sizeof(Int))
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
-				if x86_64 {
+				if x86_64 != nil {
 					hostInfo = host_basic_info_data_t(
 						max_cpus: hostInfo.max_cpus,
 						avail_cpus: hostInfo.avail_cpus,
@@ -785,7 +785,7 @@ class MainViewController : NSViewController {
 	}
 	
 	deinit {
-		if self.processApplicationObserver {
+		if self.processApplicationObserver != nil {
 			NSNotificationCenter.defaultCenter().removeObserver(self.processApplicationObserver)
 		}
 	}
