@@ -57,7 +57,8 @@ enum XPCObject : Printable {
 	}
 	
 	init(_ value : String) {
-		self = .XPCString(xpc_string_create(value.bridgeToObjectiveC().UTF8String))
+		let nsstring : NSString = value
+		self = .XPCString(xpc_string_create(nsstring.UTF8String))
 	}
 	
 	init(_ value : Double) {
@@ -65,7 +66,7 @@ enum XPCObject : Printable {
 	}
 	
 	init(_ value : NSData) {
-		self = .XPCData(xpc_data_create(value.bytes, value.length.asUnsigned()))
+		self = .XPCData(xpc_data_create(value.bytes, UInt(value.length)))
 	}
 
 	init(_ array: [XPCObject]) {

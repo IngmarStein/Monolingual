@@ -32,7 +32,7 @@ class ProgressViewController : NSViewController {
 		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
 		self.fileText.stringValue = ""
 
-		self.view.window.orderOut(sender)
+		self.view.window?.orderOut(sender)
 		NSApp.endSheet(self.view.window, returnCode:1)
 	}
 
