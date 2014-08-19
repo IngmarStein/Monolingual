@@ -18,7 +18,7 @@ class Log {
 	}
 
 	func message(message: String) {
-		logFile?.writeData(message.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false))
+		logFile?.writeData(message.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!)
 	}
 
 	func close() {
