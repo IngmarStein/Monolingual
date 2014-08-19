@@ -24,7 +24,7 @@ class PreferencesViewController : NSViewController {
 			if NSOKButton == result {
 				for obj in oPanel.URLs {
 					let url = obj as NSURL
-					self.roots.addObject([ "Path" : url.path,
+					self.roots.addObject([ "Path" : url.path!,
 										   "Languages" : true,
 										   "Architectures" : true ])
 				}

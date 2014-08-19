@@ -546,8 +546,8 @@ class MainViewController : NSViewController {
 		
 		// never check user locale by default
 		let appleLocale = NSUserDefaults.standardUserDefaults().stringForKey("AppleLocale")
-		if appleLocale {
-			userLanguages.insert(appleLocale.stringByReplacingOccurrencesOfString("_", withString:"-"))
+		if let locale = appleLocale {
+			userLanguages.insert(locale.stringByReplacingOccurrencesOfString("_", withString:"-"))
 		}
 
 		let numKnownLanguages = 134
@@ -695,9 +695,8 @@ class MainViewController : NSViewController {
 		addLanguage("zh-Hans", "Chinese (Simplified Han)",   "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh_SC.lproj")
 		addLanguage("zh-Hant", "Chinese (Traditional Han)",  "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh_HK.lproj")
 
-		knownLanguages.sort() { $0.displayName < $1.displayName }
-		self.languages = knownLanguages
-			
+		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
+		
 		let archs = [
 			ArchitectureInfo(name:"arm",       displayName:"ARM",               cpu_type: kCPU_TYPE_ARM,       cpu_subtype: kCPU_SUBTYPE_ARM_ALL),
 			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",           cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
@@ -763,13 +762,13 @@ class MainViewController : NSViewController {
 		setBlacklistFromArray(NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]])
 
 		// use blacklist from bundle as a fallback
-		if !self.blacklist {
+		if self.blacklist == nil {
 			let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist")
-			setBlacklistFromArray(NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]])
+			setBlacklistFromArray(NSArray(contentsOfFile:blacklistBundle!) as? [[NSObject:AnyObject]])
 		}
 		
 		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
-			self.processApplication = Root(dictionary: notification.userInfo)
+			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}
 	
