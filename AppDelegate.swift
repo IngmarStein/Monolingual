@@ -10,6 +10,7 @@ import Cocoa
 
 let ProcessApplicationNotification = "ProcessApplicationNotification"
 
+@NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 	var preferencesWindowController : NSWindowController?
 

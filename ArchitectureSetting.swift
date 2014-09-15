@@ -10,7 +10,7 @@ import Foundation
 
 class ArchitectureSetting : Setting {
 	var name : String
-	var displayName : String
+	dynamic var displayName : String
 	
 	init(enabled : Bool, name : String, displayName : String) {
 		self.name = name

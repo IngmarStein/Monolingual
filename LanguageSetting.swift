@@ -10,7 +10,7 @@ import Foundation
 
 class LanguageSetting : Setting {
 	var folders : [String]
-	var displayName : String
+	dynamic var displayName : String
 	
 	init(enabled : Bool, folders : [String], displayName : String) {
 		self.folders = folders

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6185.11" systemVersion="14A298i" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6246" systemVersion="14A343f" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <deployment defaultVersion="101000" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6185.11"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6246"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -136,7 +135,7 @@
             </objects>
             <point key="canvasLocation" x="434" y="-183"/>
         </scene>
-        <!--Monolingual-->
+        <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController storyboardIdentifier="MainWindow" id="B8D-0N-5wS" sceneMemberID="viewController">
@@ -186,7 +185,7 @@
                                             <subviews>
                                                 <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BOy-QX-NcS">
                                                     <rect key="frame" x="20" y="57" width="346" height="277"/>
-                                                    <clipView key="contentView" id="OFF-NN-dqj">
+                                                    <clipView key="contentView" misplaced="YES" id="OFF-NN-dqj">
                                                         <rect key="frame" x="1" y="17" width="344" height="259"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
@@ -294,7 +293,7 @@
                                                         <rect key="frame" x="1" y="260" width="344" height="16"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
-                                                    <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="ojR-eS-P1m">
+                                                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="ojR-eS-P1m">
                                                         <rect key="frame" x="330" y="17" width="15" height="259"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
@@ -336,7 +335,7 @@
                                             <subviews>
                                                 <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MvI-uV-IhN">
                                                     <rect key="frame" x="20" y="57" width="346" height="277"/>
-                                                    <clipView key="contentView" id="SKk-Kv-SfJ">
+                                                    <clipView key="contentView" misplaced="YES" id="SKk-Kv-SfJ">
                                                         <rect key="frame" x="1" y="17" width="329" height="243"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
@@ -440,7 +439,7 @@
                                                         <rect key="frame" x="1" y="260" width="329" height="16"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
-                                                    <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="OqA-Jo-yiV">
+                                                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="OqA-Jo-yiV">
                                                         <rect key="frame" x="330" y="17" width="15" height="243"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
@@ -511,7 +510,7 @@
                         <string>displayName</string>
                     </declaredKeys>
                     <connections>
-                        <binding destination="XfG-lQ-9wD" name="contentArray" keyPath="architectures" id="iko-0o-Yq1"/>
+                        <binding destination="XfG-lQ-9wD" name="contentArray" keyPath="architectures" id="KkR-Te-ZzZ"/>
                     </connections>
                 </arrayController>
                 <arrayController objectClassName="LanguageSetting" clearsFilterPredicateOnInsertion="NO" id="iQT-Fj-d72" userLabel="Languages">
@@ -520,13 +519,13 @@
                         <string>enabled</string>
                     </declaredKeys>
                     <connections>
-                        <binding destination="XfG-lQ-9wD" name="contentArray" keyPath="languages" id="0Lv-9P-i48"/>
+                        <binding destination="XfG-lQ-9wD" name="contentArray" keyPath="languages" id="qJA-ih-Brv"/>
                     </connections>
                 </arrayController>
             </objects>
             <point key="canvasLocation" x="73.5" y="839.5"/>
         </scene>
-        <!--Preferences-->
+        <!--Window Controller-->
         <scene sceneID="axC-V8-RDE">
             <objects>
                 <windowController storyboardIdentifier="PreferencesWindow" id="txC-8A-e5w" sceneMemberID="viewController">
@@ -604,7 +603,7 @@
                                         </button>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tBG-2t-RdI">
                                             <rect key="frame" x="17" y="47" width="378" height="188"/>
-                                            <clipView key="contentView" id="re4-3X-lnR">
+                                            <clipView key="contentView" misplaced="YES" id="re4-3X-lnR">
                                                 <rect key="frame" x="1" y="17" width="365" height="133"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -731,7 +730,7 @@
                                                 <rect key="frame" x="1" y="114" width="355" height="15"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
-                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="fJR-Lg-bbt">
+                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="fJR-Lg-bbt">
                                                 <rect key="frame" x="84" y="17" width="15" height="67"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
@@ -798,7 +797,7 @@
             </objects>
             <point key="canvasLocation" x="607" y="805"/>
         </scene>
-        <!--Progress-->
+        <!--Window Controller-->
         <scene sceneID="4R0-5c-eU9">
             <objects>
                 <customObject id="oaz-dT-JyM" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
