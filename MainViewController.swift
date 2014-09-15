@@ -52,8 +52,8 @@ class MainViewController : NSViewController {
 	var progressViewController : ProgressViewController?
 
 	var blacklist : [BlacklistEntry]!
-	var languages : [LanguageSetting]!
-	var architectures : [ArchitectureSetting]!
+	dynamic var languages : [LanguageSetting]!
+	dynamic var architectures : [ArchitectureSetting]!
 
 	var bytesSaved : UInt64 = 0
 	var mode : MonolingualMode = .Languages
@@ -173,7 +173,7 @@ class MainViewController : NSViewController {
 			return
 		}
 		
-		let file = NSString(UTF8String: xpc_dictionary_get_string(progress, "file"))
+		let file = NSString(UTF8String: xpc_dictionary_get_string(progress, "file"))!
 		let size = xpc_dictionary_get_uint64(progress, "size")
 		self.bytesSaved += size
 		
@@ -227,7 +227,7 @@ class MainViewController : NSViewController {
 	
 		var error : NSError?
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
-			let errorCode = SMJErrorCodeSwift.fromRaw(error!.code)
+			let errorCode = SMJErrorCodeSwift(rawValue:error!.code)
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
 				NSLog("Failed to bless helper. Error: \(error!)")
@@ -758,7 +758,7 @@ class MainViewController : NSViewController {
 		self.architectures = knownArchitectures
 		
 		// load blacklist from URL
-		let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist")
+		let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist")!
 		setBlacklistFromArray(NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]])
 
 		// use blacklist from bundle as a fallback

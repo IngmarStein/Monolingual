@@ -21,7 +21,6 @@
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		9558F83006159B4C00F6DE23 /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = F5A6E37F01A07759016596AB /* COPYING.txt */; };
-		956E31D70A4B4056004E91ED /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956E31D60A4B4056004E91ED /* main.swift */; };
 		9572AB171977E8E5002E4AF4 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9572AB161977E8E5002E4AF4 /* Setting.swift */; };
 		959CEEAB197140FC00A433C0 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
 		959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEED919714E0500A433C0 /* ISTableView.swift */; };
@@ -96,7 +95,6 @@
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = de.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
-		956E31D60A4B4056004E91ED /* main.swift */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = main.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		95773339197939B70008E1A4 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = el.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		957B0BA1162ACBA200051EE7 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
@@ -214,7 +212,6 @@
 			children = (
 				95283992197402B3002D995E /* compat.m */,
 				9528399419740300002D995E /* compat.h */,
-				956E31D60A4B4056004E91ED /* main.swift */,
 				95BC963D0991F2C9001DEF94 /* lipo.c */,
 				95BC989F099228D5001DEF94 /* lipo.h */,
 				95D7A8AC098D42F800DCE08D /* helper.c */,
@@ -478,7 +475,6 @@
 				950ED2731976AAB600BAC239 /* Root.swift in Sources */,
 				959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */,
 				95D8DBEC197CE6D400AE8CAE /* XPCObject.swift in Sources */,
-				956E31D70A4B4056004E91ED /* main.swift in Sources */,
 				959CEEE019714E0500A433C0 /* ProgressViewController.swift in Sources */,
 				959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */,
 			);
