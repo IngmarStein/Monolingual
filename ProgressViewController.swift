@@ -33,7 +33,7 @@ class ProgressViewController : NSViewController {
 		self.fileText.stringValue = ""
 
 		self.view.window?.orderOut(sender)
-		NSApp.endSheet(self.view.window, returnCode:1)
+		NSApp.endSheet(self.view.window!, returnCode:1)
 	}
 
 	func start() {

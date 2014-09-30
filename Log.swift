@@ -13,7 +13,7 @@ class Log {
 	var logFile : NSFileHandle? = nil
 	
 	func open() {
-		logFile = NSFileHandle(forWritingToURL:logFileName, error: nil)
+		logFile = NSFileHandle(forWritingToURL:logFileName!, error: nil)
 		logFile?.seekToEndOfFile()
 	}
 

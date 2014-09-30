@@ -11,8 +11,8 @@ import Cocoa
 class ISTableView : NSTableView {
 	@IBOutlet var arrayController: NSArrayController!
 
-	override func keyDown(theEvent: NSEvent!) {
-		if theEvent.charactersIgnoringModifiers.hasPrefix(" ") {
+	override func keyDown(theEvent: NSEvent) {
+		if theEvent.charactersIgnoringModifiers != nil && theEvent.charactersIgnoringModifiers!.hasPrefix(" ") {
 			let row = self.selectedRow
 			if row != -1 {
 				let arrangedObjects = self.arrayController.arrangedObjects as [Setting]

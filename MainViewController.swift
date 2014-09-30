@@ -84,15 +84,15 @@ class MainViewController : NSViewController {
 		super.init()
 	}
 	
-	required init(coder: NSCoder!) {
+	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 	}
 
 	func finishProcessing() {
 		if let windowController = self.progressWindowController {
-			windowController.window.orderOut(self)
+			windowController.window!.orderOut(self)
 			self.progressViewController?.stop()
-			NSApp.endSheet(windowController.window, returnCode:0)
+			NSApp.endSheet(windowController.window!, returnCode:0)
 		}
 	}
 
@@ -103,7 +103,7 @@ class MainViewController : NSViewController {
 		alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
 		alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
-		alert.beginSheetModalForWindow(NSApp.mainWindow) { responseCode in
+		alert.beginSheetModalForWindow(self.view.window!) { responseCode in
 			if NSAlertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
 			}
@@ -132,7 +132,7 @@ class MainViewController : NSViewController {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
 			alert.messageText = NSLocalizedString("Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", comment:"")
-			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Cannot remove all architectures", "")
 			log.close()
 		} else if num_archs > 0 {
@@ -237,19 +237,19 @@ class MainViewController : NSViewController {
 				alert.alertStyle = .CriticalAlertStyle
 				alert.messageText = NSLocalizedString("You entered an incorrect administrator password.", comment:"")
 				// NSLocalizedString("Permission Error", "")
-				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			case .AuthorizationCanceled:
 				let alert = NSAlert()
 				alert.alertStyle = .CriticalAlertStyle
 				alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
 				//NSLocalizedString("Nothing done", comment:"")
-				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
 				let alert = NSAlert()
 				alert.alertStyle = .CriticalAlertStyle
 				alert.messageText = NSLocalizedString("Failed to authorize as an administrator.", comment:"")
 				//NSLocalizedString("Authorization Error", comment:"")
-				alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			default: ()
 			}
 			log.close()
@@ -340,11 +340,13 @@ class MainViewController : NSViewController {
 
 		if self.progressWindowController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			self.progressWindowController = storyboard.instantiateControllerWithIdentifier("ProgressWindow") as? NSWindowController
+			self.progressWindowController = storyboard!.instantiateControllerWithIdentifier("ProgressWindow") as? NSWindowController
 			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
 		}
 		self.progressViewController?.start()
-		self.view.window?.beginSheet(self.progressWindowController?.window) { self.progressDidEnd($0) }
+		if let progressWindowController = self.progressWindowController {
+			self.view.window?.beginSheet(progressWindowController.window!) { self.progressDidEnd($0) }
+		}
 	
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
@@ -377,13 +379,13 @@ class MainViewController : NSViewController {
 			alert.alertStyle = .InformationalAlertStyle
 			alert.messageText = NSString(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
-			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
 			alert.messageText = NSString(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment:"")
-			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		
 			let notification = NSUserNotification()
 			notification.title = NSLocalizedString("Monolingual finished", comment:"")
@@ -423,7 +425,7 @@ class MainViewController : NSViewController {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
 			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
-			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Nothing done", comment:"")
 		}
 		
@@ -447,7 +449,7 @@ class MainViewController : NSViewController {
 			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
 			
-			alert.beginSheetModalForWindow(NSApp.mainWindow) { response in
+			alert.beginSheetModalForWindow(self.view.window!) { response in
 				if response == NSAlertSecondButtonReturn {
 					self.doRemoveLanguages()
 				}
@@ -504,7 +506,7 @@ class MainViewController : NSViewController {
 			alert.alertStyle = .InformationalAlertStyle
 			alert.messageText = NSLocalizedString("Cannot remove all languages", comment:"")
 			alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment:"")
-			alert.beginSheetModalForWindow(NSApp.mainWindow, completionHandler: nil)
+			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			log.close()
 		} else if rCount > 0 {
 			/* start things off if we have something to remove! */
