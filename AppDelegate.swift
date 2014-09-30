@@ -41,21 +41,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	@IBAction func documentationBundler(sender : NSMenuItem) {
 		let docURL = NSBundle.mainBundle().URLForResource(sender.title, withExtension:nil)
-		NSWorkspace.sharedWorkspace().openURL(docURL)
+		NSWorkspace.sharedWorkspace().openURL(docURL!)
 	}
 	
 	@IBAction func openWebsite(AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual"))
+		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual")!)
 	}
 	
 	@IBAction func donate(AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html"))
+		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
 	@IBAction func showPreferences(sender: AnyObject) {
 		if preferencesWindowController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			preferencesWindowController = storyboard.instantiateControllerWithIdentifier("PreferencesWindow") as? NSWindowController
+			preferencesWindowController = storyboard!.instantiateControllerWithIdentifier("PreferencesWindow") as? NSWindowController
 		}
 		preferencesWindowController?.showWindow(sender)
 	}

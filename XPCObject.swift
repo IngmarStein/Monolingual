@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum XPCObject : Printable {
+public enum XPCObject : Printable {
 	case XPCBool(xpc_object_t)
 	case XPCInt64(xpc_object_t)
 	case XPCUInt64(xpc_object_t)
@@ -108,7 +108,7 @@ enum XPCObject : Printable {
 	}
 	}
 
-	var description : String {
+	public var description : String {
 	switch (self) {
 	case XPCBool(let value):
 		return xpc_bool_get_value(value).description
@@ -133,19 +133,19 @@ enum XPCObject : Printable {
 }
 
 extension XPCObject : ArrayLiteralConvertible {
-	static func convertFromArrayLiteral(elements: XPCObject...) -> XPCObject {
-		return XPCObject(elements)
+	public init(arrayLiteral elements: XPCObject...) {
+		self.init(elements)
 	}
 }
 
 extension XPCObject : DictionaryLiteralConvertible {
-	static func convertFromDictionaryLiteral(elements: (String, XPCObject)...) -> XPCObject {
+	public init(dictionaryLiteral elements: (String, XPCObject)...) {
 		var dict = [String:XPCObject]()
 		for (k, v) in elements {
 			dict[k] = v
 		}
 		
-		return XPCObject(dict)
+		self.init(dict)
 	}
 }
 /*
