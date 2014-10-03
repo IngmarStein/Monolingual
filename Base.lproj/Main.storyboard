@@ -528,6 +528,7 @@
         <!--Window Controller-->
         <scene sceneID="axC-V8-RDE">
             <objects>
+                <customObject id="5Vz-yL-cj1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <windowController storyboardIdentifier="PreferencesWindow" id="txC-8A-e5w" sceneMemberID="viewController">
                     <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="PreferencesWindow" animationBehavior="default" id="zCt-fj-HIv">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
@@ -543,7 +544,6 @@
                         <segue destination="ZgY-e8-I9G" kind="relationship" relationship="window.shadowedContentViewController" id="yy5-WB-ta1"/>
                     </connections>
                 </windowController>
-                <customObject id="5Vz-yL-cj1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="607" y="329"/>
         </scene>
@@ -796,28 +796,6 @@
                 <userDefaultsController id="Dnf-7B-H2N"/>
             </objects>
             <point key="canvasLocation" x="607" y="805"/>
-        </scene>
-        <!--Window Controller-->
-        <scene sceneID="4R0-5c-eU9">
-            <objects>
-                <customObject id="oaz-dT-JyM" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <windowController storyboardIdentifier="ProgressWindow" showSeguePresentationStyle="single" id="Icq-r0-RVf" sceneMemberID="viewController">
-                    <window key="window" title="Progress" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="ProgressWindow" animationBehavior="default" id="bqR-7O-Rmt" customClass="NSPanel">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" utility="YES"/>
-                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
-                        <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
-                        <view key="contentView" id="pZy-oD-OWt">
-                            <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
-                            <autoresizingMask key="autoresizingMask"/>
-                        </view>
-                    </window>
-                    <connections>
-                        <segue destination="M12-nr-lB2" kind="relationship" relationship="window.shadowedContentViewController" id="ccN-rG-mXW"/>
-                    </connections>
-                </windowController>
-            </objects>
-            <point key="canvasLocation" x="1286" y="343.5"/>
         </scene>
         <!--Progress View Controller-->
         <scene sceneID="uF6-Yw-Nyd">
