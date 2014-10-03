@@ -5,10 +5,16 @@
 
 import Cocoa
 
+protocol ProgressViewControllerDelegate : class {
+	func progressViewControllerDidCancel(progressViewController: ProgressViewController)
+}
+
 class ProgressViewController : NSViewController {
 	@IBOutlet weak var progressBar: NSProgressIndicator!
 	@IBOutlet weak var applicationText: NSTextField!
 	@IBOutlet weak var fileText: NSTextField!
+	
+	weak var delegate : ProgressViewControllerDelegate?
 	
 	var file : String {
 	get {
@@ -28,22 +34,24 @@ class ProgressViewController : NSViewController {
 	}
 	}
 	
-	@IBAction func cancelButton(sender: AnyObject) {
-		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
-		self.fileText.stringValue = ""
-
-		self.view.window?.orderOut(sender)
-		NSApp.endSheet(self.view.window!, returnCode:1)
-	}
-
-	func start() {
+	override func viewDidLoad() {
 		self.progressBar.usesThreadedAnimation = true
-		self.progressBar.startAnimation(self)
 		self.applicationText.stringValue = NSLocalizedString("Removing...", comment:"")
 		self.fileText.stringValue = ""
 	}
-
-	func stop() {
+	
+	override func viewWillAppear() {
+		self.progressBar.startAnimation(self)
+	}
+	
+	override func viewWillDisappear() {
 		self.progressBar.stopAnimation(self)
+	}
+	
+	@IBAction func cancelButton(sender: AnyObject) {
+		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
+		self.fileText.stringValue = ""
+		
+		self.delegate?.progressViewControllerDidCancel(self)
 	}
 }

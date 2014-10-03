@@ -44,11 +44,10 @@ enum SMJErrorCodeSwift : Int {
 	case AuthorizationFailed = 1023
 }
 
-class MainViewController : NSViewController {
+class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 	@IBOutlet weak var currentArchitecture : NSTextField!
 
-	var progressWindowController : NSWindowController?
 	var progressViewController : ProgressViewController?
 
 	var blacklist : [BlacklistEntry]!
@@ -89,11 +88,7 @@ class MainViewController : NSViewController {
 	}
 
 	func finishProcessing() {
-		if let windowController = self.progressWindowController {
-			windowController.window!.orderOut(self)
-			self.progressViewController?.stop()
-			NSApp.endSheet(windowController.window!, returnCode:0)
-		}
+		progressDidEnd(true)
 	}
 
 	@IBAction func removeLanguages(sender: AnyObject) {
@@ -124,7 +119,7 @@ class MainViewController : NSViewController {
 		for arch in archs {
 			log.message(" \(arch)")
 		}
-	
+
 		log.message("\nModified files:\n")
 	
 		let num_archs = archs.count
@@ -338,15 +333,12 @@ class MainViewController : NSViewController {
 			}
 		}
 
-		if self.progressWindowController == nil {
+		if self.progressViewController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			self.progressWindowController = storyboard!.instantiateControllerWithIdentifier("ProgressWindow") as? NSWindowController
-			self.progressViewController = self.progressWindowController?.contentViewController as? ProgressViewController
+			self.progressViewController = storyboard!.instantiateControllerWithIdentifier("ProgressViewController") as? ProgressViewController
 		}
-		self.progressViewController?.start()
-		if let progressWindowController = self.progressWindowController {
-			self.view.window?.beginSheet(progressWindowController.window!) { self.progressDidEnd($0) }
-		}
+		self.progressViewController?.delegate = self
+		self.presentViewControllerAsSheet(self.progressViewController!)
 	
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
@@ -355,12 +347,17 @@ class MainViewController : NSViewController {
 		NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 	}
 	
-	func progressDidEnd(returnCode:Int) {
+	func progressViewControllerDidCancel(progressViewController: ProgressViewController) {
+		progressDidEnd(false)
+	}
+	
+	func progressDidEnd(completed: Bool) {
 		self.processApplication = nil
+		self.dismissViewController(self.progressViewController!)
 
 		let byteCount = NSByteCountFormatter.stringFromByteCount(Int64(self.bytesSaved), countStyle:.File)
 	
-		if returnCode == 1 {
+		if !completed {
 			if self.progressConnection != nil {
 				if self.connection != nil {
 					let exit_message = xpc_dictionary_create(nil, nil, 0)

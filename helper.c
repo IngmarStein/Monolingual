@@ -604,7 +604,7 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	xpc_connection_set_event_handler(context.connection, ^(xpc_object_t event) {
 		xpc_type_t type = xpc_get_type(event);
 
-		// If the remote end of this connection has gone away then stop download
+		// If the remote end of this connection has gone away then stop processing
 		if (XPC_TYPE_ERROR == type &&
 			XPC_ERROR_CONNECTION_INTERRUPTED == event) {
 			syslog(LOG_NOTICE, "Stopping MonolingualHelper");
