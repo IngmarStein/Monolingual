@@ -559,10 +559,13 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 												  displayName: NSLocalizedString(name, comment:"")))
 		}
 		
+		addLanguage("ach",     "Acholi",               "ach.lproj")
 		addLanguage("af",      "Afrikaans",            "af.lproj", "Afrikaans.lproj")
 		addLanguage("am",      "Amharic",              "am.lproj", "Amharic.lproj")
+		addLanguage("an",      "Aragonese",              "an.lproj")
 		addLanguage("ar",      "Arabic",               "ar.lproj", "Arabic.lproj")
 		addLanguage("as",      "Assamese",             "as.lproj", "Assamese.lproj")
+		addLanguage("ast",     "Asturian",             "ast.lproj")
 		addLanguage("ay",      "Aymara",               "ay.lproj", "Aymara.lproj.lproj")
 		addLanguage("az",      "Azerbaijani",          "az.lproj", "Azerbaijani.lproj")
 		addLanguage("be",      "Byelorussian",         "be.lproj", "Byelorussian.lproj")
