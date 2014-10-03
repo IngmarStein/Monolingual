@@ -202,11 +202,11 @@ class MainViewController : NSViewController {
 					}
 				}
 			}
-			if app != nil {
+			if let app = app {
 				let removing = NSLocalizedString("Removing language", comment:"")
 				let from = NSLocalizedString("from", comment:"")
-				message = "\(removing) \(lang) \(from) \(app)…"
-			} else if lang != nil {
+				message = "\(removing) \(lang!) \(from) \(app)…"
+			} else if let lang = lang {
 				let removing = NSLocalizedString("Removing language", comment:"")
 				message = "\(removing) \(lang)…"
 			} else {
