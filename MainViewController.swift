@@ -707,6 +707,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("zh",      "Chinese",              "zh.lproj")
 		addLanguage("zh-Hans", "Chinese (Simplified Han)",   "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh_SC.lproj")
 		addLanguage("zh-Hant", "Chinese (Traditional Han)",  "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh_HK.lproj")
+		addLanguage("zu",      "Zulu",                 "zu.lproj")
 
 		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
 		
