@@ -9,7 +9,7 @@ How to create a Monolingual release
 2) Add changelog to readmes
 3) make release
 4) Check code signature (spctl --verbose=4 --assess --type execute ./build/Release/Monolingual.app)
-5) Tag release (git tag -s vX_Y_Z -m 'X_Y_Z')
+5) Tag release (git tag -s vX.Y.Z -m 'X.Y.Z')
 6) Push tags (git push --tags)
 7) Update index.html
 8) Update changelog.html
