@@ -5,7 +5,6 @@ How to create a Monolingual release
    - MonolingualHelper-Info.plist
    - InfoPlist.strings
    - Makefile
-   - README.markdown
 2) Add changelog to readmes
 3) make release
 4) Check code signature (spctl --verbose=4 --assess --type execute ./build/Release/Monolingual.app)
