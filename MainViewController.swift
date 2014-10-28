@@ -115,7 +115,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		let roots = self.roots
 
-		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
+		let archs = self.architectures.filter { $0.enabled } .map { XPCObject($0.name) }
 		for arch in archs {
 			log.message(" \(arch)")
 		}
