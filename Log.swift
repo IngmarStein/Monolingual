@@ -13,7 +13,12 @@ class Log {
 	var logFile : NSFileHandle? = nil
 	
 	func open() {
-		logFile = NSFileHandle(forWritingToURL:logFileName!, error: nil)
+		var error : NSError?
+		NSFileManager.defaultManager().createFileAtPath(logFileName!.path!, contents: nil, attributes: nil)
+		logFile = NSFileHandle(forWritingToURL:logFileName!, error: &error)
+		if let error = error {
+			NSLog("Failed to open log file: \(error)")
+		}
 		logFile?.seekToEndOfFile()
 	}
 
