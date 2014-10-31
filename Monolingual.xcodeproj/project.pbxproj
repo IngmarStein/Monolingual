@@ -105,6 +105,10 @@
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
+		95955DF81A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = hr; path = hr.lproj/Credits.html; sourceTree = "<group>"; };
+		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		95955DFA1A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95955DFE1A041F3300165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Main.strings; sourceTree = "<group>"; };
 		959CEEA9197140FC00A433C0 /* Monolingual-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Monolingual-Bridging-Header.h"; sourceTree = "<group>"; };
 		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonolingualHelperClient.swift; sourceTree = "<group>"; };
 		959CEED919714E0500A433C0 /* ISTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ISTableView.swift; sourceTree = "<group>"; };
@@ -375,6 +379,7 @@
 				it,
 				es,
 				ja,
+				hr,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			projectDirPath = "";
@@ -524,6 +529,7 @@
 				95833CDF06ED8C2D00238761 /* Italian */,
 				95852A801119CDA400B54346 /* Spanish */,
 				95773339197939B70008E1A4 /* el */,
+				95955DF91A041F1100165C3E /* hr */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -536,6 +542,7 @@
 				2BCD7FCA097D043900FE7723 /* Italian */,
 				95852A7F1119CDA400B54346 /* Spanish */,
 				95A75A8118FC6C8100BD2E36 /* el */,
+				95955DF81A041F1100165C3E /* hr */,
 			);
 			name = Credits.html;
 			sourceTree = "<group>";
@@ -553,6 +560,7 @@
 				95FAA33319752A6B00C506EE /* el */,
 				95FAA33519752A7200C506EE /* ja */,
 				95FAA33719752AA900C506EE /* en */,
+				95955DFE1A041F3300165C3E /* hr */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -569,6 +577,7 @@
 				95CB1AFE06E8DDDD00293B60 /* Italian */,
 				95852A7D1119CD8F00B54346 /* Spanish */,
 				95A75A8318FC6C9300BD2E36 /* el */,
+				95955DFA1A041F1100165C3E /* hr */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
