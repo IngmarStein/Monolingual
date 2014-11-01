@@ -550,7 +550,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 
 		let numKnownLanguages = 134
-		var knownLanguages = Array<LanguageSetting>()
+		var knownLanguages = [LanguageSetting]()
 		knownLanguages.reserveCapacity(numKnownLanguages)
 
 		func addLanguage(code:String, name:String, folders: String...) {
@@ -735,11 +735,11 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		if hostInfo.cpu_type == kCPU_TYPE_X86 {
 			// fix host_info
-			var x86_64 : Int? = nil
+			var x86_64 : Int = 0
 			var x86_64_size = UInt(sizeof(Int))
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
-				if x86_64 != nil {
+				if x86_64 != 0 {
 					hostInfo = host_basic_info_data_t(
 						max_cpus: hostInfo.max_cpus,
 						avail_cpus: hostInfo.avail_cpus,
@@ -758,7 +758,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		self.currentArchitecture.stringValue = "unknown"
 
-		var knownArchitectures = Array<ArchitectureSetting>()
+		var knownArchitectures = [ArchitectureSetting]()
 		knownArchitectures.reserveCapacity(archs.count)
 		for arch in archs {
 			let enabled = (ret == KERN_SUCCESS && (hostInfo.cpu_type != arch.cpu_type || hostInfo.cpu_subtype < arch.cpu_subtype) && ((hostInfo.cpu_type & CPU_ARCH_ABI64) == 0 || (arch.cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64))))
