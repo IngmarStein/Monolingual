@@ -1,4 +1,5 @@
 language: objective-c
 xcode_workspace: Monolingual.xcworkspace
 xcode_scheme: Travis
-before_install: gem install cocoapods -v '= 0.34.1'
+osx_image: xcode61
+before_install: gem install cocoapods -v '= 0.34.4'
