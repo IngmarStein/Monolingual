@@ -3,3 +3,10 @@ xcode_workspace: Monolingual.xcworkspace
 xcode_scheme: Travis
 osx_image: xcode61
 before_install: gem install cocoapods -v '= 0.35.0.rc2'
+before_script:
+- ./scripts/add-key.sh
+after_script:
+- ./scripts/remove-key.sh
+env:
+  global:
+    secure: jjaXYarcD0tZEIwxH7BL8f3CPWP8fvrMhPMkippCSnvVPbTc07jZv/gHhf6W2x3814ka5BerdJhxWf40IAdfcKJh69r1Ztc8lgLpttq17JTCq76aT2i5nVLD7F4tex+F14lG9kaIK2fkF9295rwIzQe6JBYo89mOA2Ry9Tv1VNk=
