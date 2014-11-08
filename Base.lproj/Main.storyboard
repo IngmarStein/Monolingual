@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14B17" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6250"/>
     </dependencies>
@@ -781,6 +781,9 @@
                             <constraint firstItem="55G-Fd-xJZ" firstAttribute="leading" secondItem="zB1-iv-ycW" secondAttribute="leading" constant="20" symbolic="YES" id="weC-cx-08q"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="roots" destination="NZ6-CJ-opI" id="PUh-zT-UpX"/>
+                    </connections>
                 </viewController>
                 <customObject id="Psc-fF-xHW" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <arrayController clearsFilterPredicateOnInsertion="NO" id="NZ6-CJ-opI" userLabel="Roots">
