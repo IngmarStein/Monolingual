@@ -721,6 +721,7 @@
                                                         </tableColumns>
                                                         <connections>
                                                             <binding destination="NZ6-CJ-opI" name="content" keyPath="arrangedObjects" id="N6S-dW-0Tb"/>
+                                                            <binding destination="NZ6-CJ-opI" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="N6S-dW-0Tb" id="4NJ-TO-daz"/>
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
@@ -746,7 +747,7 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="remove:" target="NZ6-CJ-opI" id="LZY-2O-KxS"/>
+                                                <action selector="remove:" target="NZ6-CJ-opI" id="lA5-09-A0V"/>
                                             </connections>
                                         </button>
                                     </subviews>
@@ -793,7 +794,7 @@
                         <string>Architectures</string>
                     </declaredKeys>
                     <connections>
-                        <binding destination="4nR-6U-bWS" name="contentArray" keyPath="values.Roots" id="XBv-sv-7Dr">
+                        <binding destination="4nR-6U-bWS" name="contentArray" keyPath="values.Roots" id="h5M-HN-vac">
                             <dictionary key="options">
                                 <bool key="NSHandlesContentAsCompoundValue" value="YES"/>
                             </dictionary>
