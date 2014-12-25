@@ -636,6 +636,7 @@
                                                                                     <font key="font" metaFont="system"/>
                                                                                 </buttonCell>
                                                                                 <connections>
+                                                                                    <action selector="togglePreference:" target="ZgY-e8-I9G" id="JIv-PU-YCs"/>
                                                                                     <binding destination="wZm-eP-xef" name="value" keyPath="objectValue.Languages" id="tSy-aM-y1b"/>
                                                                                 </connections>
                                                                             </button>
@@ -670,6 +671,7 @@
                                                                                     <font key="font" metaFont="system"/>
                                                                                 </buttonCell>
                                                                                 <connections>
+                                                                                    <action selector="togglePreference:" target="ZgY-e8-I9G" id="Fjj-w5-EGD"/>
                                                                                     <binding destination="rsx-mP-b9k" name="value" keyPath="objectValue.Architectures" id="CTu-Qp-Zdl"/>
                                                                                 </connections>
                                                                             </button>

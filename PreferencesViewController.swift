@@ -12,6 +12,16 @@ final class PreferencesViewController : NSViewController {
 
 	@IBOutlet var roots: NSArrayController!
 
+	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
+	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
+	@IBAction func togglePreference(sender: AnyObject) {
+		let selectionIndex = self.roots.selectionIndex
+		let dummy = []
+		self.roots.addObject(dummy)
+		self.roots.removeObject(dummy)
+		self.roots.setSelectionIndex(selectionIndex)
+	}
+
 	@IBAction func add(sender: AnyObject) {
 		let oPanel = NSOpenPanel()
 
