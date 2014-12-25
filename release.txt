@@ -8,11 +8,11 @@ How to create a Monolingual release
 2) Add changelog to readmes
 3) make release
 4) Check code signature (spctl --verbose=4 --assess --type execute ./build/Release/Monolingual.app)
-5) Tag release (git tag -s vX.Y.Z -m 'X.Y.Z')
-6) Push tags (git push --tags)
-7) Update index.html
-8) Update changelog.html
-9) Update appcast.xml
-10) Upload website (git push origin gh-pages)
+5) Update index.html
+6) Update changelog.html
+7) Update appcast.xml
+8) Upload website (git push origin gh-pages)
+9) Tag release (git tag -s vX.Y.Z -m 'X.Y.Z')
+10) Push tags (git push --tags)
 11) Create release on GitHub
 12) Announce release on http://www.macupdate.com
