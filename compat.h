@@ -8,6 +8,7 @@
 
 @import Darwin.Mach.machine;
 @import MachO.arch;
+@import Foundation;
 
 // ugly clutches to make some stuff visible to Swift
 extern const int kCPU_TYPE_X86;

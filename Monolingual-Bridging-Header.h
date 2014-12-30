@@ -1,5 +1,5 @@
-#import "SMJClient.h"
-#import "SMJErrorTypes.h"
+#import <SMJobKit/SMJClient.h>
+#import <SMJobKit/SMJErrorTypes.h>
 #import "compat.h"
 @import Darwin.POSIX.sys.types;
 @import Darwin.POSIX.sys.stat;
