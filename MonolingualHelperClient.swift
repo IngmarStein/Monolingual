@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SMJobKit
 
 class MonolingualHelperClient : SMJClient {
 	override class func serviceIdentifier() -> String {
