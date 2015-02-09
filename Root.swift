@@ -14,7 +14,7 @@ struct Root {
 	let architectures : Bool
 	
 	init(dictionary: [NSObject:AnyObject]) {
-		self.path = dictionary["Path"] as NSString
+		self.path = dictionary["Path"] as! String
 		self.languages = dictionary["Languages"]!.boolValue
 		self.architectures = dictionary["Architectures"]!.boolValue
 	}

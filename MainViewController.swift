@@ -12,7 +12,6 @@
 //
 
 import Cocoa
-import Set
 
 enum MonolingualMode : Int {
 	case Languages = 0
@@ -72,7 +71,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			if let array = pref {
 				roots.reserveCapacity(array.count)
 				for root in array {
-					roots.append(Root(dictionary: root))
+					roots.append(Root(dictionary: root as! [NSObject : AnyObject]))
 				}
 			}
 			return roots
@@ -189,7 +188,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 						app = pathComponent.substringToIndex(pathComponent.length - 4)
 					} else if pathComponent.hasSuffix(".lproj") {
 						for language in self.languages {
-							if contains(language.folders, pathComponent as String) {
+							if contains(language.folders, pathComponent as! String) {
 								lang = language.displayName
 								break
 							}
@@ -212,7 +211,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		
 		if let viewController = self.progressViewController {
 			viewController.text = message
-			viewController.file = file
+			viewController.file = file as! String
 		}
 		NSApp.setWindowsNeedUpdate(true)
 	}
@@ -260,7 +259,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 	
 		NSProcessInfo.processInfo().disableSuddenTermination()
 	
-		xpc_connection_set_event_handler(self.connection) { event in
+		xpc_connection_set_event_handler(self.connection!) { event in
 			let type = xpc_get_type(event)
 		
 			if type == xpc_type_error {
@@ -277,10 +276,10 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 	
 		// Create an anonymous listener connection that collects progress updates.
-		self.progressConnection = xpc_connection_create(UnsafePointer<Int8>.null(), self.listener_queue)
+		self.progressConnection = xpc_connection_create(nil, self.listener_queue)
 
 		if self.progressConnection != nil {
-			xpc_connection_set_event_handler(self.progressConnection) { event in
+			xpc_connection_set_event_handler(self.progressConnection!) { event in
 				let type = xpc_get_type(event)
 			
 				if type == xpc_type_error {
@@ -303,19 +302,19 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 					xpc_connection_resume(peer)
 				}
 			}
-			xpc_connection_resume(self.progressConnection)
+			xpc_connection_resume(self.progressConnection!)
 		
 			xpc_dictionary_set_connection(arguments, "connection", self.progressConnection)
 		} else {
 			NSLog("Couldn't create progress connection")
 		}
 	
-		xpc_connection_resume(self.connection)
+		xpc_connection_resume(self.connection!)
 	
 		// DEBUG
 		//xpc_dictionary_set_bool(arguments, "dry_run", true)
 
-		xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue()) { event in
+		xpc_connection_send_message_with_reply(self.connection!, arguments, dispatch_get_main_queue()) { event in
 			let type = xpc_get_type(event)
 			if xpc_type_dictionary == type {
 				let exit_code = xpc_dictionary_get_int64(event, "exit_code")
@@ -324,7 +323,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 				if self.connection != nil {
 					let exit_message = xpc_dictionary_create(nil, nil, 0)
 					xpc_dictionary_set_int64(exit_message, "exit_code", exit_code)
-					xpc_connection_send_message(self.connection, exit_message)
+					xpc_connection_send_message(self.connection!, exit_message)
 				}
 
 				if exit_code == 0 {
@@ -362,25 +361,25 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 				if self.connection != nil {
 					let exit_message = xpc_dictionary_create(nil, nil, 0)
 					xpc_dictionary_set_int64(exit_message, "exit_code", Int64(EXIT_FAILURE))
-					xpc_connection_send_message(self.connection, exit_message)
+					xpc_connection_send_message(self.connection!, exit_message)
 				}
 			
 				// Cancel and release the anonymous connection which signals the remote
 				// service to stop, if working.
 				NSLog("Closing progress connection")
-				xpc_connection_cancel(self.progressConnection)
+				xpc_connection_cancel(self.progressConnection!)
 				self.progressConnection = nil
 			}
 
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = NSString(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount)
+			alert.messageText = (NSString(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount) as! String)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = NSString(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
+			alert.messageText = (NSString(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount) as! String)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment:"")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		
@@ -393,7 +392,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 	
 		if self.connection != nil {
 			NSLog("Closing connection")
-			xpc_connection_cancel(self.connection)
+			xpc_connection_cancel(self.connection!)
 			self.connection = nil
 		}
 	
@@ -530,7 +529,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		self.peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", nil)
 		assert(self.peer_event_queue != nil)
 		
-		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as [String]
+		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as! [String]
 
 		// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
 		var numUserLanguages = NSUserDefaults.standardUserDefaults().integerForKey("AppleUserLanguages")
@@ -766,7 +765,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			knownArchitectures.append(architecture)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
 				let label = NSString(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
-				self.currentArchitecture.stringValue = label
+				self.currentArchitecture.stringValue = label as! String
 			}
 		}
 		self.architectures = knownArchitectures

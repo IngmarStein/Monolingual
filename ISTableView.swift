@@ -15,7 +15,7 @@ class ISTableView : NSTableView {
 		if theEvent.charactersIgnoringModifiers != nil && theEvent.charactersIgnoringModifiers!.hasPrefix(" ") {
 			let row = self.selectedRow
 			if row != -1 {
-				let arrangedObjects = self.arrayController.arrangedObjects as [Setting]
+				let arrangedObjects = self.arrayController.arrangedObjects as! [Setting]
 				var setting = arrangedObjects[row]
 				setting.enabled = !setting.enabled
 			}
