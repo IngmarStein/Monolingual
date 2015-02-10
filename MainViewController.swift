@@ -49,14 +49,14 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 	var progressViewController : ProgressViewController?
 
-	var blacklist : [BlacklistEntry]!
+	var blacklist : [BlacklistEntry]?
 	dynamic var languages : [LanguageSetting]!
 	dynamic var architectures : [ArchitectureSetting]!
 
 	var bytesSaved : UInt64 = 0
 	var mode : MonolingualMode = .Languages
 	var processApplication : Root?
-	var processApplicationObserver : NSObjectProtocol!
+	var processApplicationObserver : NSObjectProtocol?
 	var listener_queue : dispatch_queue_t?
 	var peer_event_queue : dispatch_queue_t?
 	var connection : xpc_connection_t?
@@ -133,7 +133,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			// start things off if we have something to remove!
 			let includes = roots.filter { $0.architectures } .map { XPCObject($0.path) }
 			var excludes = roots.filter { !$0.architectures } .map { XPCObject($0.path) }
-			let bl = self.blacklist.filter { $0.architectures } .map { XPCObject($0.bundle) }
+			let bl = self.blacklist!.filter { $0.architectures } .map { XPCObject($0.bundle) }
 
 			excludes.append(XPCObject("/System/Library/Frameworks"))
 			excludes.append(XPCObject("/System/Library/PrivateFrameworks"))
@@ -466,7 +466,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		let includes = roots.filter { $0.languages } .map { XPCObject($0.path) }
 		let excludes = roots.filter { !$0.languages } .map { XPCObject($0.path) }
-		let bl = self.blacklist.filter { $0.languages } .map { XPCObject($0.bundle) }
+		let bl = self.blacklist!.filter { $0.languages } .map { XPCObject($0.bundle) }
 		
 		for item in bl {
 			NSLog("Blacklisting \(item)")
@@ -771,34 +771,23 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		self.architectures = knownArchitectures
 		
 		// load blacklist from URL
-		let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist")!
-		setBlacklistFromArray(NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]])
-
-		// use blacklist from bundle as a fallback
-		if self.blacklist == nil {
-			let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist")
-			setBlacklistFromArray(NSArray(contentsOfFile:blacklistBundle!) as? [[NSObject:AnyObject]])
+		if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]] {
+			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
+		} else {
+			// use blacklist from bundle as a fallback
+			if let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist"), entries = NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]] {
+				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
+			}
 		}
 		
 		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}
-	
-	func setBlacklistFromArray(array: [[NSObject:AnyObject]]?) {
-		if let entries = array {
-			var result = [BlacklistEntry]()
-			result.reserveCapacity(entries.count)
-			for entry in entries {
-				result.append(BlacklistEntry(dictionary: entry))
-			}
-			self.blacklist = result
-		}
-	}
-	
+
 	deinit {
-		if self.processApplicationObserver != nil {
-			NSNotificationCenter.defaultCenter().removeObserver(self.processApplicationObserver)
+		if let observer = self.processApplicationObserver {
+			NSNotificationCenter.defaultCenter().removeObserver(observer)
 		}
 	}
 	
