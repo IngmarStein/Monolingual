@@ -735,7 +735,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		if hostInfo.cpu_type == kCPU_TYPE_X86 {
 			// fix host_info
 			var x86_64 : Int = 0
-			var x86_64_size = UInt(sizeof(Int))
+			var x86_64_size = sizeof(Int)
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
 				if x86_64 != 0 {
