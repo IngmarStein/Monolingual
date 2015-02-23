@@ -66,7 +66,7 @@ public enum XPCObject : Printable {
 	}
 	
 	init(_ value : NSData) {
-		self = .XPCData(xpc_data_create(value.bytes, UInt(value.length)))
+		self = .XPCData(xpc_data_create(value.bytes, value.length))
 	}
 
 	init(_ array: [XPCObject]) {
