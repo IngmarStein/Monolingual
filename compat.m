@@ -7,6 +7,9 @@
 //
 
 #import "compat.h"
+@import Darwin;
+@import MachO;
+@import Foundation;
 
 // ugly clutches to make some stuff visible to Swift
 const int kCPU_TYPE_X86	 	   = CPU_TYPE_X86;

@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.framework    = 'ServiceManagement', 'Security'
   s.requires_arc = true
   s.prefix_header_contents = '#import <ServiceManagement/ServiceManagement.h>', '#import "SMJErrorTypes.h"', '#import "SMJError.h"'
-  s.public_header_files = 'SMJobKit/SMJobKit.h'
+  s.public_header_files = 'SMJobKit/*.h'
   s.license      = {
     :type => "Apache License",
     :text => <<-LICENSE

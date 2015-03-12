@@ -1,3 +1,2 @@
-#import <SMJobKit/SMJClient.h>
-#import <SMJobKit/SMJErrorTypes.h>
+#import <SMJobKit/SMJobKit.h>
 #import "compat.h"
