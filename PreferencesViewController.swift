@@ -31,7 +31,7 @@ final class PreferencesViewController : NSViewController {
 		oPanel.treatsFilePackagesAsDirectories = true
 
 		oPanel.beginWithCompletionHandler { result in
-			if NSOKButton == result {
+			if NSModalResponseOK == result {
 				for obj in oPanel.URLs {
 					let url = obj as! NSURL
 					self.roots.addObject([ "Path" : url.path!,

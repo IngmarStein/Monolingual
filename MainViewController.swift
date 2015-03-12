@@ -78,10 +78,6 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 	}
 
-	override init() {
-		super.init()
-	}
-	
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 	}
