@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum XPCObject : Printable {
+public enum XPCObject : Printable, DebugPrintable {
 	case XPCBool(xpc_object_t)
 	case XPCInt64(xpc_object_t)
 	case XPCUInt64(xpc_object_t)
@@ -129,6 +129,10 @@ public enum XPCObject : Printable {
 	default:
 		return ""
 	}
+	}
+
+	public var debugDescription : String {
+		return description
 	}
 }
 
