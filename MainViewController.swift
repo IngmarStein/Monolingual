@@ -63,18 +63,11 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 	var progressConnection : xpc_connection_t?
 	
 	var roots : [Root] {
-		if self.processApplication != nil {
-			return [ self.processApplication! ]
+		if let application = self.processApplication {
+			return [ application ]
 		} else {
-			var roots = [Root]()
-			let pref = NSUserDefaults.standardUserDefaults().arrayForKey("Roots") as? [NSDictionary]
-			if let array = pref {
-				roots.reserveCapacity(array.count)
-				for root in array {
-					roots.append(Root(dictionary: root as! [NSObject : AnyObject]))
-				}
-			}
-			return roots
+			let pref = NSUserDefaults.standardUserDefaults().arrayForKey("Roots") as? [[NSObject : AnyObject]]
+			return pref?.map { Root(dictionary: $0) } ?? [Root]()
 		}
 	}
 
@@ -162,60 +155,61 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		if xpc_dictionary_get_count(progress) == 0 {
 			return
 		}
-		
-		let file = NSString(UTF8String: xpc_dictionary_get_string(progress, "file"))!
-		let size = xpc_dictionary_get_uint64(progress, "size")
-		self.bytesSaved += size
-		
-		log.message("\(file): \(size)\n")
 
-		var message : String
-		if self.mode == .Architectures {
-			message = NSLocalizedString("Removing architecture from universal binary", comment:"")
-		} else {
-			/* parse file name */
-			var lang : String? = nil
-			var app : String? = nil
+		if let file = String.fromCString(xpc_dictionary_get_string(progress, "file")) {
+			let size = xpc_dictionary_get_uint64(progress, "size")
+			self.bytesSaved += size
+		
+			log.message("\(file): \(size)\n")
+
+			let message : String
+			if self.mode == .Architectures {
+				message = NSLocalizedString("Removing architecture from universal binary", comment:"")
+			} else {
+				/* parse file name */
+				var lang : String? = nil
+				var app : String? = nil
 			
-			if self.mode == .Languages {
-				let pathComponents = file.componentsSeparatedByString("/")
-				for pathComponent in pathComponents {
-					if pathComponent.hasSuffix(".app") {
-						app = pathComponent.substringToIndex(pathComponent.length - 4)
-					} else if pathComponent.hasSuffix(".lproj") {
-						for language in self.languages {
-							if contains(language.folders, pathComponent as! String) {
-								lang = language.displayName
-								break
+				if self.mode == .Languages {
+					let pathComponents = file.componentsSeparatedByString("/")
+					for pathComponent in pathComponents {
+						if pathComponent.hasSuffix(".app") {
+							app = pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
+						} else if pathComponent.hasSuffix(".lproj") {
+							for language in self.languages {
+								if contains(language.folders, pathComponent) {
+									lang = language.displayName
+									break
+								}
 							}
 						}
 					}
 				}
+				if let app = app {
+					let removing = NSLocalizedString("Removing language", comment:"")
+					let from = NSLocalizedString("from", comment:"")
+					message = "\(removing) \(lang!) \(from) \(app)…"
+				} else if let lang = lang {
+					let removing = NSLocalizedString("Removing language", comment:"")
+					message = "\(removing) \(lang)…"
+				} else {
+					let removing = NSLocalizedString("Removing", comment:"")
+					message = "\(removing) \(file)"
+				}
 			}
-			if let app = app {
-				let removing = NSLocalizedString("Removing language", comment:"")
-				let from = NSLocalizedString("from", comment:"")
-				message = "\(removing) \(lang!) \(from) \(app)…"
-			} else if let lang = lang {
-				let removing = NSLocalizedString("Removing language", comment:"")
-				message = "\(removing) \(lang)…"
-			} else {
-				let removing = NSLocalizedString("Removing", comment:"")
-				message = "\(removing) \(file)"
-			}
-		}
 		
-		if let viewController = self.progressViewController {
-			viewController.text = message
-			viewController.file = file as! String
+			if let viewController = self.progressViewController {
+				viewController.text = message
+				viewController.file = file
+			}
+			NSApp.setWindowsNeedUpdate(true)
 		}
-		NSApp.setWindowsNeedUpdate(true)
 	}
 		
 	func runDeleteHelperWithArgs(arguments: xpc_object_t) {
 		self.bytesSaved = 0
 	
-		var error : NSError?
+		var error : NSError? = nil
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
 			let errorCode = SMJErrorCodeSwift(rawValue:error!.code)
 			switch errorCode! {
@@ -369,13 +363,13 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = (NSString(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount) as! String)
+			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = (NSString(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount) as! String)
+			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment:"")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		
@@ -751,7 +745,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			}
 		}
 
-		self.currentArchitecture.stringValue = "unknown"
+		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
 
 		var knownArchitectures = [ArchitectureSetting]()
 		knownArchitectures.reserveCapacity(archs.count)
@@ -760,20 +754,17 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			knownArchitectures.append(architecture)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
-				let label = NSString(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
-				self.currentArchitecture.stringValue = label as! String
+				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
 			}
 		}
 		self.architectures = knownArchitectures
 		
-		// load blacklist from URL
+		// load remote blacklist
 		if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
-		} else {
+		} else if let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist"), entries = NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]] {
 			// use blacklist from bundle as a fallback
-			if let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist"), entries = NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]] {
-				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
-			}
+			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		
 		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
