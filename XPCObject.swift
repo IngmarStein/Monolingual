@@ -57,8 +57,7 @@ public enum XPCObject : Printable, DebugPrintable {
 	}
 	
 	init(_ value : String) {
-		let nsstring : NSString = value
-		self = .XPCString(xpc_string_create(nsstring.UTF8String))
+		self = .XPCString(value.withCString { xpc_string_create($0) })
 	}
 	
 	init(_ value : Double) {
