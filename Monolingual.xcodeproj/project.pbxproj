@@ -149,6 +149,10 @@
 		F52C8EEC02C5606B01250A50 /* Polish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Polish; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F5A6E37F01A07759016596AB /* COPYING.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = COPYING.txt; sourceTree = "<group>"; };
 		F5DF00D801EC02150120C6FA /* Japanese */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Japanese; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
+		F6E6809D1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Main.strings; sourceTree = "<group>"; };
+		F6E6809E1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F6E6809F1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F6E680A01AC22DFF00A5CBD8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = nl; path = nl.lproj/Credits.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -372,6 +376,7 @@
 				es,
 				ja,
 				hr,
+				nl,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			projectDirPath = "";
@@ -522,6 +527,7 @@
 				95852A801119CDA400B54346 /* Spanish */,
 				95773339197939B70008E1A4 /* el */,
 				95955DF91A041F1100165C3E /* hr */,
+				F6E6809F1AC22DFE00A5CBD8 /* nl */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -535,6 +541,7 @@
 				95852A7F1119CDA400B54346 /* Spanish */,
 				95A75A8118FC6C8100BD2E36 /* el */,
 				95955DF81A041F1100165C3E /* hr */,
+				F6E680A01AC22DFF00A5CBD8 /* nl */,
 			);
 			name = Credits.html;
 			sourceTree = "<group>";
@@ -553,6 +560,7 @@
 				95FAA33519752A7200C506EE /* ja */,
 				95FAA33719752AA900C506EE /* en */,
 				95955DFE1A041F3300165C3E /* hr */,
+				F6E6809D1AC22DFE00A5CBD8 /* nl */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -570,6 +578,7 @@
 				95852A7D1119CD8F00B54346 /* Spanish */,
 				95A75A8318FC6C9300BD2E36 /* el */,
 				95955DFA1A041F1100165C3E /* hr */,
+				F6E6809E1AC22DFE00A5CBD8 /* nl */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
