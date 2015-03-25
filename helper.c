@@ -230,7 +230,7 @@ static void add_file_to_blacklist(const void *key, const void *value, void *ctx)
 			return;
 
 	file_blacklist_context_t *context = (file_blacklist_context_t *)ctx;
-	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/%@"), context->path, (CFStringRef)key);
+	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/%@"), context->path, (CFStringRef)key);
 	CFSetAddValue(context->helper_context->file_blacklist, path);
 	CFRelease(path);
 }
@@ -281,7 +281,7 @@ static int is_blacklisted(const char *path, const helper_context_t *context)
 	}
 
 	// add code resources to file blacklist
-	CFStringRef codeResourcesPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/_CodeSignature/CodeResources"), path);
+	CFStringRef codeResourcesPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/_CodeSignature/CodeResources"), path);
 	CFURLRef codeResourcesURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, codeResourcesPath, kCFURLPOSIXPathStyle, false);
 	CFRelease(codeResourcesPath);
 	CFReadStreamRef codeResourcesStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, codeResourcesURL);
@@ -302,6 +302,14 @@ static int is_blacklisted(const char *path, const helper_context_t *context)
 					blacklist_context.path = path;
 					blacklist_context.helper_context = context;
 					CFDictionaryApplyFunction(files, add_file_to_blacklist, (void *)&blacklist_context);
+				}
+
+				CFDictionaryRef files2 = CFDictionaryGetValue(plist, CFSTR("files2"));
+				if (files2) {
+					file_blacklist_context_t blacklist_context;
+					blacklist_context.path = path;
+					blacklist_context.helper_context = context;
+					CFDictionaryApplyFunction(files2, add_file_to_blacklist, (void *)&blacklist_context);
 				}
 				CFRelease(plist);
 			}
