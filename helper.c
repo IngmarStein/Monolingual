@@ -336,7 +336,7 @@ static void delete_recursively(const char *path, const helper_context_t *context
 	CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
 	Boolean blacklisted = CFSetContainsValue(context->file_blacklist, pathString);
 	CFRelease(pathString);
-	
+
 	if (blacklisted)
 		return;
 	
@@ -391,6 +391,16 @@ static void trash_file(const char *path, const helper_context_t *context)
 	char resolved_path[PATH_MAX];
 
 	if (context->dry_run)
+		return;
+
+	if (context->should_exit)
+		return;
+
+	CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
+	Boolean blacklisted = CFSetContainsValue(context->file_blacklist, pathString);
+	CFRelease(pathString);
+
+	if (blacklisted)
 		return;
 
 	if (realpath(path, resolved_path)) {
