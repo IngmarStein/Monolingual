@@ -561,12 +561,19 @@ static void process_input_file(struct input_file *input)
 		}
 
 		nthin_files = input->fat_header->nfat_arch;
-		thin_files = malloc(nthin_files * sizeof(struct thin_file));
-		/* create a thin file struct for each arch in the fat file */
-		for (i = 0, thin = thin_files; i < nthin_files; ++i, ++thin) {
-			thin->name = input->name;
-			thin->addr = addr + input->fat_arches[i].offset;
-			thin->fat_arch = input->fat_arches[i];
+		if (!nthin_files) {
+			syslog(LOG_ERR, "fat file contains no architectures %s", input->name);
+			munmap(addr, size);
+			input->fat_header = NULL;
+			return;
+		} else {
+			thin_files = malloc(nthin_files * sizeof(struct thin_file));
+			/* create a thin file struct for each arch in the fat file */
+			for (i = 0, thin = thin_files; i < nthin_files; ++i, ++thin) {
+				thin->name = input->name;
+				thin->addr = addr + input->fat_arches[i].offset;
+				thin->fat_arch = input->fat_arches[i];
+			}
 		}
 	} else {
 		if (munmap(addr, size))
