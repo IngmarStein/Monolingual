@@ -13,9 +13,9 @@ class MonolingualHelperClient : SMJClient {
 		return "net.sourceforge.MonolingualHelper"
 	}
 
-	// the bridging of String to CFStringRef is broken in Xcode 6 beta 3
-	// remove the function below when this is fixed
-	class func cfIdentifier() -> CFStringRef {
+	// the bridging of String to CFString is broken in Xcode 6 beta 3
+	// remove the function below when this is fixed (still broken in Xcode 6.3 beta 3)
+	class func cfIdentifier() -> CFString {
 		return "net.sourceforge.MonolingualHelper"
 	}
 }
