@@ -29,20 +29,6 @@ func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
 
-enum SMJErrorCodeSwift : Int {
-	case BundleNotFound = 1000
-	case UnsignedBundle = 1001
-	case BadBundleSecurity = 1002
-	case BadBundleCodeSigningDictionary = 1003
-	
-	case UnableToBless = 1010
-	
-	case AuthorizationDenied = 1020
-	case AuthorizationCanceled = 1021
-	case AuthorizationInteractionNotAllowed = 1022
-	case AuthorizationFailed = 1023
-}
-
 class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 	@IBOutlet weak var currentArchitecture : NSTextField!
@@ -208,10 +194,10 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		
 	func runDeleteHelperWithArgs(arguments: xpc_object_t) {
 		self.bytesSaved = 0
-	
+
 		var error : NSError? = nil
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
-			let errorCode = SMJErrorCodeSwift(rawValue:error!.code)
+			let errorCode = SMJErrorCode(rawValue:UInt32(error!.code))
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
 				NSLog("Failed to bless helper. Error: \(error!)")
