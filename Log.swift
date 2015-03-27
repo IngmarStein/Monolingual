@@ -11,7 +11,7 @@ import Cocoa
 class Log {
 	let logFileName = NSURL(fileURLWithPath:"\(NSHomeDirectory())/Library/Logs/Monolingual.log", isDirectory: false)
 	var logFile : NSFileHandle? = nil
-	
+
 	func open() {
 		if let fileName = logFileName, path = fileName.path {
 			NSFileManager.defaultManager().createFileAtPath(path, contents: nil, attributes: nil)
