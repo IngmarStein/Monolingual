@@ -161,6 +161,8 @@ static uint32_t nremove_arch_flags = 0U;
 
 static struct fat_arch *arm64_fat_arch = NULL;
 
+static struct fat_arch *x86_64h_fat_arch = NULL;
+
 /* from arch.c */
 /*
  * get_arch_from_flag() is passed a name of an architecture flag and returns
@@ -294,6 +296,34 @@ get_arm64_fat_arch(
 }
 
 /*
+ * get_x86_64h_fat_arch() will return a pointer to the fat_arch struct for the
+ * x86_64h slice in the thin_files[i] if it is present.  Else it returns
+ * NULL.
+ */
+static
+struct fat_arch *
+get_x86_64h_fat_arch(
+void)
+{
+    uint32_t i;
+    struct fat_arch *x86_64h_fat_arch;
+
+	/*
+	 * Look for a x86_64h slice.
+	 */
+	x86_64h_fat_arch = NULL;
+	for(i = 0; i < nthin_files; i++){
+	    if(thin_files[i].fat_arch.cputype == CPU_TYPE_X86_64 &&
+               (thin_files[i].fat_arch.cpusubtype & ~CPU_SUBTYPE_MASK) ==
+	       CPU_SUBTYPE_X86_64_H){
+		x86_64h_fat_arch = &(thin_files[i].fat_arch);
+		return(x86_64h_fat_arch);
+	    }
+	}
+	return(NULL);
+}
+
+/*
  * create_fat() creates a fat output file from the thin files.
  */
 static int create_fat(size_t *newsize)
@@ -329,6 +359,9 @@ static int create_fat(size_t *newsize)
 
 		/* We will order the ARM64 slice last. */
 		arm64_fat_arch = get_arm64_fat_arch();
+
+		/* We will order the x86_64h slice last too. */
+		x86_64h_fat_arch = get_x86_64h_fat_arch();
 		
 		/* Fill in the fat header and the fat_arch's offsets. */
 		fat_header.magic = FAT_MAGIC;
@@ -354,6 +387,12 @@ static int create_fat(size_t *newsize)
 			 * structs, so skip it in this loop.
 			 */
 			if(arm64_fat_arch == &(thin_files[i].fat_arch))
+				continue;
+			/*
+			 * If we are ordering the x86_64h slice last too of the fat_arch
+			 * structs, so skip it in this loop.
+			 */
+			if(x86_64h_fat_arch == &(thin_files[i].fat_arch))
 				continue;
 #ifdef __LITTLE_ENDIAN__
 			swap_fat_arch(&(thin_files[i].fat_arch), 1, NX_BigEndian);
@@ -385,6 +424,25 @@ static int create_fat(size_t *newsize)
 		}
 #ifdef __LITTLE_ENDIAN__
 		swap_fat_arch(arm64_fat_arch, 1, NX_LittleEndian);
+#endif /* __LITTLE_ENDIAN__ */
+	}
+	/*
+	 * We are ordering the x86_64h slice so it gets written last too of the
+	 * fat_arch structs, so write it out here as it was skipped above.
+	 */
+	if(x86_64h_fat_arch){
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_arch(x86_64h_fat_arch, 1, NX_BigEndian);
+#endif /* __LITTLE_ENDIAN__ */
+		if(write(fd, x86_64h_fat_arch,
+				 sizeof(struct fat_arch)) != sizeof(struct fat_arch)) {
+			syslog(LOG_ERR, "can't write fat arch to output file: %s",
+						 rename_file);
+			close(fd);
+			return 1;
+		}
+#ifdef __LITTLE_ENDIAN__
+		swap_fat_arch(x86_64h_fat_arch, 1, NX_LittleEndian);
 #endif /* __LITTLE_ENDIAN__ */
 	}
 	for (i = 0; i < nthin_files; ++i) {
