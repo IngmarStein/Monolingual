@@ -10,7 +10,7 @@ import Cocoa
 
 final class PreferencesViewController : NSViewController {
 
-	@IBOutlet var roots: NSArrayController!
+	@IBOutlet private var roots: NSArrayController!
 
 	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
