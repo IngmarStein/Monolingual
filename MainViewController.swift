@@ -533,7 +533,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 												  folders: folders,
 												  displayName: NSLocalizedString(name, comment:"")))
 		}
-		
+
 		addLanguage("ach",     "Acholi",               "ach.lproj")
 		addLanguage("af",      "Afrikaans",            "af.lproj", "Afrikaans.lproj")
 		addLanguage("am",      "Amharic",              "am.lproj", "Amharic.lproj")
@@ -687,16 +687,17 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
 		
 		let archs = [
-			ArchitectureInfo(name:"arm",       displayName:"ARM",               cpu_type: kCPU_TYPE_ARM,       cpu_subtype: kCPU_SUBTYPE_ARM_ALL),
-			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",           cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",        cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_750),
-			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",        cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7400),
-			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",       cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7450),
-			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",        cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",    cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit", cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"x86",       displayName:"Intel",             cpu_type: kCPU_TYPE_X86,       cpu_subtype: kCPU_SUBTYPE_X86_ALL),
-			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",      cpu_type: kCPU_TYPE_X86_64,    cpu_subtype: kCPU_SUBTYPE_X86_64_ALL)
+			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: kCPU_TYPE_ARM,       cpu_subtype: kCPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_750),
+			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7400),
+			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7450),
+			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"x86",       displayName:"Intel",                  cpu_type: kCPU_TYPE_X86,       cpu_subtype: kCPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: kCPU_TYPE_X86_64,    cpu_subtype: kCPU_SUBTYPE_X86_64_ALL),
+			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: kCPU_TYPE_X86_64,    cpu_subtype: kCPU_SUBTYPE_X86_64_H)
 		]
 			
 		var infoCount : mach_msg_type_number_t = kHOST_BASIC_INFO_COUNT
@@ -733,18 +734,15 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
 
-		var knownArchitectures = [ArchitectureSetting]()
-		knownArchitectures.reserveCapacity(archs.count)
-		for arch in archs {
+		self.architectures = archs.map { arch in
 			let enabled = (ret == KERN_SUCCESS && (hostInfo.cpu_type != arch.cpu_type || hostInfo.cpu_subtype < arch.cpu_subtype) && ((hostInfo.cpu_type & CPU_ARCH_ABI64) == 0 || (arch.cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64))))
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
-			knownArchitectures.append(architecture)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
 				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
 			}
+			return architecture
 		}
-		self.architectures = knownArchitectures
-		
+
 		// load remote blacklist
 		if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
