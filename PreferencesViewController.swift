@@ -11,6 +11,7 @@ import Cocoa
 final class PreferencesViewController : NSViewController {
 
 	@IBOutlet private var roots: NSArrayController!
+	@IBOutlet private var tableView: NSTableView!
 
 	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
@@ -20,6 +21,7 @@ final class PreferencesViewController : NSViewController {
 		self.roots.addObject(dummy)
 		self.roots.removeObject(dummy)
 		self.roots.setSelectionIndex(selectionIndex)
+		self.view.window?.makeFirstResponder(tableView)
 	}
 
 	@IBAction func add(sender: AnyObject) {

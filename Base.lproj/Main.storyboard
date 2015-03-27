@@ -622,7 +622,7 @@
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
-                                                                <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" inset="2" id="Q1D-kh-6bm">
+                                                                <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" lineBreakMode="truncatingTail" inset="2" id="Q1D-kh-6bm">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="titleBar" size="12"/>
                                                                 </buttonCell>
@@ -657,7 +657,7 @@
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
-                                                                <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" controlSize="small" inset="2" id="pSp-9i-qhN">
+                                                                <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="only" alignment="left" controlSize="small" lineBreakMode="truncatingTail" inset="2" id="pSp-9i-qhN">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
@@ -789,6 +789,7 @@
                     </view>
                     <connections>
                         <outlet property="roots" destination="NZ6-CJ-opI" id="PUh-zT-UpX"/>
+                        <outlet property="tableView" destination="opZ-3w-oKJ" id="Git-fV-BBZ"/>
                     </connections>
                 </viewController>
                 <customObject id="Psc-fF-xHW" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
