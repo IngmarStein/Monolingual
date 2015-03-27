@@ -31,7 +31,7 @@ func mach_task_self() -> mach_port_t {
 
 class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
-	@IBOutlet weak var currentArchitecture : NSTextField!
+	@IBOutlet private weak var currentArchitecture : NSTextField!
 
 	var progressViewController : ProgressViewController?
 

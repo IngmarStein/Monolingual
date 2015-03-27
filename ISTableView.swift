@@ -9,7 +9,7 @@
 import Cocoa
 
 class ISTableView : NSTableView {
-	@IBOutlet var arrayController: NSArrayController!
+	@IBOutlet private var arrayController: NSArrayController!
 
 	override func keyDown(theEvent: NSEvent) {
 		if theEvent.charactersIgnoringModifiers != nil && theEvent.charactersIgnoringModifiers!.hasPrefix(" ") {

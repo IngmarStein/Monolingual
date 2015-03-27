@@ -10,9 +10,9 @@ protocol ProgressViewControllerDelegate : class {
 }
 
 class ProgressViewController : NSViewController {
-	@IBOutlet weak var progressBar: NSProgressIndicator!
-	@IBOutlet weak var applicationText: NSTextField!
-	@IBOutlet weak var fileText: NSTextField!
+	@IBOutlet private weak var progressBar: NSProgressIndicator!
+	@IBOutlet private weak var applicationText: NSTextField!
+	@IBOutlet private weak var fileText: NSTextField!
 	
 	weak var delegate : ProgressViewControllerDelegate?
 	
