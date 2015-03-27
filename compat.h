@@ -25,6 +25,7 @@ extern const int kCPU_SUBTYPE_POWERPC_7450;
 extern const int kCPU_SUBTYPE_POWERPC_970;
 extern const int kCPU_SUBTYPE_X86_ALL;
 extern const int kCPU_SUBTYPE_X86_64_ALL;
+extern const int kCPU_SUBTYPE_X86_64_H;
 
 extern const mach_msg_type_number_t kHOST_BASIC_INFO_COUNT;
 extern const NSUInteger kXPC_CONNECTION_MACH_SERVICE_PRIVILEGED;
