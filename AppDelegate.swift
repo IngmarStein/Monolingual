@@ -37,7 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		return true
 	}
 	
-	// #pragma mark - Actions
+	//MARK: - Actions
 	
 	@IBAction func documentationBundler(sender : NSMenuItem) {
 		let docURL = NSBundle.mainBundle().URLForResource(sender.title, withExtension:nil)
