@@ -1,2 +1,2 @@
-#import <SMJobKit/SMJobKit.h>
+@import SMJobKit;
 #import "compat.h"
