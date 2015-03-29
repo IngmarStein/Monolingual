@@ -21,7 +21,7 @@ final class PreferencesViewController : NSViewController {
 		self.roots.addObject(dummy)
 		self.roots.removeObject(dummy)
 		self.roots.setSelectionIndex(selectionIndex)
-		self.view.window?.makeFirstResponder(tableView)
+		tableView.window?.makeFirstResponder(tableView)
 	}
 
 	@IBAction func add(sender: AnyObject) {
