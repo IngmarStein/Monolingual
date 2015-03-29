@@ -7,15 +7,10 @@
 //
 
 import Foundation
+import SMJobKit
 
 class MonolingualHelperClient : SMJClient {
-	override class func serviceIdentifier() -> String {
-		return "net.sourceforge.MonolingualHelper"
-	}
-
-	// the bridging of String to CFString is broken in Xcode 6 beta 3
-	// remove the function below when this is fixed (still broken in Xcode 6.3 beta 3)
-	class func cfIdentifier() -> CFString {
+	override class var serviceIdentifier: String {
 		return "net.sourceforge.MonolingualHelper"
 	}
 }
