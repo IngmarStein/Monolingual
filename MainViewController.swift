@@ -12,6 +12,7 @@
 //
 
 import Cocoa
+import SMJobKit
 
 enum MonolingualMode : Int {
 	case Languages = 0
@@ -197,7 +198,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		var error : NSError? = nil
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
-			let errorCode = SMJErrorCode(rawValue:UInt32(error!.code))
+			let errorCode = SMJErrorCode(rawValue:error!.code)
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
 				NSLog("Failed to bless helper. Error: \(error!)")
