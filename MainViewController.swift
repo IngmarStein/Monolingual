@@ -13,6 +13,7 @@
 
 import Cocoa
 import SMJobKit
+import XPCSwift
 
 enum MonolingualMode : Int {
 	case Languages = 0

@@ -35,7 +35,6 @@
 		95C3AA3715CC316D0017352A /* net.sourceforge.MonolingualHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		95D7A8AD098D42F800DCE08D /* helper.c in Sources */ = {isa = PBXBuildFile; fileRef = 95D7A8AC098D42F800DCE08D /* helper.c */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
-		95D8DBEC197CE6D400AE8CAE /* XPCObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95D8DBEB197CE6D400AE8CAE /* XPCObject.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 95F7771C0ECC2644009C621B /* dsa_pub.pem */; };
 /* End PBXBuildFile section */
@@ -121,7 +120,6 @@
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95D7A8AC098D42F800DCE08D /* helper.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = helper.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = Leggimi.rtfd; sourceTree = "<group>"; };
-		95D8DBEB197CE6D400AE8CAE /* XPCObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XPCObject.swift; sourceTree = "<group>"; };
 		95E8634115D81004004EF9ED /* Monolingual.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Monolingual.entitlements; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LisezMoi.rtfd; sourceTree = "<group>"; };
@@ -270,7 +268,6 @@
 			isa = PBXGroup;
 			children = (
 				95527CE419741A930092C744 /* Log.swift */,
-				95D8DBEB197CE6D400AE8CAE /* XPCObject.swift */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -504,7 +501,6 @@
 				95527CE319741A540092C744 /* AppDelegate.swift in Sources */,
 				950ED2731976AAB600BAC239 /* Root.swift in Sources */,
 				959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */,
-				95D8DBEC197CE6D400AE8CAE /* XPCObject.swift in Sources */,
 				959CEEE019714E0500A433C0 /* ProgressViewController.swift in Sources */,
 				959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */,
 			);
