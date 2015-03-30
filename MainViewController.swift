@@ -198,7 +198,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		var error : NSError? = nil
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
-			let errorCode = SMJErrorCode(rawValue:error!.code)
+			let errorCode = ErrorCode(rawValue:error!.code)
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
 				NSLog("Failed to bless helper. Error: \(error!)")
