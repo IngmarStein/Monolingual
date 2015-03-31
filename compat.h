@@ -33,3 +33,6 @@ extern const NSUInteger kXPC_CONNECTION_MACH_SERVICE_PRIVILEGED;
 extern const xpc_object_t xpc_error_connection_interrupted;
 extern const xpc_object_t xpc_error_connection_invalid;
 extern const xpc_object_t xpc_error_termination_imminent;
+
+extern const xpc_type_t xpc_type_error;
+extern const xpc_type_t xpc_type_connection;

@@ -91,7 +91,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		let roots = self.roots
 
-		let archs = self.architectures.filter { $0.enabled } .map { XPCObject($0.name) }
+		let archs : [XPCRepresentable] = self.architectures.filter { $0.enabled } .map { $0.name }
 		for arch in archs {
 			log.message(" \(arch)")
 		}
@@ -108,12 +108,12 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
-			let includes = roots.filter { $0.architectures } .map { XPCObject($0.path) }
-			var excludes = roots.filter { !$0.architectures } .map { XPCObject($0.path) }
-			let bl = self.blacklist!.filter { $0.architectures } .map { XPCObject($0.bundle) }
+			let includes : [XPCRepresentable] = roots.filter { $0.architectures } .map { $0.path }
+			var excludes : [XPCRepresentable] = roots.filter { !$0.architectures } .map { $0.path }
+			let bl : [XPCRepresentable] = self.blacklist!.filter { $0.architectures } .map { $0.bundle }
 
-			excludes.append(XPCObject("/System/Library/Frameworks"))
-			excludes.append(XPCObject("/System/Library/PrivateFrameworks"))
+			excludes.append("/System/Library/Frameworks")
+			excludes.append("/System/Library/PrivateFrameworks")
 
 			for item in bl {
 				NSLog("Blacklisting \(item)")
@@ -126,11 +126,11 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			}
 
 			let xpc_message : XPCObject = [
-				"strip" : XPCObject(NSUserDefaults.standardUserDefaults().boolForKey("Strip")),
-				"blacklist" : XPCObject(bl),
-				"includes" : XPCObject(includes),
-				"excludes" : XPCObject(excludes),
-				"thin" : XPCObject(archs)
+				"strip" : NSUserDefaults.standardUserDefaults().boolForKey("Strip"),
+				"blacklist" : bl,
+				"includes" : includes,
+				"excludes" : excludes,
+				"thin" : archs
 			]
 		
 			self.runDeleteHelperWithArgs(xpc_message.object)
@@ -442,9 +442,9 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 	
 		let roots = self.roots
 
-		let includes = roots.filter { $0.languages } .map { XPCObject($0.path) }
-		let excludes = roots.filter { !$0.languages } .map { XPCObject($0.path) }
-		let bl = self.blacklist!.filter { $0.languages } .map { XPCObject($0.bundle) }
+		let includes : [XPCRepresentable] = roots.filter { $0.languages } .map { $0.path }
+		let excludes : [XPCRepresentable] = roots.filter { !$0.languages } .map { $0.path }
+		let bl : [XPCRepresentable] = self.blacklist!.filter { $0.languages } .map { $0.bundle }
 		
 		for item in bl {
 			NSLog("Blacklisting \(item)")
@@ -457,11 +457,11 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 		
 		var rCount = 0
-		var folders = [XPCObject]()
+		var folders = [XPCRepresentable]()
 		for language in self.languages {
 			if language.enabled {
 				for path in language.folders {
-					folders.append(XPCObject(path))
+					folders.append(path)
 					if rCount != 0 {
 						log.message(" ")
 					}
@@ -471,7 +471,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			}
 		}
 		if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
-			folders.append(XPCObject("designable.nib"))
+			folders.append("designable.nib")
 		}
 	
 		log.message("\nDeleted files: \n")
@@ -486,12 +486,12 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			/* start things off if we have something to remove! */
 
 			let xpc_message : XPCObject = [
-				"trash" : XPCObject(NSUserDefaults.standardUserDefaults().boolForKey("Trash")),
-				"uid" : XPCObject(Int64(getuid())),
-				"blacklist" : XPCObject(bl),
-				"includes" : XPCObject(includes),
-				"excludes" : XPCObject(excludes),
-				"directories" : XPCObject(folders)
+				"trash" : NSUserDefaults.standardUserDefaults().boolForKey("Trash"),
+				"uid" : Int64(getuid()),
+				"blacklist" : bl,
+				"includes" : includes,
+				"excludes" : excludes,
+				"directories" : folders
 			]
 		
 			runDeleteHelperWithArgs(xpc_message.object)
