@@ -31,3 +31,6 @@ const NSUInteger kXPC_CONNECTION_MACH_SERVICE_PRIVILEGED = XPC_CONNECTION_MACH_S
 const xpc_object_t xpc_error_connection_interrupted = XPC_ERROR_CONNECTION_INTERRUPTED;
 const xpc_object_t xpc_error_connection_invalid = XPC_ERROR_CONNECTION_INVALID;
 const xpc_object_t xpc_error_termination_imminent = XPC_ERROR_TERMINATION_IMMINENT;
+
+const xpc_type_t xpc_type_error = XPC_TYPE_ERROR;
+const xpc_type_t xpc_type_connection = XPC_TYPE_CONNECTION;
