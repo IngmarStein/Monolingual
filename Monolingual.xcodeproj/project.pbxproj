@@ -33,6 +33,7 @@
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95C3AA3715CC316D0017352A /* net.sourceforge.MonolingualHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A8AD098D42F800DCE08D /* helper.c in Sources */ = {isa = PBXBuildFile; fileRef = 95D7A8AC098D42F800DCE08D /* helper.c */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
@@ -118,6 +119,7 @@
 		95BC989F099228D5001DEF94 /* lipo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = lipo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net.sourceforge.MonolingualHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LEESMIJ.rtfd; sourceTree = "<group>"; };
 		95D7A8AC098D42F800DCE08D /* helper.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = helper.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = Leggimi.rtfd; sourceTree = "<group>"; };
 		95E8634115D81004004EF9ED /* Monolingual.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Monolingual.entitlements; sourceTree = "<group>"; };
@@ -224,22 +226,19 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				95A74F38197410EF005D3792 /* Main.storyboard */,
-				95B9D1801769CF3A0072A7E0 /* Media.xcassets */,
 				9539D83711453596007E698C /* blacklist.plist */,
-				95F7771C0ECC2644009C621B /* dsa_pub.pem */,
-				95E8634115D81004004EF9ED /* Monolingual.entitlements */,
-				95D7A921098D48B700DCE08D /* Leggimi.rtfd */,
-				95EDCC87062C4264007229A3 /* LisezMoi.rtfd */,
-				9558F813061598BA00F6DE23 /* Lies-mich.rtfd */,
-				9558F814061598BA00F6DE23 /* README.rtfd */,
-				F51C1B3401F29B1C0120C6FA /* Localizable.strings */,
-				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
-				95A130420608F92F00D8E30C /* Info.plist */,
 				F5A6E37F01A07759016596AB /* COPYING.txt */,
 				9558F78F0615953200F6DE23 /* Credits.html */,
-				9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */,
+				95F7771C0ECC2644009C621B /* dsa_pub.pem */,
+				95A130420608F92F00D8E30C /* Info.plist */,
+				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				F51C1B3401F29B1C0120C6FA /* Localizable.strings */,
+				95A74F38197410EF005D3792 /* Main.storyboard */,
+				95B9D1801769CF3A0072A7E0 /* Media.xcassets */,
+				95E8634115D81004004EF9ED /* Monolingual.entitlements */,
 				9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */,
+				9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */,
+				95CEEA4F1ACD94320043CEDC /* Readmes */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -298,6 +297,18 @@
 				18558DCCEBF1A087C36B16BE /* Pods.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		95CEEA4F1ACD94320043CEDC /* Readmes */ = {
+			isa = PBXGroup;
+			children = (
+				95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */,
+				95D7A921098D48B700DCE08D /* Leggimi.rtfd */,
+				9558F813061598BA00F6DE23 /* Lies-mich.rtfd */,
+				95EDCC87062C4264007229A3 /* LisezMoi.rtfd */,
+				9558F814061598BA00F6DE23 /* README.rtfd */,
+			);
+			name = Readmes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -398,6 +409,7 @@
 				95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */,
 				95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */,
 				95A130360608F92F00D8E30C /* Localizable.strings in Resources */,
+				95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */,
 				95A74F3A197410EF005D3792 /* Main.storyboard in Resources */,
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
