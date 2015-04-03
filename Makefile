@@ -1,11 +1,13 @@
 TOP=$(shell pwd)
-RELEASE_VERSION=1.6.7
+RELEASE_VERSION=1.6.8
 RELEASE_DIR=release-$(RELEASE_VERSION)
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
-BUILD_DIR=$(TOP)/build/Release
+BUILD_DIR=$(TOP)/build
+ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
+ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
 
-.PHONY: all release development deployment clean
+.PHONY: all release development deployment archive clean
 
 all: deployment
 
@@ -15,17 +17,17 @@ development:
 deployment:
 	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
 
-clean:
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug clean CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release clean CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
-	-rm -rf $(RELEASE_DIR)
+archive:
+	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release archive -archivePath $(ARCHIVE)
+	xcodebuild -exportArchive -exportFormat APP -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR)/Monolingual.app
 
-release: clean deployment
-	rm -rf $(RELEASE_DIR)
+clean:
+	-rm -rf $(BUILD_DIR) $(RELEASE_DIR)
+
+release: clean archive
 	mkdir -p $(RELEASE_DIR)/build
-	mkdir -p $(RELEASE_DIR)/dSYM
+	cp -R $(ARCHIVE) $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/COPYING.txt $(RELEASE_DIR)/build
-	cp -R $(BUILD_DIR)/*.dSYM $(RELEASE_DIR)/dSYM
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	cp dmg-bg.tiff $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
