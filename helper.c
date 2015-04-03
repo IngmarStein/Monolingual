@@ -442,9 +442,14 @@ static void trash_file(const char *path, const helper_context_t *context)
 						if (rename(path, destination)) {
 							syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
 						} else {
+							off_t size = 0;
+							if (!stat(destination, &sb)) {
+								size = sb.st_size;
+							}
+
 							xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
 							xpc_dictionary_set_string(message, "file", path);
-							xpc_dictionary_set_uint64(message, "size", 0);
+							xpc_dictionary_set_uint64(message, "size", size);
 							xpc_connection_send_message(context->connection, message);
 							xpc_release(message);
 						}

@@ -613,6 +613,7 @@
 		95AAF5610856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
@@ -637,6 +638,7 @@
 		95AAF5620856C2DC007CEE36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
