@@ -615,7 +615,6 @@
 			buildSettings = {
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -627,6 +626,7 @@
 					"MonolingualHelper-launchd.plist",
 				);
 				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
+				SKIP_INSTALL = YES;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-cast-align",
@@ -640,7 +640,6 @@
 			buildSettings = {
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -652,6 +651,7 @@
 					"MonolingualHelper-launchd.plist",
 				);
 				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
+				SKIP_INSTALL = YES;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-cast-align",
