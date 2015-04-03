@@ -139,13 +139,8 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 	}
 	
-	func processProgress(progress: xpc_object_t) {
-		if xpc_dictionary_get_count(progress) == 0 {
-			return
-		}
-
-		if let file = String.fromCString(xpc_dictionary_get_string(progress, "file")) {
-			let size = xpc_dictionary_get_uint64(progress, "size")
+	func processProgress(progress: XPCObject) {
+		if let progressDictionary = progress.dictionary, file = progressDictionary["file"]?.string, size = progressDictionary["size"]?.uint64 {
 			self.bytesSaved += size
 		
 			log.message("\(file): \(size)\n")
@@ -271,11 +266,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 				
 					xpc_connection_set_target_queue(peer, self.peer_event_queue)
 					xpc_connection_set_event_handler(peer) { nevent in
-						let ntype = xpc_get_type(nevent)
-					
-						if xpc_type_dictionary == ntype {
-							self.processProgress(nevent)
-						}
+						self.processProgress(XPCObject(nevent))
 					}
 					xpc_connection_resume(peer)
 				}
@@ -293,15 +284,15 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		//xpc_dictionary_set_bool(arguments, "dry_run", true)
 
 		xpc_connection_send_message_with_reply(self.connection!, arguments, dispatch_get_main_queue()) { event in
-			let type = xpc_get_type(event)
-			if xpc_type_dictionary == type {
-				let exit_code = xpc_dictionary_get_int64(event, "exit_code")
+			let xpcEvent = XPCObject(event)
+
+			if let eventDictionary = xpcEvent.dictionary {
+				let exit_code = eventDictionary["exit_code"]?.int64 ?? 0
 				NSLog("helper finished with exit code: %lld", exit_code)
 			
 				if self.connection != nil {
-					let exit_message = xpc_dictionary_create(nil, nil, 0)
-					xpc_dictionary_set_int64(exit_message, "exit_code", exit_code)
-					xpc_connection_send_message(self.connection!, exit_message)
+					let exitMessage : XPCObject = ["exit_code" : exit_code]
+					xpc_connection_send_message(self.connection!, exitMessage.object)
 				}
 
 				if exit_code == 0 {
@@ -337,9 +328,8 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		if !completed {
 			if self.progressConnection != nil {
 				if self.connection != nil {
-					let exit_message = xpc_dictionary_create(nil, nil, 0)
-					xpc_dictionary_set_int64(exit_message, "exit_code", Int64(EXIT_FAILURE))
-					xpc_connection_send_message(self.connection!, exit_message)
+					let exitMessage : XPCObject = ["exit_code" : Int64(EXIT_FAILURE)]
+					xpc_connection_send_message(self.connection!, exitMessage.object)
 				}
 			
 				// Cancel and release the anonymous connection which signals the remote
