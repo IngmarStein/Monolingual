@@ -31,7 +31,7 @@ release: clean archive
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	cp dmg-bg.tiff $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
-	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.scpt
+	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.js
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
 		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_FILE)")/g" \
