@@ -3,5 +3,5 @@ platform :osx, '10.10'
 inhibit_all_warnings!
 use_frameworks!
 pod 'SMJobKit', '~> 0.0.4'
-pod 'XPCSwift', '~> 0.0.4'
+pod 'XPCSwift', '~> 0.0.5'
 pod 'Sparkle', '~> 1.9.0'
