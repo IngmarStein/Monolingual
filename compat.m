@@ -26,7 +26,6 @@ const int kCPU_SUBTYPE_X86_64_ALL = CPU_SUBTYPE_X86_64_ALL;
 const int kCPU_SUBTYPE_X86_64_H = CPU_SUBTYPE_X86_64_H;
 
 const mach_msg_type_number_t kHOST_BASIC_INFO_COUNT = HOST_BASIC_INFO_COUNT;
-const NSUInteger kXPC_CONNECTION_MACH_SERVICE_PRIVILEGED = XPC_CONNECTION_MACH_SERVICE_PRIVILEGED;
 
 const xpc_object_t xpc_error_connection_interrupted = XPC_ERROR_CONNECTION_INTERRUPTED;
 const xpc_object_t xpc_error_connection_invalid = XPC_ERROR_CONNECTION_INVALID;
