@@ -15,7 +15,8 @@ Monolingual consists of two parts: the Monolingual app and a privileged helper p
 
 Monolingual uses CocoaPods to manage its dependencies. Currently, the following pods are used:
 
-- [SMJobKit](https://github.com/nevir/SMJobKit)
+- [SMJobKit](https://github.com/IngmarStein/SMJobKit)
+- [XPCSwift](https://github.com/IngmarStein/XPCSwift)
 - [Sparkle](https://github.com/sparkle-project/Sparkle)
 
 ## Contributors
@@ -28,14 +29,17 @@ J. Schrier
 
 ### Localization
 
-- Japanese localization by Takehiko Hatatani
-- Polish localization by Mariusz Ostrowski
-- Swedish localization by Joel Arvidsson
-- German localization by Alex Thurley
+- Dutch localization by Tobias T.
 - French localization by François Besoli
-- Italian localization by Claudio Procida
-- Spanish localization by Fran Ramírez
+- German localization by Alex Thurley
 - Greek localization by Ευριπίδης Αργυρόπουλος
+- Hungarian localization by Alen Bajo
+- Italian localization by Claudio Procida
+- Japanese localization by Takehiko Hatatani
+- Korean localization by Woosuk Park
+- Polish localization by Mariusz Ostrowski
+- Spanish localization by Fran Ramírez
+- Swedish localization by Joel Arvidsson
 
 ### Artwork
 Icon by Matt Davey
