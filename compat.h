@@ -28,7 +28,6 @@ extern const int kCPU_SUBTYPE_X86_64_ALL;
 extern const int kCPU_SUBTYPE_X86_64_H;
 
 extern const mach_msg_type_number_t kHOST_BASIC_INFO_COUNT;
-extern const NSUInteger kXPC_CONNECTION_MACH_SERVICE_PRIVILEGED;
 
 extern const xpc_object_t xpc_error_connection_interrupted;
 extern const xpc_object_t xpc_error_connection_invalid;
