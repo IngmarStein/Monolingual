@@ -6,19 +6,20 @@ RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
 BUILD_DIR=$(TOP)/build
 ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
 ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
+XCODEBUILD=$(shell which xctool || echo "xcodebuild")
 
 .PHONY: all release development deployment archive clean
 
 all: deployment
 
 development:
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
+	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
 
 deployment:
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
+	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
 
 archive:
-	xcodebuild -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release archive -archivePath $(ARCHIVE)
+	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release archive -archivePath $(ARCHIVE)
 	xcodebuild -exportArchive -exportFormat APP -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR)/Monolingual.app
 
 clean:

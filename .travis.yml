@@ -2,7 +2,7 @@ language: objective-c
 xcode_workspace: Monolingual.xcworkspace
 xcode_scheme: Travis
 osx_image: xcode611
-before_install: gem install cocoapods -v '= 0.36.1'
+before_install: gem install cocoapods -v '= 0.36.3'
 before_script:
 - ./scripts/add-key.sh
 after_script:
