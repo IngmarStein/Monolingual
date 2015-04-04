@@ -9,7 +9,7 @@
 import Foundation
 import SMJobKit
 
-class MonolingualHelperClient : Client {
+final class MonolingualHelperClient : Client {
 	override class var serviceIdentifier: String {
 		return "net.sourceforge.MonolingualHelper"
 	}

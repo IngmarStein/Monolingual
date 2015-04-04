@@ -9,7 +9,7 @@ protocol ProgressViewControllerDelegate : class {
 	func progressViewControllerDidCancel(progressViewController: ProgressViewController)
 }
 
-class ProgressViewController : NSViewController {
+final class ProgressViewController : NSViewController {
 	@IBOutlet private weak var progressBar: NSProgressIndicator!
 	@IBOutlet private weak var applicationText: NSTextField!
 	@IBOutlet private weak var fileText: NSTextField!

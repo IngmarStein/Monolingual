@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class Log {
+final class Log {
 	let logFileName = NSURL(fileURLWithPath:"\(NSHomeDirectory())/Library/Logs/Monolingual.log", isDirectory: false)
 	var logFile : NSFileHandle? = nil
 
