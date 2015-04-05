@@ -521,9 +521,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		knownLanguages.reserveCapacity(numKnownLanguages)
 
 		func addLanguage(code:String, name:String, folders: String...) {
+			let locale = NSLocale.currentLocale()
+			let language = locale.displayNameForKey(NSLocaleIdentifier, value: code)
 			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
 												  folders: folders,
-												  displayName: NSLocalizedString(name, comment:"")))
+												  displayName: (language ?? name)))
 		}
 
 		addLanguage("ach",     "Acholi",               "ach.lproj")
@@ -615,7 +617,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("mr",      "Marathi",              "mr.lproj", "Marathi.lproj")
 		addLanguage("ml",      "Malayalam",            "ml.lproj", "Malayalam.lproj")
 		addLanguage("mn",      "Mongolian",            "mn.lproj", "Mongolian.lproj")
-		addLanguage("mo",      "Moldavian",            "mo.lproj", "Moldavian.lproj")
+		addLanguage("mo",      NSLocalizedString("Moldavian", comment:""),            "mo.lproj", "Moldavian.lproj")
 		addLanguage("ms",      "Malay",                "ms.lproj", "Malay.lproj")
 		addLanguage("mt",      "Maltese",              "mt.lproj", "Maltese.lproj")
 		addLanguage("my",      "Burmese",              "my.lproj", "Burmese.lproj")
