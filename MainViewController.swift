@@ -169,15 +169,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					}
 				}
 				if let app = app {
-					let removing = NSLocalizedString("Removing language", comment:"")
-					let from = NSLocalizedString("from", comment:"")
-					message = "\(removing) \(lang!) \(from) \(app)…"
+					message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang!, app)
 				} else if let lang = lang {
-					let removing = NSLocalizedString("Removing language", comment:"")
-					message = "\(removing) \(lang)…"
+					message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
 				} else {
-					let removing = NSLocalizedString("Removing", comment:"")
-					message = "\(removing) \(file)"
+					message = String(format:NSLocalizedString("Removing %@…", comment:""), file)
 				}
 			}
 		
@@ -409,7 +405,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			// Display a warning
 			let alert = NSAlert()
 			alert.alertStyle = .CriticalAlertStyle
-			alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+			alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
 			
