@@ -71,7 +71,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		// Display a warning first
 		let alert = NSAlert()
 		alert.alertStyle = .WarningAlertStyle
-		alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+		alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 		alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
 		alert.beginSheetModalForWindow(self.view.window!) { responseCode in
