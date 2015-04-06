@@ -522,13 +522,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 		// never check "English" by default
 		userLanguages.insert("en")
-		
+
 		// never check user locale by default
 		let appleLocale = NSUserDefaults.standardUserDefaults().stringForKey("AppleLocale")
 		if let locale = appleLocale {
 			userLanguages.insert(locale.stringByReplacingOccurrencesOfString("_", withString:"-"))
 		}
 
+		var knownLocales = Set<String>()
 		let numKnownLanguages = 134
 		var knownLanguages = [LanguageSetting]()
 		knownLanguages.reserveCapacity(numKnownLanguages)
@@ -536,8 +537,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		let locale = NSLocale.currentLocale()
 
 		func addLanguage(code:String, name:String, folders: String...) {
+			knownLocales.insert(code)
 			let language = locale.displayNameForKey(NSLocaleIdentifier, value: code)
-			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
+			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code) && locale.localeIdentifier != code,
 												  folders: folders,
 												  displayName: (language ?? name)))
 		}
@@ -691,6 +693,13 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("zh-Hans", "Chinese (Simplified Han)",  "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh-CN.lproj", "zh_SC.lproj", "zh-SC.lproj")
 		addLanguage("zh-Hant", "Chinese (Traditional Han)", "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh-TW.lproj", "zh_HK.lproj", "zh-HK.lproj")
 		addLanguage("zu",      "Zulu",                      "zu.lproj")
+
+		for localeIdentifier in NSLocale.availableLocaleIdentifiers() as! [String] {
+			if !knownLocales.contains(localeIdentifier) {
+				println("Adding \(localeIdentifier)")
+				addLanguage(localeIdentifier, "", "\(localeIdentifier).lproj")
+			}
+		}
 
 		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
 		
