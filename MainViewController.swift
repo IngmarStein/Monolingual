@@ -71,7 +71,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		// Display a warning first
 		let alert = NSAlert()
 		alert.alertStyle = .WarningAlertStyle
-		alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+		alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 		alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
 		alert.beginSheetModalForWindow(self.view.window!) { responseCode in
@@ -169,15 +169,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					}
 				}
 				if let app = app {
-					let removing = NSLocalizedString("Removing language", comment:"")
-					let from = NSLocalizedString("from", comment:"")
-					message = "\(removing) \(lang!) \(from) \(app)…"
+					message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang!, app)
 				} else if let lang = lang {
-					let removing = NSLocalizedString("Removing language", comment:"")
-					message = "\(removing) \(lang)…"
+					message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
 				} else {
-					let removing = NSLocalizedString("Removing", comment:"")
-					message = "\(removing) \(file)"
+					message = String(format:NSLocalizedString("Removing %@…", comment:""), file)
 				}
 			}
 		
@@ -409,7 +405,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			// Display a warning
 			let alert = NSAlert()
 			alert.alertStyle = .CriticalAlertStyle
-			alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+			alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
 			
@@ -521,9 +517,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		knownLanguages.reserveCapacity(numKnownLanguages)
 
 		func addLanguage(code:String, name:String, folders: String...) {
+			let locale = NSLocale.currentLocale()
+			let language = locale.displayNameForKey(NSLocaleIdentifier, value: code)
 			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
 												  folders: folders,
-												  displayName: NSLocalizedString(name, comment:"")))
+												  displayName: (language ?? name)))
 		}
 
 		addLanguage("ach",     "Acholi",               "ach.lproj")
@@ -615,7 +613,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("mr",      "Marathi",              "mr.lproj", "Marathi.lproj")
 		addLanguage("ml",      "Malayalam",            "ml.lproj", "Malayalam.lproj")
 		addLanguage("mn",      "Mongolian",            "mn.lproj", "Mongolian.lproj")
-		addLanguage("mo",      "Moldavian",            "mo.lproj", "Moldavian.lproj")
+		addLanguage("mo",      NSLocalizedString("Moldavian", comment:""),            "mo.lproj", "Moldavian.lproj")
 		addLanguage("ms",      "Malay",                "ms.lproj", "Malay.lproj")
 		addLanguage("mt",      "Maltese",              "mt.lproj", "Maltese.lproj")
 		addLanguage("my",      "Burmese",              "my.lproj", "Burmese.lproj")
