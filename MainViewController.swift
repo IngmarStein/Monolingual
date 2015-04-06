@@ -516,8 +516,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		var knownLanguages = [LanguageSetting]()
 		knownLanguages.reserveCapacity(numKnownLanguages)
 
+		let locale = NSLocale.currentLocale()
+
 		func addLanguage(code:String, name:String, folders: String...) {
-			let locale = NSLocale.currentLocale()
 			let language = locale.displayNameForKey(NSLocaleIdentifier, value: code)
 			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
 												  folders: folders,
