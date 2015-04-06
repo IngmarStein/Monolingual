@@ -696,7 +696,6 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 		for localeIdentifier in NSLocale.availableLocaleIdentifiers() as! [String] {
 			if !knownLocales.contains(localeIdentifier) {
-				println("Adding \(localeIdentifier)")
 				addLanguage(localeIdentifier, "", "\(localeIdentifier).lproj")
 			}
 		}
