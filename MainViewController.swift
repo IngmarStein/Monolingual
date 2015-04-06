@@ -27,6 +27,23 @@ struct ArchitectureInfo {
 	let cpu_subtype : cpu_subtype_t
 }
 
+// these defines are not (yet) visible to Swift
+let CPU_TYPE_X86 : cpu_type_t					= 7
+let CPU_TYPE_X86_64 : cpu_type_t				= CPU_TYPE_X86 | CPU_ARCH_ABI64
+let CPU_TYPE_ARM : cpu_type_t					= 12
+let CPU_TYPE_ARM64 : cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
+let CPU_TYPE_POWERPC : cpu_type_t				= 18
+let CPU_TYPE_POWERPC64 : cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+let CPU_SUBTYPE_ARM_ALL : cpu_subtype_t			= 0
+let CPU_SUBTYPE_POWERPC_ALL : cpu_subtype_t		= 0
+let CPU_SUBTYPE_POWERPC_750 : cpu_subtype_t		= 9
+let CPU_SUBTYPE_POWERPC_7400 : cpu_subtype_t	= 10
+let CPU_SUBTYPE_POWERPC_7450 : cpu_subtype_t	= 11
+let CPU_SUBTYPE_POWERPC_970 : cpu_subtype_t		= 100
+let CPU_SUBTYPE_X86_ALL : cpu_subtype_t			= 3
+let CPU_SUBTYPE_X86_64_ALL : cpu_subtype_t		= 3
+let CPU_SUBTYPE_X86_64_H : cpu_subtype_t		= 8
+
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
@@ -678,17 +695,17 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
 		
 		let archs = [
-			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: kCPU_TYPE_ARM,       cpu_subtype: kCPU_SUBTYPE_ARM_ALL),
-			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_750),
-			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7400),
-			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7450),
-			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"x86",       displayName:"Intel",                  cpu_type: kCPU_TYPE_X86,       cpu_subtype: kCPU_SUBTYPE_X86_ALL),
-			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: kCPU_TYPE_X86_64,    cpu_subtype: kCPU_SUBTYPE_X86_64_ALL),
-			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: kCPU_TYPE_X86_64,    cpu_subtype: kCPU_SUBTYPE_X86_64_H)
+			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: CPU_TYPE_ARM,       cpu_subtype: CPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_750),
+			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_7400),
+			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_7450),
+			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"x86",       displayName:"Intel",                  cpu_type: CPU_TYPE_X86,       cpu_subtype: CPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_ALL),
+			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_H)
 		]
 			
 		var infoCount : mach_msg_type_number_t = kHOST_BASIC_INFO_COUNT
@@ -700,7 +717,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
-		if hostInfo.cpu_type == kCPU_TYPE_X86 {
+		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
 			var x86_64 : Int = 0
 			var x86_64_size = sizeof(Int)
@@ -711,8 +728,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 						max_cpus: hostInfo.max_cpus,
 						avail_cpus: hostInfo.avail_cpus,
 						memory_size: hostInfo.memory_size,
-						cpu_type: kCPU_TYPE_X86_64,
-						cpu_subtype: kCPU_SUBTYPE_X86_64_ALL,
+						cpu_type: CPU_TYPE_X86_64,
+						cpu_subtype: CPU_SUBTYPE_X86_64_ALL,
 						cpu_threadtype: hostInfo.cpu_threadtype,
 						physical_cpu: hostInfo.physical_cpu,
 						physical_cpu_max: hostInfo.physical_cpu_max,
