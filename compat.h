@@ -11,22 +11,6 @@
 @import Foundation;
 
 // ugly clutches to make some stuff visible to Swift
-extern const int kCPU_TYPE_X86;
-extern const int kCPU_TYPE_X86_64;
-extern const int kCPU_TYPE_ARM;
-extern const int kCPU_TYPE_ARM64;
-extern const int kCPU_TYPE_POWERPC;
-extern const int kCPU_TYPE_POWERPC64;
-extern const int kCPU_SUBTYPE_ARM_ALL;
-extern const int kCPU_SUBTYPE_POWERPC_ALL;
-extern const int kCPU_SUBTYPE_POWERPC_750;
-extern const int kCPU_SUBTYPE_POWERPC_7400;
-extern const int kCPU_SUBTYPE_POWERPC_7450;
-extern const int kCPU_SUBTYPE_POWERPC_970;
-extern const int kCPU_SUBTYPE_X86_ALL;
-extern const int kCPU_SUBTYPE_X86_64_ALL;
-extern const int kCPU_SUBTYPE_X86_64_H;
-
 extern const mach_msg_type_number_t kHOST_BASIC_INFO_COUNT;
 
 extern const xpc_object_t xpc_error_connection_interrupted;
