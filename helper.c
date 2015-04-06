@@ -757,10 +757,24 @@ static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 		free(messageDescription);
 		
 		if (xpc_dictionary_get_value(requestMessage, "exit_code")) {
-			exit(xpc_dictionary_get_int64(requestMessage, "exit_code"));
+			int64_t exit_code = xpc_dictionary_get_int64(requestMessage, "exit_code");
+			syslog(LOG_NOTICE, "exiting with exit status (%d)", (int)exit_code);
+			exit(exit_code);
 		} else {
 			xpc_object_t replyMessage = xpc_dictionary_create_reply(requestMessage);
-			process_request(requestMessage, replyMessage);
+			if (xpc_dictionary_get_value(requestMessage, "version")) {
+				CFStringRef bundleVersion = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
+				char const *version = CFStringGetCStringPtr(bundleVersion, kCFStringEncodingUTF8);
+				if (version) {
+					xpc_dictionary_set_string(replyMessage, "version", version);
+				} else {
+					char buffer[256];
+					CFStringGetCString(bundleVersion, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+					xpc_dictionary_set_string(replyMessage, "version", buffer);
+				}
+			} else {
+				process_request(requestMessage, replyMessage);
+			}
 
 			messageDescription = xpc_copy_description(replyMessage);
 			syslog(LOG_NOTICE, "reply message to peer(%d)\n: %s", xpc_connection_get_pid(peer), messageDescription);
