@@ -150,7 +150,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				"thin" : archs
 			]
 		
-			self.runDeleteHelperWithArgs(xpc_message.object)
+			self.checkAndRunHelper(xpc_message.object)
 		} else {
 			log.close()
 		}
@@ -159,7 +159,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	func processProgress(progress: XPCObject) {
 		if let progressDictionary = progress.dictionary, file = progressDictionary["file"]?.string, size = progressDictionary["size"]?.uint64 {
 			self.bytesSaved += size
-		
+
 			log.message("\(file): \(size)\n")
 
 			let message : String
@@ -201,10 +201,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			NSApp.setWindowsNeedUpdate(true)
 		}
 	}
-		
-	func runDeleteHelperWithArgs(arguments: xpc_object_t) {
-		self.bytesSaved = 0
 
+	func installHelper() -> Bool {
 		var error : NSError? = nil
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
 			let errorCode = ErrorCode(rawValue:error!.code)
@@ -233,41 +231,25 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			default: ()
 			}
 			log.close()
-			return
+			return false
 		}
-	
-		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
-	
-		if self.connection == nil {
-			NSLog("Failed to create XPC connection.")
-			return
-		}
-	
+		return true
+	}
+
+	func runHelper(arguments: xpc_object_t) {
 		NSProcessInfo.processInfo().disableSuddenTermination()
-	
-		xpc_connection_set_event_handler(self.connection!) { event in
-			let type = xpc_get_type(event)
-		
-			if type == xpc_type_error {
-				if event == xpc_error_connection_interrupted {
-					NSLog("XPC connection interrupted.")
-				} else if event == xpc_error_connection_invalid {
-					NSLog("XPC connection invalid.")
-				} else {
-					NSLog("Unexpected XPC connection error.")
-				}
-			} else {
-				NSLog("Unexpected XPC connection event.")
-			}
-		}
-	
+
+		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
+
+		self.bytesSaved = 0
+
 		// Create an anonymous listener connection that collects progress updates.
 		self.progressConnection = xpc_connection_create(nil, self.listener_queue)
 
 		if self.progressConnection != nil {
 			xpc_connection_set_event_handler(self.progressConnection!) { event in
 				let type = xpc_get_type(event)
-			
+
 				if type == xpc_type_error {
 					if event == xpc_error_termination_imminent {
 						NSLog("received XPC_ERROR_TERMINATION_IMMINENT")
@@ -276,7 +258,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					}
 				} else if xpc_type_connection == type {
 					let peer = event as xpc_connection_t
-				
+
 					xpc_connection_set_target_queue(peer, self.peer_event_queue)
 					xpc_connection_set_event_handler(peer) { nevent in
 						self.processProgress(XPCObject(nevent))
@@ -285,14 +267,12 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				}
 			}
 			xpc_connection_resume(self.progressConnection!)
-		
+
 			xpc_dictionary_set_connection(arguments, "connection", self.progressConnection)
 		} else {
 			NSLog("Couldn't create progress connection")
 		}
-	
-		xpc_connection_resume(self.connection!)
-	
+
 		// DEBUG
 		//xpc_dictionary_set_bool(arguments, "dry_run", true)
 
@@ -302,7 +282,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			if let eventDictionary = xpcEvent.dictionary {
 				let exit_code = eventDictionary["exit_code"]?.int64 ?? 0
 				NSLog("helper finished with exit code: %lld", exit_code)
-			
+
 				if self.connection != nil {
 					let exitMessage : XPCObject = ["exit_code" : exit_code]
 					xpc_connection_send_message(self.connection!, exitMessage.object)
@@ -320,12 +300,72 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 		self.progressViewController?.delegate = self
 		self.presentViewControllerAsSheet(self.progressViewController!)
-	
+
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
 		notification.informativeText = NSLocalizedString("Started removing files", comment:"")
-		
+
 		NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
+	}
+
+	func checkAndRunHelper(arguments: xpc_object_t) {
+		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
+
+		if self.connection == nil {
+			NSLog("Failed to create XPC connection.")
+			return
+		}
+
+		var shouldTryInstall = true
+
+		xpc_connection_set_event_handler(self.connection!) { event in
+			let type = xpc_get_type(event)
+
+			if type == xpc_type_error {
+				if event == xpc_error_connection_interrupted {
+					NSLog("XPC connection interrupted.")
+				} else if event == xpc_error_connection_invalid {
+					NSLog("XPC connection invalid.")
+
+					if let connection = self.connection {
+						xpc_connection_cancel(connection)
+						self.connection = nil
+					}
+
+					// helper is not installed or outdated
+					if shouldTryInstall && self.installHelper() {
+						self.checkAndRunHelper(arguments)
+					}
+				} else {
+					NSLog("Unexpected XPC connection error.")
+				}
+			} else {
+				NSLog("Unexpected XPC connection event.")
+			}
+		}
+
+		// Resume connection. If the helper is not installed, this causes an xpc_error_connection_invalid
+		xpc_connection_resume(self.connection!)
+
+		if let connection = self.connection {
+			let bundledVersion = MonolingualHelperClient.bundledVersion!
+			let versionMessage = XPCObject(["version" : bundledVersion])
+			xpc_connection_send_message_with_reply(connection, versionMessage.object, dispatch_get_main_queue()) { event in
+				let xpcEvent = XPCObject(event)
+
+				if let eventDictionary = xpcEvent.dictionary {
+					let version = eventDictionary["version"]?.string
+					if version == nil || version! != bundledVersion {
+						// outdated helper: invalidate connection to trigger installation
+						xpc_connection_cancel(self.connection!)
+						self.connection = nil
+					} else {
+						shouldTryInstall = false
+						self.runHelper(arguments)
+					}
+				}
+			}
+		}
 	}
 	
 	func progressViewControllerDidCancel(progressViewController: ProgressViewController) {
@@ -496,8 +536,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				"excludes" : excludes,
 				"directories" : folders
 			]
-		
-			runDeleteHelperWithArgs(xpc_message.object)
+
+			checkAndRunHelper(xpc_message.object)
 		} else {
 			log.close()
 		}
