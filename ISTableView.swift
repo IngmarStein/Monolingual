@@ -3,21 +3,22 @@
 //  Monolingual
 //
 //  Created by Ingmar Stein on 27.01.06.
-//  Copyright 2006-2014 Ingmar Stein. All rights reserved.
+//  Copyright 2006-2015 Ingmar Stein. All rights reserved.
 //
 
 import Cocoa
 
-class ISTableView : NSTableView {
-	@IBOutlet var arrayController: NSArrayController!
+final class ISTableView : NSTableView {
+	@IBOutlet private var arrayController: NSArrayController!
 
 	override func keyDown(theEvent: NSEvent) {
-		if theEvent.charactersIgnoringModifiers != nil && theEvent.charactersIgnoringModifiers!.hasPrefix(" ") {
+		if let characters = theEvent.charactersIgnoringModifiers where characters.hasPrefix(" ") {
 			let row = self.selectedRow
 			if row != -1 {
-				let arrangedObjects = self.arrayController.arrangedObjects as [Setting]
-				var setting = arrangedObjects[row]
-				setting.enabled = !setting.enabled
+				if let arrangedObjects = self.arrayController.arrangedObjects as? [Setting] {
+					var setting = arrangedObjects[row]
+					setting.enabled = !setting.enabled
+				}
 			}
 		} else {
 			super.keyDown(theEvent)

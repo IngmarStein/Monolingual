@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *  2004-2014 Ingmar Stein
+ *  2004-2015 Ingmar Stein
  */
 
 import Cocoa
@@ -9,10 +9,10 @@ protocol ProgressViewControllerDelegate : class {
 	func progressViewControllerDidCancel(progressViewController: ProgressViewController)
 }
 
-class ProgressViewController : NSViewController {
-	@IBOutlet weak var progressBar: NSProgressIndicator!
-	@IBOutlet weak var applicationText: NSTextField!
-	@IBOutlet weak var fileText: NSTextField!
+final class ProgressViewController : NSViewController {
+	@IBOutlet private weak var progressBar: NSProgressIndicator!
+	@IBOutlet private weak var applicationText: NSTextField!
+	@IBOutlet private weak var fileText: NSTextField!
 	
 	weak var delegate : ProgressViewControllerDelegate?
 	

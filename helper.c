@@ -3,7 +3,7 @@
 //  Monolingual
 //
 //  Created by Ingmar Stein on Tue Mar 23 2004.
-//  Copyright (c) 2004-2014 Ingmar Stein. All rights reserved.
+//  Copyright (c) 2004-2015 Ingmar Stein. All rights reserved.
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -230,7 +230,7 @@ static void add_file_to_blacklist(const void *key, const void *value, void *ctx)
 			return;
 
 	file_blacklist_context_t *context = (file_blacklist_context_t *)ctx;
-	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/%@"), context->path, (CFStringRef)key);
+	CFStringRef path = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/%@"), context->path, (CFStringRef)key);
 	CFSetAddValue(context->helper_context->file_blacklist, path);
 	CFRelease(path);
 }
@@ -281,7 +281,7 @@ static int is_blacklisted(const char *path, const helper_context_t *context)
 	}
 
 	// add code resources to file blacklist
-	CFStringRef codeResourcesPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/Contents/_CodeSignature/CodeResources"), path);
+	CFStringRef codeResourcesPath = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s/_CodeSignature/CodeResources"), path);
 	CFURLRef codeResourcesURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, codeResourcesPath, kCFURLPOSIXPathStyle, false);
 	CFRelease(codeResourcesPath);
 	CFReadStreamRef codeResourcesStream = CFReadStreamCreateWithFile(kCFAllocatorDefault, codeResourcesURL);
@@ -302,6 +302,14 @@ static int is_blacklisted(const char *path, const helper_context_t *context)
 					blacklist_context.path = path;
 					blacklist_context.helper_context = context;
 					CFDictionaryApplyFunction(files, add_file_to_blacklist, (void *)&blacklist_context);
+				}
+
+				CFDictionaryRef files2 = CFDictionaryGetValue(plist, CFSTR("files2"));
+				if (files2) {
+					file_blacklist_context_t blacklist_context;
+					blacklist_context.path = path;
+					blacklist_context.helper_context = context;
+					CFDictionaryApplyFunction(files2, add_file_to_blacklist, (void *)&blacklist_context);
 				}
 				CFRelease(plist);
 			}
@@ -328,7 +336,7 @@ static void delete_recursively(const char *path, const helper_context_t *context
 	CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
 	Boolean blacklisted = CFSetContainsValue(context->file_blacklist, pathString);
 	CFRelease(pathString);
-	
+
 	if (blacklisted)
 		return;
 	
@@ -385,6 +393,16 @@ static void trash_file(const char *path, const helper_context_t *context)
 	if (context->dry_run)
 		return;
 
+	if (context->should_exit)
+		return;
+
+	CFStringRef pathString = CFStringCreateWithFileSystemRepresentation(kCFAllocatorDefault, path);
+	Boolean blacklisted = CFSetContainsValue(context->file_blacklist, pathString);
+	CFRelease(pathString);
+
+	if (blacklisted)
+		return;
+
 	if (realpath(path, resolved_path)) {
 		char userTrash[PATH_MAX];
 		int validTrash = 0;
@@ -424,9 +442,14 @@ static void trash_file(const char *path, const helper_context_t *context)
 						if (rename(path, destination)) {
 							syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
 						} else {
+							off_t size = 0;
+							if (!stat(destination, &sb)) {
+								size = sb.st_size;
+							}
+
 							xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
 							xpc_dictionary_set_string(message, "file", path);
-							xpc_dictionary_set_uint64(message, "size", 0);
+							xpc_dictionary_set_uint64(message, "size", size);
 							xpc_connection_send_message(context->connection, message);
 							xpc_release(message);
 						}
@@ -734,10 +757,24 @@ static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 		free(messageDescription);
 		
 		if (xpc_dictionary_get_value(requestMessage, "exit_code")) {
-			exit(xpc_dictionary_get_int64(requestMessage, "exit_code"));
+			int64_t exit_code = xpc_dictionary_get_int64(requestMessage, "exit_code");
+			syslog(LOG_NOTICE, "exiting with exit status (%d)", (int)exit_code);
+			exit(exit_code);
 		} else {
 			xpc_object_t replyMessage = xpc_dictionary_create_reply(requestMessage);
-			process_request(requestMessage, replyMessage);
+			if (xpc_dictionary_get_value(requestMessage, "version")) {
+				CFStringRef bundleVersion = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
+				char const *version = CFStringGetCStringPtr(bundleVersion, kCFStringEncodingUTF8);
+				if (version) {
+					xpc_dictionary_set_string(replyMessage, "version", version);
+				} else {
+					char buffer[256];
+					CFStringGetCString(bundleVersion, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+					xpc_dictionary_set_string(replyMessage, "version", buffer);
+				}
+			} else {
+				process_request(requestMessage, replyMessage);
+			}
 
 			messageDescription = xpc_copy_description(replyMessage);
 			syslog(LOG_NOTICE, "reply message to peer(%d)\n: %s", xpc_connection_get_pid(peer), messageDescription);
