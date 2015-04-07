@@ -11,7 +11,7 @@ import Cocoa
 let ProcessApplicationNotification = "ProcessApplicationNotification"
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate {
 	var preferencesWindowController : NSWindowController?
 
 	func applicationDidFinishLaunching(NSNotification) {
@@ -22,22 +22,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		let defaultRoots = [ applications, developer, library, systemPath ]
 		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false ]
 
-		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict)
+		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [NSObject : AnyObject])
 	}
 	
-	func applicationShouldTerminateAfterLastWindowClosed(NSApplication!) -> Bool {
+	func applicationShouldTerminateAfterLastWindowClosed(NSApplication) -> Bool {
 		return true
 	}
 
-	func application(sender: NSApplication!, openFile filename: String!) -> Bool {
+	func application(sender: NSApplication, openFile filename: String) -> Bool {
 		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
 		
-		NSNotificationCenter.defaultCenter().postNotificationName(ProcessApplicationNotification, object: self, userInfo: dict)
+		NSNotificationCenter.defaultCenter().postNotificationName(ProcessApplicationNotification, object: self, userInfo: (dict as! [NSObject : AnyObject]))
 		
 		return true
 	}
 	
-	// #pragma mark - Actions
+	//MARK: - Actions
 	
 	@IBAction func documentationBundler(sender : NSMenuItem) {
 		let docURL = NSBundle.mainBundle().URLForResource(sender.title, withExtension:nil)

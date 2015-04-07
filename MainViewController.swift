@@ -1,6 +1,6 @@
 /*
 *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
-*                2004-2014 Ingmar Stein
+*                2004-2015 Ingmar Stein
 *  Released under the GNU GPL.  For more information, see the header file.
 */
 //
@@ -12,7 +12,8 @@
 //
 
 import Cocoa
-import Set
+import SMJobKit
+import XPCSwift
 
 enum MonolingualMode : Int {
 	case Languages = 0
@@ -26,63 +27,55 @@ struct ArchitectureInfo {
 	let cpu_subtype : cpu_subtype_t
 }
 
+// these defines are not (yet) visible to Swift
+let CPU_TYPE_X86 : cpu_type_t					= 7
+let CPU_TYPE_X86_64 : cpu_type_t				= CPU_TYPE_X86 | CPU_ARCH_ABI64
+let CPU_TYPE_ARM : cpu_type_t					= 12
+let CPU_TYPE_ARM64 : cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
+let CPU_TYPE_POWERPC : cpu_type_t				= 18
+let CPU_TYPE_POWERPC64 : cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+let CPU_SUBTYPE_ARM_ALL : cpu_subtype_t			= 0
+let CPU_SUBTYPE_POWERPC_ALL : cpu_subtype_t		= 0
+let CPU_SUBTYPE_POWERPC_750 : cpu_subtype_t		= 9
+let CPU_SUBTYPE_POWERPC_7400 : cpu_subtype_t	= 10
+let CPU_SUBTYPE_POWERPC_7450 : cpu_subtype_t	= 11
+let CPU_SUBTYPE_POWERPC_970 : cpu_subtype_t		= 100
+let CPU_SUBTYPE_X86_ALL : cpu_subtype_t			= 3
+let CPU_SUBTYPE_X86_64_ALL : cpu_subtype_t		= 3
+let CPU_SUBTYPE_X86_64_H : cpu_subtype_t		= 8
+
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
 
-enum SMJErrorCodeSwift : Int {
-	case BundleNotFound = 1000
-	case UnsignedBundle = 1001
-	case BadBundleSecurity = 1002
-	case BadBundleCodeSigningDictionary = 1003
-	
-	case UnableToBless = 1010
-	
-	case AuthorizationDenied = 1020
-	case AuthorizationCanceled = 1021
-	case AuthorizationInteractionNotAllowed = 1022
-	case AuthorizationFailed = 1023
-}
+final class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
-class MainViewController : NSViewController, ProgressViewControllerDelegate {
-
-	@IBOutlet weak var currentArchitecture : NSTextField!
+	@IBOutlet private weak var currentArchitecture : NSTextField!
 
 	var progressViewController : ProgressViewController?
 
-	var blacklist : [BlacklistEntry]!
+	var blacklist : [BlacklistEntry]?
 	dynamic var languages : [LanguageSetting]!
 	dynamic var architectures : [ArchitectureSetting]!
 
 	var bytesSaved : UInt64 = 0
 	var mode : MonolingualMode = .Languages
 	var processApplication : Root?
-	var processApplicationObserver : NSObjectProtocol!
+	var processApplicationObserver : NSObjectProtocol?
 	var listener_queue : dispatch_queue_t?
 	var peer_event_queue : dispatch_queue_t?
 	var connection : xpc_connection_t?
 	var progressConnection : xpc_connection_t?
 	
 	var roots : [Root] {
-		if self.processApplication != nil {
-			return [ self.processApplication! ]
+		if let application = self.processApplication {
+			return [ application ]
 		} else {
-			var roots = [Root]()
-			let pref = NSUserDefaults.standardUserDefaults().arrayForKey("Roots") as? [NSDictionary]
-			if let array = pref {
-				roots.reserveCapacity(array.count)
-				for root in array {
-					roots.append(Root(dictionary: root))
-				}
-			}
-			return roots
+			let pref = NSUserDefaults.standardUserDefaults().arrayForKey("Roots") as? [[NSObject : AnyObject]]
+			return pref?.map { Root(dictionary: $0) } ?? [Root]()
 		}
 	}
 
-	override init() {
-		super.init()
-	}
-	
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 	}
@@ -95,7 +88,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		// Display a warning first
 		let alert = NSAlert()
 		alert.alertStyle = .WarningAlertStyle
-		alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+		alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 		alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
 		alert.beginSheetModalForWindow(self.view.window!) { responseCode in
@@ -115,7 +108,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		let roots = self.roots
 
-		let archs = self.architectures.filter { $0.enabled } .map { XPCObject($0.name) }
+		let archs : [XPCRepresentable] = self.architectures.filter { $0.enabled } .map { $0.name }
 		for arch in archs {
 			log.message(" \(arch)")
 		}
@@ -132,12 +125,12 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
-			let includes = roots.filter { $0.architectures } .map { XPCObject($0.path) }
-			var excludes = roots.filter { !$0.architectures } .map { XPCObject($0.path) }
-			let bl = self.blacklist.filter { $0.architectures } .map { XPCObject($0.bundle) }
+			let includes : [XPCRepresentable] = roots.filter { $0.architectures } .map { $0.path }
+			var excludes : [XPCRepresentable] = roots.filter { !$0.architectures } .map { $0.path }
+			let bl : [XPCRepresentable] = self.blacklist!.filter { $0.architectures } .map { $0.bundle }
 
-			excludes.append(XPCObject("/System/Library/Frameworks"))
-			excludes.append(XPCObject("/System/Library/PrivateFrameworks"))
+			excludes.append("/System/Library/Frameworks")
+			excludes.append("/System/Library/PrivateFrameworks")
 
 			for item in bl {
 				NSLog("Blacklisting \(item)")
@@ -150,79 +143,69 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			}
 
 			let xpc_message : XPCObject = [
-				"strip" : XPCObject(NSUserDefaults.standardUserDefaults().boolForKey("Strip")),
-				"blacklist" : XPCObject(bl),
-				"includes" : XPCObject(includes),
-				"excludes" : XPCObject(excludes),
-				"thin" : XPCObject(archs)
+				"strip" : NSUserDefaults.standardUserDefaults().boolForKey("Strip"),
+				"blacklist" : bl,
+				"includes" : includes,
+				"excludes" : excludes,
+				"thin" : archs
 			]
 		
-			self.runDeleteHelperWithArgs(xpc_message.object)
+			self.checkAndRunHelper(xpc_message.object)
 		} else {
 			log.close()
 		}
 	}
 	
-	func processProgress(progress: xpc_object_t) {
-		if xpc_dictionary_get_count(progress) == 0 {
-			return
-		}
-		
-		let file = NSString(UTF8String: xpc_dictionary_get_string(progress, "file"))!
-		let size = xpc_dictionary_get_uint64(progress, "size")
-		self.bytesSaved += size
-		
-		log.message("\(file): \(size)\n")
+	func processProgress(progress: XPCObject) {
+		if let progressDictionary = progress.dictionary, file = progressDictionary["file"]?.string, size = progressDictionary["size"]?.uint64 {
+			self.bytesSaved += size
 
-		var message : String
-		if self.mode == .Architectures {
-			message = NSLocalizedString("Removing architecture from universal binary", comment:"")
-		} else {
-			/* parse file name */
-			var lang : String? = nil
-			var app : String? = nil
+			log.message("\(file): \(size)\n")
+
+			let message : String
+			if self.mode == .Architectures {
+				message = NSLocalizedString("Removing architecture from universal binary", comment:"")
+			} else {
+				/* parse file name */
+				var lang : String? = nil
+				var app : String? = nil
 			
-			if self.mode == .Languages {
-				let pathComponents = file.componentsSeparatedByString("/")
-				for pathComponent in pathComponents {
-					if pathComponent.hasSuffix(".app") {
-						app = pathComponent.substringToIndex(pathComponent.length - 4)
-					} else if pathComponent.hasSuffix(".lproj") {
-						for language in self.languages {
-							if contains(language.folders, pathComponent as String) {
-								lang = language.displayName
-								break
+				if self.mode == .Languages {
+					let pathComponents = file.componentsSeparatedByString("/")
+					for pathComponent in pathComponents {
+						if pathComponent.hasSuffix(".app") {
+							app = pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
+						} else if pathComponent.hasSuffix(".lproj") {
+							for language in self.languages {
+								if contains(language.folders, pathComponent) {
+									lang = language.displayName
+									break
+								}
 							}
 						}
 					}
 				}
+				if let app = app {
+					message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang!, app)
+				} else if let lang = lang {
+					message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
+				} else {
+					message = String(format:NSLocalizedString("Removing %@…", comment:""), file)
+				}
 			}
-			if let app = app {
-				let removing = NSLocalizedString("Removing language", comment:"")
-				let from = NSLocalizedString("from", comment:"")
-				message = "\(removing) \(lang!) \(from) \(app)…"
-			} else if let lang = lang {
-				let removing = NSLocalizedString("Removing language", comment:"")
-				message = "\(removing) \(lang)…"
-			} else {
-				let removing = NSLocalizedString("Removing", comment:"")
-				message = "\(removing) \(file)"
-			}
-		}
 		
-		if let viewController = self.progressViewController {
-			viewController.text = message
-			viewController.file = file
+			if let viewController = self.progressViewController {
+				viewController.text = message
+				viewController.file = file
+			}
+			NSApp.setWindowsNeedUpdate(true)
 		}
-		NSApp.setWindowsNeedUpdate(true)
 	}
-		
-	func runDeleteHelperWithArgs(arguments: xpc_object_t) {
-		self.bytesSaved = 0
-	
-		var error : NSError?
+
+	func installHelper() -> Bool {
+		var error : NSError? = nil
 		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
-			let errorCode = SMJErrorCodeSwift(rawValue:error!.code)
+			let errorCode = ErrorCode(rawValue:error!.code)
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
 				NSLog("Failed to bless helper. Error: \(error!)")
@@ -248,41 +231,25 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			default: ()
 			}
 			log.close()
-			return
+			return false
 		}
-	
-		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
-	
-		if self.connection == nil {
-			NSLog("Failed to create XPC connection.")
-			return
-		}
-	
+		return true
+	}
+
+	func runHelper(arguments: xpc_object_t) {
 		NSProcessInfo.processInfo().disableSuddenTermination()
-	
-		xpc_connection_set_event_handler(self.connection) { event in
-			let type = xpc_get_type(event)
-		
-			if type == xpc_type_error {
-				if event == xpc_error_connection_interrupted {
-					NSLog("XPC connection interrupted.")
-				} else if event == xpc_error_connection_invalid {
-					NSLog("XPC connection invalid.")
-				} else {
-					NSLog("Unexpected XPC connection error.")
-				}
-			} else {
-				NSLog("Unexpected XPC connection event.")
-			}
-		}
-	
+
+		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
+
+		self.bytesSaved = 0
+
 		// Create an anonymous listener connection that collects progress updates.
-		self.progressConnection = xpc_connection_create(UnsafePointer<Int8>.null(), self.listener_queue)
+		self.progressConnection = xpc_connection_create(nil, self.listener_queue)
 
 		if self.progressConnection != nil {
-			xpc_connection_set_event_handler(self.progressConnection) { event in
+			xpc_connection_set_event_handler(self.progressConnection!) { event in
 				let type = xpc_get_type(event)
-			
+
 				if type == xpc_type_error {
 					if event == xpc_error_termination_imminent {
 						NSLog("received XPC_ERROR_TERMINATION_IMMINENT")
@@ -291,40 +258,34 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 					}
 				} else if xpc_type_connection == type {
 					let peer = event as xpc_connection_t
-				
+
 					xpc_connection_set_target_queue(peer, self.peer_event_queue)
 					xpc_connection_set_event_handler(peer) { nevent in
-						let ntype = xpc_get_type(nevent)
-					
-						if xpc_type_dictionary == ntype {
-							self.processProgress(nevent)
-						}
+						self.processProgress(XPCObject(nevent))
 					}
 					xpc_connection_resume(peer)
 				}
 			}
-			xpc_connection_resume(self.progressConnection)
-		
+			xpc_connection_resume(self.progressConnection!)
+
 			xpc_dictionary_set_connection(arguments, "connection", self.progressConnection)
 		} else {
 			NSLog("Couldn't create progress connection")
 		}
-	
-		xpc_connection_resume(self.connection)
-	
+
 		// DEBUG
 		//xpc_dictionary_set_bool(arguments, "dry_run", true)
 
-		xpc_connection_send_message_with_reply(self.connection, arguments, dispatch_get_main_queue()) { event in
-			let type = xpc_get_type(event)
-			if xpc_type_dictionary == type {
-				let exit_code = xpc_dictionary_get_int64(event, "exit_code")
+		xpc_connection_send_message_with_reply(self.connection!, arguments, dispatch_get_main_queue()) { event in
+			let xpcEvent = XPCObject(event)
+
+			if let eventDictionary = xpcEvent.dictionary {
+				let exit_code = eventDictionary["exit_code"]?.int64 ?? 0
 				NSLog("helper finished with exit code: %lld", exit_code)
-			
+
 				if self.connection != nil {
-					let exit_message = xpc_dictionary_create(nil, nil, 0)
-					xpc_dictionary_set_int64(exit_message, "exit_code", exit_code)
-					xpc_connection_send_message(self.connection, exit_message)
+					let exitMessage : XPCObject = ["exit_code" : exit_code]
+					xpc_connection_send_message(self.connection!, exitMessage.object)
 				}
 
 				if exit_code == 0 {
@@ -339,12 +300,72 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 		self.progressViewController?.delegate = self
 		self.presentViewControllerAsSheet(self.progressViewController!)
-	
+
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
 		notification.informativeText = NSLocalizedString("Started removing files", comment:"")
-		
+
 		NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
+	}
+
+	func checkAndRunHelper(arguments: xpc_object_t) {
+		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
+
+		if self.connection == nil {
+			NSLog("Failed to create XPC connection.")
+			return
+		}
+
+		var shouldTryInstall = true
+
+		xpc_connection_set_event_handler(self.connection!) { event in
+			let type = xpc_get_type(event)
+
+			if type == xpc_type_error {
+				if event == xpc_error_connection_interrupted {
+					NSLog("XPC connection interrupted.")
+				} else if event == xpc_error_connection_invalid {
+					NSLog("XPC connection invalid.")
+
+					if let connection = self.connection {
+						xpc_connection_cancel(connection)
+						self.connection = nil
+					}
+
+					// helper is not installed or outdated
+					if shouldTryInstall && self.installHelper() {
+						self.checkAndRunHelper(arguments)
+					}
+				} else {
+					NSLog("Unexpected XPC connection error.")
+				}
+			} else {
+				NSLog("Unexpected XPC connection event.")
+			}
+		}
+
+		// Resume connection. If the helper is not installed, this causes an xpc_error_connection_invalid
+		xpc_connection_resume(self.connection!)
+
+		if let connection = self.connection {
+			let bundledVersion = MonolingualHelperClient.bundledVersion!
+			let versionMessage = XPCObject(["version" : bundledVersion])
+			xpc_connection_send_message_with_reply(connection, versionMessage.object, dispatch_get_main_queue()) { event in
+				let xpcEvent = XPCObject(event)
+
+				if let eventDictionary = xpcEvent.dictionary {
+					let version = eventDictionary["version"]?.string
+					if version == nil || version! != bundledVersion {
+						// outdated helper: invalidate connection to trigger installation
+						xpc_connection_cancel(self.connection!)
+						self.connection = nil
+					} else {
+						shouldTryInstall = false
+						self.runHelper(arguments)
+					}
+				}
+			}
+		}
 	}
 	
 	func progressViewControllerDidCancel(progressViewController: ProgressViewController) {
@@ -360,27 +381,26 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		if !completed {
 			if self.progressConnection != nil {
 				if self.connection != nil {
-					let exit_message = xpc_dictionary_create(nil, nil, 0)
-					xpc_dictionary_set_int64(exit_message, "exit_code", Int64(EXIT_FAILURE))
-					xpc_connection_send_message(self.connection, exit_message)
+					let exitMessage : XPCObject = ["exit_code" : Int64(EXIT_FAILURE)]
+					xpc_connection_send_message(self.connection!, exitMessage.object)
 				}
 			
 				// Cancel and release the anonymous connection which signals the remote
 				// service to stop, if working.
 				NSLog("Closing progress connection")
-				xpc_connection_cancel(self.progressConnection)
+				xpc_connection_cancel(self.progressConnection!)
 				self.progressConnection = nil
 			}
 
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = NSString(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount)
+			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
-			alert.messageText = NSString(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
+			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment:"")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 		
@@ -393,7 +413,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 	
 		if self.connection != nil {
 			NSLog("Closing connection")
-			xpc_connection_cancel(self.connection)
+			xpc_connection_cancel(self.connection!)
 			self.connection = nil
 		}
 	
@@ -442,7 +462,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			// Display a warning
 			let alert = NSAlert()
 			alert.alertStyle = .CriticalAlertStyle
-			alert.addButtonWithTitle(NSLocalizedString("Stop", comment:""))
+			alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
 			
@@ -465,9 +485,9 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 	
 		let roots = self.roots
 
-		let includes = roots.filter { $0.languages } .map { XPCObject($0.path) }
-		let excludes = roots.filter { !$0.languages } .map { XPCObject($0.path) }
-		let bl = self.blacklist.filter { $0.languages } .map { XPCObject($0.bundle) }
+		let includes : [XPCRepresentable] = roots.filter { $0.languages } .map { $0.path }
+		let excludes : [XPCRepresentable] = roots.filter { !$0.languages } .map { $0.path }
+		let bl : [XPCRepresentable] = self.blacklist!.filter { $0.languages } .map { $0.bundle }
 		
 		for item in bl {
 			NSLog("Blacklisting \(item)")
@@ -480,11 +500,11 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 		
 		var rCount = 0
-		var folders = [XPCObject]()
+		var folders = [XPCRepresentable]()
 		for language in self.languages {
 			if language.enabled {
 				for path in language.folders {
-					folders.append(XPCObject(path))
+					folders.append(path)
 					if rCount != 0 {
 						log.message(" ")
 					}
@@ -494,7 +514,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			}
 		}
 		if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
-			folders.append(XPCObject("designable.nib"))
+			folders.append("designable.nib")
 		}
 	
 		log.message("\nDeleted files: \n")
@@ -509,15 +529,15 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			/* start things off if we have something to remove! */
 
 			let xpc_message : XPCObject = [
-				"trash" : XPCObject(NSUserDefaults.standardUserDefaults().boolForKey("Trash")),
-				"uid" : XPCObject(Int64(getuid())),
-				"blacklist" : XPCObject(bl),
-				"includes" : XPCObject(includes),
-				"excludes" : XPCObject(excludes),
-				"directories" : XPCObject(folders)
+				"trash" : NSUserDefaults.standardUserDefaults().boolForKey("Trash"),
+				"uid" : Int64(getuid()),
+				"blacklist" : bl,
+				"includes" : includes,
+				"excludes" : excludes,
+				"directories" : folders
 			]
-		
-			runDeleteHelperWithArgs(xpc_message.object)
+
+			checkAndRunHelper(xpc_message.object)
 		} else {
 			log.close()
 		}
@@ -530,7 +550,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		self.peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", nil)
 		assert(self.peer_event_queue != nil)
 		
-		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as [String]
+		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as! [String]
 
 		// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
 		var numUserLanguages = NSUserDefaults.standardUserDefaults().integerForKey("AppleUserLanguages")
@@ -542,23 +562,28 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 
 		// never check "English" by default
 		userLanguages.insert("en")
-		
+
 		// never check user locale by default
 		let appleLocale = NSUserDefaults.standardUserDefaults().stringForKey("AppleLocale")
 		if let locale = appleLocale {
 			userLanguages.insert(locale.stringByReplacingOccurrencesOfString("_", withString:"-"))
 		}
 
+		var knownLocales = Set<String>()
 		let numKnownLanguages = 134
 		var knownLanguages = [LanguageSetting]()
 		knownLanguages.reserveCapacity(numKnownLanguages)
 
+		let locale = NSLocale.currentLocale()
+
 		func addLanguage(code:String, name:String, folders: String...) {
-			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
+			knownLocales.insert(code)
+			let language = locale.displayNameForKey(NSLocaleIdentifier, value: code)
+			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code) && locale.localeIdentifier != code,
 												  folders: folders,
-												  displayName: NSLocalizedString(name, comment:"")))
+												  displayName: (language ?? name)))
 		}
-		
+
 		addLanguage("ach",     "Acholi",               "ach.lproj")
 		addLanguage("af",      "Afrikaans",            "af.lproj", "Afrikaans.lproj")
 		addLanguage("am",      "Amharic",              "am.lproj", "Amharic.lproj")
@@ -571,7 +596,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("be",      "Byelorussian",         "be.lproj", "Byelorussian.lproj")
 		addLanguage("bg",      "Bulgarian",            "bg.lproj", "Bulgarian.lproj")
 		addLanguage("bi",      "Bislama",              "bi.lproj", "Bislama.lproj")
-		addLanguage("bn",      "Bengali",              "bn.lproj", "bn_IN.lproj", "Bengali.lproj")
+		addLanguage("bn",      "Bengali",              "bn.lproj", "bn_IN.lproj", "bn-IN.proj", "Bengali.lproj")
 		addLanguage("bo",      "Tibetan",              "bo.lproj", "Tibetan.lproj")
 		addLanguage("br",      "Breton",               "br.lproj", "Breton.lproj")
 		addLanguage("bs",      "Bosnian",              "bs.lproj")
@@ -580,32 +605,32 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("chr",     "Cherokee",             "chr.lproj", "Cherokee.lproj")
 		addLanguage("ckb",     "Sorani",               "ckb.lproj")
 		addLanguage("co",      "Corsican",             "co.lproj")
-		addLanguage("cs",      "Czech",                "cs.lproj", "cs_CZ.lproj", "Czech.lproj")
+		addLanguage("cs",      "Czech",                "cs.lproj", "cs_CZ.lproj", "cs-CZ.lproj", "Czech.lproj")
 		addLanguage("cy",      "Welsh",                "cy.lproj", "Welsh.lproj")
 		addLanguage("da",      "Danish",               "da.lproj", "da_DK.lproj", "Danish.lproj")
 		addLanguage("de",      "German",               "de.lproj", "de_DE.lproj", "German.lproj")
-		addLanguage("de-AT",   "German (Austria)",     "de_AT.lproj")
-		addLanguage("de-CH",   "German (Switzerland)", "de_CH.lproj")
+		addLanguage("de-AT",   "German (Austria)",     "de_AT.lproj", "de-AT.lproj")
+		addLanguage("de-CH",   "German (Switzerland)", "de_CH.lproj", "de-CH.lproj")
 		addLanguage("dz",      "Dzongkha",             "dz.lproj", "Dzongkha.lproj")
-		addLanguage("el",      "Greek",                "el.lproj", "el_GR.lproj", "Greek.lproj")
+		addLanguage("el",      "Greek",                "el.lproj", "el_GR.lproj", "el-GR.lproj", "Greek.lproj")
 		addLanguage("en",      "English",              "en.lproj", "English.lproj")
-		addLanguage("en-AU",   "English (Australia)",      "en_AU.lproj")
-		addLanguage("en-CA",   "English (Canada)",         "en_CA.lproj")
-		addLanguage("en-GB",   "English (United Kingdom)", "en_GB.lproj")
-		addLanguage("en-NZ",   "English (New Zealand)",    "en_NZ.lproj")
-		addLanguage("en-US",   "English (United States)",  "en_US.lproj")
+		addLanguage("en-AU",   "English (Australia)",      "en_AU.lproj", "en-AU.lproj")
+		addLanguage("en-CA",   "English (Canada)",         "en_CA.lproj", "en-CA.lproj")
+		addLanguage("en-GB",   "English (United Kingdom)", "en_GB.lproj", "en-GB.lproj")
+		addLanguage("en-NZ",   "English (New Zealand)",    "en_NZ.lproj", "en-NZ.lproj")
+		addLanguage("en-US",   "English (United States)",  "en_US.lproj", "en-US.lproj")
 		addLanguage("eo",      "Esperanto",            "eo.lproj", "Esperanto.lproj")
-		addLanguage("es",      "Spanish",              "es.lproj", "es_ES.lproj", "es_419.lproj", "es-MX.lproj", "es_MX.lproj", "Spanish.lproj")
+		addLanguage("es",      "Spanish",              "es.lproj", "es_ES.lproj", "es-ES.lproj", "es_419.lproj", "es-MX.lproj", "es_MX.lproj", "Spanish.lproj")
 		addLanguage("et",      "Estonian",             "et.lproj", "Estonian.lproj")
 		addLanguage("eu",      "Basque",               "eu.lproj", "Basque.lproj")
 		addLanguage("fa",      "Farsi",                "fa.lproj", "Farsi.lproj")
 		addLanguage("ff",      "Fula",                 "ff.lproj")
-		addLanguage("fi",      "Finnish",              "fi.lproj", "fi_FI.lproj", "Finnish.lproj")
+		addLanguage("fi",      "Finnish",              "fi.lproj", "fi_FI.lproj", "fi-FI.lproj", "Finnish.lproj")
 		addLanguage("fil",     "Filipino",             "fil.lproj")
 		addLanguage("fo",      "Faroese",              "fo.lproj", "Faroese.lproj")
-		addLanguage("fr",      "French",               "fr.lproj", "fr_FR.lproj", "French.lproj")
-		addLanguage("fr-CA",   "French (Canada)",      "fr_CA.lproj")
-		addLanguage("fr-CH",   "French (Switzerland)", "fr_CH.lproj")
+		addLanguage("fr",      "French",               "fr.lproj", "fr_FR.lproj", "fr-FR.lproj", "French.lproj")
+		addLanguage("fr-CA",   "French (Canada)",      "fr_CA.lproj", "fr-CA.lproj")
+		addLanguage("fr-CH",   "French (Switzerland)", "fr_CH.lproj", "fr-CH.lproj")
 		addLanguage("fur",     "Fur",                  "fur.lproj")
 		addLanguage("ga",      "Irish",                "ga.lproj", "Irish.lproj")
 		addLanguage("gd",      "Scottish",             "gd.lproj", "Scottish.lproj")
@@ -617,14 +642,14 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("he",      "Hebrew",               "he.lproj", "Hebrew.lproj")
 		addLanguage("hi",      "Hindi",                "hi.lproj", "Hindi.lproj")
 		addLanguage("hr",      "Croatian",             "hr.lproj", "Croatian.lproj")
-		addLanguage("hu",      "Hungarian",            "hu.lproj", "hu_HU.lproj", "Hungarian.lproj")
+		addLanguage("hu",      "Hungarian",            "hu.lproj", "hu_HU.lproj", "hu-HU.lproj", "Hungarian.lproj")
 		addLanguage("hy",      "Armenian",             "hy.lproj", "Armenian.lproj")
 		addLanguage("ia",      "Interlingua",          "ia.lproj")
-		addLanguage("id",      "Indonesian",           "id.lproj", "id_ID.lproj", "Indonesian.lproj")
+		addLanguage("id",      "Indonesian",           "id.lproj", "id_ID.lproj", "id-ID.lproj", "Indonesian.lproj")
 		addLanguage("is",      "Icelandic",            "is.lproj", "Icelandic.lproj")
-		addLanguage("it",      "Italian",              "it.lproj", "it_IT.lproj", "Italian.lproj")
+		addLanguage("it",      "Italian",              "it.lproj", "it_IT.lproj", "it-IT.lproj", "Italian.lproj")
 		addLanguage("iu",      "Inuktitut",            "iu.lproj", "Inuktitut.lproj")
-		addLanguage("ja",      "Japanese",             "ja.lproj", "ja_JP.lproj", "Japanese.lproj")
+		addLanguage("ja",      "Japanese",             "ja.lproj", "ja_JP.lproj", "ja-JP.lproj", "Japanese.lproj")
 		addLanguage("jv",      "Javanese",             "jv.lproj", "Javanese.lproj")
 		addLanguage("ka",      "Georgian",             "ka.lproj", "Georgian.lproj")
 		addLanguage("kk",      "Kazakh",               "kk.lproj", "Kazakh.lproj")
@@ -632,7 +657,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("kl",      "Greenlandic",          "kl.lproj", "Greenlandic.lproj")
 		addLanguage("km",      "Khmer",                "km.lproj", "Khmer.lproj")
 		addLanguage("kn",      "Kannada",              "kn.lproj", "Kannada.lproj")
-		addLanguage("ko",      "Korean",               "ko.lproj", "ko_KR.lproj", "Korean.lproj")
+		addLanguage("ko",      "Korean",               "ko.lproj", "ko_KR.lproj", "ko-KR.lproj", "Korean.lproj")
 		addLanguage("ks",      "Kashmiri",             "ks.lproj", "Kashmiri.lproj")
 		addLanguage("ku",      "Kurdish",              "ku.lproj", "Kurdish.lproj")
 		addLanguage("kw",      "Kernowek",             "kw.lproj", "Kernowek.lproj")
@@ -641,28 +666,28 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("lg",      "Luganda",              "lg.lproj")
 		addLanguage("lo",      "Lao",                  "lo.lproj", "Lao.lproj")
 		addLanguage("lt",      "Lithuanian",           "lt.lproj", "Lithuanian.lproj")
-		addLanguage("lv",      "Latvian",              "lv.lproj", "lv_LV.lproj", "Latvian.lproj")
+		addLanguage("lv",      "Latvian",              "lv.lproj", "lv_LV.lproj", "lv-LV.lproj", "Latvian.lproj")
 		addLanguage("mg",      "Malagasy",             "mg.lproj", "Malagasy.lproj")
 		addLanguage("mi",      "Maori",                "mi.lproj", "Maori.lproj")
 		addLanguage("mk",      "Macedonian",           "mk.lproj", "Macedonian.lproj")
 		addLanguage("mr",      "Marathi",              "mr.lproj", "Marathi.lproj")
 		addLanguage("ml",      "Malayalam",            "ml.lproj", "Malayalam.lproj")
 		addLanguage("mn",      "Mongolian",            "mn.lproj", "Mongolian.lproj")
-		addLanguage("mo",      "Moldavian",            "mo.lproj", "Moldavian.lproj")
+		addLanguage("mo",      NSLocalizedString("Moldavian", comment:""),            "mo.lproj", "Moldavian.lproj")
 		addLanguage("ms",      "Malay",                "ms.lproj", "Malay.lproj")
 		addLanguage("mt",      "Maltese",              "mt.lproj", "Maltese.lproj")
 		addLanguage("my",      "Burmese",              "my.lproj", "Burmese.lproj")
 		addLanguage("ne",      "Nepali",               "ne.lproj", "Nepali.lproj")
-		addLanguage("nl",      "Dutch",                "nl.lproj", "nl_NL.lproj", "Dutch.lproj")
-		addLanguage("nl-BE",   "Flemish",              "nl_BE.lproj")
-		addLanguage("no",      "Norwegian",            "no.lproj", "no_NO.lproj", "Norwegian.lproj")
+		addLanguage("nl",      "Dutch",                "nl.lproj", "nl_NL.lproj", "nl-NL.lproj", "Dutch.lproj")
+		addLanguage("nl-BE",   "Flemish",              "nl_BE.lproj", "nl-BE.lproj")
+		addLanguage("no",      "Norwegian",            "no.lproj", "no_NO.lproj", "no-NO.lproj", "Norwegian.lproj")
 		addLanguage("nb",      "Norwegian Bokmal",     "nb.lproj")
 		addLanguage("nn",      "Norwegian Nynorsk",    "nn.lproj")
 		addLanguage("oc",      "Occitan",              "oc.lproj")
 		addLanguage("om",      "Oromo",                "om.lproj", "Oromo.lproj")
 		addLanguage("or",      "Oriya",                "or.lproj", "Oriya.lproj")
 		addLanguage("pa",      "Punjabi",              "pa.lproj", "Punjabi.lproj")
-		addLanguage("pl",      "Polish",               "pl.lproj", "pl_PL.lproj", "Polish.lproj")
+		addLanguage("pl",      "Polish",               "pl.lproj", "pl_PL.lproj", "pl-PL.lproj", "Polish.lproj")
 		addLanguage("ps",      "Pashto",               "ps.lproj", "Pashto.lproj")
 		addLanguage("pt",      "Portuguese",           "pt.lproj", "pt_PT.lproj", "pt-PT.lproj", "Portuguese.lproj")
 		addLanguage("pt-BR",   "Portuguese (Brazil)",  "pt_BR.lproj", "PT_br.lproj", "pt-BR.lproj")
@@ -675,13 +700,13 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("sd",      "Sindhi",               "sd.lproj", "Sindhi.lproj")
 		addLanguage("se",      "Sami",                 "se.lproj", "Sami.lproj")
 		addLanguage("si",      "Sinhalese",            "si.lproj", "Sinhalese.lproj")
-		addLanguage("sk",      "Slovak",               "sk.lproj", "sk_SK.lproj", "Slovak.lproj")
+		addLanguage("sk",      "Slovak",               "sk.lproj", "sk_SK.lproj", "sk-SK.lproj", "Slovak.lproj")
 		addLanguage("sl",      "Slovenian",            "sl.lproj", "Slovenian.lproj")
 		addLanguage("so",      "Somali",               "so.lproj", "Somali.lproj")
 		addLanguage("sq",      "Albanian",             "sq.lproj", "Albanian.lproj")
 		addLanguage("sr",      "Serbian",              "sr.lproj", "Serbian.lproj")
 		addLanguage("su",      "Sundanese",            "su.lproj", "Sundanese.lproj")
-		addLanguage("sv",      "Swedish",              "sv.lproj", "sv_SE.lproj", "Swedish.lproj")
+		addLanguage("sv",      "Swedish",              "sv.lproj", "sv_SE.lproj", "sv-SE.lproj", "Swedish.lproj")
 		addLanguage("sw",      "Swahili",              "sw.lproj", "Swahili.lproj")
 		addLanguage("ta",      "Tamil",                "ta.lproj", "Tamil.lproj")
 		addLanguage("te",      "Telugu",               "te.lproj", "Telugu.lproj")
@@ -694,7 +719,7 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("tk-Latn", "Turkmen (Latin)",      "tk-Latn.lproj")
 		addLanguage("tl",      "Tagalog",              "tl.lproj", "Tagalog.lproj")
 		addLanguage("tlh",     "Klingon",              "tlh.lproj", "Klingon.lproj")
-		addLanguage("tr",      "Turkish",              "tr.lproj", "tr_TR.lproj", "Turkish.lproj")
+		addLanguage("tr",      "Turkish",              "tr.lproj", "tr_TR.lproj", "tr-TR.lproj", "Turkish.lproj")
 		addLanguage("tt",      "Tatar",                "tt.lproj", "Tatar.lproj")
 		addLanguage("to",      "Tongan",               "to.lproj", "Tongan.lproj")
 		addLanguage("ug",      "Uighur",               "ug.lproj", "Uighur.lproj")
@@ -705,23 +730,30 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		addLanguage("vi",      "Vietnamese",           "vi.lproj", "Vietnamese.lproj")
 		addLanguage("yi",      "Yiddish",              "yi.lproj", "Yiddish.lproj")
 		addLanguage("zh",      "Chinese",              "zh.lproj")
-		addLanguage("zh-Hans", "Chinese (Simplified Han)",   "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh_SC.lproj")
-		addLanguage("zh-Hant", "Chinese (Traditional Han)",  "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh_HK.lproj")
-		addLanguage("zu",      "Zulu",                 "zu.lproj")
+		addLanguage("zh-Hans", "Chinese (Simplified Han)",  "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh-CN.lproj", "zh_SC.lproj", "zh-SC.lproj")
+		addLanguage("zh-Hant", "Chinese (Traditional Han)", "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh-TW.lproj", "zh_HK.lproj", "zh-HK.lproj")
+		addLanguage("zu",      "Zulu",                      "zu.lproj")
+
+		for localeIdentifier in NSLocale.availableLocaleIdentifiers() as! [String] {
+			if !knownLocales.contains(localeIdentifier) {
+				addLanguage(localeIdentifier, "", "\(localeIdentifier).lproj")
+			}
+		}
 
 		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
 		
 		let archs = [
-			ArchitectureInfo(name:"arm",       displayName:"ARM",               cpu_type: kCPU_TYPE_ARM,       cpu_subtype: kCPU_SUBTYPE_ARM_ALL),
-			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",           cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",        cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_750),
-			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",        cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7400),
-			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",       cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_7450),
-			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",        cpu_type: kCPU_TYPE_POWERPC,   cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",    cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit", cpu_type: kCPU_TYPE_POWERPC64, cpu_subtype: kCPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"x86",       displayName:"Intel",             cpu_type: kCPU_TYPE_X86,       cpu_subtype: kCPU_SUBTYPE_X86_ALL),
-			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",      cpu_type: kCPU_TYPE_X86_64,    cpu_subtype: kCPU_SUBTYPE_X86_64_ALL)
+			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: CPU_TYPE_ARM,       cpu_subtype: CPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_750),
+			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_7400),
+			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_7450),
+			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"x86",       displayName:"Intel",                  cpu_type: CPU_TYPE_X86,       cpu_subtype: CPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_ALL),
+			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_H)
 		]
 			
 		var infoCount : mach_msg_type_number_t = kHOST_BASIC_INFO_COUNT
@@ -733,10 +765,10 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
-		if hostInfo.cpu_type == kCPU_TYPE_X86 {
+		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
 			var x86_64 : Int = 0
-			var x86_64_size = UInt(sizeof(Int))
+			var x86_64_size = sizeof(Int)
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
 				if x86_64 != 0 {
@@ -744,8 +776,8 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 						max_cpus: hostInfo.max_cpus,
 						avail_cpus: hostInfo.avail_cpus,
 						memory_size: hostInfo.memory_size,
-						cpu_type: kCPU_TYPE_X86_64,
-						cpu_subtype: kCPU_SUBTYPE_X86_64_ALL,
+						cpu_type: CPU_TYPE_X86_64,
+						cpu_subtype: CPU_SUBTYPE_X86_64_ALL,
 						cpu_threadtype: hostInfo.cpu_threadtype,
 						physical_cpu: hostInfo.physical_cpu,
 						physical_cpu_max: hostInfo.physical_cpu_max,
@@ -756,50 +788,33 @@ class MainViewController : NSViewController, ProgressViewControllerDelegate {
 			}
 		}
 
-		self.currentArchitecture.stringValue = "unknown"
+		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
 
-		var knownArchitectures = [ArchitectureSetting]()
-		knownArchitectures.reserveCapacity(archs.count)
-		for arch in archs {
+		self.architectures = archs.map { arch in
 			let enabled = (ret == KERN_SUCCESS && (hostInfo.cpu_type != arch.cpu_type || hostInfo.cpu_subtype < arch.cpu_subtype) && ((hostInfo.cpu_type & CPU_ARCH_ABI64) == 0 || (arch.cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64))))
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
-			knownArchitectures.append(architecture)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
-				let label = NSString(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
-				self.currentArchitecture.stringValue = label
+				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
 			}
+			return architecture
 		}
-		self.architectures = knownArchitectures
-		
-		// load blacklist from URL
-		let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist")!
-		setBlacklistFromArray(NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]])
 
-		// use blacklist from bundle as a fallback
-		if self.blacklist == nil {
-			let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist")
-			setBlacklistFromArray(NSArray(contentsOfFile:blacklistBundle!) as? [[NSObject:AnyObject]])
+		// load remote blacklist
+		if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]] {
+			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
+		} else if let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist"), entries = NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]] {
+			// use blacklist from bundle as a fallback
+			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		
 		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}
-	
-	func setBlacklistFromArray(array: [[NSObject:AnyObject]]?) {
-		if let entries = array {
-			var result = [BlacklistEntry]()
-			result.reserveCapacity(entries.count)
-			for entry in entries {
-				result.append(BlacklistEntry(dictionary: entry))
-			}
-			self.blacklist = result
-		}
-	}
-	
+
 	deinit {
-		if self.processApplicationObserver != nil {
-			NSNotificationCenter.defaultCenter().removeObserver(self.processApplicationObserver)
+		if let observer = self.processApplicationObserver {
+			NSNotificationCenter.defaultCenter().removeObserver(observer)
 		}
 	}
 	
