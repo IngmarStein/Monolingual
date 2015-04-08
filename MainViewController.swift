@@ -209,6 +209,10 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			switch errorCode! {
 			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
 				NSLog("Failed to bless helper. Error: \(error!)")
+				let alert = NSAlert()
+				alert.alertStyle = .CriticalAlertStyle
+				alert.messageText = NSLocalizedString("Failed to install helper utility.", comment:"")
+				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			case .AuthorizationDenied:
 				// If you can't do it because you're not administrator, then let the user know!
 				let alert = NSAlert()
@@ -361,13 +365,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 							// helper is outdated and supports uninstallation
 							let uninstallMessage = XPCObject(["uninstall" : true])
 							xpc_connection_send_message_with_reply(connection, uninstallMessage.object, dispatch_get_main_queue()) { event in
-								// cleanly shut down the service
-								let exitMessage = XPCObject(["exit_code" : Int64(EXIT_SUCCESS)])
-								xpc_connection_send_message_with_reply(connection, exitMessage.object, dispatch_get_main_queue()) { event in
-									// invalidate connection to trigger update
-									xpc_connection_cancel(connection)
-									self.connection = nil
-								}
+								// invalidate connection to trigger update
+								xpc_connection_cancel(connection)
+								self.connection = nil
 							}
 						}
 					} else {
