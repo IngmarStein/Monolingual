@@ -335,8 +335,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					}
 
 					// helper is not installed or outdated
-					if shouldTryInstall && self.installHelper() {
-						self.checkAndRunHelper(arguments)
+					if shouldTryInstall {
+						// the event handler is called on a background thread
+						// use main queue because installHelper() uses UIKit
+						dispatch_async(dispatch_get_main_queue()) {
+							if self.installHelper() {
+								self.checkAndRunHelper(arguments)
+							}
+						}
 					}
 				} else {
 					NSLog("Unexpected XPC connection error.")
