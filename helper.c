@@ -730,6 +730,14 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 	}
 }
 
+// see https://devforums.apple.com/message/1004420#1004420
+static void uninstall(void) {
+	unlink("/Library/PrivilegedHelperTools/net.sourceforge.MonolingualHelper");
+	unlink("/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist");
+//	execl("/bin/launchctl", "remove", "net.sourceforge.MonolingualHelper", NULL);
+	execl("/bin/launchctl", "unload", "-wF", "/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist", NULL);
+}
+
 static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 	syslog(LOG_NOTICE, "Received event in helper");
 
@@ -772,6 +780,8 @@ static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
 					CFStringGetCString(bundleVersion, buffer, sizeof(buffer), kCFStringEncodingUTF8);
 					xpc_dictionary_set_string(replyMessage, "version", buffer);
 				}
+			} else if (xpc_dictionary_get_value(requestMessage, "uninstall")) {
+				uninstall();
 			} else {
 				process_request(requestMessage, replyMessage);
 			}
@@ -798,6 +808,25 @@ static void service_event_handler(xpc_connection_t connection)  {
 
 int main(int argc, const char *argv[])
 {
+	if (argc == 2 && !strcmp(argv[1], "--uninstall")) {
+		uninstall();
+		return EXIT_SUCCESS;
+	}
+
+	if (argc == 2 && !strcmp(argv[1], "--version")) {
+		CFStringRef bundleVersion = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
+		char const *version = CFStringGetCStringPtr(bundleVersion, kCFStringEncodingUTF8);
+		if (version) {
+			printf("MonolingualHelper version %s\n", version);
+		} else {
+			char buffer[256];
+			CFStringGetCString(bundleVersion, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+			printf("MonolingualHelper version %s\n", buffer);
+		}
+
+		return EXIT_SUCCESS;
+	}
+
 	xpc_connection_t service = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper",
 																  dispatch_get_main_queue(),
 																  XPC_CONNECTION_MACH_SERVICE_LISTENER);
