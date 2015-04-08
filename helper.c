@@ -732,10 +732,10 @@ static void process_request(xpc_object_t request, xpc_object_t reply) {
 
 // see https://devforums.apple.com/message/1004420#1004420
 static void uninstall(void) {
+	execl("/bin/launchctl", "unload", "-wF", "/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist", NULL);
 	unlink("/Library/PrivilegedHelperTools/net.sourceforge.MonolingualHelper");
 	unlink("/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist");
 //	execl("/bin/launchctl", "remove", "net.sourceforge.MonolingualHelper", NULL);
-	execl("/bin/launchctl", "unload", "-wF", "/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist", NULL);
 }
 
 static void peer_event_handler(xpc_connection_t peer, xpc_object_t event) {
