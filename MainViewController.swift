@@ -4,7 +4,7 @@
 *  Released under the GNU GPL.  For more information, see the header file.
 */
 //
-//  MyResponder.swift
+//  MainViewController.swift
 //  Monolingual
 //
 //  Created by Ingmar Stein on 13.07.14.
@@ -13,7 +13,6 @@
 
 import Cocoa
 import SMJobKit
-import XPCSwift
 
 enum MonolingualMode : Int {
 	case Languages = 0
@@ -58,15 +57,18 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	dynamic var languages : [LanguageSetting]!
 	dynamic var architectures : [ArchitectureSetting]!
 
-	var bytesSaved : UInt64 = 0
 	var mode : MonolingualMode = .Languages
 	var processApplication : Root?
 	var processApplicationObserver : NSObjectProtocol?
-	var listener_queue : dispatch_queue_t?
-	var peer_event_queue : dispatch_queue_t?
-	var connection : xpc_connection_t?
-	var progressConnection : xpc_connection_t?
-	
+	var helperConnection : NSXPCConnection?
+
+	lazy var xpcServiceConnection: NSXPCConnection = {
+		let connection = NSXPCConnection(serviceName: "net.sourceforge.Monolingual.XPCService")
+		connection.remoteObjectInterface = NSXPCInterface(withProtocol:XPCServiceProtocol.self)
+		connection.resume()
+		return connection
+	}()
+
 	var roots : [Root] {
 		if let application = self.processApplication {
 			return [ application ]
@@ -108,7 +110,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 		let roots = self.roots
 
-		let archs : [XPCRepresentable] = self.architectures.filter { $0.enabled } .map { $0.name }
+		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
 		for arch in archs {
 			log.message(" \(arch)")
 		}
@@ -125,9 +127,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
-			let includes : [XPCRepresentable] = roots.filter { $0.architectures } .map { $0.path }
-			var excludes : [XPCRepresentable] = roots.filter { !$0.architectures } .map { $0.path }
-			let bl : [XPCRepresentable] = self.blacklist!.filter { $0.architectures } .map { $0.bundle }
+			let includes = roots.filter { $0.architectures } .map { $0.path }
+			var excludes = roots.filter { !$0.architectures } .map { $0.path }
+			let bl = self.blacklist!.filter { $0.architectures } .map { $0.bundle }
 
 			excludes.append("/System/Library/Frameworks")
 			excludes.append("/System/Library/PrivateFrameworks")
@@ -142,7 +144,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				NSLog("Excluding root \(exclude)")
 			}
 
-			let xpc_message : XPCObject = [
+			let xpc_message : [NSObject:AnyObject] = [
 				"strip" : NSUserDefaults.standardUserDefaults().boolForKey("Strip"),
 				"blacklist" : bl,
 				"includes" : includes,
@@ -150,147 +152,126 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				"thin" : archs
 			]
 		
-			self.checkAndRunHelper(xpc_message.object)
+			self.checkAndRunHelper(xpc_message)
 		} else {
 			log.close()
 		}
 	}
-	
-	func processProgress(progress: XPCObject) {
-		if let progressDictionary = progress.dictionary, file = progressDictionary["file"]?.string, size = progressDictionary["size"]?.uint64 {
-			self.bytesSaved += size
 
-			log.message("\(file): \(size)\n")
+	override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
+		if keyPath == "completedUnitCount" {
+			let progress = object as! NSProgress
+			let file = (progress.userInfo?["file"] as? String) ?? ""
+			processProgress(file, size:progress.totalUnitCount)
+		}
+	}
 
-			let message : String
-			if self.mode == .Architectures {
-				message = NSLocalizedString("Removing architecture from universal binary", comment:"")
-			} else {
-				/* parse file name */
-				var lang : String? = nil
-				var app : String? = nil
-			
-				if self.mode == .Languages {
-					let pathComponents = file.componentsSeparatedByString("/")
-					for pathComponent in pathComponents {
-						if pathComponent.hasSuffix(".app") {
-							app = pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
-						} else if pathComponent.hasSuffix(".lproj") {
-							for language in self.languages {
-								if contains(language.folders, pathComponent) {
-									lang = language.displayName
-									break
-								}
+	func processProgress(file: String, size: Int64) {
+		log.message("\(file): \(size)\n")
+
+		let message : String
+		if self.mode == .Architectures {
+			message = NSLocalizedString("Removing architecture from universal binary", comment:"")
+		} else {
+			/* parse file name */
+			var lang : String? = nil
+			var app : String? = nil
+		
+			if self.mode == .Languages {
+				let pathComponents = file.componentsSeparatedByString("/")
+				for pathComponent in pathComponents {
+					if pathComponent.hasSuffix(".app") {
+						app = pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
+					} else if pathComponent.hasSuffix(".lproj") {
+						for language in self.languages {
+							if contains(language.folders, pathComponent) {
+								lang = language.displayName
+								break
 							}
 						}
 					}
 				}
-				if let app = app {
-					message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang!, app)
-				} else if let lang = lang {
-					message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
+			}
+			if let app = app {
+				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang!, app)
+			} else if let lang = lang {
+				message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
+			} else {
+				message = String(format:NSLocalizedString("Removing %@…", comment:""), file)
+			}
+		}
+
+		if let viewController = self.progressViewController {
+			viewController.text = message
+			viewController.file = file
+		}
+		NSApp.setWindowsNeedUpdate(true)
+	}
+
+	func installHelper(reply:(Bool) -> Void) {
+		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
+			NSLog("XPCService error: %@", error)
+		} as? XPCServiceProtocol
+
+		if let xpcService = xpcService {
+			xpcService.installHelperTool { error in
+				if let error = error {
+					let errorCode = ErrorCode(rawValue:error.code)
+					dispatch_async(dispatch_get_main_queue()) {
+						switch errorCode! {
+						case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
+							NSLog("Failed to bless helper. Error: \(error)")
+							let alert = NSAlert()
+							alert.alertStyle = .CriticalAlertStyle
+							alert.messageText = NSLocalizedString("Failed to install helper utility.", comment:"")
+							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
+						case .AuthorizationDenied:
+							// If you can't do it because you're not administrator, then let the user know!
+							let alert = NSAlert()
+							alert.alertStyle = .CriticalAlertStyle
+							alert.messageText = NSLocalizedString("You entered an incorrect administrator password.", comment:"")
+							// NSLocalizedString("Permission Error", "")
+							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
+						case .AuthorizationCanceled:
+							let alert = NSAlert()
+							alert.alertStyle = .CriticalAlertStyle
+							alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
+							//NSLocalizedString("Nothing done", comment:"")
+							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
+						case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
+							let alert = NSAlert()
+							alert.alertStyle = .CriticalAlertStyle
+							alert.messageText = NSLocalizedString("Failed to authorize as an administrator.", comment:"")
+							//NSLocalizedString("Authorization Error", comment:"")
+							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
+						default: ()
+						}
+						log.close()
+					}
+					reply(false)
 				} else {
-					message = String(format:NSLocalizedString("Removing %@…", comment:""), file)
+					reply(true)
 				}
 			}
-		
-			if let viewController = self.progressViewController {
-				viewController.text = message
-				viewController.file = file
-			}
-			NSApp.setWindowsNeedUpdate(true)
 		}
 	}
 
-	func installHelper() -> Bool {
-		var error : NSError? = nil
-		if !MonolingualHelperClient.installWithPrompt(nil, error:&error) {
-			let errorCode = ErrorCode(rawValue:error!.code)
-			switch errorCode! {
-			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
-				NSLog("Failed to bless helper. Error: \(error!)")
-				let alert = NSAlert()
-				alert.alertStyle = .CriticalAlertStyle
-				alert.messageText = NSLocalizedString("Failed to install helper utility.", comment:"")
-				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-			case .AuthorizationDenied:
-				// If you can't do it because you're not administrator, then let the user know!
-				let alert = NSAlert()
-				alert.alertStyle = .CriticalAlertStyle
-				alert.messageText = NSLocalizedString("You entered an incorrect administrator password.", comment:"")
-				// NSLocalizedString("Permission Error", "")
-				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-			case .AuthorizationCanceled:
-				let alert = NSAlert()
-				alert.alertStyle = .CriticalAlertStyle
-				alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
-				//NSLocalizedString("Nothing done", comment:"")
-				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-			case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
-				let alert = NSAlert()
-				alert.alertStyle = .CriticalAlertStyle
-				alert.messageText = NSLocalizedString("Failed to authorize as an administrator.", comment:"")
-				//NSLocalizedString("Authorization Error", comment:"")
-				alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-			default: ()
-			}
-			log.close()
-			return false
-		}
-		return true
-	}
-
-	func runHelper(arguments: xpc_object_t) {
+	func runHelper(arguments: [NSObject:AnyObject]) {
 		NSProcessInfo.processInfo().disableSuddenTermination()
 
-		self.bytesSaved = 0
-
-		// Create an anonymous listener connection that collects progress updates.
-		self.progressConnection = xpc_connection_create(nil, self.listener_queue)
-
-		if self.progressConnection != nil {
-			xpc_connection_set_event_handler(self.progressConnection!) { event in
-				let type = xpc_get_type(event)
-
-				if type == xpc_type_error {
-					if event == xpc_error_termination_imminent {
-						NSLog("received XPC_ERROR_TERMINATION_IMMINENT")
-					} else if event == xpc_error_connection_invalid {
-						NSLog("progress connection is closed")
-					}
-				} else if xpc_type_connection == type {
-					let peer = event as xpc_connection_t
-
-					xpc_connection_set_target_queue(peer, self.peer_event_queue)
-					xpc_connection_set_event_handler(peer) { nevent in
-						self.processProgress(XPCObject(nevent))
-					}
-					xpc_connection_resume(peer)
-				}
-			}
-			xpc_connection_resume(self.progressConnection!)
-
-			xpc_dictionary_set_connection(arguments, "connection", self.progressConnection)
-		} else {
-			NSLog("Couldn't create progress connection")
-		}
+		let progress = NSProgress(totalUnitCount: 1)
+		progress.becomeCurrentWithPendingUnitCount(1)
+		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .New, context: nil)
 
 		// DEBUG
-		//xpc_dictionary_set_bool(arguments, "dry_run", true)
+		//arguments["dry_run"] = true
 
-		xpc_connection_send_message_with_reply(self.connection!, arguments, dispatch_get_main_queue()) { event in
-			let xpcEvent = XPCObject(event)
-
-			if let eventDictionary = xpcEvent.dictionary {
-				let exit_code = eventDictionary["exit_code"]?.int64 ?? Int64(EXIT_SUCCESS)
-				NSLog("helper finished with exit code: %lld", exit_code)
-
-				if self.connection != nil {
-					let exitMessage : XPCObject = ["exit_code" : exit_code]
-					xpc_connection_send_message(self.connection!, exitMessage.object)
-				}
-
-				if exit_code == Int64(EXIT_SUCCESS) {
+		let helper = helperConnection!.remoteObjectProxy as! HelperProtocol
+		helper.processRequest(arguments) { exitCode in
+			NSLog("helper finished with exit code: %@", exitCode)
+			helper.exitWithCode(exitCode)
+			if exitCode == Int(EXIT_SUCCESS) {
+				dispatch_async(dispatch_get_main_queue()) {
 					self.finishProcessing()
 				}
 			}
@@ -310,87 +291,58 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 	}
 
-	func checkAndRunHelper(arguments: xpc_object_t) {
-		self.connection = xpc_connection_create_mach_service("net.sourceforge.MonolingualHelper", nil, UInt64(XPC_CONNECTION_MACH_SERVICE_PRIVILEGED))
-
-		if self.connection == nil {
-			NSLog("Failed to create XPC connection.")
-			return
-		}
+	func checkAndRunHelper(arguments: [NSObject:AnyObject]) {
+		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
+			NSLog("XPCService error: %@", error)
+		} as? XPCServiceProtocol
 
 		var shouldTryInstall = true
 
-		xpc_connection_set_event_handler(self.connection!) { event in
-			let type = xpc_get_type(event)
-
-			if type == xpc_type_error {
-				if event == xpc_error_connection_interrupted {
-					NSLog("XPC connection interrupted.")
-				} else if event == xpc_error_connection_invalid {
-					NSLog("XPC connection invalid.")
-
-					if let connection = self.connection {
-						xpc_connection_cancel(connection)
-						self.connection = nil
+		if let xpcService = xpcService {
+			xpcService.connect() { endpoint -> Void in
+				if let endpoint = endpoint {
+					let connection = NSXPCConnection(listenerEndpoint: endpoint)
+					connection.remoteObjectInterface = NSXPCInterface(withProtocol:HelperProtocol.self)
+					connection.invalidationHandler = {
+						NSLog("XPC connection to helper invalidated.")
+						self.helperConnection = nil
 					}
+					connection.resume()
+					self.helperConnection = connection
 
-					// helper is not installed or outdated
-					if shouldTryInstall {
-						// the event handler is called on a background thread
-						// use main queue because installHelper() uses UIKit
-						dispatch_async(dispatch_get_main_queue()) {
-							if self.installHelper() {
-								self.checkAndRunHelper(arguments)
+					if let connection = self.helperConnection {
+						let helper = connection.remoteObjectProxyWithErrorHandler() { error in
+							NSLog("Error connecting to helper: %@", error)
+						} as! HelperProtocol
+
+						helper.getVersionWithReply() { installedVersion in
+							xpcService.bundledHelperVersion() { bundledVersion in
+								if installedVersion == bundledVersion {
+									// helper is current
+									shouldTryInstall = false
+									dispatch_async(dispatch_get_main_queue()) {
+										self.runHelper(arguments)
+									}
+								} else {
+									// helper is different version
+									helper.uninstall()
+									connection.invalidate()
+								}
 							}
 						}
 					}
 				} else {
-					NSLog("Unexpected XPC connection error.")
-				}
-			} else {
-				NSLog("Unexpected XPC connection event.")
-			}
-		}
-
-		// Resume connection. If the helper is not installed, this causes an xpc_error_connection_invalid
-		xpc_connection_resume(self.connection!)
-
-		if let connection = self.connection {
-			let bundledVersion = MonolingualHelperClient.bundledVersion!
-			let versionMessage = XPCObject(["version" : bundledVersion])
-			xpc_connection_send_message_with_reply(connection, versionMessage.object, dispatch_get_main_queue()) { event in
-				let xpcEvent = XPCObject(event)
-
-				if let eventDictionary = xpcEvent.dictionary {
-					if let version = eventDictionary["version"]?.string {
-						if version == bundledVersion {
-							// helper is current
-							shouldTryInstall = false
-							self.runHelper(arguments)
-						} else {
-							// helper is outdated and supports uninstallation
-							let uninstallMessage = XPCObject(["uninstall" : true])
-							xpc_connection_send_message_with_reply(connection, uninstallMessage.object, dispatch_get_main_queue()) { event in
-								// invalidate connection to trigger update
-								xpc_connection_cancel(connection)
-								self.connection = nil
-							}
-						}
-					} else {
-						// helper is outdated and does not support uninstallation
-						// cleanly shut down the service
-						let exitMessage = XPCObject(["exit_code" : Int64(EXIT_SUCCESS)])
-						xpc_connection_send_message_with_reply(connection, exitMessage.object, dispatch_get_main_queue()) { event in
-							// invalidate connection to trigger update
-							xpc_connection_cancel(connection)
-							self.connection = nil
+					NSLog("Failed to get XPC endpoint.")
+					self.installHelper() { success in
+						if success {
+							self.checkAndRunHelper(arguments)
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
 	func progressViewControllerDidCancel(progressViewController: ProgressViewController) {
 		progressDidEnd(false)
 	}
@@ -399,20 +351,16 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.processApplication = nil
 		self.dismissViewController(self.progressViewController!)
 
-		let byteCount = NSByteCountFormatter.stringFromByteCount(Int64(self.bytesSaved), countStyle:.File)
-	
+		let progress = NSProgress.currentProgress()!
+		let byteCount = NSByteCountFormatter.stringFromByteCount(progress.completedUnitCount, countStyle:.File)
+
 		if !completed {
-			if self.progressConnection != nil {
-				if self.connection != nil {
-					let exitMessage : XPCObject = ["exit_code" : Int64(EXIT_FAILURE)]
-					xpc_connection_send_message(self.connection!, exitMessage.object)
-				}
-			
-				// Cancel and release the anonymous connection which signals the remote
-				// service to stop, if working.
-				NSLog("Closing progress connection")
-				xpc_connection_cancel(self.progressConnection!)
-				self.progressConnection = nil
+			// cancel the current progress which tells the helper to stop
+			progress.cancel()
+			NSLog("Closing progress connection")
+
+			if let helper = self.helperConnection?.remoteObjectProxy as? HelperProtocol {
+				helper.exitWithCode(Int(EXIT_FAILURE))
 			}
 
 			let alert = NSAlert()
@@ -433,11 +381,13 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			
 			NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 		}
-	
-		if self.connection != nil {
-			NSLog("Closing connection")
-			xpc_connection_cancel(self.connection!)
-			self.connection = nil
+
+		progress.resignCurrent()
+
+		if let connection = self.helperConnection {
+			NSLog("Closing connection to helper")
+			connection.invalidate()
+			self.helperConnection = nil
 		}
 	
 		log.close()
@@ -508,9 +458,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	
 		let roots = self.roots
 
-		let includes : [XPCRepresentable] = roots.filter { $0.languages } .map { $0.path }
-		let excludes : [XPCRepresentable] = roots.filter { !$0.languages } .map { $0.path }
-		let bl : [XPCRepresentable] = self.blacklist!.filter { $0.languages } .map { $0.bundle }
+		let includes = roots.filter { $0.languages } .map { $0.path }
+		let excludes = roots.filter { !$0.languages } .map { $0.path }
+		let bl = self.blacklist!.filter { $0.languages } .map { $0.bundle }
 		
 		for item in bl {
 			NSLog("Blacklisting \(item)")
@@ -523,7 +473,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 		
 		var rCount = 0
-		var folders = [XPCRepresentable]()
+		var folders = [String]()
 		for language in self.languages {
 			if language.enabled {
 				for path in language.folders {
@@ -551,28 +501,22 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		} else if rCount > 0 {
 			/* start things off if we have something to remove! */
 
-			let xpc_message : XPCObject = [
+			let xpc_message : [NSObject:AnyObject] = [
 				"trash" : NSUserDefaults.standardUserDefaults().boolForKey("Trash"),
-				"uid" : Int64(getuid()),
+				"uid" : Int(getuid()),
 				"blacklist" : bl,
 				"includes" : includes,
 				"excludes" : excludes,
 				"directories" : folders
 			]
 
-			checkAndRunHelper(xpc_message.object)
+			checkAndRunHelper(xpc_message)
 		} else {
 			log.close()
 		}
 	}
 	
 	override func viewDidLoad() {
-		self.listener_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressQueue", nil)
-		assert(self.listener_queue != nil)
-		
-		self.peer_event_queue = dispatch_queue_create("net.sourceforge.Monolingual.ProgressPanel", nil)
-		assert(self.peer_event_queue != nil)
-		
 		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as! [String]
 
 		// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
@@ -839,6 +783,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		if let observer = self.processApplicationObserver {
 			NSNotificationCenter.defaultCenter().removeObserver(observer)
 		}
+		xpcServiceConnection.invalidate()
 	}
 	
 }
