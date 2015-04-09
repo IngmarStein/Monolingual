@@ -7,6 +7,7 @@
 //
 
 @import Foundation;
+#import "HelperRequest.h"
 
 @protocol HelperProtocol
 
@@ -14,7 +15,7 @@
 - (void)getVersionWithReply:(void(^)(NSString * version))reply;
 - (void)uninstall;
 - (void)exitWithCode:(NSNumber *)exitCode;
-- (void)processRequest:(NSDictionary *)request reply:(void(^)(NSNumber *))reply;
+- (void)processRequest:(HelperRequest *)request reply:(void(^)(NSNumber *))reply;
 
 @end
 

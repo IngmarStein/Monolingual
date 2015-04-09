@@ -29,6 +29,8 @@
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
 		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
+		95AD745E1AD6EBE40061F4CF /* HelperRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 95AD745D1AD6EBE40061F4CF /* HelperRequest.m */; };
+		95AD745F1AD6EBE40061F4CF /* HelperRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 95AD745D1AD6EBE40061F4CF /* HelperRequest.m */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
@@ -143,6 +145,8 @@
 		95A74F39197410EF005D3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = el.lproj/Credits.html; sourceTree = "<group>"; };
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95AD745C1AD6EBE40061F4CF /* HelperRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperRequest.h; sourceTree = "<group>"; };
+		95AD745D1AD6EBE40061F4CF /* HelperRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelperRequest.m; sourceTree = "<group>"; };
 		95B70C491AD2715500801026 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
 		95BC963D0991F2C9001DEF94 /* lipo.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = lipo.c; sourceTree = "<group>"; };
@@ -297,6 +301,8 @@
 			children = (
 				950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */,
 				950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */,
+				95AD745C1AD6EBE40061F4CF /* HelperRequest.h */,
+				95AD745D1AD6EBE40061F4CF /* HelperRequest.m */,
 				950ED26B1976AA6400BAC239 /* LanguageSetting.swift */,
 				950ED2721976AAB600BAC239 /* Root.swift */,
 				9572AB161977E8E5002E4AF4 /* Setting.swift */,
@@ -675,6 +681,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */,
+				95AD745E1AD6EBE40061F4CF /* HelperRequest.m in Sources */,
 				950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */,
 				950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */,
 				95283993197402B3002D995E /* compat.m in Sources */,
@@ -697,6 +704,7 @@
 				952DDC6C1AD57256001BADD1 /* Helper.m in Sources */,
 				952DDC6E1AD57347001BADD1 /* main.m in Sources */,
 				95BC963E0991F2C9001DEF94 /* lipo.c in Sources */,
+				95AD745F1AD6EBE40061F4CF /* HelperRequest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

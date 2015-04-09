@@ -391,30 +391,24 @@ static void strip_file(const char *path, HelperContext *context)
 	return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
 }
 
-- (void)processRequest:(NSDictionary *)request reply:(void(^)(NSNumber *))reply {
+- (void)processRequest:(HelperRequest *)request reply:(void(^)(NSNumber *))reply {
 	HelperContext *context = [[HelperContext alloc] init];
 
-	syslog(LOG_NOTICE, "Received request: %s", [request description].UTF8String);
+	syslog(LOG_NOTICE, "Received request: %s", request.description.UTF8String);
 
 	// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
-	NSProgress *progress = [NSProgress progressWithTotalUnitCount:-1];
-	progress.completedUnitCount = 0;
-	progress.cancellationHandler = ^{
+	context.progress = [NSProgress currentProgress];
+	context.progress.completedUnitCount = 0;
+	context.progress.cancellationHandler = ^{
 		syslog(LOG_NOTICE, "Stopping MonolingualHelper");
 	};
-
-	context.dryRun = [[request objectForKey:@"dry_run"] boolValue];
-	context.doStrip = [[request objectForKey:@"strip"] boolValue];
-	context.uid = [[request objectForKey:@"uid"] integerValue];
-	context.trash = [[request objectForKey:@"trash"] boolValue];
-
-	context.excludes = [request objectForKey:@"excludes"];
-
-	NSArray *blacklist = [request objectForKey:@"blacklist"];
-	context.bundleBlacklist = [NSSet setWithArray:blacklist];
-
-	NSArray *dirs = [request objectForKey:@"directories"];
-	context.directories = [NSSet setWithArray:dirs];
+	context.dryRun = request.dryRun;
+	context.doStrip = request.doStrip;
+	context.uid = request.uid;
+	context.trash = request.trash;
+	context.excludes = request.excludes;
+	context.bundleBlacklist = request.bundleBlacklist;
+	context.directories = request.directories;
 
 	if (context.doStrip) {
 		// check if /usr/bin/strip is present
@@ -425,7 +419,7 @@ static void strip_file(const char *path, HelperContext *context)
 	}
 
 	// delete regular files
-	NSArray *files = [request objectForKey:@"files"];
+	NSArray *files = request.files;
 	for (NSString *file in files) {
 		if (context.progress.cancelled) {
 			break;
@@ -433,7 +427,7 @@ static void strip_file(const char *path, HelperContext *context)
 		[context remove:file];
 	}
 
-	NSArray *roots = [request objectForKey:@"includes"];
+	NSArray *roots = request.includes;
 
 	// recursively delete directories
 	if ([context.directories count]) {
@@ -446,7 +440,7 @@ static void strip_file(const char *path, HelperContext *context)
 	}
 
 	// thin fat binaries
-	NSArray *thin = [request objectForKey:@"thin"];
+	NSArray *thin = request.thin;
 	NSUInteger numArchs = thin.count;
 	if (numArchs) {
 		const char **archs = malloc(numArchs * sizeof(char *));

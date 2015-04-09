@@ -144,15 +144,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				NSLog("Excluding root \(exclude)")
 			}
 
-			let xpc_message : [NSObject:AnyObject] = [
-				"strip" : NSUserDefaults.standardUserDefaults().boolForKey("Strip"),
-				"blacklist" : bl,
-				"includes" : includes,
-				"excludes" : excludes,
-				"thin" : archs
-			]
-		
-			self.checkAndRunHelper(xpc_message)
+			let request = HelperRequest()
+			request.doStrip = NSUserDefaults.standardUserDefaults().boolForKey("Strip")
+			request.bundleBlacklist = Set<String>(bl)
+			request.includes = includes
+			request.excludes = excludes
+			request.thin = archs
+
+			self.checkAndRunHelper(request)
 		} else {
 			log.close()
 		}
@@ -162,7 +161,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		if keyPath == "completedUnitCount" {
 			let progress = object as! NSProgress
 			let file = (progress.userInfo?["file"] as? String) ?? ""
-			processProgress(file, size:progress.totalUnitCount)
+			processProgress(file, size:progress.completedUnitCount)
 		}
 	}
 
@@ -256,17 +255,23 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
-	func runHelper(arguments: [NSObject:AnyObject]) {
+	func runHelper(arguments: HelperRequest) {
 		NSProcessInfo.processInfo().disableSuddenTermination()
 
 		let progress = NSProgress(totalUnitCount: 1)
 		progress.becomeCurrentWithPendingUnitCount(1)
-		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .New, context: nil)
+		progress.addObserver(self, forKeyPath: "userInfo", options: .New, context: nil)
 
 		// DEBUG
-		//arguments["dry_run"] = true
+		//request.dryRun = true
 
-		let helper = helperConnection!.remoteObjectProxy as! HelperProtocol
+		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
+			NSLog("Error communicating with helper: %@", error)
+			dispatch_async(dispatch_get_main_queue()) {
+				self.finishProcessing()
+			}
+		} as! HelperProtocol
+
 		helper.processRequest(arguments) { exitCode in
 			NSLog("helper finished with exit code: %@", exitCode)
 			helper.exitWithCode(exitCode)
@@ -291,7 +296,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 	}
 
-	func checkAndRunHelper(arguments: [NSObject:AnyObject]) {
+	func checkAndRunHelper(arguments: HelperRequest) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
 			NSLog("XPCService error: %@", error)
 		} as? XPCServiceProtocol
@@ -382,14 +387,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 		}
 
-		progress.resignCurrent()
-
 		if let connection = self.helperConnection {
 			NSLog("Closing connection to helper")
 			connection.invalidate()
 			self.helperConnection = nil
 		}
 	
+		progress.resignCurrent()
+
 		log.close()
 	
 		NSProcessInfo.processInfo().enableSuddenTermination()
@@ -461,7 +466,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		let includes = roots.filter { $0.languages } .map { $0.path }
 		let excludes = roots.filter { !$0.languages } .map { $0.path }
 		let bl = self.blacklist!.filter { $0.languages } .map { $0.bundle }
-		
+		/*
 		for item in bl {
 			NSLog("Blacklisting \(item)")
 		}
@@ -471,13 +476,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		for exclude in excludes {
 			NSLog("Excluding root \(exclude)")
 		}
+		*/
 		
 		var rCount = 0
-		var folders = [String]()
+		var folders = Set<String>()
 		for language in self.languages {
 			if language.enabled {
 				for path in language.folders {
-					folders.append(path)
+					folders.insert(path)
 					if rCount != 0 {
 						log.message(" ")
 					}
@@ -487,7 +493,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			}
 		}
 		if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
-			folders.append("designable.nib")
+			folders.insert("designable.nib")
 		}
 	
 		log.message("\nDeleted files: \n")
@@ -499,18 +505,17 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			log.close()
 		} else if rCount > 0 {
-			/* start things off if we have something to remove! */
+			// start things off if we have something to remove!
 
-			let xpc_message : [NSObject:AnyObject] = [
-				"trash" : NSUserDefaults.standardUserDefaults().boolForKey("Trash"),
-				"uid" : Int(getuid()),
-				"blacklist" : bl,
-				"includes" : includes,
-				"excludes" : excludes,
-				"directories" : folders
-			]
+			let request = HelperRequest()
+			request.trash = NSUserDefaults.standardUserDefaults().boolForKey("Trash")
+			request.uid = getuid()
+			request.bundleBlacklist = Set<String>(bl)
+			request.includes = includes
+			request.excludes = excludes
+			request.directories = folders
 
-			checkAndRunHelper(xpc_message)
+			checkAndRunHelper(request)
 		} else {
 			log.close()
 		}
