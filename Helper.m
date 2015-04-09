@@ -117,13 +117,29 @@
 		// try to move the file to the user's trash
 		BOOL success = NO;
 		seteuid(self.uid);
-		success = [self.fileManager trashItemAtURL:url resultingItemURL:nil error:&error];
+		success = [self.fileManager trashItemAtURL:url resultingItemURL:&dstURL error:&error];
 		seteuid(0);
 		if (!success) {
 			// move the file to root's trash
-			success = [self.fileManager trashItemAtURL:url resultingItemURL:nil error:&error];
+			success = [self.fileManager trashItemAtURL:url resultingItemURL:&dstURL error:&error];
 		}
-		if (!success) {
+		if (success) {
+			// trashItemAtURL does not call any delegate methods (radar 20481813)
+			NSDirectoryEnumerator *dirEnumerator = [self.fileManager enumeratorAtURL:dstURL
+															 includingPropertiesForKeys:@[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey]
+																				options:(NSDirectoryEnumerationOptions)0
+																		   errorHandler:nil];
+			for (NSURL *theURL in dirEnumerator) {
+				NSNumber *size = nil;
+				if (![theURL getResourceValue:&size forKey:NSURLTotalFileAllocatedSizeKey error:nil]) {
+					[theURL getResourceValue:&size forKey:NSURLFileAllocatedSizeKey error:nil];
+				}
+				if (size) {
+					[self.progress setUserInfoObject:theURL.path forKey:@"file"];
+					self.progress.completedUnitCount += size.integerValue;
+				}
+			}
+		} else {
 			syslog(LOG_ERR, "Error trashing '%s': %s", url.fileSystemRepresentation, error.description.UTF8String);
 		}
 	} else {
@@ -140,7 +156,7 @@
 
 	NSNumber *size = nil;
 	if (![URL getResourceValue:&size forKey:NSURLTotalFileAllocatedSizeKey error:nil]) {
-		[URL getResourceValue:&size forKey:NSURLFileSizeKey error:nil];
+		[URL getResourceValue:&size forKey:NSURLFileAllocatedSizeKey error:nil];
 	}
 
 	[self.progress setUserInfoObject:URL.path forKey:@"file"];
