@@ -112,7 +112,18 @@
 	NSError *error = nil;
 	NSURL *url = [NSURL fileURLWithPath:path];
 	if (self.trash) {
-		if (![self.fileManager trashItemAtURL:url resultingItemURL:nil error:&error]) {
+		NSURL *dstURL = nil;
+
+		// try to move the file to the user's trash
+		BOOL success = NO;
+		seteuid(self.uid);
+		success = [self.fileManager trashItemAtURL:url resultingItemURL:nil error:&error];
+		seteuid(0);
+		if (!success) {
+			// move the file to root's trash
+			success = [self.fileManager trashItemAtURL:url resultingItemURL:nil error:&error];
+		}
+		if (!success) {
 			syslog(LOG_ERR, "Error trashing '%s': %s", url.fileSystemRepresentation, error.description.UTF8String);
 		}
 	} else {
@@ -122,7 +133,7 @@
 	}
 }
 
-- (BOOL)fileManager:(NSFileManager *)fileManager shouldProcesstemAtURL:(NSURL *)URL {
+- (BOOL)fileManager:(NSFileManager *)fileManager shouldProcessItemAtURL:(NSURL *)URL {
 	if (self.dryRun || [self isFileBlacklisted:URL.path]) {
 		return NO;
 	}
@@ -135,7 +146,7 @@
 	[self.progress setUserInfoObject:URL.path forKey:@"file"];
 	self.progress.completedUnitCount += size.integerValue;
 
-	syslog(LOG_DEBUG, "processing '%s' size=%lld", URL.fileSystemRepresentation, (long long int)size.integerValue);
+	syslog(LOG_WARNING, "processing '%s' size=%lld", URL.fileSystemRepresentation, (long long int)size.integerValue);
 
 	return YES;
 }
@@ -143,11 +154,11 @@
 #pragma mark - NSFileManagerDelegate
 
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldRemoveItemAtURL:(NSURL *)URL {
-	return [self fileManager:fileManager shouldProcesstemAtURL:URL];
+	return [self fileManager:fileManager shouldProcessItemAtURL:URL];
 }
 
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldMoveItemAtURL:(NSURL *)srcURL toURL:(NSURL *)dstURL {
-	return [self fileManager:fileManager shouldProcesstemAtURL:srcURL];
+	return [self fileManager:fileManager shouldProcessItemAtURL:srcURL];
 }
 
 @end
@@ -314,83 +325,6 @@ static void strip_file(const char *path, HelperContext *context)
 	}
 }
 
-static void trash_file(const char *path, HelperContext *context)
-{
-	char resolved_path[PATH_MAX];
-
-	if (context.dryRun)
-		return;
-
-	if (context.progress.cancelled)
-		return;
-
-	NSString *pathString = @(path);
-
-	if ([context isFileBlacklisted:pathString]) {
-		return;
-	}
-
-	if (realpath(path, resolved_path)) {
-		char userTrash[PATH_MAX];
-		int validTrash = 0;
-		if (!strncmp(path, "/Volumes/", 9)) {
-			strncpy(userTrash, path, sizeof(userTrash));
-			char *sep_pos = strchr(&userTrash[9], '/');
-			if (sep_pos) {
-				sep_pos[1] = '\0';
-				strncat(userTrash, ".Trashes", sizeof(userTrash) - strlen(userTrash) - 1);
-				mkdir(userTrash, 0700);
-				snprintf(sep_pos+9, sizeof(userTrash)-(sep_pos+9-userTrash), "/%d", context.uid);
-				validTrash = 1;
-			}
-		} else {
-			struct passwd *pwd = getpwuid(context.uid);
-			if (pwd) {
-				strncpy(userTrash, pwd->pw_dir, sizeof(userTrash));
-				strncat(userTrash, "/.Trash", sizeof(userTrash) - strlen(userTrash) - 1);
-				validTrash = 1;
-			}
-		}
-		if (validTrash) {
-			char destination[PATH_MAX];
-			mkdir(userTrash, 0700);
-			char *filename = strrchr(path, '/');
-			if (filename) {
-				filename = strdup(filename);
-				char *extension = strrchr(filename, '.');
-				strncpy(destination, userTrash, sizeof(destination));
-				strncat(destination, filename, sizeof(destination) - strlen(destination) - 1);
-				while (1) {
-					struct stat sb;
-					struct tm *lt;
-					time_t now;
-
-					if (stat(destination, &sb)) {
-						if (rename(path, destination)) {
-							syslog(LOG_WARNING, "Failed to rename %s to %s: %m", path, destination);
-						} else {
-							off_t size = 0;
-							if (!stat(destination, &sb)) {
-								size = sb.st_size;
-							}
-
-							[context.progress setUserInfoObject:@(path) forKey:@"file"];
-							context.progress.completedUnitCount += size;
-						}
-						break;
-					}
-					if (extension)
-						*extension = '\0';
-					now = time(NULL);
-					lt = localtime(&now);
-					snprintf(destination, sizeof(destination), "%s%s %d-%d-%d.%s", userTrash, filename, lt->tm_hour, lt->tm_min, lt->tm_sec, extension+1);
-				}
-				free(filename);
-			}
-		}
-	}
-}
-
 @interface Helper () <NSXPCListenerDelegate>
 
 @property (atomic, strong) NSXPCListener *listener;
@@ -410,7 +344,7 @@ static void trash_file(const char *path, HelperContext *context)
 
 - (void)run
 {
-	syslog(LOG_INFO, "MonolingualHelper started");
+	syslog(LOG_NOTICE, "MonolingualHelper started");
 
 	[self.listener resume];
 	[[NSRunLoop currentRunLoop] run];
@@ -433,7 +367,7 @@ static void trash_file(const char *path, HelperContext *context)
 }
 
 - (void)exitWithCode:(NSNumber *)exitCode __attribute__((noreturn)) {
-	syslog(LOG_INFO, "exiting with exit status %d", [exitCode intValue]);
+	syslog(LOG_NOTICE, "exiting with exit status %d", [exitCode intValue]);
 	exit(exitCode.integerValue);
 }
 
@@ -444,11 +378,13 @@ static void trash_file(const char *path, HelperContext *context)
 - (void)processRequest:(NSDictionary *)request reply:(void(^)(NSNumber *))reply {
 	HelperContext *context = [[HelperContext alloc] init];
 
+	syslog(LOG_NOTICE, "Received request: %s", [request description].UTF8String);
+
 	// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
 	NSProgress *progress = [NSProgress progressWithTotalUnitCount:-1];
 	progress.completedUnitCount = 0;
 	progress.cancellationHandler = ^{
-		syslog(LOG_INFO, "Stopping MonolingualHelper");
+		syslog(LOG_NOTICE, "Stopping MonolingualHelper");
 	};
 
 	context.dryRun = [[request objectForKey:@"dry_run"] boolValue];
