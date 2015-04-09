@@ -9,7 +9,8 @@ Monolingual
 
 ## Architecture
 
-Monolingual consists of two parts: the Monolingual app and a privileged helper program. The user-visible app is written in Swift and communicates with the C-based helper using XPC.
+Monolingual consists of three parts: the sandboxed Monolingual app, a non-sandboxed XPC service and a privileged helper program.
+The user-visible app and the XPC service are written in Swift and communicate with the Objective-C-based helper using XPC.
 
 ## Dependencies
 
