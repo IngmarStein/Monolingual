@@ -270,14 +270,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		//request.dryRun = true
 
 		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
-			NSLog("Error communicating with helper: %@", error)
+			NSLog("Error communicating with helper: \(error)")
 			dispatch_async(dispatch_get_main_queue()) {
 				self.finishProcessing()
 			}
 		} as! HelperProtocol
 
 		helper.processRequest(arguments) { exitCode in
-			NSLog("helper finished with exit code: %@", exitCode)
+			NSLog("helper finished with exit code: \(exitCode)")
 			helper.exitWithCode(exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {
 				dispatch_async(dispatch_get_main_queue()) {
@@ -732,8 +732,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_ALL),
 			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_H)
 		]
-			
-		var infoCount : mach_msg_type_number_t = kHOST_BASIC_INFO_COUNT
+
+		var infoCount = mach_msg_type_number_t(sizeof(host_basic_info_data_t)/sizeof(integer_t)) // HOST_BASIC_INFO_COUNT
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
 		let my_mach_host_self = mach_host_self()
 		let ret = withUnsafeMutablePointer(&hostInfo) {
