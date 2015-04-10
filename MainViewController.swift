@@ -47,7 +47,7 @@ func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
 
-final class MainViewController : NSViewController, ProgressViewControllerDelegate {
+final class MainViewController : NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
 
 	@IBOutlet private weak var currentArchitecture : NSTextField!
 
@@ -158,16 +158,25 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
+	func processed(file: String, size: Int) {
+		if let progress = self.progress {
+			let count = progress.userInfo?[NSProgressFileCompletedCountKey] as? Int ?? 0
+			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
+			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey:NSProgressFileURLKey)
+			progress.completedUnitCount += size
+		}
+	}
+
 	override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
 		if keyPath == "completedUnitCount" {
 			let progress = object as! NSProgress
 			let url = progress.userInfo?[NSProgressFileURLKey] as? NSURL
 			let path = url?.path ?? ""
-			processProgress(path, size:progress.completedUnitCount)
+			processProgress(path, size:Int(progress.completedUnitCount))
 		}
 	}
 
-	func processProgress(file: String, size: Int64) {
+	func processProgress(file: String, size: Int) {
 		log.message("\(file): \(size)\n")
 
 		let message : String
@@ -267,16 +276,16 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .New, context: nil)
 
 		// DEBUG
-		//request.dryRun = true
+		//arguments.dryRun = true
 
 		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
-			NSLog("Error communicating with helper: \(error)")
+			NSLog("Error communicating with helper: %@", error)
 			dispatch_async(dispatch_get_main_queue()) {
 				self.finishProcessing()
 			}
 		} as! HelperProtocol
 
-		helper.processRequest(arguments) { exitCode in
+		helper.processRequest(arguments, progress:self) { exitCode in
 			NSLog("helper finished with exit code: \(exitCode)")
 			helper.exitWithCode(exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {
@@ -314,7 +323,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			xpcService.connect() { endpoint -> Void in
 				if let endpoint = endpoint {
 					let connection = NSXPCConnection(listenerEndpoint: endpoint)
-					connection.remoteObjectInterface = NSXPCInterface(withProtocol:HelperProtocol.self)
+					let interface = NSXPCInterface(withProtocol:HelperProtocol.self)
+					interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: "processRequest:progress:reply:", argumentIndex: 1, ofReply: false)
+					connection.remoteObjectInterface = interface
 					connection.invalidationHandler = {
 						NSLog("XPC connection to helper invalidated.")
 						self.helperConnection = nil
@@ -360,11 +371,16 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	}
 	
 	func progressDidEnd(completed: Bool) {
+		if self.progress == nil {
+			return
+		}
+
 		self.processApplication = nil
 		self.dismissViewController(self.progressViewController!)
 
 		let progress = self.progress!
-		let byteCount = NSByteCountFormatter.stringFromByteCount(progress.completedUnitCount, countStyle:.File)
+		let byteCount = NSByteCountFormatter.stringFromByteCount(min(progress.completedUnitCount, 0), countStyle:.File)
+		self.progress = nil
 
 		if !completed {
 			// cancel the current progress which tells the helper to stop
@@ -471,7 +487,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		let includes = roots.filter { $0.languages } .map { $0.path }
 		let excludes = roots.filter { !$0.languages } .map { $0.path }
 		let bl = self.blacklist!.filter { $0.languages } .map { $0.bundle }
-		/*
+
 		for item in bl {
 			NSLog("Blacklisting \(item)")
 		}
@@ -481,7 +497,6 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		for exclude in excludes {
 			NSLog("Excluding root \(exclude)")
 		}
-		*/
 		
 		var rCount = 0
 		var folders = Set<String>()

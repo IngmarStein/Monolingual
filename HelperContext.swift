@@ -14,6 +14,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	var doStrip: Bool
 	var trash: Bool
 	var uid: uid_t
+	var remoteProgress: ProgressProtocol?
 	var progress: NSProgress?
 	var directories: Set<String>!
 	var excludes: [String]!
@@ -79,6 +80,9 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			progress.setUserInfoObject(url, forKey:NSProgressFileURLKey)
 			progress.completedUnitCount += size
 		}
+		if let progress = remoteProgress {
+			progress.processed(url.path!, size: size)
+		}
 	}
 
 	func remove(url: NSURL) {
@@ -115,7 +119,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		} else {
 			if !self.fileManager.removeItemAtURL(url, error:&error) {
 				if let error = error {
-					NSLog("Error removing '%s': %s", url.fileSystemRepresentation, error)
+					NSLog("Error removing '%s': %@", url.fileSystemRepresentation, error)
 				}
 			}
 		}
@@ -133,8 +137,6 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 		if let size = size as? Int {
 			reportProgress(URL, size:size)
-
-			NSLog("processing '%s' size=%lld", URL.fileSystemRepresentation, size)
 		}
 
 		return true

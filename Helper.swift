@@ -10,7 +10,7 @@ import Foundation
 import MachO.fat
 import MachO.loader
 
-final class Helper : NSObject, NSXPCListenerDelegate, HelperProtocol {
+final class Helper : NSObject, NSXPCListenerDelegate {
 
 	var listener: NSXPCListener
 
@@ -50,22 +50,23 @@ final class Helper : NSObject, NSXPCListenerDelegate, HelperProtocol {
 	}
 
 	func exitWithCode(exitCode: Int) {
-		NSLog("exiting with exit status %@", exitCode)
+		NSLog("exiting with exit status \(exitCode)")
 		exit(Int32(exitCode))
 	}
 
-	func processRequest(request: HelperRequest, reply:(Int) -> Void) {
+	func processRequest(request: HelperRequest, progress remoteProgress: ProgressProtocol, reply:(Int) -> Void) {
 		let context = HelperContext()
 
 		NSLog("Received request: %@", request)
 
 		// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
-		let progress = NSProgress.currentProgress()!
+		let progress = NSProgress(totalUnitCount: -1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
 			NSLog("Stopping MonolingualHelper")
 		}
 		context.progress = progress
+		context.remoteProgress = remoteProgress
 		context.dryRun = request.dryRun
 		context.doStrip = request.doStrip
 		context.uid = request.uid
@@ -125,9 +126,11 @@ final class Helper : NSObject, NSXPCListenerDelegate, HelperProtocol {
 	//MARK: - NSXPCListenerDelegate
 
 	func listener(listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
-		let interface = NSXPCInterface(withProtocol:HelperProtocol.self)
-		let classes = NSSet(object: HelperRequest.self) as Set<NSObject>
-		interface.setClasses(classes, forSelector: "processRequest:reply:", argumentIndex: 0, ofReply: false)
+		let interface = NSXPCInterface(withProtocol: HelperProtocol.self)
+		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
+		let classes = Set([helperRequestClass])
+		interface.setClasses(classes, forSelector: "processRequest:progress:reply:", argumentIndex: 0, ofReply: false)
+		interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: "processRequest:progress:reply:", argumentIndex: 1, ofReply: false)
 		newConnection.exportedInterface = interface
 		newConnection.exportedObject = self
 		newConnection.resume()
