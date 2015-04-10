@@ -14,16 +14,19 @@
 {
 	self = [super init];
 	if (self) {
+		NSSet *stringArray = [NSSet setWithObjects:[NSString class], [NSArray class], nil];
+		NSSet *stringSet = [NSSet setWithObjects:[NSString class], [NSSet class], nil];
+
 		_dryRun = [coder decodeBoolForKey:@"dryRun"];
 		_doStrip = [coder decodeBoolForKey:@"doStrip"];
 		_uid = [coder decodeIntegerForKey:@"uid"];
 		_trash = [coder decodeBoolForKey:@"trash"];
-		_includes = [coder decodeObjectOfClass:[NSArray class] forKey:@"includes"];
-		_excludes = [coder decodeObjectOfClass:[NSArray class] forKey:@"excludes"];
-		_bundleBlacklist = [coder decodeObjectOfClass:[NSSet class] forKey:@"bundleBlacklist"];
-		_directories = [coder decodeObjectOfClass:[NSSet class] forKey:@"directories"];
-		_files = [coder decodeObjectOfClass:[NSArray class] forKey:@"files"];
-		_thin = [coder decodeObjectOfClass:[NSArray class] forKey:@"thin"];
+		_includes = [coder decodeObjectOfClasses:stringArray forKey:@"includes"];
+		_excludes = [coder decodeObjectOfClasses:stringArray forKey:@"excludes"];
+		_bundleBlacklist = [coder decodeObjectOfClasses:stringSet forKey:@"bundleBlacklist"];
+		_directories = [coder decodeObjectOfClasses:stringSet forKey:@"directories"];
+		_files = [coder decodeObjectOfClasses:stringArray forKey:@"files"];
+		_thin = [coder decodeObjectOfClasses:stringArray forKey:@"thin"];
 	}
 	return self;
 }
