@@ -17,7 +17,6 @@ The user-visible app and the XPC service are written in Swift and communicate wi
 Monolingual uses CocoaPods to manage its dependencies. Currently, the following pods are used:
 
 - [SMJobKit](https://github.com/IngmarStein/SMJobKit)
-- [XPCSwift](https://github.com/IngmarStein/XPCSwift)
 - [Sparkle](https://github.com/sparkle-project/Sparkle)
 
 ## Contributors

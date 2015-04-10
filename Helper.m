@@ -8,25 +8,12 @@
 
 #import "Helper.h"
 
-@import Darwin.C.stdlib;
-@import Darwin.C.stdio;
-@import Darwin.POSIX.fcntl;
-@import Darwin.C.string;
-@import Darwin.C.limits;
-@import Darwin.POSIX.sys.types;
-@import Darwin.POSIX.sys.stat;
-@import Darwin.POSIX.sys.time;
-@import Darwin.POSIX.unistd;
-@import Darwin.POSIX.dirent;
-@import Darwin.POSIX.pwd;
+@import Foundation;
+@import XPC;
 @import Darwin.POSIX.syslog;
-@import CoreFoundation;
 @import MachO.fat;
 @import MachO.loader;
-@import MachO.swap;
-@import Darwin.POSIX.sys.mman;
-@import XPC;
-#include "lipo.h"
+#import "lipo.h"
 
 @interface HelperContext : NSObject <NSFileManagerDelegate>
 
@@ -68,39 +55,29 @@
 	return exclusion;
 }
 
-- (BOOL)isDirectoryBlacklisted:(NSString *)path {
+- (BOOL)isDirectoryBlacklisted:(NSURL *)path {
 	BOOL result = NO;
 
-	NSString *infoPlistPath = [NSString stringWithFormat:@"%@/Contents/Info.plist", path];
-	NSDictionary *infoPlist = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-	if (!infoPlist) {
-		// frameworks store the Info.plist under a different path
-		infoPlistPath = [NSString stringWithFormat:@"%@/Resources/Info.plist", path];
-		infoPlist = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-	}
-	if (infoPlist) {
-		NSString *bundleId = infoPlist[@"CFBundleIdentifier"];
-		if (bundleId) {
-			// check bundle blacklist
-			result = [self.bundleBlacklist containsObject:bundleId];
-		}
+	NSString *bundleID = [NSBundle bundleWithURL:path].bundleIdentifier;
+	if (bundleID) {
+		// check bundle blacklist
+		result = [self.bundleBlacklist containsObject:bundleID];
 	}
 
 	return result;
 }
 
-- (BOOL)isFileBlacklisted:(NSString *)path {
-	return [self.fileBlacklist containsObject:path];
+- (BOOL)isFileBlacklisted:(NSURL *)url {
+	return [self.fileBlacklist containsObject:url];
 }
 
-- (void)addCodeResourcesToBlacklist:(NSString *)path {
-	NSString *codeResourcesPath = [NSString stringWithFormat:@"%@/_CodeSignature/CodeResources", path];
+- (void)addCodeResourcesToBlacklist:(NSURL *)url {
+	NSString *codeResourcesPath = [NSString stringWithFormat:@"%@/_CodeSignature/CodeResources", url.path];
 	NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:codeResourcesPath];
 	if (plist) {
 		__block void(^addFileToBlacklist)(NSString *key, NSDictionary *value, BOOL *stop) = ^(NSString *key, NSDictionary *value, BOOL *stop) {
 			if (![value[@"optional"] boolValue]) {
-				NSString *path = [NSString stringWithFormat:@"%@/%@", path, key];
-				[self.fileBlacklist addObject:path];
+				[self.fileBlacklist addObject:[url URLByAppendingPathComponent:key]];
 			}
 		};
 		[plist[@"files"] enumerateKeysAndObjectsUsingBlock:addFileToBlacklist];
@@ -108,9 +85,15 @@
 	}
 }
 
-- (void)remove:(NSString *)path {
+- (void)reportProgress:(NSURL *)url size:(NSInteger)size {
+	NSNumber *count = self.progress.userInfo[NSProgressFileCompletedCountKey];
+	[self.progress setUserInfoObject:@(count.integerValue + 1) forKey:NSProgressFileCompletedCountKey];
+	[self.progress setUserInfoObject:url forKey:NSProgressFileURLKey];
+	self.progress.completedUnitCount += size;
+}
+
+- (void)remove:(NSURL *)url {
 	NSError *error = nil;
-	NSURL *url = [NSURL fileURLWithPath:path];
 	if (self.trash) {
 		NSURL *dstURL = nil;
 
@@ -135,8 +118,7 @@
 					[theURL getResourceValue:&size forKey:NSURLFileAllocatedSizeKey error:nil];
 				}
 				if (size) {
-					[self.progress setUserInfoObject:theURL.path forKey:@"file"];
-					self.progress.completedUnitCount += size.integerValue;
+					[self reportProgress:theURL size:size.integerValue];
 				}
 			}
 		} else {
@@ -150,7 +132,7 @@
 }
 
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldProcessItemAtURL:(NSURL *)URL {
-	if (self.dryRun || [self isFileBlacklisted:URL.path]) {
+	if (self.dryRun || [self isFileBlacklisted:URL]) {
 		return NO;
 	}
 
@@ -159,8 +141,7 @@
 		[URL getResourceValue:&size forKey:NSURLFileAllocatedSizeKey error:nil];
 	}
 
-	[self.progress setUserInfoObject:URL.path forKey:@"file"];
-	self.progress.completedUnitCount += size.integerValue;
+	[self reportProgress:URL size:size.integerValue];
 
 	syslog(LOG_WARNING, "processing '%s' size=%lld", URL.fileSystemRepresentation, (long long int)size.integerValue);
 
@@ -178,168 +159,6 @@
 }
 
 @end
-
-static void thin_file(const char *path, HelperContext *context)
-{
-	size_t size_diff;
-	if (!run_lipo(path, &size_diff)) {
-		if (size_diff > 0) {
-			[context.progress setUserInfoObject:@(path) forKey:@"file"];
-			context.progress.completedUnitCount += size_diff;
-		}
-	}
-}
-
-static int thin_has_code_signature(char *addr, size_t size)
-{
-	uint32_t i;
-	size_t   mh_size = 0;
-	uint32_t ncmds = 0;
-	int      swapped = 0;
-
-	if (size >= sizeof(struct mach_header) && (*(uint32_t *)addr == MH_MAGIC || *(uint32_t *)addr == MH_CIGAM)) {
-		struct mach_header *mh = (struct mach_header *)addr;
-		if (mh->magic == MH_CIGAM) {
-			swapped = 1;
-			swap_mach_header(mh, NXHostByteOrder());
-		}
-		mh_size = sizeof(*mh);
-		ncmds = mh->ncmds;
-	} else if (size >= sizeof(struct mach_header_64) && (*(uint32_t *)addr == MH_MAGIC_64 || *(uint32_t *)addr == MH_CIGAM_64)) {
-		struct mach_header_64 *mh = (struct mach_header_64 *)addr;
-		if (mh->magic == MH_CIGAM_64) {
-			swapped = 1;
-			swap_mach_header_64(mh, NXHostByteOrder());
-		}
-		mh_size = sizeof(*mh);
-		ncmds = mh->ncmds;
-	}
-	if (mh_size) {
-		struct load_command *lc = (struct load_command *)(addr + mh_size);
-		for (i=0; i<ncmds; ++i) {
-			if (swapped)
-				swap_load_command(lc, NXHostByteOrder());
-			if (LC_CODE_SIGNATURE == lc->cmd)
-				return 1;
-			lc = (struct load_command *)((char *)lc + lc->cmdsize);
-		}
-	}
-
-	return 0;
-}
-
-static BOOL has_code_signature(const char *path)
-{
-	int         fd;
-	struct stat stat_buf;
-	size_t      size;
-	BOOL        found_sig;
-	char        *addr;
-	uint32_t    i;
-
-	/* Open the input file and map it in */
-	if ((fd = open(path, O_RDONLY)) == -1) {
-		syslog(LOG_ERR, "can't open input file: %s", path);
-		return -1;
-	}
-	if (fstat(fd, &stat_buf) == -1) {
-		close(fd);
-		syslog(LOG_ERR, "Can't stat input file: %s", path);
-		return -1;
-	}
-	size = (size_t)stat_buf.st_size;
-	fcntl(fd, F_NOCACHE, 1);
-
-	addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
-	if (MAP_FAILED == addr) {
-		syslog(LOG_ERR, "Can't map input file: %s", path);
-		close(fd);
-		return -1;
-	}
-	close(fd);
-
-	found_sig = 0;
-
-	/* see if this file is a fat file */
-	if ((size_t)size >= sizeof(struct fat_header) &&
-#ifdef __BIG_ENDIAN__
-		*((uint32_t *)addr) == FAT_MAGIC)
-#endif /* __BIG_ENDIAN__ */
-#ifdef __LITTLE_ENDIAN__
-		*((uint32_t *)addr) == FAT_CIGAM)
-#endif /* __LITTLE_ENDIAN__ */
-	{
-		struct fat_header *fat_header = (struct fat_header *)addr;
-#ifdef __LITTLE_ENDIAN__
-		swap_fat_header(fat_header, NX_LittleEndian);
-#endif /* __LITTLE_ENDIAN__ */
-		struct fat_arch *fat_arches = (struct fat_arch *)(addr + sizeof(struct fat_header));
-#ifdef __LITTLE_ENDIAN__
-		swap_fat_arch(fat_arches, fat_header->nfat_arch, NX_LittleEndian);
-#endif /* __LITTLE_ENDIAN__ */
-		for (i = 0; i < fat_header->nfat_arch; ++i) {
-			if (thin_has_code_signature(addr + fat_arches[i].offset, fat_arches[i].size)) {
-				found_sig = YES;
-				break;
-			}
-		}
-	} else if (thin_has_code_signature(addr, size)) {
-		found_sig = YES;
-	}
-
-	if (munmap(addr, size)) {
-		syslog(LOG_ERR, "munmap: %s", strerror(errno));
-	}
-
-	return found_sig;
-}
-
-static void strip_file(const char *path, HelperContext *context)
-{
-	struct stat st;
-
-	if (!stat(path, &st)) {
-		char const *argv[7];
-		int stat_loc;
-		pid_t child;
-		off_t old_size;
-
-		// do not modify executables with code signatures
-		if (has_code_signature(path)) {
-			return;
-		}
-
-		old_size = st.st_size;
-		child = fork();
-		switch (child) {
-			case -1:
-				syslog(LOG_ERR, "fork() failed: %s", strerror(errno));
-				return;
-			case 0:
-				argv[0] = "/usr/bin/strip";
-				argv[1] = "-u";
-				argv[2] = "-x";
-				argv[3] = "-S";
-				argv[4] = "-";
-				argv[5] = path;
-				argv[6] = NULL;
-				execv("/usr/bin/strip", (char * const *)argv);
-				syslog(LOG_ERR, "execv(\"/usr/bin/strip\") failed");
-				break;
-		}
-		waitpid(child, &stat_loc, 0);
-		chmod(path, st.st_mode & 0777);
-		if (chown(path, st.st_uid, st.st_gid) >= 0)
-			chmod(path, st.st_mode & 07777);
-		if (!stat(path, &st)) {
-			if (old_size > st.st_size) {
-				size_t size_diff = (size_t)(old_size - st.st_size);
-				[context.progress setUserInfoObject:@(path) forKey:@"file"];
-				context.progress.completedUnitCount += size_diff;
-			}
-		}
-	}
-}
 
 @interface Helper () <NSXPCListenerDelegate>
 
@@ -412,8 +231,7 @@ static void strip_file(const char *path, HelperContext *context)
 
 	if (context.doStrip) {
 		// check if /usr/bin/strip is present
-		struct stat st;
-		if (stat("/usr/bin/strip", &st)) {
+		if (![context.fileManager fileExistsAtPath:@"/usr/bin/strip"]) {
 			context.doStrip = NO;
 		}
 	}
@@ -424,7 +242,7 @@ static void strip_file(const char *path, HelperContext *context)
 		if (context.progress.cancelled) {
 			break;
 		}
-		[context remove:file];
+		[context remove:[NSURL fileURLWithPath:file]];
 	}
 
 	NSArray *roots = request.includes;
@@ -488,11 +306,12 @@ static void strip_file(const char *path, HelperContext *context)
 		return;
 	}
 
-	if ([context isExcluded:path] || [context isDirectoryBlacklisted:path]) {
+	NSURL *pathURL = [NSURL fileURLWithPath:path isDirectory:YES];
+
+	if ([context isExcluded:path] || [context isDirectoryBlacklisted:pathURL]) {
 		return;
 	}
 
-	NSURL *pathURL = [NSURL fileURLWithPath:path isDirectory:YES];
 	NSDirectoryEnumerator *dirEnumerator = [context.fileManager enumeratorAtURL:pathURL
 											   includingPropertiesForKeys:@[NSURLIsDirectoryKey]
 																  options:(NSDirectoryEnumerationOptions)0
@@ -509,17 +328,17 @@ static void strip_file(const char *path, HelperContext *context)
 		if (isDirectory.boolValue) {
 			NSString *thePath = theURL.path;
 
-			if ([context isExcluded:thePath] || [context isDirectoryBlacklisted:thePath]) {
+			if ([context isExcluded:thePath] || [context isDirectoryBlacklisted:theURL]) {
 				[dirEnumerator skipDescendents];
 				continue;
 			}
 
-			[context addCodeResourcesToBlacklist:thePath];
+			[context addCodeResourcesToBlacklist:theURL];
 
 			NSString *lastComponent = [theURL lastPathComponent];
 			if (lastComponent) {
 				if ([context.directories containsObject:lastComponent]) {
-					[context remove:thePath];
+					[context remove:theURL];
 					[dirEnumerator skipDescendents];
 				}
 			}
@@ -527,9 +346,16 @@ static void strip_file(const char *path, HelperContext *context)
 	}
 }
 
-- (void)thin:(NSString *)path context:(HelperContext *)context {
-	struct stat st;
+- (void)thinFile:(NSURL *)url context:(HelperContext *)context {
+	size_t size_diff;
+	if (!run_lipo(url.fileSystemRepresentation, &size_diff)) {
+		if (size_diff > 0) {
+			[context reportProgress:url size:size_diff];
+		}
+	}
+}
 
+- (void)thin:(NSString *)path context:(HelperContext *)context {
 	if (context.progress.cancelled) {
 		return;
 	}
@@ -538,11 +364,12 @@ static void strip_file(const char *path, HelperContext *context)
 		return;
 	}
 
-	if ([context isExcluded:path] || [context isDirectoryBlacklisted:path]) {
+	NSURL *pathURL = [NSURL fileURLWithPath:path isDirectory:YES];
+
+	if ([context isExcluded:path] || [context isDirectoryBlacklisted:pathURL]) {
 		return;
 	}
 
-	NSURL *pathURL = [NSURL fileURLWithPath:path isDirectory:YES];
 	NSDirectoryEnumerator *dirEnumerator = [context.fileManager enumeratorAtURL:pathURL
 											 includingPropertiesForKeys:@[NSURLIsDirectoryKey, NSURLIsRegularFileKey, NSURLIsExecutableKey]
 																options:(NSDirectoryEnumerationOptions)0
@@ -563,35 +390,80 @@ static void strip_file(const char *path, HelperContext *context)
 
 		NSString *thePath = theURL.path;
 		if (isDirectory.boolValue) {
-			if ([context isDirectoryBlacklisted:thePath]) {
+			if ([context isDirectoryBlacklisted:theURL]) {
 				[dirEnumerator skipDescendents];
 				continue;
 			}
-			[context addCodeResourcesToBlacklist:thePath];
+			[context addCodeResourcesToBlacklist:theURL];
 		} else if (isExecutable && isRegularFile) {
-			if (![context isFileBlacklisted:thePath]) {
-				const char *fsPath = theURL.fileSystemRepresentation;
+			if (![context isFileBlacklisted:theURL]) {
+				NSError *error = nil;
+				NSData *data = [NSData dataWithContentsOfURL:theURL options:(NSDataReadingOptions)(NSDataReadingMappedAlways|NSDataReadingUncached) error:&error];
+				unsigned int magic;
+				if (data.length >= sizeof(magic)) {
+					[data getBytes:&magic length:sizeof(magic)];
 
-				int fd = open(fsPath, O_RDONLY, 0);
-				if (fd >= 0) {
-					unsigned int magic;
-					ssize_t num;
-					fcntl(fd, F_NOCACHE, 1);
-					num = read(fd, &magic, sizeof(magic));
-					close(fd);
-
-					if (num == sizeof(magic)) {
-						if (magic == FAT_MAGIC || magic == FAT_CIGAM)
-							thin_file(fsPath, context);
-						if (context.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
-							strip_file(fsPath, context);
-					}
+					if (magic == FAT_MAGIC || magic == FAT_CIGAM)
+						[self thinFile:theURL context:context];
+					if (context.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
+						[self stripFile:theURL context:context];
 				}
 			}
 		}
 	}
 }
 
+- (BOOL)hasCodeSignature:(NSURL *)url {
+	SecStaticCodeRef codeRef;
+	OSStatus result;
 
+	result = SecStaticCodeCreateWithPath((__bridge CFURLRef)url, kSecCSDefaultFlags, &codeRef);
+	if (result != noErr) {
+		return NO;
+	}
+
+	SecRequirementRef requirement;
+	result = SecCodeCopyDesignatedRequirement(codeRef, kSecCSDefaultFlags, &requirement);
+	return result == noErr;
+}
+
+- (void)stripFile:(NSURL *)url context:(HelperContext *)context {
+	const char *path = url.fileSystemRepresentation;
+
+	NSError *error = nil;
+	NSDictionary *attributes = [context.fileManager attributesOfItemAtPath:url.path error:&error];
+	if (attributes) {
+		// do not modify executables with code signatures
+		if ([self hasCodeSignature:url]) {
+			return;
+		}
+
+		unsigned long long oldSize = attributes.fileSize;
+
+		NSTask *task = [NSTask launchedTaskWithLaunchPath:@"/usr/bin/strip" arguments:@[@"-u", @"-x", @"-S", @"-", url.path]];
+		[task waitUntilExit];
+
+		if (task.terminationStatus != EXIT_SUCCESS) {
+			syslog(LOG_ERR, "/usr/bin/strip failed with exit status %d", task.terminationStatus);
+		}
+
+		NSDictionary *newAttributes = @{ NSFileOwnerAccountID : attributes[NSFileOwnerAccountID],
+										 NSFileGroupOwnerAccountID : attributes[NSFileGroupOwnerAccountID],
+										 NSFilePosixPermissions : attributes[NSFilePosixPermissions]
+										 };
+
+		if (![context.fileManager setAttributes:newAttributes ofItemAtPath:url.path error:&error]) {
+			syslog(LOG_ERR, "Failed to set file attributes for '%s': %s", url.fileSystemRepresentation, error.description.UTF8String);
+		}
+		attributes = [context.fileManager attributesOfItemAtPath:url.path error:&error];
+		if (attributes) {
+			unsigned long long newSize = attributes.fileSize;
+			if (oldSize > newSize) {
+				NSInteger sizeDiff = oldSize - newSize;
+				[context reportProgress:[NSURL fileURLWithFileSystemRepresentation:path isDirectory:NO relativeToURL:nil] size:sizeDiff];
+			}
+		}
+	}
+}
 
 @end

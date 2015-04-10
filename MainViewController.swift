@@ -61,6 +61,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	var processApplication : Root?
 	var processApplicationObserver : NSObjectProtocol?
 	var helperConnection : NSXPCConnection?
+	var progress: NSProgress?
 
 	lazy var xpcServiceConnection: NSXPCConnection = {
 		let connection = NSXPCConnection(serviceName: "net.sourceforge.Monolingual.XPCService")
@@ -160,8 +161,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
 		if keyPath == "completedUnitCount" {
 			let progress = object as! NSProgress
-			let file = (progress.userInfo?["file"] as? String) ?? ""
-			processProgress(file, size:progress.completedUnitCount)
+			let url = progress.userInfo?[NSProgressFileURLKey] as? NSURL
+			let path = url?.path ?? ""
+			processProgress(path, size:progress.completedUnitCount)
 		}
 	}
 
@@ -200,11 +202,13 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			}
 		}
 
-		if let viewController = self.progressViewController {
-			viewController.text = message
-			viewController.file = file
+		dispatch_async(dispatch_get_main_queue()) {
+			if let viewController = self.progressViewController {
+				viewController.text = message
+				viewController.file = file
+				NSApp.setWindowsNeedUpdate(true)
+			}
 		}
-		NSApp.setWindowsNeedUpdate(true)
 	}
 
 	func installHelper(reply:(Bool) -> Void) {
@@ -258,9 +262,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	func runHelper(arguments: HelperRequest) {
 		NSProcessInfo.processInfo().disableSuddenTermination()
 
-		let progress = NSProgress(totalUnitCount: 1)
-		progress.becomeCurrentWithPendingUnitCount(1)
-		progress.addObserver(self, forKeyPath: "userInfo", options: .New, context: nil)
+		let progress = NSProgress(totalUnitCount: -1)
+		progress.becomeCurrentWithPendingUnitCount(-1)
+		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .New, context: nil)
 
 		// DEBUG
 		//request.dryRun = true
@@ -281,6 +285,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				}
 			}
 		}
+
+		progress.resignCurrent()
+		self.progress = progress
 
 		if self.progressViewController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
@@ -356,7 +363,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.processApplication = nil
 		self.dismissViewController(self.progressViewController!)
 
-		let progress = NSProgress.currentProgress()!
+		let progress = self.progress!
 		let byteCount = NSByteCountFormatter.stringFromByteCount(progress.completedUnitCount, countStyle:.File)
 
 		if !completed {
@@ -392,8 +399,6 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			connection.invalidate()
 			self.helperConnection = nil
 		}
-	
-		progress.resignCurrent()
 
 		log.close()
 	
