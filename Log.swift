@@ -9,14 +9,26 @@
 import Cocoa
 
 final class Log {
-	let logFileName = NSURL(fileURLWithPath:"\(NSHomeDirectory())/Library/Logs/Monolingual.log", isDirectory: false)
+
+	// use the real (non-sandboxed) directory $HOME/Library/Logs for the log file as long as we have the temporary exception com.apple.security.temporary-exception.files.home-relative-path.read-write.
+	// NSHomeDirectory() points to $HOME/Library/Containers/net.sourceforge.Monolingual/Data
+	class var realHomeDirectory : String {
+		let pw = getpwuid(getuid())
+		if pw != nil {
+			return String.fromCString(pw.memory.pw_dir)!
+		} else {
+			return NSHomeDirectory()
+		}
+	}
+
+	let logFileURL = NSURL(fileURLWithPath:"\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
 	var logFile : NSFileHandle? = nil
 
 	func open() {
-		if let fileName = logFileName, path = fileName.path {
+		if let fileURL = logFileURL, path = fileURL.path {
 			NSFileManager.defaultManager().createFileAtPath(path, contents: nil, attributes: nil)
 			var error : NSError? = nil
-			logFile = NSFileHandle(forWritingToURL:logFileName!, error: &error)
+			logFile = NSFileHandle(forWritingToURL:fileURL, error: &error)
 			if let error = error {
 				NSLog("Failed to open log file: \(error)")
 			}
