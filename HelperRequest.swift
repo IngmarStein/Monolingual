@@ -32,9 +32,9 @@ import Foundation
 
 	required init(coder aDecoder: NSCoder) {
 		let stringClass = NSString.self as AnyObject as! NSObject
-		let arrayClass = NSString.self as AnyObject as! NSObject
+		let arrayClass = NSArray.self as AnyObject as! NSObject
 		let setClass = NSSet.self as AnyObject as! NSObject
-		let stringArray = Set([stringClass, setClass])
+		let stringArray = Set([stringClass, arrayClass])
 		let stringSet = Set([stringClass, setClass])
 
 		dryRun = aDecoder.decodeBoolForKey("dryRun")
