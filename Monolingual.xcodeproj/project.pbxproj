@@ -428,9 +428,9 @@
 			productReference = 95A130430608F93000D8E30C /* Monolingual.app */;
 			productType = "com.apple.product-type.application";
 		};
-		95C3C95F0610144300D417BC /* net.sourceforge.MonolingualHelper */ = {
+		95C3C95F0610144300D417BC /* Helper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "net.sourceforge.MonolingualHelper" */;
+			buildConfigurationList = 95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */;
 			buildPhases = (
 				95C3C95D0610144300D417BC /* Sources */,
 				95C3C95E0610144300D417BC /* Frameworks */,
@@ -439,7 +439,7 @@
 			);
 			dependencies = (
 			);
-			name = net.sourceforge.MonolingualHelper;
+			name = Helper;
 			productName = Helper;
 			productReference = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */;
 			productType = "com.apple.product-type.tool";
@@ -510,7 +510,7 @@
 			projectRoot = "";
 			targets = (
 				95A130250608F92F00D8E30C /* Monolingual */,
-				95C3C95F0610144300D417BC /* net.sourceforge.MonolingualHelper */,
+				95C3C95F0610144300D417BC /* Helper */,
 				95E236D91AD526DF00076008 /* XPCService */,
 			);
 		};
@@ -742,7 +742,7 @@
 		};
 		95E236F41AD532E400076008 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 95C3C95F0610144300D417BC /* net.sourceforge.MonolingualHelper */;
+			target = 95C3C95F0610144300D417BC /* Helper */;
 			targetProxy = 95E236F31AD532E400076008 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1076,7 +1076,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "net.sourceforge.MonolingualHelper" */ = {
+		95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				95AAF5610856C2DC007CEE36 /* Debug */,

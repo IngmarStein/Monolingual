@@ -8,7 +8,7 @@
 
 import Foundation
 
-class HelperContext : NSObject, NSFileManagerDelegate {
+final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	var dryRun: Bool
 	var doStrip: Bool

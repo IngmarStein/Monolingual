@@ -10,7 +10,7 @@ import Foundation
 import MachO.fat
 import MachO.loader
 
-class Helper : NSObject, NSXPCListenerDelegate, HelperProtocol {
+final class Helper : NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 	var listener: NSXPCListener
 
@@ -125,7 +125,10 @@ class Helper : NSObject, NSXPCListenerDelegate, HelperProtocol {
 	//MARK: - NSXPCListenerDelegate
 
 	func listener(listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
-		newConnection.exportedInterface = NSXPCInterface(withProtocol:HelperProtocol.self)
+		let interface = NSXPCInterface(withProtocol:HelperProtocol.self)
+		let classes = NSSet(object: HelperRequest.self) as Set<NSObject>
+		interface.setClasses(classes, forSelector: "processRequest:reply:", argumentIndex: 0, ofReply: false)
+		newConnection.exportedInterface = interface
 		newConnection.exportedObject = self
 		newConnection.resume()
 

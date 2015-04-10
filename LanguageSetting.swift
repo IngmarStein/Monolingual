@@ -8,7 +8,7 @@
 
 import Foundation
 
-class LanguageSetting : Setting {
+final class LanguageSetting : Setting {
 	var folders : [String]
 	var displayName : String
 	

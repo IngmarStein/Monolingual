@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ArchitectureSetting : Setting {
+final class ArchitectureSetting : Setting {
 	var name : String
 	var displayName : String
 	

@@ -8,7 +8,7 @@
 
 import Foundation
 
-class HelperRequest : NSObject, NSSecureCoding {
+@objc(HelperRequest) class HelperRequest : NSObject, NSSecureCoding {
 
 	var dryRun : Bool
 	var doStrip : Bool
@@ -31,8 +31,8 @@ class HelperRequest : NSObject, NSSecureCoding {
 	}
 
 	required init(coder aDecoder: NSCoder) {
-		let stringArray = Set<NSObject>(arrayLiteral:[NSString.self, NSArray.self])
-		let stringSet = Set<NSObject>(arrayLiteral:[NSString.self, NSSet.self])
+		let stringArray = NSSet(objects:[NSString.self, NSArray.self]) as Set<NSObject>
+		let stringSet = NSSet(objects:[NSString.self, NSSet.self]) as Set<NSObject>
 
 		dryRun = aDecoder.decodeBoolForKey("dryRun")
 		doStrip = aDecoder.decodeBoolForKey("doStrip")
