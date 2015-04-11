@@ -155,13 +155,14 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			return
 		}
 
-		if let dirEnumerator = context.fileManager.enumeratorAtURL(pathURL!, includingPropertiesForKeys:[NSURLIsDirectoryKey], options:NSDirectoryEnumerationOptions.allZeros, errorHandler:nil) {
+		if let dirEnumerator = context.fileManager.enumeratorAtURL(pathURL!, includingPropertiesForKeys:[NSURLIsDirectoryKey], options:.allZeros, errorHandler:nil) {
 			for entry in dirEnumerator {
 				if let progress = context.progress where progress.cancelled {
 					return
 				}
 				let theURL = entry as! NSURL
 
+				NSLog("URL %@", theURL)
 				var isDirectory: AnyObject?
 				theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
 

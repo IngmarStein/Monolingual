@@ -56,18 +56,20 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	func addCodeResourcesToBlacklist(url: NSURL) {
 		let codeResourcesPath = url.URLByAppendingPathComponent("_CodeSignature/CodeResources", isDirectory: false)
 		if let plist = NSDictionary(contentsOfURL:codeResourcesPath) as? [NSObject:AnyObject] {
-			if let files = plist["files"] as? [String:[NSObject:AnyObject]] {
+			if let files = plist["files"] as? [String:AnyObject] {
 				for (key, value) in files {
-					if let optional = value["optional"] as? Bool where !optional {
-						fileBlacklist.insert(url.URLByAppendingPathComponent(key))
+					if let optional = value["optional"] as? Bool where optional {
+						continue
 					}
+					fileBlacklist.insert(url.URLByAppendingPathComponent(key))
 				}
 			}
-			if let files = plist["files2"] as? [String:[NSObject:AnyObject]] {
+			if let files = plist["files2"] as? [String:AnyObject] {
 				for (key, value) in files {
-					if let optional = value["optional"] as? Bool where !optional {
-						fileBlacklist.insert(url.URLByAppendingPathComponent(key))
+					if let optional = value["optional"] as? Bool where optional {
+						continue
 					}
+					fileBlacklist.insert(url.URLByAppendingPathComponent(key))
 				}
 			}
 		}
@@ -88,7 +90,24 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	func remove(url: NSURL) {
 		var error: NSError? = nil
 		if trash {
+			if dryRun {
+				return
+			}
+
 			var dstURL: NSURL? = nil
+
+			// trashItemAtURL does not call any delegate methods (radar 20481813)
+
+			// check if any file in below url has been blacklisted
+			if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:nil, options:.allZeros, errorHandler:nil) {
+				for entry in dirEnumerator {
+					let theURL = entry as! NSURL
+					if isFileBlacklisted(theURL) {
+						NSLog("not trashing %@ (%@ is blacklisted)", url, theURL)
+						return
+					}
+				}
+			}
 
 			// try to move the file to the user's trash
 			var success = false
@@ -99,9 +118,9 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 				// move the file to root's trash
 				success = self.fileManager.trashItemAtURL(url, resultingItemURL:&dstURL, error:&error)
 			}
-			if let dstURL = dstURL where success {
-				// trashItemAtURL does not call any delegate methods (radar 20481813)
-				if let dirEnumerator = fileManager.enumeratorAtURL(dstURL, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:.allZeros, errorHandler:nil) {
+
+			if success {
+				if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:.allZeros, errorHandler:nil) {
 					for entry in dirEnumerator {
 						let theURL = entry as! NSURL
 						var size: AnyObject?
@@ -146,10 +165,6 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	func fileManager(fileManager: NSFileManager, shouldRemoveItemAtURL URL: NSURL) -> Bool {
 		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
-	}
-
-	func fileManager(fileManager: NSFileManager, shouldMoveItemAtURL srcURL: NSURL, toURL dstURL: NSURL) -> Bool {
-		return self.fileManager(fileManager, shouldProcessItemAtURL:srcURL)
 	}
 
 }

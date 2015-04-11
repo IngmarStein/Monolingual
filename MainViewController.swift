@@ -379,7 +379,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.dismissViewController(self.progressViewController!)
 
 		let progress = self.progress!
-		let byteCount = NSByteCountFormatter.stringFromByteCount(min(progress.completedUnitCount, 0), countStyle:.File)
+		let byteCount = NSByteCountFormatter.stringFromByteCount(max(progress.completedUnitCount, 0), countStyle:.File)
 		self.progress = nil
 
 		if !completed {
