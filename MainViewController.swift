@@ -757,27 +757,20 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
-		if hostInfo.cpu_type == CPU_TYPE_X86 {
+		if hostInfo.cpu_type == CPU_TYPE_X86 && (hostInfo.cpu_subtype == CPU_SUBTYPE_X86_64_ALL || hostInfo.cpu_subtype == CPU_SUBTYPE_X86_64_H) {
 			// fix host_info
-			var x86_64 : Int = 0
-			var x86_64_size = sizeof(Int)
-			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
-			if ret == 0 {
-				if x86_64 != 0 {
-					hostInfo = host_basic_info_data_t(
-						max_cpus: hostInfo.max_cpus,
-						avail_cpus: hostInfo.avail_cpus,
-						memory_size: hostInfo.memory_size,
-						cpu_type: CPU_TYPE_X86_64,
-						cpu_subtype: CPU_SUBTYPE_X86_64_ALL,
-						cpu_threadtype: hostInfo.cpu_threadtype,
-						physical_cpu: hostInfo.physical_cpu,
-						physical_cpu_max: hostInfo.physical_cpu_max,
-						logical_cpu: hostInfo.logical_cpu,
-						logical_cpu_max: hostInfo.logical_cpu_max,
-						max_mem: hostInfo.max_mem)
-				}
-			}
+			hostInfo = host_basic_info_data_t(
+				max_cpus: hostInfo.max_cpus,
+				avail_cpus: hostInfo.avail_cpus,
+				memory_size: hostInfo.memory_size,
+				cpu_type: CPU_TYPE_X86_64,
+				cpu_subtype: hostInfo.cpu_subtype,
+				cpu_threadtype: hostInfo.cpu_threadtype,
+				physical_cpu: hostInfo.physical_cpu,
+				physical_cpu_max: hostInfo.physical_cpu_max,
+				logical_cpu: hostInfo.logical_cpu,
+				logical_cpu_max: hostInfo.logical_cpu_max,
+				max_mem: hostInfo.max_mem)
 		}
 
 		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
