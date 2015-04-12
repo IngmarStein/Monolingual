@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ServiceDelegate : NSObject, NSXPCListenerDelegate {
+final class ServiceDelegate : NSObject, NSXPCListenerDelegate {
 	func listener(listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		newConnection.exportedInterface = NSXPCInterface(withProtocol: XPCServiceProtocol.self)
 		var exportedObject = XPCService()
@@ -18,9 +18,7 @@ class ServiceDelegate : NSObject, NSXPCListenerDelegate {
 	}
 }
 
-
-// Create the listener and resume it:
-//
+// Create the listener and resume it
 let delegate = ServiceDelegate()
 let listener = NSXPCListener.serviceListener()
 listener.delegate = delegate;
