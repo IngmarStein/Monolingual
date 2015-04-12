@@ -162,7 +162,6 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				}
 				let theURL = entry as! NSURL
 
-				NSLog("URL %@", theURL)
 				var isDirectory: AnyObject?
 				theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
 
@@ -188,10 +187,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinFile(url: NSURL, context: HelperContext) {
-		var size_diff: Int = 0
-		if run_lipo(url.fileSystemRepresentation, &size_diff) == 0 {
-			if size_diff > 0 {
-				context.reportProgress(url, size:size_diff)
+		var sizeDiff: Int = 0
+		if run_lipo(url.fileSystemRepresentation, &sizeDiff) == 0 {
+			if sizeDiff > 0 {
+				context.reportProgress(url, size:sizeDiff)
 			}
 		}
 	}
@@ -270,14 +269,14 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	func stripFile(url: NSURL, context:HelperContext) {
 		var error: NSError?
-		if let attributes = context.fileManager.attributesOfItemAtPath(url.path!, error:&error) {
-			// do not modify executables with code signatures
-			if hasCodeSignature(url) {
-				return
-			}
-
+		// do not modify executables with code signatures
+		if !hasCodeSignature(url), let attributes = context.fileManager.attributesOfItemAtPath(url.path!, error:&error) {
 			let path = url.path!
-			let oldSize = attributes[NSFileSize]! as! UInt64
+			var size: AnyObject?
+			if !url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey, error:nil) {
+				url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey, error:nil)
+			}
+			let oldSize = size as! Int
 
 			let task = NSTask.launchedTaskWithLaunchPath("/usr/bin/strip", arguments:["-u", "-x", "-S", "-", path])
 			task.waitUntilExit()
@@ -294,12 +293,13 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			if !context.fileManager.setAttributes(newAttributes, ofItemAtPath:path, error:&error) {
 				NSLog("Failed to set file attributes for '%@': %@", path, error!)
 			}
-			if let attributes = context.fileManager.attributesOfItemAtPath(path, error:&error) {
-				let newSize = attributes[NSFileSize]! as! UInt64
-				if oldSize > newSize {
-					let sizeDiff = oldSize - newSize
-					context.reportProgress(url, size:Int(sizeDiff))
-				}
+			if !url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey, error:nil) {
+				url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey, error:nil)
+			}
+			let newSize = size as! Int
+			if oldSize > newSize {
+				let sizeDiff = oldSize - newSize
+				context.reportProgress(url, size:sizeDiff)
 			}
 		}
 	}

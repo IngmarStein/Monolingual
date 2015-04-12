@@ -103,7 +103,6 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 				for entry in dirEnumerator {
 					let theURL = entry as! NSURL
 					if isFileBlacklisted(theURL) {
-						NSLog("not trashing %@ (%@ is blacklisted)", url, theURL)
 						return
 					}
 				}

@@ -105,11 +105,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.mode = .Architectures
 
 		log.open()
-		
+
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
 		log.message("Monolingual started at \(now)\nRemoving architectures: ")
-
-		let roots = self.roots
 
 		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
 		for arch in archs {
@@ -128,29 +126,24 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			log.close()
 		} else if num_archs > 0 {
 			// start things off if we have something to remove!
-			let includes = roots.filter { $0.architectures } .map { $0.path }
-			var excludes = roots.filter { !$0.architectures } .map { $0.path }
-			let bl = self.blacklist!.filter { $0.architectures } .map { $0.bundle }
-
-			excludes.append("/System/Library/Frameworks")
-			excludes.append("/System/Library/PrivateFrameworks")
-
-			for item in bl {
-				NSLog("Blacklisting \(item)")
-			}
-			for include in includes {
-				NSLog("Adding root \(include)")
-			}
-			for exclude in excludes {
-				NSLog("Excluding root \(exclude)")
-			}
+			let roots = self.roots
 
 			let request = HelperRequest()
 			request.doStrip = NSUserDefaults.standardUserDefaults().boolForKey("Strip")
-			request.bundleBlacklist = Set<String>(bl)
-			request.includes = includes
-			request.excludes = excludes
+			request.bundleBlacklist = Set<String>(self.blacklist!.filter { $0.architectures } .map { $0.bundle })
+			request.includes = roots.filter { $0.architectures } .map { $0.path }
+			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + [ "/System/Library/Frameworks", "/System/Library/PrivateFrameworks" ]
 			request.thin = archs
+
+			for item in request.bundleBlacklist {
+				NSLog("Blacklisting \(item)")
+			}
+			for include in request.includes {
+				NSLog("Adding root \(include)")
+			}
+			for exclude in request.excludes {
+				NSLog("Excluding root \(exclude)")
+			}
 
 			self.checkAndRunHelper(request)
 		} else {
@@ -665,7 +658,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("mr",      "Marathi",              "mr.lproj", "Marathi.lproj")
 		addLanguage("ml",      "Malayalam",            "ml.lproj", "Malayalam.lproj")
 		addLanguage("mn",      "Mongolian",            "mn.lproj", "Mongolian.lproj")
-		addLanguage("mo",      NSLocalizedString("Moldavian", comment:""),            "mo.lproj", "Moldavian.lproj")
+		addLanguage("md",      NSLocalizedString("Moldavian", comment:""), "md.lproj", "Moldavian.lproj", "Moldovan.lproj")
 		addLanguage("ms",      "Malay",                "ms.lproj", "Malay.lproj")
 		addLanguage("mt",      "Maltese",              "mt.lproj", "Maltese.lproj")
 		addLanguage("my",      "Burmese",              "my.lproj", "Burmese.lproj")
@@ -743,7 +736,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_970),
 			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
 			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"x86",       displayName:"Intel",                  cpu_type: CPU_TYPE_X86,       cpu_subtype: CPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name:"x86",       displayName:"Intel 32-bit",           cpu_type: CPU_TYPE_X86,       cpu_subtype: CPU_SUBTYPE_X86_ALL),
 			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_ALL),
 			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_H)
 		]
@@ -776,7 +769,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
 
 		self.architectures = archs.map { arch in
-			let enabled = (ret == KERN_SUCCESS && (hostInfo.cpu_type != arch.cpu_type || hostInfo.cpu_subtype < arch.cpu_subtype) && ((hostInfo.cpu_type & CPU_ARCH_ABI64) == 0 || (arch.cpu_type != (hostInfo.cpu_type & ~CPU_ARCH_ABI64))))
+			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpu_type)
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
 				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
