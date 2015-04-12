@@ -12,7 +12,6 @@
 //
 
 import Cocoa
-import SMJobKit
 
 enum MonolingualMode : Int {
 	case Languages = 0
@@ -221,36 +220,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		if let xpcService = xpcService {
 			xpcService.installHelperTool { error in
 				if let error = error {
-					let errorCode = ErrorCode(rawValue:error.code)
 					dispatch_async(dispatch_get_main_queue()) {
-						switch errorCode! {
-						case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
-							NSLog("Failed to bless helper. Error: \(error)")
-							let alert = NSAlert()
-							alert.alertStyle = .CriticalAlertStyle
-							alert.messageText = NSLocalizedString("Failed to install helper utility.", comment:"")
-							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-						case .AuthorizationDenied:
-							// If you can't do it because you're not administrator, then let the user know!
-							let alert = NSAlert()
-							alert.alertStyle = .CriticalAlertStyle
-							alert.messageText = NSLocalizedString("You entered an incorrect administrator password.", comment:"")
-							// NSLocalizedString("Permission Error", "")
-							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-						case .AuthorizationCanceled:
-							let alert = NSAlert()
-							alert.alertStyle = .CriticalAlertStyle
-							alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
-							//NSLocalizedString("Nothing done", comment:"")
-							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-						case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
-							let alert = NSAlert()
-							alert.alertStyle = .CriticalAlertStyle
-							alert.messageText = NSLocalizedString("Failed to authorize as an administrator.", comment:"")
-							//NSLocalizedString("Authorization Error", comment:"")
-							alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-						default: ()
-						}
+						let alert = NSAlert()
+						alert.alertStyle = .CriticalAlertStyle
+						alert.messageText = error.localizedDescription
+						alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 						log.close()
 					}
 					reply(false)

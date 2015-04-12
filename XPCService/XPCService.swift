@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import SMJobKit
 import XPC
 
-class XPCService: NSObject, XPCServiceProtocol {
+final class XPCService: NSObject, XPCServiceProtocol {
 	var helperToolConnection: NSXPCConnection?
 
 	func bundledHelperVersion(reply:(String) -> Void) {
@@ -19,7 +20,22 @@ class XPCService: NSObject, XPCServiceProtocol {
 	func installHelperTool(reply:(NSError?) -> Void) {
 		var error : NSError? = nil
 		MonolingualHelperClient.installWithPrompt(nil, error:&error)
-		reply(error)
+		if let error = error {
+			let errorCode = ErrorCode(rawValue:error.code)!
+			switch errorCode {
+			case .BundleNotFound, .UnsignedBundle, .BadBundleSecurity, .BadBundleCodeSigningDictionary, .UnableToBless:
+				NSLog("Failed to bless helper. Error: \(error)")
+				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to install helper utility.", comment:"") ]))
+			case .AuthorizationDenied:
+				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("You entered an incorrect administrator password.", comment:"") ]))
+			case .AuthorizationCanceled:
+				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"") ]))
+			case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
+				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to authorize as an administrator.", comment:"") ]))
+			default: ()
+			}
+		}
+		reply(nil)
 	}
 
 	func connect(reply:(NSXPCListenerEndpoint?) -> Void) {
