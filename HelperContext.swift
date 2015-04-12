@@ -10,23 +10,14 @@ import Foundation
 
 final class HelperContext : NSObject, NSFileManagerDelegate {
 
-	var dryRun: Bool
-	var doStrip: Bool
-	var trash: Bool
-	var uid: uid_t
+	var request: HelperRequest
 	var remoteProgress: ProgressProtocol?
 	var progress: NSProgress?
-	var directories: Set<String>!
-	var excludes: [String]!
-	var bundleBlacklist: Set<String>!
 	private var fileBlacklist = Set<NSURL>()
 	var fileManager = NSFileManager()
 
-	override init() {
-		dryRun = false
-		doStrip = false
-		trash = false
-		uid = 0
+	init(_ request: HelperRequest) {
+		self.request = request
 
 		super.init()
 
@@ -35,7 +26,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	func isExcluded(url: NSURL) -> Bool {
 		if let path = url.path {
-			for exclude in self.excludes {
+			for exclude in request.excludes {
 				if path.hasPrefix(exclude) {
 					return true
 				}
@@ -46,7 +37,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	func isDirectoryBlacklisted(path: NSURL) -> Bool {
 		if let bundle = NSBundle(URL: path), bundleIdentifier = bundle.bundleIdentifier {
-			return bundleBlacklist.contains(bundleIdentifier)
+			return request.bundleBlacklist.contains(bundleIdentifier)
 		}
 		return false
 	}
@@ -91,8 +82,8 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	func remove(url: NSURL) {
 		var error: NSError? = nil
-		if trash {
-			if dryRun {
+		if request.trash {
+			if request.dryRun {
 				return
 			}
 
@@ -112,7 +103,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 			// try to move the file to the user's trash
 			var success = false
-			seteuid(self.uid)
+			seteuid(request.uid)
 			success = fileManager.trashItemAtURL(url, resultingItemURL:&dstURL, error:&error)
 			seteuid(0)
 			if !success {
@@ -146,7 +137,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	private func fileManager(fileManager: NSFileManager, shouldProcessItemAtURL URL:NSURL) -> Bool {
-		if dryRun || isFileBlacklisted(URL) {
+		if request.dryRun || isFileBlacklisted(URL) {
 			return false
 		}
 

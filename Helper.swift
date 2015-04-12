@@ -55,7 +55,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func processRequest(request: HelperRequest, progress remoteProgress: ProgressProtocol, reply:(Int) -> Void) {
-		let context = HelperContext()
+		let context = HelperContext(request)
 
 		NSLog("Received request: %@", request)
 
@@ -67,20 +67,9 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 		context.progress = progress
 		context.remoteProgress = remoteProgress
-		context.dryRun = request.dryRun
-		context.doStrip = request.doStrip
-		context.uid = request.uid
-		context.trash = request.trash
-		context.excludes = request.excludes
-		context.bundleBlacklist = request.bundleBlacklist
-		context.directories = request.directories
 
-		if context.doStrip {
-			// check if /usr/bin/strip is present
-			if !context.fileManager.fileExistsAtPath("/usr/bin/strip") {
-				context.doStrip = false
-			}
-		}
+		// check if /usr/bin/strip is present
+		request.doStrip = request.doStrip && context.fileManager.fileExistsAtPath("/usr/bin/strip")
 
 		// delete regular files
 		if let files = request.files {
@@ -98,7 +87,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		if let roots = roots {
 			// recursively delete directories
-			if let directories = context.directories where !directories.isEmpty {
+			if let directories = request.directories where !directories.isEmpty {
 				for root in roots {
 					if progress.cancelled {
 						break
@@ -180,7 +169,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 					context.addCodeResourcesToBlacklist(theURL)
 
 					if let lastComponent = theURL.lastPathComponent {
-						if context.directories.contains(lastComponent) {
+						if context.request.directories.contains(lastComponent) {
 							context.remove(theURL)
 							dirEnumerator.skipDescendents()
 						}
@@ -246,7 +235,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 								if magic == FAT_MAGIC || magic == FAT_CIGAM {
 									thinFile(theURL, context:context)
 								}
-								if context.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
+								if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
 									stripFile(theURL, context:context)
 								}
 							}
