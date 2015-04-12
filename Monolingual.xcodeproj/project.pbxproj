@@ -40,7 +40,7 @@
 		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
-		95E236E61AD526DF00076008 /* XPCService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95E236DA1AD526DF00076008 /* XPCService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		95E236E61AD526DF00076008 /* Monolingual.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95E236DA1AD526DF00076008 /* Monolingual.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		95E236ED1AD526F700076008 /* XPCServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */; };
 		95E236EE1AD526F700076008 /* XPCServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */; };
 		95E236F01AD52C0E00076008 /* XPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EF1AD52C0E00076008 /* XPCService.swift */; };
@@ -77,7 +77,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
 			dstSubfolderSpec = 16;
 			files = (
-				95E236E61AD526DF00076008 /* XPCService.xpc in Embed XPC Services */,
+				95E236E61AD526DF00076008 /* Monolingual.xpc in Embed XPC Services */,
 			);
 			name = "Embed XPC Services";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,7 +156,7 @@
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LEESMIJ.rtfd; sourceTree = "<group>"; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = Leggimi.rtfd; sourceTree = "<group>"; };
-		95E236DA1AD526DF00076008 /* XPCService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = XPCService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		95E236DA1AD526DF00076008 /* Monolingual.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = Monolingual.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		95E236DD1AD526DF00076008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XPCServiceProtocol.swift; sourceTree = "<group>"; };
 		95E236EF1AD52C0E00076008 /* XPCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XPCService.swift; sourceTree = "<group>"; };
@@ -237,7 +237,7 @@
 			children = (
 				95A130430608F93000D8E30C /* Monolingual.app */,
 				95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */,
-				95E236DA1AD526DF00076008 /* XPCService.xpc */,
+				95E236DA1AD526DF00076008 /* Monolingual.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -454,7 +454,7 @@
 			);
 			name = XPCService;
 			productName = XPCService;
-			productReference = 95E236DA1AD526DF00076008 /* XPCService.xpc */;
+			productReference = 95E236DA1AD526DF00076008 /* Monolingual.xpc */;
 			productType = "com.apple.product-type.xpc-service";
 		};
 /* End PBXNativeTarget section */
@@ -1015,7 +1015,7 @@
 				INFOPLIST_FILE = XPCService/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -1052,7 +1052,7 @@
 				INFOPLIST_FILE = XPCService/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
