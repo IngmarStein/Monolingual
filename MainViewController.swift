@@ -50,26 +50,26 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 	@IBOutlet private weak var currentArchitecture : NSTextField!
 
-	var progressViewController : ProgressViewController?
+	private var progressViewController : ProgressViewController?
 
-	var blacklist : [BlacklistEntry]?
+	private var blacklist : [BlacklistEntry]?
 	dynamic var languages : [LanguageSetting]!
 	dynamic var architectures : [ArchitectureSetting]!
 
-	var mode : MonolingualMode = .Languages
-	var processApplication : Root?
-	var processApplicationObserver : NSObjectProtocol?
-	var helperConnection : NSXPCConnection?
-	var progress: NSProgress?
+	private var mode : MonolingualMode = .Languages
+	private var processApplication : Root?
+	private var processApplicationObserver : NSObjectProtocol?
+	private var helperConnection : NSXPCConnection?
+	private var progress: NSProgress?
 
-	lazy var xpcServiceConnection: NSXPCConnection = {
+	private lazy var xpcServiceConnection: NSXPCConnection = {
 		let connection = NSXPCConnection(serviceName: "net.sourceforge.Monolingual.XPCService")
 		connection.remoteObjectInterface = NSXPCInterface(withProtocol:XPCServiceProtocol.self)
 		connection.resume()
 		return connection
 	}()
 
-	var roots : [Root] {
+	private var roots : [Root] {
 		if let application = self.processApplication {
 			return [ application ]
 		} else {
@@ -82,7 +82,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		super.init(coder: coder)
 	}
 
-	func finishProcessing() {
+	private func finishProcessing() {
 		progressDidEnd(true)
 	}
 
@@ -168,7 +168,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
-	func processProgress(file: String, size: Int) {
+	private func processProgress(file: String, size: Int) {
 		log.message("\(file): \(size)\n")
 
 		let message : String
@@ -235,7 +235,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
-	func runHelper(arguments: HelperRequest) {
+	private func runHelper(arguments: HelperRequest) {
 		NSProcessInfo.processInfo().disableSuddenTermination()
 
 		let progress = NSProgress(totalUnitCount: -1)
@@ -279,7 +279,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 	}
 
-	func checkAndRunHelper(arguments: HelperRequest) {
+	private func checkAndRunHelper(arguments: HelperRequest) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
 			NSLog("XPCService error: %@", error)
 		} as? XPCServiceProtocol
@@ -337,7 +337,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		progressDidEnd(false)
 	}
 	
-	func progressDidEnd(completed: Bool) {
+	private func progressDidEnd(completed: Bool) {
 		if self.progress == nil {
 			return
 		}
@@ -388,13 +388,13 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		NSProcessInfo.processInfo().enableSuddenTermination()
 	}
 	
-	func checkAndRemove() {
+	private func checkAndRemove() {
 		if checkRoots() && checkLanguages() {
 			doRemoveLanguages()
 		}
 	}
 	
-	func checkRoots() -> Bool {
+	private func checkRoots() -> Bool {
 		var languageEnabled = false
 		let roots = self.roots
 		for root in roots {
@@ -415,7 +415,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		return languageEnabled
 	}
 	
-	func checkLanguages() -> Bool {
+	private func checkLanguages() -> Bool {
 		var englishChecked = false
 		for language in self.languages {
 			if language.enabled && language.folders[0] == "en.lproj" {
@@ -442,7 +442,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		return !englishChecked
 	}
 	
-	func doRemoveLanguages() {
+	private func doRemoveLanguages() {
 		self.mode = .Languages
 	
 		log.open()

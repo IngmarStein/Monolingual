@@ -12,7 +12,7 @@ import MachO.loader
 
 final class Helper : NSObject, NSXPCListenerDelegate {
 
-	var listener: NSXPCListener
+	private var listener: NSXPCListener
 
 	var version: String {
 		return NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleVersion") as! String

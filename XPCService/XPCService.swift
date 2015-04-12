@@ -11,7 +11,7 @@ import SMJobKit
 import XPC
 
 final class XPCService: NSObject, XPCServiceProtocol {
-	var helperToolConnection: NSXPCConnection?
+	private var helperToolConnection: NSXPCConnection?
 
 	func bundledHelperVersion(reply:(String) -> Void) {
 		reply(MonolingualHelperClient.bundledVersion!)
