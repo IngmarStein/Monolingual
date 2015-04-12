@@ -33,10 +33,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		fileManager.delegate = self
 	}
 
-	func isExcluded(path: String) -> Bool {
-		for exclude in self.excludes {
-			if path.hasPrefix(exclude) {
-				return true
+	func isExcluded(url: NSURL) -> Bool {
+		if let path = url.path {
+			for exclude in self.excludes {
+				if path.hasPrefix(exclude) {
+					return true
+				}
 			}
 		}
 		return false

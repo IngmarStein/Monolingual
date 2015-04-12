@@ -94,27 +94,33 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			}
 		}
 
-		if let roots = request.includes {
+		let roots = request.includes?.map { NSURL(fileURLWithPath: $0, isDirectory: true) }
+
+		if let roots = roots {
 			// recursively delete directories
 			if let directories = context.directories where !directories.isEmpty {
 				for root in roots {
 					if progress.cancelled {
 						break
 					}
-					processDirectory(root, context:context)
+					if let root = root {
+						processDirectory(root, context:context)
+					}
 				}
 			}
 		}
 
 		// thin fat binaries
-		if let thin = request.thin, roots = request.includes where !thin.isEmpty {
+		if let thin = request.thin, roots = roots where !thin.isEmpty {
 			var archs = thin.map { ($0 as NSString).UTF8String }
 			if setup_lipo(&archs, UInt32(archs.count)) != 0 {
 				for root in roots {
 					if progress.cancelled {
 						break
 					}
-					thinDirectory(root, context:context)
+					if let root = root {
+						thinDirectory(root, context:context)
+					}
 				}
 				finish_lipo()
 			}
@@ -140,8 +146,14 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	//MARK: -
 
-	func processDirectory(path: String, context:HelperContext) {
+	func processDirectory(url: NSURL, context:HelperContext) {
 		if let progress = context.progress where progress.cancelled {
+			return
+		}
+
+		let path = url.path
+
+		if path == nil || context.isExcluded(url) || context.isDirectoryBlacklisted(url) {
 			return
 		}
 
@@ -149,13 +161,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			return
 		}
 
-		let pathURL = NSURL(fileURLWithPath:path, isDirectory:true)
-
-		if pathURL == nil || context.isExcluded(path) || context.isDirectoryBlacklisted(pathURL!) {
-			return
-		}
-
-		if let dirEnumerator = context.fileManager.enumeratorAtURL(pathURL!, includingPropertiesForKeys:[NSURLIsDirectoryKey], options:.allZeros, errorHandler:nil) {
+		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLIsDirectoryKey], options:.allZeros, errorHandler:nil) {
 			for entry in dirEnumerator {
 				if let progress = context.progress where progress.cancelled {
 					return
@@ -166,9 +172,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
 
 				if let isDirectory = isDirectory as? Bool where isDirectory {
-					let thePath = theURL.path!
-
-					if context.isExcluded(thePath) || context.isDirectoryBlacklisted(theURL) {
+					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) {
 						dirEnumerator.skipDescendents()
 						continue
 					}
@@ -195,8 +199,14 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	func thinDirectory(path: String, context:HelperContext) {
+	func thinDirectory(url: NSURL, context:HelperContext) {
 		if let progress = context.progress where progress.cancelled {
+			return
+		}
+
+		let path = url.path
+
+		if path == nil || context.isExcluded(url) || context.isDirectoryBlacklisted(url) {
 			return
 		}
 
@@ -204,14 +214,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			return
 		}
 
-		let pathURL = NSURL(fileURLWithPath:path, isDirectory:true)
-
-		if pathURL == nil || context.isExcluded(path) || context.isDirectoryBlacklisted(pathURL!) {
-			return
-		}
-
-		if let dirEnumerator = context.fileManager.enumeratorAtURL(pathURL!, includingPropertiesForKeys:[NSURLIsDirectoryKey, NSURLIsRegularFileKey, NSURLIsExecutableKey], options:.allZeros, errorHandler:nil) {
-
+		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLIsDirectoryKey, NSURLIsRegularFileKey, NSURLIsExecutableKey], options:.allZeros, errorHandler:nil) {
 			for entry in dirEnumerator {
 				let theURL = entry as! NSURL
 				if let progress = context.progress where progress.cancelled {
@@ -226,7 +229,6 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				theURL.getResourceValue(&isRegularFile, forKey:NSURLIsRegularFileKey, error:nil)
 				theURL.getResourceValue(&isExecutable, forKey:NSURLIsExecutableKey, error:nil)
 
-				let thePath = theURL.path!
 				if let isDirectory = isDirectory as? Bool where isDirectory {
 					if context.isDirectoryBlacklisted(theURL) {
 						dirEnumerator.skipDescendents()
