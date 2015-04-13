@@ -28,7 +28,7 @@ clean:
 release: clean archive
 	mkdir -p $(RELEASE_DIR)/build
 	cp -R $(ARCHIVE) $(RELEASE_DIR)
-	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/COPYING.txt $(RELEASE_DIR)/build
+	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	cp dmg-bg.tiff $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build

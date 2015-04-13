@@ -832,8 +832,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "net.sourceforge.MonolingualHelper-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				WARNING_CFLAGS = (
-					"-Weverything",
-					"-Wno-objc-missing-property-synthesis",
+					"$(inherited)",
 					"-Wno-cast-align",
 					"-Wno-padded",
 				);
@@ -861,8 +860,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "net.sourceforge.MonolingualHelper-Bridging-Header.h";
 				WARNING_CFLAGS = (
-					"-Weverything",
-					"-Wno-objc-missing-property-synthesis",
+					"$(inherited)",
 					"-Wno-cast-align",
 					"-Wno-padded",
 				);

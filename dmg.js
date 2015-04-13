@@ -12,7 +12,7 @@ options.arrangement = "not arranged";
 options.backgroundPicture = disk.files[".dmg-resources:dmg-bg.tiff"];
 
 disk.items["Monolingual.app"].position = {"x":246, "y":43};
-disk.items["COPYING.txt"].position = {"x":0, "y":43};
+disk.items["LICENSE.txt"].position = {"x":0, "y":43};
 disk.items["README.rtfd"].position = {"x":0, "y":225};
 disk.items["LisezMoi.rtfd"].position = {"x":123, "y":225};
 disk.items["Lies-mich.rtfd"].position = {"x":246, "y":225};
