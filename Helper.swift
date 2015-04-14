@@ -135,22 +135,16 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	//MARK: -
 
-	func processDirectory(url: NSURL, context:HelperContext) {
+	private func iterateDirectory(url: NSURL, context:HelperContext, prefetchedProperties:[String], block:(NSURL, NSDirectoryEnumerator) -> Void) {
 		if let progress = context.progress where progress.cancelled {
 			return
 		}
 
-		let path = url.path
-
-		if path == nil || context.isExcluded(url) || context.isDirectoryBlacklisted(url) {
+		if context.isExcluded(url) || context.isDirectoryBlacklisted(url) {
 			return
 		}
 
-		if path == "/dev" {
-			return
-		}
-
-		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLIsDirectoryKey], options:.allZeros, errorHandler:nil) {
+		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:prefetchedProperties, options:.allZeros, errorHandler:nil) {
 			for entry in dirEnumerator {
 				if let progress = context.progress where progress.cancelled {
 					return
@@ -165,14 +159,24 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 						dirEnumerator.skipDescendents()
 						continue
 					}
-
 					context.addCodeResourcesToBlacklist(theURL)
+				}
 
-					if let lastComponent = theURL.lastPathComponent {
-						if context.request.directories.contains(lastComponent) {
-							context.remove(theURL)
-							dirEnumerator.skipDescendents()
-						}
+				block(theURL, dirEnumerator)
+			}
+		}
+	}
+
+	func processDirectory(url: NSURL, context:HelperContext) {
+		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey]) { theURL, dirEnumerator in
+			var isDirectory: AnyObject?
+			theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
+
+			if let isDirectory = isDirectory as? Bool where isDirectory {
+				if let lastComponent = theURL.lastPathComponent {
+					if context.request.directories.contains(lastComponent) {
+						context.remove(theURL)
+						dirEnumerator.skipDescendents()
 					}
 				}
 			}
@@ -189,56 +193,25 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinDirectory(url: NSURL, context:HelperContext) {
-		if let progress = context.progress where progress.cancelled {
-			return
-		}
+		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey]) { theURL, dirEnumerator in
+			var isRegularFile: AnyObject?
+			var isExecutable: AnyObject?
 
-		let path = url.path
+			theURL.getResourceValue(&isRegularFile, forKey:NSURLIsRegularFileKey, error:nil)
+			theURL.getResourceValue(&isExecutable, forKey:NSURLIsExecutableKey, error:nil)
 
-		if path == nil || context.isExcluded(url) || context.isDirectoryBlacklisted(url) {
-			return
-		}
+			if let isExecutable = isExecutable as? Bool, isRegularFile = isRegularFile as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+				var error: NSError?
+				if let data = NSData(contentsOfURL:theURL, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error) {
+					var magic: UInt32 = 0
+					if data.length >= sizeof(UInt32) {
+						data.getBytes(&magic, length: sizeof(UInt32))
 
-		if path == "/dev" {
-			return
-		}
-
-		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLIsDirectoryKey, NSURLIsRegularFileKey, NSURLIsExecutableKey], options:.allZeros, errorHandler:nil) {
-			for entry in dirEnumerator {
-				let theURL = entry as! NSURL
-				if let progress = context.progress where progress.cancelled {
-					return
-				}
-
-				var isDirectory: AnyObject?
-				var isRegularFile: AnyObject?
-				var isExecutable: AnyObject?
-
-				theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
-				theURL.getResourceValue(&isRegularFile, forKey:NSURLIsRegularFileKey, error:nil)
-				theURL.getResourceValue(&isExecutable, forKey:NSURLIsExecutableKey, error:nil)
-
-				if let isDirectory = isDirectory as? Bool where isDirectory {
-					if context.isDirectoryBlacklisted(theURL) {
-						dirEnumerator.skipDescendents()
-						continue
-					}
-					context.addCodeResourcesToBlacklist(theURL)
-				} else if let isExecutable = isExecutable as? Bool, isRegularFile = isRegularFile as? Bool where isExecutable && isRegularFile {
-					if !context.isFileBlacklisted(theURL) {
-						var error: NSError?
-						if let data = NSData(contentsOfURL:theURL, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error) {
-							var magic: UInt32 = 0
-							if data.length >= sizeof(UInt32) {
-								data.getBytes(&magic, length: sizeof(UInt32))
-
-								if magic == FAT_MAGIC || magic == FAT_CIGAM {
-									thinFile(theURL, context:context)
-								}
-								if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
-									stripFile(theURL, context:context)
-								}
-							}
+						if magic == FAT_MAGIC || magic == FAT_CIGAM {
+							self.thinFile(theURL, context:context)
+						}
+						if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
+							self.stripFile(theURL, context:context)
 						}
 					}
 				}
