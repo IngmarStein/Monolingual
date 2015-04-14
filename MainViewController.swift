@@ -134,13 +134,13 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + [ "/System/Library/Frameworks", "/System/Library/PrivateFrameworks" ]
 			request.thin = archs
 
-			for item in request.bundleBlacklist {
+			for item in request.bundleBlacklist! {
 				NSLog("Blacklisting \(item)")
 			}
-			for include in request.includes {
+			for include in request.includes! {
 				NSLog("Adding root \(include)")
 			}
-			for exclude in request.excludes {
+			for exclude in request.excludes! {
 				NSLog("Excluding root \(exclude)")
 			}
 
@@ -150,41 +150,39 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
-	func processed(file: String, size: Int) {
+	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
 			let count = progress.userInfo?[NSProgressFileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey:NSProgressFileURLKey)
+			if let appName = appName {
+				progress.setUserInfoObject(appName, forKey:"appName")
+			}
 			progress.completedUnitCount += size
 		}
 	}
 
 	override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
 		if keyPath == "completedUnitCount" {
-			let progress = object as! NSProgress
-			let url = progress.userInfo?[NSProgressFileURLKey] as? NSURL
-			let path = url?.path ?? ""
-			processProgress(path, size:Int(progress.completedUnitCount))
+			if let progress = object as? NSProgress, url = progress.userInfo?[NSProgressFileURLKey] as? NSURL {
+				processProgress(url, size:Int(progress.completedUnitCount), appName:progress.userInfo?["appName"] as? String)
+			}
 		}
 	}
 
-	private func processProgress(file: String, size: Int) {
-		log.message("\(file): \(size)\n")
+	private func processProgress(file: NSURL, size: Int, appName: String?) {
+		log.message("\(file.fileSystemRepresentation): \(size)\n")
 
 		let message : String
 		if self.mode == .Architectures {
 			message = NSLocalizedString("Removing architecture from universal binary", comment:"")
 		} else {
-			/* parse file name */
-			var lang : String? = nil
-			var app : String? = nil
+			// parse file name
+			var lang : String?
 		
 			if self.mode == .Languages {
-				let pathComponents = file.componentsSeparatedByString("/")
-				for pathComponent in pathComponents {
-					if pathComponent.hasSuffix(".app") {
-						app = pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
-					} else if pathComponent.hasSuffix(".lproj") {
+				for pathComponent in file.pathComponents as! [String] {
+					if pathComponent.pathExtension == "lproj" {
 						for language in self.languages {
 							if contains(language.folders, pathComponent) {
 								lang = language.displayName
@@ -194,8 +192,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					}
 				}
 			}
-			if let app = app {
-				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang!, app)
+			if let app = appName, lang = lang {
+				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang, app)
 			} else if let lang = lang {
 				message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
 			} else {
@@ -204,9 +202,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 
 		dispatch_async(dispatch_get_main_queue()) {
-			if let viewController = self.progressViewController {
+			if let viewController = self.progressViewController, path = file.path {
 				viewController.text = message
-				viewController.file = file
+				viewController.file = path
 				NSApp.setWindowsNeedUpdate(true)
 			}
 		}
@@ -509,36 +507,27 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	}
 	
 	override func viewDidLoad() {
-		let languagePref = NSUserDefaults.standardUserDefaults().arrayForKey("AppleLanguages") as! [String]
+		let currentLocale = NSLocale.currentLocale()
 
-		// Since OS X 10.9, AppleLanguages contains the standard languages even if they are not present in System Preferences
-		var numUserLanguages = NSUserDefaults.standardUserDefaults().integerForKey("AppleUserLanguages")
-		if numUserLanguages == 0 {
-			numUserLanguages = languagePref.count
-		}
-
-		var userLanguages = Set<String>(languagePref[0..<numUserLanguages])
+		var userLanguages = Set<String>((NSLocale.preferredLanguages() as! [String]).map {
+			return $0.stringByReplacingOccurrencesOfString("-", withString:"_")
+		})
 
 		// never check "English" by default
 		userLanguages.insert("en")
 
 		// never check user locale by default
-		let appleLocale = NSUserDefaults.standardUserDefaults().stringForKey("AppleLocale")
-		if let locale = appleLocale {
-			userLanguages.insert(locale.stringByReplacingOccurrencesOfString("_", withString:"-"))
-		}
+		userLanguages.insert(currentLocale.localeIdentifier)
 
+		let availableLocalizations = NSLocale.availableLocaleIdentifiers() as! [String]
 		var knownLocales = Set<String>()
-		let numKnownLanguages = 134
 		var knownLanguages = [LanguageSetting]()
-		knownLanguages.reserveCapacity(numKnownLanguages)
-
-		let locale = NSLocale.currentLocale()
+		knownLanguages.reserveCapacity(availableLocalizations.count)
 
 		func addLanguage(code:String, name:String, folders: String...) {
 			knownLocales.insert(code)
-			let language = locale.displayNameForKey(NSLocaleIdentifier, value: code)
-			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code) && locale.localeIdentifier != code,
+			let language = currentLocale.displayNameForKey(NSLocaleIdentifier, value: code)
+			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(code),
 												  folders: folders,
 												  displayName: (language ?? name)))
 		}
@@ -550,7 +539,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("ar",      "Arabic",               "ar.lproj", "Arabic.lproj")
 		addLanguage("as",      "Assamese",             "as.lproj", "Assamese.lproj")
 		addLanguage("ast",     "Asturian",             "ast.lproj")
-		addLanguage("ay",      "Aymara",               "ay.lproj", "Aymara.lproj.lproj")
+		addLanguage("ay",      "Aymara",               "ay.lproj", "Aymara.lproj")
 		addLanguage("az",      "Azerbaijani",          "az.lproj", "Azerbaijani.lproj")
 		addLanguage("be",      "Byelorussian",         "be.lproj", "Byelorussian.lproj")
 		addLanguage("bg",      "Bulgarian",            "bg.lproj", "Bulgarian.lproj")
@@ -568,16 +557,16 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("cy",      "Welsh",                "cy.lproj", "Welsh.lproj")
 		addLanguage("da",      "Danish",               "da.lproj", "da_DK.lproj", "Danish.lproj")
 		addLanguage("de",      "German",               "de.lproj", "de_DE.lproj", "German.lproj")
-		addLanguage("de-AT",   "German (Austria)",     "de_AT.lproj", "de-AT.lproj")
-		addLanguage("de-CH",   "German (Switzerland)", "de_CH.lproj", "de-CH.lproj")
+		addLanguage("de_AT",   "German (Austria)",     "de_AT.lproj", "de-AT.lproj")
+		addLanguage("de_CH",   "German (Switzerland)", "de_CH.lproj", "de-CH.lproj")
 		addLanguage("dz",      "Dzongkha",             "dz.lproj", "Dzongkha.lproj")
 		addLanguage("el",      "Greek",                "el.lproj", "el_GR.lproj", "el-GR.lproj", "Greek.lproj")
 		addLanguage("en",      "English",              "en.lproj", "English.lproj")
-		addLanguage("en-AU",   "English (Australia)",      "en_AU.lproj", "en-AU.lproj")
-		addLanguage("en-CA",   "English (Canada)",         "en_CA.lproj", "en-CA.lproj")
-		addLanguage("en-GB",   "English (United Kingdom)", "en_GB.lproj", "en-GB.lproj")
-		addLanguage("en-NZ",   "English (New Zealand)",    "en_NZ.lproj", "en-NZ.lproj")
-		addLanguage("en-US",   "English (United States)",  "en_US.lproj", "en-US.lproj")
+		addLanguage("en_AU",   "English (Australia)",      "en_AU.lproj", "en-AU.lproj")
+		addLanguage("en_CA",   "English (Canada)",         "en_CA.lproj", "en-CA.lproj")
+		addLanguage("en_GB",   "English (United Kingdom)", "en_GB.lproj", "en-GB.lproj")
+		addLanguage("en_NZ",   "English (New Zealand)",    "en_NZ.lproj", "en-NZ.lproj")
+		addLanguage("en_US",   "English (United States)",  "en_US.lproj", "en-US.lproj")
 		addLanguage("eo",      "Esperanto",            "eo.lproj", "Esperanto.lproj")
 		addLanguage("es",      "Spanish",              "es.lproj", "es_ES.lproj", "es-ES.lproj", "es_419.lproj", "es-MX.lproj", "es_MX.lproj", "Spanish.lproj")
 		addLanguage("et",      "Estonian",             "et.lproj", "Estonian.lproj")
@@ -588,8 +577,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("fil",     "Filipino",             "fil.lproj")
 		addLanguage("fo",      "Faroese",              "fo.lproj", "Faroese.lproj")
 		addLanguage("fr",      "French",               "fr.lproj", "fr_FR.lproj", "fr-FR.lproj", "French.lproj")
-		addLanguage("fr-CA",   "French (Canada)",      "fr_CA.lproj", "fr-CA.lproj")
-		addLanguage("fr-CH",   "French (Switzerland)", "fr_CH.lproj", "fr-CH.lproj")
+		addLanguage("fr_CA",   "French (Canada)",      "fr_CA.lproj", "fr-CA.lproj")
+		addLanguage("fr_CH",   "French (Switzerland)", "fr_CH.lproj", "fr-CH.lproj")
 		addLanguage("fur",     "Fur",                  "fur.lproj")
 		addLanguage("ga",      "Irish",                "ga.lproj", "Irish.lproj")
 		addLanguage("gd",      "Scottish",             "gd.lproj", "Scottish.lproj")
@@ -612,7 +601,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("jv",      "Javanese",             "jv.lproj", "Javanese.lproj")
 		addLanguage("ka",      "Georgian",             "ka.lproj", "Georgian.lproj")
 		addLanguage("kk",      "Kazakh",               "kk.lproj", "Kazakh.lproj")
-		addLanguage("kk-Cyrl", "Kazakh (Cyrillic)",    "kk-Cyrl.lproj")
+		addLanguage("kk_Cyrl", "Kazakh (Cyrillic)",    "kk-Cyrl.lproj")
 		addLanguage("kl",      "Greenlandic",          "kl.lproj", "Greenlandic.lproj")
 		addLanguage("km",      "Khmer",                "km.lproj", "Khmer.lproj")
 		addLanguage("kn",      "Kannada",              "kn.lproj", "Kannada.lproj")
@@ -638,7 +627,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("my",      "Burmese",              "my.lproj", "Burmese.lproj")
 		addLanguage("ne",      "Nepali",               "ne.lproj", "Nepali.lproj")
 		addLanguage("nl",      "Dutch",                "nl.lproj", "nl_NL.lproj", "nl-NL.lproj", "Dutch.lproj")
-		addLanguage("nl-BE",   "Flemish",              "nl_BE.lproj", "nl-BE.lproj")
+		addLanguage("nl_BE",   "Flemish",              "nl_BE.lproj", "nl-BE.lproj")
 		addLanguage("no",      "Norwegian",            "no.lproj", "no_NO.lproj", "no-NO.lproj", "Norwegian.lproj")
 		addLanguage("nb",      "Norwegian Bokmal",     "nb.lproj")
 		addLanguage("nn",      "Norwegian Nynorsk",    "nn.lproj")
@@ -649,7 +638,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("pl",      "Polish",               "pl.lproj", "pl_PL.lproj", "pl-PL.lproj", "Polish.lproj")
 		addLanguage("ps",      "Pashto",               "ps.lproj", "Pashto.lproj")
 		addLanguage("pt",      "Portuguese",           "pt.lproj", "pt_PT.lproj", "pt-PT.lproj", "Portuguese.lproj")
-		addLanguage("pt-BR",   "Portuguese (Brazil)",  "pt_BR.lproj", "PT_br.lproj", "pt-BR.lproj")
+		addLanguage("pt_BR",   "Portuguese (Brazil)",  "pt_BR.lproj", "PT_br.lproj", "pt-BR.lproj")
 		addLanguage("qu",      "Quechua",              "qu.lproj", "Quechua.lproj")
 		addLanguage("rn",      "Rundi",                "rn.lproj", "Rundi.lproj")
 		addLanguage("ro",      "Romanian",             "ro.lproj", "Romanian.lproj")
@@ -674,8 +663,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("th",      "Thai",                 "th.lproj", "Thai.lproj")
 		addLanguage("ti",      "Tigrinya",             "ti.lproj", "Tigrinya.lproj")
 		addLanguage("tk",      "Turkmen",              "tk.lproj", "Turkmen.lproj")
-		addLanguage("tk-Cyrl", "Turkmen (Cyrillic)",   "tk-Cyrl.lproj")
-		addLanguage("tk-Latn", "Turkmen (Latin)",      "tk-Latn.lproj")
+		addLanguage("tk_Cyrl", "Turkmen (Cyrillic)",   "tk-Cyrl.lproj")
+		addLanguage("tk_Latn", "Turkmen (Latin)",      "tk-Latn.lproj")
 		addLanguage("tl",      "Tagalog",              "tl.lproj", "Tagalog.lproj")
 		addLanguage("tlh",     "Klingon",              "tlh.lproj", "Klingon.lproj")
 		addLanguage("tr",      "Turkish",              "tr.lproj", "tr_TR.lproj", "tr-TR.lproj", "Turkish.lproj")
@@ -689,11 +678,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		addLanguage("vi",      "Vietnamese",           "vi.lproj", "Vietnamese.lproj")
 		addLanguage("yi",      "Yiddish",              "yi.lproj", "Yiddish.lproj")
 		addLanguage("zh",      "Chinese",              "zh.lproj")
-		addLanguage("zh-Hans", "Chinese (Simplified Han)",  "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh-CN.lproj", "zh_SC.lproj", "zh-SC.lproj")
-		addLanguage("zh-Hant", "Chinese (Traditional Han)", "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh-TW.lproj", "zh_HK.lproj", "zh-HK.lproj")
+		addLanguage("zh_Hans", "Chinese (Simplified Han)",  "zh_Hans.lproj", "zh-Hans.lproj", "zh_CN.lproj", "zh-CN.lproj", "zh_SC.lproj", "zh-SC.lproj")
+		addLanguage("zh_Hant", "Chinese (Traditional Han)", "zh_Hant.lproj", "zh-Hant.lproj", "zh_TW.lproj", "zh-TW.lproj", "zh_HK.lproj", "zh-HK.lproj")
 		addLanguage("zu",      "Zulu",                      "zu.lproj")
 
-		for localeIdentifier in NSLocale.availableLocaleIdentifiers() as! [String] {
+		for localeIdentifier in availableLocalizations {
 			if !knownLocales.contains(localeIdentifier) {
 				addLanguage(localeIdentifier, "", "\(localeIdentifier).lproj")
 			}

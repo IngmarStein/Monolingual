@@ -14,12 +14,12 @@ import Foundation
 	var doStrip : Bool
 	var uid : uid_t
 	var trash : Bool
-	var includes : [String]!
-	var excludes : [String]!
-	var bundleBlacklist : Set<String>!
-	var directories : Set<String>!
-	var files : [String]!
-	var thin : [String]!
+	var includes : [String]?
+	var excludes : [String]?
+	var bundleBlacklist : Set<String>?
+	var directories : Set<String>?
+	var files : [String]?
+	var thin : [String]?
 
 	override init() {
 		dryRun = false

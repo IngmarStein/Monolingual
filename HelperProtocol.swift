@@ -20,6 +20,6 @@ import Foundation
 
 @objc protocol ProgressProtocol {
 
-	func processed(file: String, size: Int)
+	func processed(file: String, size: Int, appName: String?)
 
 }

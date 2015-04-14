@@ -173,8 +173,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
 
 			if let isDirectory = isDirectory as? Bool where isDirectory {
-				if let lastComponent = theURL.lastPathComponent {
-					if context.request.directories.contains(lastComponent) {
+				if let lastComponent = theURL.lastPathComponent, directories = context.request.directories {
+					if directories.contains(lastComponent) {
 						context.remove(theURL)
 						dirEnumerator.skipDescendents()
 					}

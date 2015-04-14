@@ -36,14 +36,14 @@ final class ProgressViewController : NSViewController {
 	
 	override func viewDidLoad() {
 		self.progressBar.usesThreadedAnimation = true
-		self.applicationText.stringValue = NSLocalizedString("Removing...", comment:"")
-		self.fileText.stringValue = ""
 	}
 	
 	override func viewWillAppear() {
+		self.applicationText.stringValue = NSLocalizedString("Removing...", comment:"")
+		self.fileText.stringValue = ""
 		self.progressBar.startAnimation(self)
 	}
-	
+
 	override func viewWillDisappear() {
 		self.progressBar.stopAnimation(self)
 	}
@@ -51,7 +51,7 @@ final class ProgressViewController : NSViewController {
 	@IBAction func cancelButton(sender: AnyObject) {
 		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
 		self.fileText.stringValue = ""
-		
+
 		self.delegate?.progressViewControllerDidCancel(self)
 	}
 }

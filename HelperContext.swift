@@ -25,8 +25,8 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	func isExcluded(url: NSURL) -> Bool {
-		if let path = url.path {
-			for exclude in request.excludes {
+		if let path = url.path, excludes = request.excludes {
+			for exclude in excludes {
 				if path.hasPrefix(exclude) {
 					return true
 				}
@@ -36,8 +36,8 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	func isDirectoryBlacklisted(path: NSURL) -> Bool {
-		if let bundle = NSBundle(URL: path), bundleIdentifier = bundle.bundleIdentifier {
-			return request.bundleBlacklist.contains(bundleIdentifier)
+		if let bundle = NSBundle(URL: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
+			return bundleBlacklist.contains(bundleIdentifier)
 		}
 		return false
 	}
@@ -84,15 +84,45 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 	}
 
+	private func appNameForURL(url: NSURL) -> String? {
+		let pathComponents = url.pathComponents as! [String]
+		for (i, pathComponent) in enumerate(pathComponents) {
+			if pathComponent.pathExtension == "app" {
+				if let bundleURL = NSURL.fileURLWithPathComponents(Array(pathComponents[0...i])), bundle = NSBundle(URL: bundleURL) {
+					var displayName: String?
+					if let bundleLocalizations = bundle.localizations,
+						localization = NSBundle.preferredLocalizationsFromArray(bundleLocalizations, forPreferences: NSLocale.preferredLanguages()).first as? String,
+						infoPlistStringsURL = bundle.URLForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+						strings = NSDictionary(contentsOfURL: infoPlistStringsURL) as? [String:String] {
+						displayName = strings["CFBundleDisplayName"]
+					}
+					if displayName == nil {
+						// seems not to be localized?!?
+						displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
+					}
+					if let displayName = displayName {
+						return displayName
+					}
+				}
+				return pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
+			}
+		}
+		return nil
+	}
+
 	func reportProgress(url: NSURL, size:Int) {
+		let appName = appNameForURL(url)
 		if let progress = progress {
 			let count = progress.userInfo?[NSProgressFileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(url, forKey:NSProgressFileURLKey)
+			if let appName = appName {
+				progress.setUserInfoObject(appName, forKey: "appName")
+			}
 			progress.completedUnitCount += size
 		}
 		if let progress = remoteProgress {
-			progress.processed(url.path!, size: size)
+			progress.processed(url.path!, size: size, appName: appName)
 		}
 	}
 
