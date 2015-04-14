@@ -46,23 +46,39 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		return fileBlacklist.contains(url)
 	}
 
-	func addCodeResourcesToBlacklist(url: NSURL) {
-		let codeResourcesPath = url.URLByAppendingPathComponent("_CodeSignature/CodeResources", isDirectory: false)
-		if let plist = NSDictionary(contentsOfURL:codeResourcesPath) as? [NSObject:AnyObject] {
-			if let files = plist["files"] as? [String:AnyObject] {
-				for (key, value) in files {
-					if let optional = value["optional"] as? Bool where optional {
-						continue
-					}
-					fileBlacklist.insert(url.URLByAppendingPathComponent(key))
-				}
+	private func addFileDictionaryToBlacklist(files: [String:AnyObject], baseURL:NSURL) {
+		for (key, value) in files {
+			if let optional = value["optional"] as? Bool where optional {
+				continue
 			}
-			if let files = plist["files2"] as? [String:AnyObject] {
-				for (key, value) in files {
-					if let optional = value["optional"] as? Bool where optional {
-						continue
+			fileBlacklist.insert(baseURL.URLByAppendingPathComponent(key))
+		}
+	}
+
+	func addCodeResourcesToBlacklist(url: NSURL) {
+		var codeRef: Unmanaged<SecStaticCode>? = nil
+		let result = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &codeRef)
+		if result == noErr, let code = codeRef?.takeRetainedValue() {
+			var codeInfoRef: Unmanaged<CFDictionary>? = nil
+			// warning: this relies on kSecCSInternalInformation
+			let result2 = SecCodeCopySigningInformation(code, SecCSFlags(kSecCSInternalInformation), &codeInfoRef)
+			if result2 == noErr, let codeInfo = codeInfoRef?.takeRetainedValue() as? [NSObject:AnyObject] {
+				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject:AnyObject] {
+					let contentsDirectory = url.URLByAppendingPathComponent("Contents", isDirectory: true)
+					let baseURL: NSURL
+					if let path = contentsDirectory.path where fileManager.fileExistsAtPath(path) {
+						baseURL = contentsDirectory
+					} else {
+						baseURL = url
 					}
-					fileBlacklist.insert(url.URLByAppendingPathComponent(key))
+					if let files = resDir["files"] as? [String:AnyObject] {
+						addFileDictionaryToBlacklist(files, baseURL: baseURL)
+					}
+					// Version 2 Code Signature (introduced in Mavericks)
+					// https://developer.apple.com/library/mac/technotes/tn2206
+					if let files = resDir["files2"] as? [String:AnyObject] {
+						addFileDictionaryToBlacklist(files, baseURL: baseURL)
+					}
 				}
 			}
 		}
