@@ -223,10 +223,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		var codeRef: Unmanaged<SecStaticCode>?
 
 		let result = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &codeRef)
-		if result == noErr, let codeRef = codeRef?.takeRetainedValue() {
+		if result == errSecSuccess, let codeRef = codeRef?.takeRetainedValue() {
 			var requirement: Unmanaged<SecRequirement>?
 			let result2 = SecCodeCopyDesignatedRequirement(codeRef, SecCSFlags(kSecCSDefaultFlags), &requirement)
-			return result2 == noErr
+			return result2 == errSecSuccess
 		}
 		return false
 	}

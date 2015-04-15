@@ -58,11 +58,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	func addCodeResourcesToBlacklist(url: NSURL) {
 		var codeRef: Unmanaged<SecStaticCode>? = nil
 		let result = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &codeRef)
-		if result == noErr, let code = codeRef?.takeRetainedValue() {
+		if result == errSecSuccess, let code = codeRef?.takeRetainedValue() {
 			var codeInfoRef: Unmanaged<CFDictionary>? = nil
 			// warning: this relies on kSecCSInternalInformation
 			let result2 = SecCodeCopySigningInformation(code, SecCSFlags(kSecCSInternalInformation), &codeInfoRef)
-			if result2 == noErr, let codeInfo = codeInfoRef?.takeRetainedValue() as? [NSObject:AnyObject] {
+			if result2 == errSecSuccess, let codeInfo = codeInfoRef?.takeRetainedValue() as? [NSObject:AnyObject] {
 				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject:AnyObject] {
 					let contentsDirectory = url.URLByAppendingPathComponent("Contents", isDirectory: true)
 					let baseURL: NSURL
