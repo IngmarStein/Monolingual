@@ -514,21 +514,12 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			return $0.stringByReplacingOccurrencesOfString("-", withString:"_")
 		} + ["en", currentLocale.localeIdentifier])
 
-		let availableLocalizations = (NSLocale.availableLocaleIdentifiers() as! [String])
+		let availableLocalizations = Set<String>((NSLocale.availableLocaleIdentifiers() as! [String])
 			// add some known locales not contained in availableLocaleIdentifiers
-			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi" ]
-
-		var knownLocales = Set<String>()
-		var knownLanguages = [LanguageSetting]()
-		knownLanguages.reserveCapacity(availableLocalizations.count)
+			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi" ])
 
 		let systemLocale = NSLocale(localeIdentifier: "en_US_POSIX")
-		for localeIdentifier in availableLocalizations {
-			if knownLocales.contains(localeIdentifier) {
-				NSLog("Ignoring duplicate locale '%@'", localeIdentifier)
-				continue
-			}
-			knownLocales.insert(localeIdentifier)
+		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let components = NSLocale.componentsFromLocaleIdentifier(localeIdentifier)
 			if let language = components[NSLocaleLanguageCode] as? String, country = components[NSLocaleCountryCode] as? String {
@@ -537,13 +528,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				folders.append("\(displayName).lproj")
 			}
 			let displayName = currentLocale.displayNameForKey(NSLocaleIdentifier, value: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
-			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(localeIdentifier),
-												  folders: folders,
-											  displayName: displayName))
-		}
+			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
+		}.sorted { $0.displayName < $1.displayName }
 
-		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
-		
 		let archs = [
 			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: CPU_TYPE_ARM,       cpu_subtype: CPU_SUBTYPE_ARM_ALL),
 			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
@@ -594,12 +581,15 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			return architecture
 		}
 
-		// load remote blacklist
-		if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]] {
+		// load blacklist from bundle
+		if let blacklistBundle = NSBundle.mainBundle().URLForResource("blacklist", withExtension:"plist"), entries = NSArray(contentsOfURL:blacklistBundle) as? [[NSObject:AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
-		} else if let blacklistBundle = NSBundle.mainBundle().pathForResource("blacklist", ofType:"plist"), entries = NSArray(contentsOfFile:blacklistBundle) as? [[NSObject:AnyObject]] {
-			// use blacklist from bundle as a fallback
-			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
+		}
+		// load remote blacklist asynchronously
+		dispatch_async(dispatch_get_main_queue()) {
+			if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOfURL:blacklistURL) as? [[NSObject:AnyObject]] {
+				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
+			}
 		}
 		
 		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
