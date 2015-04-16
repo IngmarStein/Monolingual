@@ -20,12 +20,16 @@ deployment:
 
 archive:
 	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release archive -archivePath $(ARCHIVE)
-	xcodebuild -exportArchive -exportFormat APP -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR)/Monolingual.app
+	xcodebuild -exportArchive -exportFormat APP -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR)/Monolingual.app -exportWithOriginalSigningIdentity
 
 clean:
 	-rm -rf $(BUILD_DIR) $(RELEASE_DIR)
 
 release: clean archive
+	# Check code signature
+	codesign -vvv --deep $(BUILD_DIR)/Monolingual.app
+	# Check SMJobBless code signing setup
+	./SMJobBlessUtil.py check $(BUILD_DIR)/Monolingual.app/Contents/XPCServices/Monolingual.xpc
 	mkdir -p $(RELEASE_DIR)/build
 	cp -R $(ARCHIVE) $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build

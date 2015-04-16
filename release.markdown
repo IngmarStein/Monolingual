@@ -7,8 +7,7 @@
     * Makefile
 2. Add changelog to readmes
 3. make release
-4. Check code signature (spctl --verbose=4 --assess --type execute ./build/Monolingual.app)
-4. Check SMJobBless code signing setup (SMJobBlessUtil.py check ./build/Monolingual.app)
+4. Check Gatekeeper policy (spctl -vv --assess --type execute ./build/Monolingual.app)
 5. Update index.html
 6. Update changelog.html
 7. Update appcast.xml
