@@ -509,26 +509,24 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	override func viewDidLoad() {
 		let currentLocale = NSLocale.currentLocale()
 
-		var userLanguages = Set<String>((NSLocale.preferredLanguages() as! [String]).map {
+		// never check the user's preferred languages, English the the user's locale be default
+		let userLanguages = Set<String>((NSLocale.preferredLanguages() as! [String]).map {
 			return $0.stringByReplacingOccurrencesOfString("-", withString:"_")
-		})
+		} + ["en", currentLocale.localeIdentifier])
 
-		// never check "English" by default
-		userLanguages.insert("en")
+		let availableLocalizations = (NSLocale.availableLocaleIdentifiers() as! [String])
+			// add some known locales not contained in availableLocaleIdentifiers
+			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi" ]
 
-		// never check user locale by default
-		userLanguages.insert(currentLocale.localeIdentifier)
-
-		let availableLocalizations = NSLocale.availableLocaleIdentifiers() as! [String]
 		var knownLocales = Set<String>()
 		var knownLanguages = [LanguageSetting]()
 		knownLanguages.reserveCapacity(availableLocalizations.count)
 
 		let systemLocale = NSLocale(localeIdentifier: "en_US_POSIX")
-		func addLocale(localeIdentifier:String) {
+		for localeIdentifier in availableLocalizations {
 			if knownLocales.contains(localeIdentifier) {
 				NSLog("Ignoring duplicate locale '%@'", localeIdentifier)
-				return
+				continue
 			}
 			knownLocales.insert(localeIdentifier)
 			var folders = ["\(localeIdentifier).lproj"]
@@ -541,42 +539,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			let displayName = currentLocale.displayNameForKey(NSLocaleIdentifier, value: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
 			knownLanguages.append(LanguageSetting(enabled: !userLanguages.contains(localeIdentifier),
 												  folders: folders,
-												  displayName: displayName))
+											  displayName: displayName))
 		}
-
-		for localeIdentifier in availableLocalizations {
-			addLocale(localeIdentifier)
-		}
-
-		// add some known locales not contained in availableLocalizations
-		addLocale("ach")
-		addLocale("an")
-		addLocale("ast")
-		addLocale("ay")
-		addLocale("bi")
-		addLocale("co")
-		addLocale("fur")
-		addLocale("gd")
-		addLocale("gn")
-		addLocale("ia")
-		addLocale("jv")
-		addLocale("ku")
-		addLocale("la")
-		addLocale("mi")
-		addLocale("md")
-		addLocale("oc")
-		addLocale("qu")
-		addLocale("sa")
-		addLocale("sd")
-		addLocale("se")
-		addLocale("su")
-		addLocale("tet")
-		addLocale("tk_Cyrl")
-		addLocale("tl")
-		addLocale("tlh")
-		addLocale("tt")
-		addLocale("wa")
-		addLocale("yi")
 
 		self.languages = knownLanguages.sorted { $0.displayName < $1.displayName }
 		
