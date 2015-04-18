@@ -13,4 +13,4 @@ if let blacklist = NSArray(contentsOfFile:"blacklist.plist") as? [[NSObject:AnyO
 		}
 	}
 }
-(result as! NSArray).writeToFile("uniq.plist", atomically:true)
+(result as NSArray).writeToFile("uniq.plist", atomically:true)
