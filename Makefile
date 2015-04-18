@@ -30,6 +30,8 @@ release: clean archive
 	codesign -vvv --deep $(BUILD_DIR)/Monolingual.app
 	# Check SMJobBless code signing setup
 	./SMJobBlessUtil.py check $(BUILD_DIR)/Monolingual.app/Contents/XPCServices/Monolingual.xpc
+	# Check app against Gatekeeper system policies
+	spctl -vv --assess --type execute $(BUILD_DIR)/Monolingual.app
 	mkdir -p $(RELEASE_DIR)/build
 	cp -R $(ARCHIVE) $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build

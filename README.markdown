@@ -47,3 +47,7 @@ Icon by Matt Davey
 ## License
 
 GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
+
+## Status
+
+[![Build Status](https://travis-ci.org/IngmarStein/Monolingual.svg?branch=master)](https://travis-ci.org/IngmarStein/Monolingual)
