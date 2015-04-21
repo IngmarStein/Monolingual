@@ -14,26 +14,28 @@ class Helper_Tests: XCTestCase {
 	private var testDir: String {
 		return NSFileManager.defaultManager().currentDirectoryPath.stringByAppendingPathComponent("testdata")
 	}
-    
+
+	private func createTestApp(name: String, bundleIdentifier: String) {
+		let appDir = testDir.stringByAppendingPathComponent("\(name).app")
+		let localizableStringsData = NSData(base64EncodedString: "dGVzdA==", options: .allZeros)!
+		let infoPlist = [ "CFBundleIdentifier" : bundleIdentifier ] as NSDictionary
+		let fileManager = NSFileManager.defaultManager()
+
+		fileManager.createDirectoryAtPath(appDir.stringByAppendingPathComponent("Contents/Resources/en.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
+		fileManager.createDirectoryAtPath(appDir.stringByAppendingPathComponent("Contents/Resources/de.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
+		fileManager.createDirectoryAtPath(appDir.stringByAppendingPathComponent("Contents/Resources/fr.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
+		fileManager.createFileAtPath(appDir.stringByAppendingPathComponent("Contents/Resources/en.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
+		fileManager.createFileAtPath(appDir.stringByAppendingPathComponent("Contents/Resources/de.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
+		fileManager.createFileAtPath(appDir.stringByAppendingPathComponent("Contents/Resources/fr.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
+		infoPlist.writeToFile(appDir.stringByAppendingPathComponent("Contents/Info.plist"), atomically: false)
+	}
+
     override func setUp() {
         super.setUp()
 
-		let localizableStringsData = NSData(base64EncodedString: "dGVzdA==", options: .allZeros)!
-		let fileManager = NSFileManager.defaultManager()
-
-		fileManager.createDirectoryAtPath(testDir.stringByAppendingPathComponent("test.app/Contents/Resources/en.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
-		fileManager.createDirectoryAtPath(testDir.stringByAppendingPathComponent("test.app/Contents/Resources/de.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
-		fileManager.createDirectoryAtPath(testDir.stringByAppendingPathComponent("test.app/Contents/Resources/fr.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
-		fileManager.createFileAtPath(testDir.stringByAppendingPathComponent("test.app/Contents/Resources/en.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
-		fileManager.createFileAtPath(testDir.stringByAppendingPathComponent("test.app/Contents/Resources/de.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
-		fileManager.createFileAtPath(testDir.stringByAppendingPathComponent("test.app/Contents/Resources/fr.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
-
-		fileManager.createDirectoryAtPath(testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/en.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
-		fileManager.createDirectoryAtPath(testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/de.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
-		fileManager.createDirectoryAtPath(testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/fr.lproj"), withIntermediateDirectories: true, attributes: nil, error: nil)
-		fileManager.createFileAtPath(testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/en.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
-		fileManager.createFileAtPath(testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/de.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
-		fileManager.createFileAtPath(testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/fr.lproj/Localizable.strings"), contents: localizableStringsData, attributes: nil)
+		createTestApp("test", bundleIdentifier:"com.test.test")
+		createTestApp("excluded", bundleIdentifier:"com.test.excluded")
+		createTestApp("blacklisted", bundleIdentifier:"com.test.blacklisted")
 	}
 
     override func tearDown() {
@@ -51,6 +53,7 @@ class Helper_Tests: XCTestCase {
 		request.includes = [ testDir ]
 		request.excludes = [ testDir.stringByAppendingPathComponent("excluded.app") ]
 		request.directories = [ "fr.lproj" ]
+		request.bundleBlacklist = [ "com.test.blacklisted" ]
 
 		let expectation = expectationWithDescription("Asynchronous helper processing")
 
@@ -65,6 +68,9 @@ class Helper_Tests: XCTestCase {
 			XCTAssert(fileManager.fileExistsAtPath(self.testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/en.lproj/Localizable.strings")), "excluded app should be untouched")
 			XCTAssert(fileManager.fileExistsAtPath(self.testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/de.lproj/Localizable.strings")), "excluded app should be untouched")
 			XCTAssert(fileManager.fileExistsAtPath(self.testDir.stringByAppendingPathComponent("excluded.app/Contents/Resources/fr.lproj/Localizable.strings")), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExistsAtPath(self.testDir.stringByAppendingPathComponent("blacklisted.app/Contents/Resources/en.lproj/Localizable.strings")), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExistsAtPath(self.testDir.stringByAppendingPathComponent("blacklisted.app/Contents/Resources/de.lproj/Localizable.strings")), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExistsAtPath(self.testDir.stringByAppendingPathComponent("blacklisted.app/Contents/Resources/fr.lproj/Localizable.strings")), "excluded app should be untouched")
 
 			expectation.fulfill()
 		}
