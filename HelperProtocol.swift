@@ -14,7 +14,7 @@ import Foundation
 	func getVersionWithReply(reply:(String) -> Void)
 	func uninstall()
 	func exitWithCode(exitCode: Int)
-	func processRequest(request: HelperRequest, progress: ProgressProtocol, reply:(Int) -> Void)
+	func processRequest(request: HelperRequest, progress: ProgressProtocol?, reply:(Int) -> Void)
 
 }
 

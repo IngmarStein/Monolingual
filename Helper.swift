@@ -54,7 +54,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		exit(Int32(exitCode))
 	}
 
-	func processRequest(request: HelperRequest, progress remoteProgress: ProgressProtocol, reply:(Int) -> Void) {
+	func processRequest(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply:(Int) -> Void) {
 		let context = HelperContext(request)
 
 		NSLog("Received request: %@", request)
