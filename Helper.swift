@@ -100,18 +100,16 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 
 		// thin fat binaries
-		if let thin = request.thin, roots = roots where !thin.isEmpty {
-			var archs = thin.map { ($0 as NSString).UTF8String }
-			if setup_lipo(&archs, UInt32(archs.count)) != 0 {
+		if let archs = request.thin, roots = roots where !archs.isEmpty {
+			if let lipo = Lipo(archs: archs) {
 				for root in roots {
 					if progress.cancelled {
 						break
 					}
 					if let root = root {
-						thinDirectory(root, context:context)
+						thinDirectory(root, context:context, lipo: lipo)
 					}
 				}
-				finish_lipo()
 			}
 		}
 
@@ -183,16 +181,16 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	func thinFile(url: NSURL, context: HelperContext) {
+	func thinFile(url: NSURL, context: HelperContext, lipo: Lipo) {
 		var sizeDiff: Int = 0
-		if run_lipo(url.fileSystemRepresentation, &sizeDiff) == 0 {
+		if lipo.run(url.path!, sizeDiff: &sizeDiff) {
 			if sizeDiff > 0 {
 				context.reportProgress(url, size:sizeDiff)
 			}
 		}
 	}
 
-	func thinDirectory(url: NSURL, context:HelperContext) {
+	func thinDirectory(url: NSURL, context:HelperContext, lipo: Lipo) {
 		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey]) { theURL, dirEnumerator in
 			var isRegularFile: AnyObject?
 			var isExecutable: AnyObject?
@@ -208,7 +206,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 						data.getBytes(&magic, length: sizeof(UInt32))
 
 						if magic == FAT_MAGIC || magic == FAT_CIGAM {
-							self.thinFile(theURL, context:context)
+							self.thinFile(theURL, context:context, lipo: lipo)
 						}
 						if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
 							self.stripFile(theURL, context:context)

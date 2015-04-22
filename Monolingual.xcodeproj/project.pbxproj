@@ -26,7 +26,6 @@
 		955263A61AE675AE001AD4F3 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
 		955263A71AE675AE001AD4F3 /* HelperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADD1AD7FAF900872850 /* HelperContext.swift */; };
 		955263A81AE6770F001AD4F3 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
-		955263A91AE6774C001AD4F3 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95527CE319741A540092C744 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE219741A540092C744 /* AppDelegate.swift */; };
 		95527CE519741A930092C744 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE419741A930092C744 /* Log.swift */; };
 		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
@@ -43,7 +42,6 @@
 		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
-		95BC963E0991F2C9001DEF94 /* lipo.c in Sources */ = {isa = PBXBuildFile; fileRef = 95BC963D0991F2C9001DEF94 /* lipo.c */; };
 		95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
@@ -54,6 +52,9 @@
 		95E236F21AD52C7100076008 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236F11AD52C7100076008 /* main.swift */; };
 		95E236F61AD5332800076008 /* net.sourceforge.MonolingualHelper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		95E236F71AD5356B00076008 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
+		95EB7AAF1AE777F90066369B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AAE1AE777F90066369B /* main.swift */; };
+		95EB7AB31AE7780C0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
+		95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 95F7771C0ECC2644009C621B /* dsa_pub.pem */; };
 		C75AAE26E9E0DF21611BCA43 /* Pods_Monolingual.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6740247642529373972539ED /* Pods_Monolingual.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -99,6 +100,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		95EB7AAA1AE777F90066369B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -117,7 +127,6 @@
 		950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlacklistEntry.swift; sourceTree = "<group>"; };
 		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchitectureSetting.swift; sourceTree = "<group>"; };
 		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Root.swift; sourceTree = "<group>"; };
-		95355AD11AD7F31200872850 /* net.sourceforge.MonolingualHelper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "net.sourceforge.MonolingualHelper-Bridging-Header.h"; sourceTree = "<group>"; };
 		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperProtocol.swift; sourceTree = "<group>"; };
 		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperRequest.swift; sourceTree = "<group>"; };
@@ -160,8 +169,6 @@
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95B70C491AD2715500801026 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
-		95BC963D0991F2C9001DEF94 /* lipo.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = lipo.c; sourceTree = "<group>"; };
-		95BC989F099228D5001DEF94 /* lipo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = lipo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net.sourceforge.MonolingualHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LEESMIJ.rtfd; sourceTree = "<group>"; };
@@ -172,6 +179,9 @@
 		95E236EF1AD52C0E00076008 /* XPCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XPCService.swift; sourceTree = "<group>"; };
 		95E236F11AD52C7100076008 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95E8634115D81004004EF9ED /* Monolingual.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Monolingual.entitlements; sourceTree = "<group>"; };
+		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lipo.swift; sourceTree = SOURCE_ROOT; };
+		95EB7AAC1AE777F90066369B /* lipo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lipo; sourceTree = BUILT_PRODUCTS_DIR; };
+		95EB7AAE1AE777F90066369B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = LisezMoi.rtfd; sourceTree = "<group>"; };
 		95EDCC8B062C4393007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -233,6 +243,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		95EB7AA91AE777F90066369B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -255,6 +272,7 @@
 				95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */,
 				95E236DA1AD526DF00076008 /* Monolingual.xpc */,
 				9552639C1AE67351001AD4F3 /* Helper Tests.xctest */,
+				95EB7AAC1AE777F90066369B /* lipo */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -263,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				080E96DDFE201D6D7F000001 /* Classes */,
+				95EB7AAD1AE777F90066369B /* lipo */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				952DDC661AD56D61001BADD1 /* Helper */,
 				9552639D1AE67351001AD4F3 /* Helper Tests */,
@@ -358,12 +377,9 @@
 				95355ADF1AD806DD00872850 /* Helper.swift */,
 				95355ADD1AD7FAF900872850 /* HelperContext.swift */,
 				95355AD41AD7F50200872850 /* HelperProtocol.swift */,
-				95BC963D0991F2C9001DEF94 /* lipo.c */,
-				95BC989F099228D5001DEF94 /* lipo.h */,
 				95355AD21AD7F31200872850 /* main.swift */,
 				9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */,
 				9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */,
-				95355AD11AD7F31200872850 /* net.sourceforge.MonolingualHelper-Bridging-Header.h */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -415,6 +431,15 @@
 				95E236DD1AD526DF00076008 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		95EB7AAD1AE777F90066369B /* lipo */ = {
+			isa = PBXGroup;
+			children = (
+				95EB7AA51AE6E52B0066369B /* lipo.swift */,
+				95EB7AAE1AE777F90066369B /* main.swift */,
+			);
+			path = lipo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -501,6 +526,23 @@
 			productReference = 95E236DA1AD526DF00076008 /* Monolingual.xpc */;
 			productType = "com.apple.product-type.xpc-service";
 		};
+		95EB7AAB1AE777F90066369B /* lipo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95EB7AB01AE777F90066369B /* Build configuration list for PBXNativeTarget "lipo" */;
+			buildPhases = (
+				95EB7AA81AE777F90066369B /* Sources */,
+				95EB7AA91AE777F90066369B /* Frameworks */,
+				95EB7AAA1AE777F90066369B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = lipo;
+			productName = lipo;
+			productReference = 95EB7AAC1AE777F90066369B /* lipo */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -519,6 +561,9 @@
 					95E236D91AD526DF00076008 = {
 						CreatedOnToolsVersion = 6.3;
 						DevelopmentTeam = 4N2G277B4M;
+					};
+					95EB7AAB1AE777F90066369B = {
+						CreatedOnToolsVersion = 6.3.1;
 					};
 				};
 			};
@@ -550,6 +595,7 @@
 				95C3C95F0610144300D417BC /* Helper */,
 				95E236D91AD526DF00076008 /* XPCService */,
 				9552639B1AE67351001AD4F3 /* Helper Tests */,
+				95EB7AAB1AE777F90066369B /* lipo */,
 			);
 		};
 /* End PBXProject section */
@@ -752,7 +798,6 @@
 				955263A61AE675AE001AD4F3 /* Helper.swift in Sources */,
 				955263A71AE675AE001AD4F3 /* HelperContext.swift in Sources */,
 				955263A81AE6770F001AD4F3 /* HelperProtocol.swift in Sources */,
-				955263A91AE6774C001AD4F3 /* lipo.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -783,10 +828,10 @@
 			files = (
 				95355AE01AD806DD00872850 /* Helper.swift in Sources */,
 				95355AD31AD7F31200872850 /* main.swift in Sources */,
-				95BC963E0991F2C9001DEF94 /* lipo.c in Sources */,
 				95355AD61AD7F50200872850 /* HelperProtocol.swift in Sources */,
 				95355AD91AD7F5C500872850 /* HelperRequest.swift in Sources */,
 				95355ADE1AD7FAF900872850 /* HelperContext.swift in Sources */,
+				95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -800,6 +845,15 @@
 				95355ADB1AD7FA4A00872850 /* HelperRequest.swift in Sources */,
 				95E236F01AD52C0E00076008 /* XPCService.swift in Sources */,
 				95355AD71AD7F50200872850 /* HelperProtocol.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		95EB7AA81AE777F90066369B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95EB7AAF1AE777F90066369B /* main.swift in Sources */,
+				95EB7AB31AE7780C0066369B /* lipo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -939,13 +993,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "net.sourceforge.MonolingualHelper-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				WARNING_CFLAGS = (
-					"$(inherited)",
-					"-Wno-cast-align",
-					"-Wno-padded",
-				);
 			};
 			name = Debug;
 		};
@@ -982,12 +1030,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "net.sourceforge.MonolingualHelper-Bridging-Header.h";
-				WARNING_CFLAGS = (
-					"$(inherited)",
-					"-Wno-cast-align",
-					"-Wno-padded",
-				);
 			};
 			name = Release;
 		};
@@ -1010,13 +1052,7 @@
 				);
 				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "net.sourceforge.MonolingualHelper-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				WARNING_CFLAGS = (
-					"$(inherited)",
-					"-Wno-cast-align",
-					"-Wno-padded",
-				);
 			};
 			name = Debug;
 		};
@@ -1039,12 +1075,6 @@
 				);
 				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "net.sourceforge.MonolingualHelper-Bridging-Header.h";
-				WARNING_CFLAGS = (
-					"$(inherited)",
-					"-Wno-cast-align",
-					"-Wno-padded",
-				);
 			};
 			name = Release;
 		};
@@ -1230,6 +1260,72 @@
 			};
 			name = Release;
 		};
+		95EB7AB11AE777F90066369B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		95EB7AB21AE777F90066369B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1240,6 +1336,7 @@
 				955263A31AE67351001AD4F3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */ = {
 			isa = XCConfigurationList;
@@ -1276,6 +1373,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		95EB7AB01AE777F90066369B /* Build configuration list for PBXNativeTarget "lipo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				95EB7AB11AE777F90066369B /* Debug */,
+				95EB7AB21AE777F90066369B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
