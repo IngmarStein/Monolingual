@@ -168,7 +168,7 @@ private let archFlags : [ArchFlag] = [
 class InputFile {
 	var name: String!
 	var size: Int!
-	var data: UnsafeMutablePointer<Void>!
+	var data: NSData!
 	var fatHeader: fat_header!
 	var fatArchs: [fat_arch]!
 }
@@ -206,8 +206,7 @@ class Lipo {
 	private var thinFiles: [ThinFile]!
 	private var outputFile : String!
 	private var outputFilemode: mode_t!
-	private var outputUid: uid_t!
-	private var outputGid: gid_t!
+	private var outputAttributes: [NSObject: AnyObject]!
 	private var removeArchFlags : [ArchFlag]!
 
 	init?(archs: [String]) {
@@ -275,9 +274,7 @@ class Lipo {
 			}
 		}
 
-		if munmap(inputFile.data, inputFile.size) != 0 {
-			NSLog("munmap: %s", strerror(errno))
-		}
+		inputFile.data = nil
 
 		return success
 	}
@@ -312,72 +309,58 @@ class Lipo {
 	 * processInputFile() checks input file and breaks it down into thin files
 	 * for later operations.
 	 */
-	private func processInputFile(input: InputFile)
-	{
-		var stat_buf = stat()
-		var stat_buf2 = stat()
-
-		// Open the input file and map it in
-		let fd = open(input.name, O_RDONLY)
-		if fd == -1 {
-			NSLog("can't open input file: %@", input.name)
+	private func processInputFile(input: InputFile) {
+		var error: NSError?
+		let fileAttributes = NSFileManager.defaultManager().attributesOfItemAtPath(input.name, error: &error)
+		if fileAttributes == nil {
+			NSLog("can't stat input file '%@'", input.name)
 			return
 		}
-		let fileHandle = NSFileHandle(fileDescriptor: fd, closeOnDealloc: true)
-		if fstat(fileHandle.fileDescriptor, &stat_buf) == -1 {
-			NSLog("can't stat input file: %@", input.name)
-			return
-		}
-		let size = stat_buf.st_size
-		input.size = Int(size)
+		let size = fileAttributes?[NSFileSize] as? Int ?? 0
+		input.size = size
 		// pick up set uid, set gid and sticky text bits
-		outputFilemode = stat_buf.st_mode & 0o7777
-		outputUid = stat_buf.st_uid
-		outputGid = stat_buf.st_gid
-
-		errno = 0
-		let addr = mmap(nil, Int(size), PROT_READ | PROT_WRITE, MAP_PRIVATE, fileHandle.fileDescriptor, 0)
-		if errno != 0 {
-			NSLog("can't map input file: %@", input.name)
-			return
+		if let mode = fileAttributes?[NSFilePosixPermissions] as? Int {
+			outputFilemode = mode_t(mode & 0o7777)
+		} else {
+			outputFilemode = 0o777
 		}
-		input.data = addr
-
-		/*
-		 * Because of rdar://8087586 we do a second stat to see if the file
-		 * is still there and the same file.
-		 */
-		if fstat(fileHandle.fileDescriptor, &stat_buf2) == -1 {
-			NSLog("can't stat input file: %@", input.name)
-			return
+		outputAttributes = [:]
+		if let value: AnyObject = fileAttributes?[NSFileOwnerAccountID] {
+			outputAttributes[NSFileOwnerAccountID] = value
 		}
-		if stat_buf2.st_size != size || stat_buf2.st_mtimespec.tv_sec != stat_buf.st_mtimespec.tv_sec || stat_buf2.st_mtimespec.tv_nsec != stat_buf.st_mtimespec.tv_nsec {
-			NSLog("Input file: %@ changed since opened", input.name)
-			return
+		if let value: AnyObject = fileAttributes?[NSFileGroupOwnerAccountID] {
+			outputAttributes[NSFileOwnerAccountID] = value
+		}
+		if let value: AnyObject = fileAttributes?[NSFilePosixPermissions] {
+			outputAttributes[NSFilePosixPermissions] = value
 		}
 
-		// Try to figure out what kind of file this is
+		let data = NSData(contentsOfFile:input.name, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error)
+		if data == nil {
+			NSLog("can't map input file '%@'", input.name)
+			return
+		}
+		input.data = data
+		let addr = input.data.bytes
 
-		// see if this file is a fat file
-		if size >= off_t(sizeof(fat_header)) {
+		// check if this file is a fat file
+		if size >= sizeof(fat_header) {
 			let magic = UnsafePointer<UInt32>(addr).memory
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
 				let headerPointer = UnsafePointer<fat_header>(addr)
 				input.fatHeader = fatHeaderFromFile(headerPointer.memory)
-				let big_size = off_t(Int(input.fatHeader.nfat_arch) * sizeof(fat_arch) + sizeof(fat_header))
+				let big_size = Int(input.fatHeader.nfat_arch) * sizeof(fat_arch) + sizeof(fat_header)
 				if big_size > size {
 					NSLog("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", input.name)
-					munmap(addr, size_t(size))
 					input.data = nil
 					return
 				}
-				let fatArchsPointer = UnsafeMutablePointer<fat_arch>(addr + sizeof(fat_header))
+				let fatArchsPointer = UnsafePointer<fat_arch>(addr + sizeof(fat_header))
 				input.fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer, count:Int(input.fatHeader.nfat_arch))).map { self.fatArchFromFile($0) }
 				for fatArch in input.fatArchs {
-					if off_t(fatArch.offset + fatArch.size) > size {
+					if Int(fatArch.offset + fatArch.size) > size {
 						NSLog("truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
 							fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), input.name)
-						munmap(addr, size_t(size))
 						input.data = nil
 						return
 					}
@@ -386,7 +369,6 @@ class Lipo {
 							fatArch.align, input.name,
 							fatArch.cputype,
 							cpuSubtypeWithMask(fatArch.cpusubtype), MAXSECTALIGN)
-						munmap(addr, size_t(size))
 						input.data = nil
 						return
 					}
@@ -396,7 +378,6 @@ class Lipo {
 							fatArch.cputype,
 							cpuSubtypeWithMask(fatArch.cpusubtype),
 							fatArch.align)
-						munmap(addr, size_t(size))
 						input.data = nil
 						return
 					}
@@ -408,7 +389,6 @@ class Lipo {
 							NSLog("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))", input.name,
 								fatArch1.cputype,
 								cpuSubtypeWithMask(fatArch2.cpusubtype))
-							munmap(addr, size_t(size))
 							input.data = nil
 							return
 						}
@@ -418,7 +398,6 @@ class Lipo {
 				let nthinFiles = input.fatHeader.nfat_arch
 				if nthinFiles == 0 {
 					NSLog("fat file contains no architectures %@", input.name)
-					munmap(addr, size_t(size))
 					input.data = nil
 				} else {
 					// create a thin file struct for each arch in the fat file
@@ -430,12 +409,9 @@ class Lipo {
 				return
 			}
 		}
-		
+
 		// not a fat file
 		input.data = nil
-		if munmap(addr, size_t(size)) != Int32(0) {
-			NSLog("munmap: %s", strerror(errno))
-		}
 	}
 
 	/*
@@ -443,11 +419,11 @@ class Lipo {
 	 */
 	private func createFat(inout newsize: Int) -> Bool {
 		/*
-	 * Create the output file.  The unlink() is done to handle the
-	 * problem when the outputfile is not writable but the directory
-	 * allows the file to be removed and thus created (since the file
-	 * may not be there the return code of the unlink() is ignored).
-	 */
+		 * Create the output file.  The unlink() is done to handle the
+		 * problem when the outputfile is not writable but the directory
+		 * allows the file to be removed and thus created (since the file
+		 * may not be there the return code of the unlink() is ignored).
+		 */
 		let rename_file = "\(outputFile).lipo"
 		let fd = open(rename_file, O_WRONLY | O_CREAT | O_TRUNC, outputFilemode)
 		if fd == -1 {
@@ -555,8 +531,7 @@ class Lipo {
 		}
 
 		// restore the original owner and permissions
-		fchown(fileHandle.fileDescriptor, outputUid, outputGid)
-		fchmod(fileHandle.fileDescriptor, outputFilemode)
+		NSFileManager.defaultManager().setAttributes(outputAttributes, ofItemAtPath: rename_file, error: nil)
 
 		if rename(rename_file, outputFile) == -1 {
 			NSLog("can't move temporary file: %@ to file: %@", rename_file, outputFile)
