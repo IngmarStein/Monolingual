@@ -207,7 +207,7 @@ private func cpuSubtypeWithMask(subtype: cpu_subtype_t) -> cpu_subtype_t {
 class Lipo {
 	// Thin files from the input file to operate on
 	private struct ThinFile {
-		var data: UnsafePointer<Void>
+		var data: NSData
 		var fatArch: fat_arch
 	}
 
@@ -374,7 +374,7 @@ class Lipo {
 				} else {
 					// create a thin file struct for each arch in the fat file
 					thinFiles = fatArchs.map { fatArch in
-						let data = addr + Int(fatArch.offset)
+						let data = self.inputData.subdataWithRange(NSRange(location: Int(fatArch.offset), length: Int(fatArch.size)))
 						return ThinFile(data: data, fatArch: fatArch)
 					}
 				}
@@ -388,6 +388,7 @@ class Lipo {
 
 	/*
 	 * createFat() creates a fat output file from the thin files.
+	 * TODO: Use the NSFileHandle API as soon as it allows error handling without exceptions.
 	 */
 	private func createFat(inout newsize: Int) -> Bool {
 		let temporaryFile = "\(fileName).lipo"
@@ -397,6 +398,13 @@ class Lipo {
 			return false
 		}
 		let fileHandle = NSFileHandle(fileDescriptor: fd, closeOnDealloc: true)
+		/*
+		let fileHandle: NSFileHandle! = NSFileHandle(forWritingAtPath: temporaryFile)
+		if fileHandle == nil {
+			NSLog("can't create temporary output file: %s", temporaryFile);
+			return false
+		}
+		*/
 
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
@@ -420,13 +428,15 @@ class Lipo {
 			// Fill in the fat header and the fat_arch's offsets.
 			var fatHeader = fatHeaderToFile(fat_header(magic: FAT_MAGIC, nfat_arch: UInt32(nthinFiles)))
 			var offset = UInt32(sizeof(fat_header) + nthinFiles * sizeof(fat_arch))
-			for (i, thinFile) in enumerate(thinFiles) {
+			thinFiles = thinFiles.map { thinFile in
 				offset = rnd(offset, 1 << thinFile.fatArch.align)
 				let fatArch = thinFile.fatArch
-				thinFiles[i] = ThinFile(data: thinFile.data, fatArch: fat_arch(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: offset, size: fatArch.size, align: fatArch.align))
+				let result = ThinFile(data: thinFile.data, fatArch: fat_arch(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: offset, size: fatArch.size, align: fatArch.align))
 				offset += thinFile.fatArch.size
+				return result
 			}
 
+			//fileHandle.writeData(NSData(bytesNoCopy: &fatHeader, length: sizeof(fat_header), freeWhenDone: false))
 			if write(fileHandle.fileDescriptor, &fatHeader, sizeof(fat_header)) != sizeof(fat_header) {
 				NSLog("can't write fat header to output file: %@", temporaryFile)
 				return false
@@ -448,6 +458,7 @@ class Lipo {
 				}
 
 				var fatArch = fatArchToFile(thinFile.fatArch)
+				//fileHandle.writeData(NSData(bytesNoCopy: &fatArch, length: sizeof(fat_arch), freeWhenDone: false))
 				if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch)) != sizeof(fat_arch) {
 					NSLog("can't write fat arch to output file: %@", temporaryFile)
 					return false
@@ -461,6 +472,7 @@ class Lipo {
 		 */
 		if let arm64FatArch = arm64FatArch {
 			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
+			//fileHandle.writeData(NSData(bytesNoCopy: &fatArch, length: sizeof(fat_arch), freeWhenDone: false))
 			if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch)) != sizeof(fat_arch) {
 				NSLog("can't write fat arch to output file: %@", temporaryFile)
 				return false
@@ -473,6 +485,7 @@ class Lipo {
 		 */
 		if let x8664hFatArch = x8664hFatArch {
 			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
+			//fileHandle.writeData(NSData(bytesNoCopy: &fatArch, length: sizeof(fat_arch), freeWhenDone: false))
 			if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch)) != sizeof(fat_arch) {
 				NSLog("can't write fat arch to output file: %@", temporaryFile)
 				return false
@@ -480,12 +493,14 @@ class Lipo {
 		}
 		for thinFile in thinFiles {
 			if nthinFiles != 1 {
+				//fileHandle.seekToFileOffset(UInt64(thinFile.fatArch.offset))
 				if lseek(fileHandle.fileDescriptor, off_t(thinFile.fatArch.offset), L_SET) == -1 {
 					NSLog("can't lseek in output file: %@", temporaryFile)
 					return false
 				}
 			}
-			if write(fileHandle.fileDescriptor, thinFile.data, Int(thinFile.fatArch.size)) != Int(thinFile.fatArch.size) {
+			//fileHandle.writeData(thinFile.data)
+			if write(fileHandle.fileDescriptor, thinFile.data.bytes, Int(thinFile.fatArch.size)) != Int(thinFile.fatArch.size) {
 				NSLog("can't write to output file: %@", temporaryFile)
 				return false
 			}
