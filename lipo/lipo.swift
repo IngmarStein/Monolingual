@@ -9,10 +9,10 @@
 import Foundation
 import MachO.fat
 
-private let CPU_SUBTYPE_MASK = 0xff000000  /* mask for feature flags */
+private let CPU_SUBTYPE_MASK: cpu_subtype_t = 0xffffff  // mask for feature flags
 
-/* The maximum section alignment allowed to be specified, as a power of two */
-private let MAXSECTALIGN = 15 /* 2**15 or 0x8000 */
+// The maximum section alignment allowed to be specified, as a power of two
+private let MAXSECTALIGN = 15 // 2**15 or 0x8000
 
 // these defines are not (yet) visible to Swift
 private let CPU_TYPE_ANY : cpu_type_t					= -1
@@ -179,11 +179,11 @@ private func getArchFromFlag(name: String) -> ArchFlag? {
 private func rnd(v: UInt32, r: UInt32) -> UInt32 {
 	let r2 = r - 1
 	let v2 = v + r2
-	return v2 & UInt32(~Int32(r2))
+	return v2 & (~r2)
 }
 
 private func cpuSubtypeWithMask(subtype: cpu_subtype_t) -> cpu_subtype_t {
-	return cpu_subtype_t(Int(subtype) & ~CPU_SUBTYPE_MASK)
+	return subtype & CPU_SUBTYPE_MASK
 }
 
 class Lipo {
@@ -389,7 +389,7 @@ class Lipo {
 	 */
 	private func createFat(inout newsize: Int) -> Bool {
 		let temporaryFile = "\(fileName).lipo"
-		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o400)
+		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
 			NSLog("can't create temporary output file: %s", temporaryFile);
 			return false

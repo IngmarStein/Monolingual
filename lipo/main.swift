@@ -11,23 +11,34 @@ import Foundation
 private let arguments = Process.arguments
 
 private func usage() {
-	println("usage: lipo <executable> <architectures>")
+	println("usage: lipo <executables> --arch <architecture>")
 	exit(EXIT_SUCCESS)
 }
 
-if arguments.count < 3 {
+if arguments.count < 4 {
 	usage()
 }
 
-private let inputFile = arguments[1]
-private let architectures = Array(arguments[2..<arguments.count])
+private var inputFiles = [String]()
+private var architectures = [String]()
 
-if let lipo = Lipo(archs: architectures) {
-	var sizeDiff = 0
-	if lipo.run(inputFile, sizeDiff: &sizeDiff) {
-		println("saved \(sizeDiff) bytes")
+for var i=1; i<arguments.count; ++i {
+	let arg = arguments[i]
+	if arg == "--arch" && i+1<arguments.count {
+		architectures.append(arguments[++i])
 	} else {
-		println("lipo failed")
+		inputFiles.append(arg)
+	}
+}
+
+if let lipo = Lipo(archs: architectures) where !inputFiles.isEmpty && !architectures.isEmpty {
+	var sizeDiff = 0
+	for file in inputFiles {
+		if lipo.run(file, sizeDiff: &sizeDiff) {
+			println("\(file): saved \(sizeDiff) bytes")
+		} else {
+			println("\(file): lipo failed")
+		}
 	}
 } else {
 	usage()
