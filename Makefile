@@ -3,6 +3,7 @@ RELEASE_VERSION=1.6.8
 RELEASE_DIR=release-$(RELEASE_VERSION)
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
+SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
 ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
 ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
@@ -36,7 +37,7 @@ release: clean archive
 	cp -R $(ARCHIVE) $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
-	cp dmg-bg.tiff $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
+	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.js
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
