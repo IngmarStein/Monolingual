@@ -89,10 +89,28 @@ private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(10, 0)
  * The structure describing an architecture flag with the string of the flag
  * name, and the cputype and cpusubtype.
  */
-private struct ArchFlag {
+private struct ArchFlag : Equatable, Hashable {
 	var name: String
 	var cputype: cpu_type_t
 	var cpusubtype: cpu_subtype_t
+
+	var hashValue: Int {
+		return cputype.hashValue ^ cpusubtype.hashValue
+	}
+}
+
+extension fat_arch : Hashable {
+	public var hashValue: Int {
+		return cputype.hashValue ^ cpusubtype.hashValue
+	}
+}
+
+private func ==(lhs: ArchFlag, rhs: ArchFlag) -> Bool {
+	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
+}
+
+public func ==(lhs: fat_arch, rhs: fat_arch) -> Bool {
+	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
 private let archFlags : [ArchFlag] = [
@@ -213,13 +231,12 @@ class Lipo {
 			}
 		}
 
-		for (i, arch) in enumerate(removeArchFlags) {
-			for var j=i+1; j<removeArchFlags.count; ++j {
-				let arch2 = removeArchFlags[j]
-				if arch.cputype == arch2.cputype && cpuSubtypeWithMask(arch.cpusubtype) == cpuSubtypeWithMask(arch2.cpusubtype) {
-					NSLog("-remove %@ specified multiple times", arch.name)
-				}
+		var flagSet = Set<ArchFlag>()
+		for flag in removeArchFlags {
+			if flagSet.contains(flag) {
+				NSLog("-remove %@ specified multiple times", flag.name)
 			}
+			flagSet.insert(flag)
 		}
 	}
 
@@ -352,17 +369,14 @@ class Lipo {
 						return
 					}
 				}
-				for (i, fatArch1) in enumerate(fatArchs) {
-					for	var j = i + 1; j < fatArchs.count; ++j {
-						let fatArch2 = fatArchs[j]
-						if fatArch1.cputype == fatArch2.cputype && cpuSubtypeWithMask(fatArch1.cpusubtype) == cpuSubtypeWithMask(fatArch2.cpusubtype) {
-							NSLog("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))", fileName,
-								fatArch1.cputype,
-								cpuSubtypeWithMask(fatArch2.cpusubtype))
-							inputData = nil
-							return
-						}
+				var fatArchSet = Set<fat_arch>()
+				for fatArch in fatArchs {
+					if fatArchSet.contains(fatArch) {
+						NSLog("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))", fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+						inputData = nil
+						return
 					}
+					fatArchSet.insert(fatArch)
 				}
 
 				let nthinFiles = fatHeader.nfat_arch
