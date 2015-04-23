@@ -8,7 +8,7 @@
 
 import Foundation
 
-let arguments = Process.arguments
+private let arguments = Process.arguments
 
 private func usage() {
 	println("usage: lipo <executable> <architectures>")
@@ -19,8 +19,8 @@ if arguments.count < 3 {
 	usage()
 }
 
-let inputFile = arguments[1]
-let architectures = Array(arguments[2..<arguments.count])
+private let inputFile = arguments[1]
+private let architectures = Array(arguments[2..<arguments.count])
 
 if let lipo = Lipo(archs: architectures) {
 	var sizeDiff = 0
