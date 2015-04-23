@@ -5,7 +5,7 @@ Monolingual
 
 ## Screenshot
 
-<img src="http://ingmarstein.github.io/Monolingual/images/Monolingual-1.5.3-en.png">
+<img src="http://ingmarstein.github.io/Monolingual/images/Monolingual-1.6.7-en.png">
 
 ## Architecture
 
