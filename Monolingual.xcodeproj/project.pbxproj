@@ -39,7 +39,6 @@
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
-		95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
@@ -123,15 +122,15 @@
 		950217341AD16F8D00907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = ro.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		950217351AD16FB000907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		950217391AD16FE500907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = ro.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		950ED26B1976AA6400BAC239 /* LanguageSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSetting.swift; sourceTree = "<group>"; };
-		950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlacklistEntry.swift; sourceTree = "<group>"; };
-		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchitectureSetting.swift; sourceTree = "<group>"; };
-		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Root.swift; sourceTree = "<group>"; };
-		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperProtocol.swift; sourceTree = "<group>"; };
-		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperRequest.swift; sourceTree = "<group>"; };
-		95355ADD1AD7FAF900872850 /* HelperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperContext.swift; sourceTree = "<group>"; };
-		95355ADF1AD806DD00872850 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
+		950ED26B1976AA6400BAC239 /* LanguageSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LanguageSetting.swift; path = Classes/LanguageSetting.swift; sourceTree = "<group>"; };
+		950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BlacklistEntry.swift; path = Classes/BlacklistEntry.swift; sourceTree = "<group>"; };
+		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArchitectureSetting.swift; path = Classes/ArchitectureSetting.swift; sourceTree = "<group>"; };
+		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Root.swift; path = Classes/Root.swift; sourceTree = "<group>"; };
+		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = Helper/main.swift; sourceTree = "<group>"; };
+		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperProtocol.swift; path = Helper/HelperProtocol.swift; sourceTree = "<group>"; };
+		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperRequest.swift; path = Helper/HelperRequest.swift; sourceTree = "<group>"; };
+		95355ADD1AD7FAF900872850 /* HelperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperContext.swift; path = Helper/HelperContext.swift; sourceTree = "<group>"; };
+		95355ADF1AD806DD00872850 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Helper.swift; path = Helper/Helper.swift; sourceTree = "<group>"; };
 		9539D83711453596007E698C /* blacklist.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = blacklist.plist; sourceTree = "<group>"; };
 		954DDFFF1AD4ED350097145C /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ko; path = ko.lproj/Credits.html; sourceTree = "<group>"; };
 		954DE0001AD4ED4F0097145C /* ko */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -140,28 +139,28 @@
 		9552639C1AE67351001AD4F3 /* Helper Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Helper Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9552639F1AE67351001AD4F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		955263A01AE67351001AD4F3 /* Helper_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper_Tests.swift; sourceTree = "<group>"; };
-		95527CE219741A540092C744 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		95527CE419741A930092C744 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		95527CE219741A540092C744 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Classes/AppDelegate.swift; sourceTree = "<group>"; };
+		95527CE419741A930092C744 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Log.swift; path = Classes/Log.swift; sourceTree = "<group>"; };
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = de.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
-		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
+		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Setting.swift; path = Classes/Setting.swift; sourceTree = "<group>"; };
 		95773339197939B70008E1A4 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = el.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95852A7F1119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Spanish; path = es.lproj/Credits.html; sourceTree = "<group>"; };
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
-		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
+		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-launchd.plist"; path = "Helper/MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
+		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-Info.plist"; path = "Helper/MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		95955DF81A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = hr; path = hr.lproj/Credits.html; sourceTree = "<group>"; };
 		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = hr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95955DFA1A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = hr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95955DFE1A041F3300165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = hr.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MonolingualHelperClient.swift; path = ../MonolingualHelperClient.swift; sourceTree = "<group>"; };
-		959CEED919714E0500A433C0 /* ISTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ISTableView.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PreferencesViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		959CEEDC19714E0500A433C0 /* ProgressViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ProgressViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		959CEEE11972F29B00A433C0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MainViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonolingualHelperClient.swift; sourceTree = "<group>"; };
+		959CEED919714E0500A433C0 /* ISTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = ISTableView.swift; path = Classes/ISTableView.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = PreferencesViewController.swift; path = Classes/PreferencesViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		959CEEDC19714E0500A433C0 /* ProgressViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = ProgressViewController.swift; path = Classes/ProgressViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		959CEEE11972F29B00A433C0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = MainViewController.swift; path = Classes/MainViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95A74F39197410EF005D3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -179,7 +178,7 @@
 		95E236EF1AD52C0E00076008 /* XPCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XPCService.swift; sourceTree = "<group>"; };
 		95E236F11AD52C7100076008 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95E8634115D81004004EF9ED /* Monolingual.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Monolingual.entitlements; sourceTree = "<group>"; };
-		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lipo.swift; sourceTree = SOURCE_ROOT; };
+		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = lipo.swift; path = lipo/lipo.swift; sourceTree = SOURCE_ROOT; };
 		95EB7AAC1AE777F90066369B /* lipo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lipo; sourceTree = BUILT_PRODUCTS_DIR; };
 		95EB7AAE1AE777F90066369B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -326,7 +325,6 @@
 			children = (
 				950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */,
 				950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */,
-				95355AD81AD7F5C500872850 /* HelperRequest.swift */,
 				950ED26B1976AA6400BAC239 /* LanguageSetting.swift */,
 				950ED2721976AAB600BAC239 /* Root.swift */,
 				9572AB161977E8E5002E4AF4 /* Setting.swift */,
@@ -377,6 +375,7 @@
 				95355ADF1AD806DD00872850 /* Helper.swift */,
 				95355ADD1AD7FAF900872850 /* HelperContext.swift */,
 				95355AD41AD7F50200872850 /* HelperProtocol.swift */,
+				95355AD81AD7F5C500872850 /* HelperRequest.swift */,
 				95355AD21AD7F31200872850 /* main.swift */,
 				9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */,
 				9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */,
@@ -617,7 +616,6 @@
 				95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */,
 				9558F816061598BA00F6DE23 /* README.rtfd in Resources */,
 				95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */,
-				95A75A8218FC6C8100BD2E36 /* MonolingualHelper-launchd.plist in Resources */,
 				95A130360608F92F00D8E30C /* Localizable.strings in Resources */,
 				95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */,
 				95A74F3A197410EF005D3792 /* Main.storyboard in Resources */,
@@ -1038,17 +1036,17 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
+				INFOPLIST_FILE = "Helper/MonolingualHelper-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"MonolingualHelper-Info.plist",
+					"Helper/MonolingualHelper-Info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"MonolingualHelper-launchd.plist",
+					"Helper/MonolingualHelper-launchd.plist",
 				);
 				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
 				SKIP_INSTALL = YES;
@@ -1061,17 +1059,17 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "MonolingualHelper-Info.plist";
+				INFOPLIST_FILE = "Helper/MonolingualHelper-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"MonolingualHelper-Info.plist",
+					"Helper/MonolingualHelper-Info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"MonolingualHelper-launchd.plist",
+					"Helper/MonolingualHelper-launchd.plist",
 				);
 				PRODUCT_NAME = net.sourceforge.MonolingualHelper;
 				SKIP_INSTALL = YES;
@@ -1381,6 +1379,7 @@
 				95EB7AB21AE777F90066369B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -192,9 +192,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	func thinDirectory(url: NSURL, context:HelperContext, lipo: Lipo) {
 		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey]) { theURL, dirEnumerator in
-			let resourceValues = theURL.resourceValuesForKeys([NSURLIsRegularFileKey, NSURLIsExecutableKey], error: nil)
-
-			if let isExecutable = resourceValues[NSURLIsExecutableKey] as? Bool, isRegularFile = resourceValues[NSURLIsRegularFileKey] as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+			if let resourceValues = theURL.resourceValuesForKeys([NSURLIsRegularFileKey, NSURLIsExecutableKey], error: nil), isExecutable = resourceValues[NSURLIsExecutableKey] as? Bool, isRegularFile = resourceValues[NSURLIsRegularFileKey] as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
 				var error: NSError?
 				if let data = NSData(contentsOfURL:theURL, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error) {
 					var magic: UInt32 = 0
