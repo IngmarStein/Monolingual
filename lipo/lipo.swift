@@ -251,9 +251,8 @@ class Lipo {
 		thinFiles = nil
 
 		// Determine the types of the input files.
-		processInputFile()
-
-		if inputData == nil {
+		if !processInputFile() {
+			inputData = nil
 			return false
 		}
 
@@ -313,18 +312,18 @@ class Lipo {
 	 * processInputFile() checks input file and breaks it down into thin files
 	 * for later operations.
 	 */
-	private func processInputFile() {
+	private func processInputFile() -> Bool {
 		var error: NSError?
 		let fileAttributes = NSFileManager.defaultManager().attributesOfItemAtPath(fileName, error: &error)
 		if fileAttributes == nil {
 			NSLog("can't stat input file '%@'", fileName)
-			return
+			return false
 		}
 
 		let data = NSData(contentsOfFile:fileName, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error)
 		if data == nil {
 			NSLog("can't map input file '%@'", fileName)
-			return
+			return false
 		}
 		inputData = data
 		let addr = inputData.bytes
@@ -340,49 +339,38 @@ class Lipo {
 				if big_size > size {
 					NSLog("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName)
 					inputData = nil
-					return
+					return false
 				}
 				let fatArchsPointer = UnsafePointer<fat_arch>(addr + sizeof(fat_header))
 				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer, count:Int(fatHeader.nfat_arch))).map { self.fatArchFromFile($0) }
+				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
 						NSLog("truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
 							fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
-						inputData = nil
-						return
+						return false
 					}
 					if fatArch.align > UInt32(MAXSECTALIGN) {
 						NSLog("align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
-							fatArch.align, fileName,
-							fatArch.cputype,
-							cpuSubtypeWithMask(fatArch.cpusubtype), MAXSECTALIGN)
-						inputData = nil
-						return
+							fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), MAXSECTALIGN)
+						return false
 					}
 					if (fatArch.offset % (1 << fatArch.align)) != 0 {
 						NSLog("offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
-							fatArch.offset, fileName,
-							fatArch.cputype,
-							cpuSubtypeWithMask(fatArch.cpusubtype),
-							fatArch.align)
-						inputData = nil
-						return
+							fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
+						return false
 					}
-				}
-				var fatArchSet = Set<fat_arch>()
-				for fatArch in fatArchs {
 					if fatArchSet.contains(fatArch) {
-						NSLog("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))", fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
-						inputData = nil
-						return
+						NSLog("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
+							fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+						return false
 					}
 					fatArchSet.insert(fatArch)
 				}
 
-				let nthinFiles = fatHeader.nfat_arch
-				if nthinFiles == 0 {
+				if fatArchs.isEmpty {
 					NSLog("fat file contains no architectures %@", fileName)
-					inputData = nil
+					return false
 				} else {
 					// create a thin file struct for each arch in the fat file
 					thinFiles = fatArchs.map { fatArch in
@@ -390,12 +378,12 @@ class Lipo {
 						return ThinFile(data: data, fatArch: fatArch)
 					}
 				}
-				return
+				return true
 			}
 		}
 
 		// not a fat file
-		inputData = nil
+		return false
 	}
 
 	/*
