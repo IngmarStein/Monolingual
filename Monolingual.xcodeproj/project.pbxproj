@@ -51,6 +51,7 @@
 		95E236F21AD52C7100076008 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236F11AD52C7100076008 /* main.swift */; };
 		95E236F61AD5332800076008 /* net.sourceforge.MonolingualHelper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* net.sourceforge.MonolingualHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		95E236F71AD5356B00076008 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
+		95E2DEA41AEE593800243579 /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EB7AAF1AE777F90066369B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AAE1AE777F90066369B /* main.swift */; };
 		95EB7AB31AE7780C0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
@@ -143,7 +144,7 @@
 		95527CE419741A930092C744 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Log.swift; path = Classes/Log.swift; sourceTree = "<group>"; };
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = Resources/de.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = "Lies-mich.rtfd"; path = "Resources/Lies-mich.rtfd"; sourceTree = "<group>"; };
-		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = README.rtfd ; path = Resources/README.rtfd; sourceTree = "<group>"; };
+		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = README.rtfd; path = Resources/README.rtfd; sourceTree = "<group>"; };
 		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Setting.swift; path = Classes/Setting.swift; sourceTree = "<group>"; };
 		95773339197939B70008E1A4 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Resources/it.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -796,6 +797,7 @@
 				955263A61AE675AE001AD4F3 /* Helper.swift in Sources */,
 				955263A71AE675AE001AD4F3 /* HelperContext.swift in Sources */,
 				955263A81AE6770F001AD4F3 /* HelperProtocol.swift in Sources */,
+				95E2DEA41AEE593800243579 /* lipo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
