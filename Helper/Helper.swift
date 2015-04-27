@@ -13,6 +13,8 @@ import MachO.loader
 final class Helper : NSObject, NSXPCListenerDelegate {
 
 	private var listener: NSXPCListener
+	private var timer: NSTimer?
+	private let timeoutInterval = NSTimeInterval(30.0)
 
 	var version: String {
 		return NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleVersion") as! String
@@ -30,7 +32,14 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		NSLog("MonolingualHelper started")
 
 		listener.resume()
+		timer = NSTimer.scheduledTimerWithTimeInterval(timeoutInterval, target: self, selector: "timeout:", userInfo: nil, repeats: false)
+
 		NSRunLoop.currentRunLoop().run()
+	}
+
+	@objc func timeout(NSTimer) {
+		NSLog("timeout while waiting for request")
+		exitWithCode(Int(EXIT_SUCCESS))
 	}
 
 	func connectWithEndpointReply(reply:(NSXPCListenerEndpoint) -> Void) {
@@ -55,6 +64,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func processRequest(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply:(Int) -> Void) {
+		timer?.invalidate()
+
 		let context = HelperContext(request)
 
 		NSLog("Received request: %@", request)
