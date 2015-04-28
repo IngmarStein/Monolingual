@@ -176,7 +176,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		} else {
 			if !self.fileManager.removeItemAtURL(url, error:&error) {
 				if let error = error {
-					NSLog("Error removing '%s': %@", url.fileSystemRepresentation, error)
+					if let underlyingError = error.userInfo?[NSUnderlyingErrorKey] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
+						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
+					} else {
+						NSLog("Error removing '%s': %@", url.fileSystemRepresentation, error)
+					}
 				}
 			}
 		}
