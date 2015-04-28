@@ -15,6 +15,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	private var listener: NSXPCListener
 	private var timer: NSTimer?
 	private let timeoutInterval = NSTimeInterval(30.0)
+	private let workerQueue = NSOperationQueue()
 
 	var version: String {
 		return NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleVersion") as! String
@@ -26,6 +27,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		super.init()
 
 		listener.delegate = self
+		workerQueue.maxConcurrentOperationCount = 1
 	}
 
 	func run() {
@@ -60,6 +62,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	func exitWithCode(exitCode: Int) {
 		NSLog("exiting with exit status \(exitCode)")
+		workerQueue.waitUntilAllOperationsAreFinished()
 		exit(Int32(exitCode))
 	}
 
@@ -82,49 +85,51 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		// check if /usr/bin/strip is present
 		request.doStrip = request.doStrip && context.fileManager.fileExistsAtPath("/usr/bin/strip")
 
-		// delete regular files
-		if let files = request.files {
-			for file in files {
-				if progress.cancelled {
-					break
-				}
-				if let url = NSURL(fileURLWithPath:file) {
-					context.remove(url)
-				}
-			}
-		}
-
-		let roots = request.includes?.map { NSURL(fileURLWithPath: $0, isDirectory: true) }
-
-		if let roots = roots {
-			// recursively delete directories
-			if let directories = request.directories where !directories.isEmpty {
-				for root in roots {
+		workerQueue.addOperationWithBlock {
+			// delete regular files
+			if let files = request.files {
+				for file in files {
 					if progress.cancelled {
 						break
 					}
-					if let root = root {
-						processDirectory(root, context:context)
+					if let url = NSURL(fileURLWithPath:file) {
+						context.remove(url)
 					}
 				}
 			}
-		}
 
-		// thin fat binaries
-		if let archs = request.thin, roots = roots where !archs.isEmpty {
-			if let lipo = Lipo(archs: archs) {
-				for root in roots {
-					if progress.cancelled {
-						break
-					}
-					if let root = root {
-						thinDirectory(root, context:context, lipo: lipo)
+			let roots = request.includes?.map { NSURL(fileURLWithPath: $0, isDirectory: true) }
+
+			if let roots = roots {
+				// recursively delete directories
+				if let directories = request.directories where !directories.isEmpty {
+					for root in roots {
+						if progress.cancelled {
+							break
+						}
+						if let root = root {
+							self.processDirectory(root, context:context)
+						}
 					}
 				}
 			}
-		}
 
-		reply(progress.cancelled ? Int(EXIT_FAILURE) : Int(EXIT_SUCCESS))
+			// thin fat binaries
+			if let archs = request.thin, roots = roots where !archs.isEmpty {
+				if let lipo = Lipo(archs: archs) {
+					for root in roots {
+						if progress.cancelled {
+							break
+						}
+						if let root = root {
+							self.thinDirectory(root, context:context, lipo: lipo)
+						}
+					}
+				}
+			}
+
+			reply(progress.cancelled ? Int(EXIT_FAILURE) : Int(EXIT_SUCCESS))
+		}
 	}
 
 	//MARK: - NSXPCListenerDelegate
