@@ -153,6 +153,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			return
 		}
 
+		context.addCodeResourcesToBlacklist(url)
+
 		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:prefetchedProperties, options:.allZeros, errorHandler:nil) {
 			for entry in dirEnumerator {
 				if let progress = context.progress where progress.cancelled {

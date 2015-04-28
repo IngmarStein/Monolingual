@@ -48,7 +48,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	private func addFileDictionaryToBlacklist(files: [String:AnyObject], baseURL:NSURL) {
 		for (key, value) in files {
-			if let optional = value["optional"] as? Bool where optional {
+			if let valueDict = value as? [String:AnyObject], optional = valueDict["optional"] as? Bool where optional {
 				continue
 			}
 			fileBlacklist.insert(baseURL.URLByAppendingPathComponent(key))
