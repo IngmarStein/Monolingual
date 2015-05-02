@@ -7,6 +7,8 @@
 //
 
 import Cocoa
+import Fabric
+import Crashlytics
 
 let ProcessApplicationNotification = "ProcessApplicationNotification"
 
@@ -23,8 +25,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false ]
 
 		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [NSObject : AnyObject])
+
+		Fabric.with([Crashlytics()])
 	}
-	
+
 	func applicationShouldTerminateAfterLastWindowClosed(NSApplication) -> Bool {
 		return true
 	}

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		950183481AF4FC86007F74C3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 950183461AF4FC86007F74C3 /* Fabric.framework */; };
+		950183491AF4FC86007F74C3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 950183471AF4FC86007F74C3 /* Crashlytics.framework */; };
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
 		950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */; };
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
@@ -119,6 +121,8 @@
 		4E7770AD0FC5C95563994D8C /* Pods-XPCService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.debug.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.debug.xcconfig"; sourceTree = "<group>"; };
 		6740247642529373972539ED /* Pods_Monolingual.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Monolingual.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		70FD65EFC2E06E878F0D4C4C /* Pods-XPCService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.release.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.release.xcconfig"; sourceTree = "<group>"; };
+		950183461AF4FC86007F74C3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		950183471AF4FC86007F74C3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		950217331AD16E7600907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ro; path = Resources/ro.lproj/Credits.html; sourceTree = "<group>"; };
 		950217341AD16F8D00907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		950217351AD16FB000907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -225,6 +229,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C75AAE26E9E0DF21611BCA43 /* Pods_Monolingual.framework in Frameworks */,
+				950183491AF4FC86007F74C3 /* Crashlytics.framework in Frameworks */,
+				950183481AF4FC86007F74C3 /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +321,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				950183461AF4FC86007F74C3 /* Fabric.framework */,
+				950183471AF4FC86007F74C3 /* Crashlytics.framework */,
 				005BCA89D3267FF89735F0F6 /* Pods_XPCService.framework */,
 				6740247642529373972539ED /* Pods_Monolingual.framework */,
 			);
@@ -475,6 +483,7 @@
 				95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */,
 				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
+				950183451AF4FC26007F74C3 /* Fabric */,
 			);
 			buildRules = (
 			);
@@ -714,6 +723,20 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		950183451AF4FC26007F74C3 /* Fabric */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Fabric;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"Release\" = \"${CONFIGURATION}\" ]; then\n    ./Fabric.framework/run 9367389c9ba1c46bb506967bf78235d24bdefc65 7a6a19ca726915f847582d51190afcf756d57e1d299d9fca036cfb517345ea9c\nfi";
 		};
 		9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1093,6 +1116,7 @@
 					"$(SRCROOT)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -1116,6 +1140,7 @@
 					"$(SRCROOT)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
