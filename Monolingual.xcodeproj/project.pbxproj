@@ -12,7 +12,7 @@
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
 		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
 		95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; };
-		95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		95355AD31AD7F31200872850 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD21AD7F31200872850 /* main.swift */; };
 		95355AD51AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
 		95355AD61AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
@@ -801,7 +801,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS;\ndo\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
+			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS;\ndo\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f -v --deep -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
 		};
 		BBAA88227DBF43E0B7EEA1E5 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
