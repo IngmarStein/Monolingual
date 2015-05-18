@@ -1,8 +1,9 @@
 TOP=$(shell pwd)
 RELEASE_VERSION=1.6.8
-RELEASE_DIR=release-$(RELEASE_VERSION)
+RELEASE_DIR=$(TOP)/release-$(RELEASE_VERSION)
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
+RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_NAME).tar.bz2
 SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
 ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
@@ -40,11 +41,12 @@ release: clean archive
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.js
+	tar cjf $(RELEASE_ZIP) -C $(BUILD_DIR) Monolingual.app
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
-		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_FILE)")/g" \
-		-e "s/%FILENAME%/$(RELEASE_NAME).dmg/g" \
-		-e "s/%MD5%/$$(md5 -q $(RELEASE_FILE))/g" \
-		-e "s@%SIGNATURE%@$$(openssl dgst -sha1 -binary < $(RELEASE_FILE) | openssl dgst -dss1 -sign ~/.ssh/monolingual_priv.pem | openssl enc -base64)@g" \
+		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_ZIP)")/g" \
+		-e "s/%FILENAME%/$(RELEASE_NAME).zip/g" \
+		-e "s/%MD5%/$$(md5 -q $(RELEASE_ZIP))/g" \
+		-e "s@%SIGNATURE%@$$(openssl dgst -sha1 -binary < $(RELEASE_ZIP) | openssl dgst -dss1 -sign ~/.ssh/monolingual_priv.pem | openssl enc -base64)@g" \
 		appcast.xml.tmpl > $(RELEASE_DIR)/appcast.xml
 	rm -rf $(RELEASE_DIR)/build
