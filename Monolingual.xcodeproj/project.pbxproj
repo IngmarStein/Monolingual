@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		950183481AF4FC86007F74C3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 950183461AF4FC86007F74C3 /* Fabric.framework */; };
-		950183491AF4FC86007F74C3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 950183471AF4FC86007F74C3 /* Crashlytics.framework */; };
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
 		950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */; };
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
 		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
+		95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; };
+		95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		95355AD31AD7F31200872850 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD21AD7F31200872850 /* main.swift */; };
 		95355AD51AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
 		95355AD61AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
@@ -81,6 +81,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		95337A221B09EB4200303823 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95E236EA1AD526DF00076008 /* Embed XPC Services */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -121,8 +132,6 @@
 		4E7770AD0FC5C95563994D8C /* Pods-XPCService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.debug.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.debug.xcconfig"; sourceTree = "<group>"; };
 		6740247642529373972539ED /* Pods_Monolingual.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Monolingual.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		70FD65EFC2E06E878F0D4C4C /* Pods-XPCService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.release.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.release.xcconfig"; sourceTree = "<group>"; };
-		950183461AF4FC86007F74C3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
-		950183471AF4FC86007F74C3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		950217331AD16E7600907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ro; path = Resources/ro.lproj/Credits.html; sourceTree = "<group>"; };
 		950217341AD16F8D00907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		950217351AD16FB000907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -131,6 +140,7 @@
 		950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BlacklistEntry.swift; path = Classes/BlacklistEntry.swift; sourceTree = "<group>"; };
 		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArchitectureSetting.swift; path = Classes/ArchitectureSetting.swift; sourceTree = "<group>"; };
 		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Root.swift; path = Classes/Root.swift; sourceTree = "<group>"; };
+		95337A201B09EAC600303823 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = Helper/main.swift; sourceTree = "<group>"; };
 		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperProtocol.swift; path = Helper/HelperProtocol.swift; sourceTree = "<group>"; };
 		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperRequest.swift; path = Helper/HelperRequest.swift; sourceTree = "<group>"; };
@@ -229,8 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C75AAE26E9E0DF21611BCA43 /* Pods_Monolingual.framework in Frameworks */,
-				950183491AF4FC86007F74C3 /* Crashlytics.framework in Frameworks */,
-				950183481AF4FC86007F74C3 /* Fabric.framework in Frameworks */,
+				95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,8 +330,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				950183461AF4FC86007F74C3 /* Fabric.framework */,
-				950183471AF4FC86007F74C3 /* Crashlytics.framework */,
+				95337A201B09EAC600303823 /* Sparkle.framework */,
 				005BCA89D3267FF89735F0F6 /* Pods_XPCService.framework */,
 				6740247642529373972539ED /* Pods_Monolingual.framework */,
 			);
@@ -480,6 +488,7 @@
 				95A1303E0608F92F00D8E30C /* Frameworks */,
 				BBAA88227DBF43E0B7EEA1E5 /* Copy Pods Resources */,
 				2060D4587EB3086BE297D6A7 /* Embed Pods Frameworks */,
+				95337A221B09EB4200303823 /* Copy Frameworks */,
 				95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */,
 				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
