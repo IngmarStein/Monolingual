@@ -7,21 +7,21 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Autoupdate</string>
-	<key>CFBundleIconFile</key>
-	<string>AppIcon</string>
+	<string>org.sparkle-project.Sparkle.SandboxService</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.sparkle-project.Sparkle.Autoupdate</string>
+	<string>org.sparkle-project.Sparkle.SandboxService</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>org.sparkle-project.Sparkle.SandboxService</string>
 	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.10.0 git-2cb5310</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.10.0</string>
+	<string>1</string>
 	<key>DTCompiler</key>
 	<string>com.apple.compilers.llvm.clang.1_0</string>
 	<key>DTPlatformBuild</key>
@@ -36,15 +36,12 @@
 	<string>0640</string>
 	<key>DTXcodeBuild</key>
 	<string>6E23</string>
-	<key>LSBackgroundOnly</key>
-	<string>1</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.7</string>
-	<key>LSUIElement</key>
-	<string>1</string>
-	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<key>XPCService</key>
+	<dict>
+		<key>JoinExistingSession</key>
+		<true/>
+		<key>ServiceType</key>
+		<string>Application</string>
+	</dict>
 </dict>
 </plist>
