@@ -2,8 +2,9 @@ language: objective-c
 xcode_workspace: Monolingual.xcworkspace
 xcode_scheme: Travis
 osx_image: beta-xcode6.3
-cache: cocoapods
-before_install: gem install cocoapods -v '= 0.37.1'
+cache:
+  - bundler
+  - cocoapods
 before_script:
 - ./scripts/add-key.sh
 - brew update && brew upgrade xctool || true
