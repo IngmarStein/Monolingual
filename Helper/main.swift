@@ -8,18 +8,53 @@
 
 import Foundation
 
-let helper = Helper()
+private let cli = CommandLine()
+private let uninstall = BoolOption(shortFlag: "u", longFlag: "uninstall", helpMessage: "Uninstall helper.")
+private let version = BoolOption(shortFlag: "v", longFlag: "version", helpMessage: "Print version and exit.")
+private let dryRun = BoolOption(shortFlag: "n", longFlag: "dry", helpMessage: "Dry run: don't make any changes to the filesystem.")
+private let strip = BoolOption(shortFlag: "s", longFlag: "strip", helpMessage: "Strip debug info from executables.")
+private let trash = BoolOption(shortFlag: "t", longFlag: "trash", helpMessage: "Don't delete files but move them to the trash.")
+private let includes = MultiStringOption(shortFlag: "i", longFlag: "include", required: false, helpMessage: "Include directory.")
+private let excludes = MultiStringOption(shortFlag: "x", longFlag: "exclude", required: false, helpMessage: "Exclude directory.")
+private let bundles = MultiStringOption(shortFlag: "b", longFlag: "bundle", required: false, helpMessage: "Exclude a bundle from processing (e.g. \"com.apple.iPhoto\").")
+private let delete = MultiStringOption(shortFlag: "d", longFlag: "delete", required: false, helpMessage: "Name of a file or directory to delete (e.g. \"fr.lproj\").")
+private let thin = MultiStringOption(shortFlag: "t", longFlag: "thin", required: false, helpMessage: "Remove architecture from universal binary (e.g. \"ppc\").")
 
-let arguments = Process.arguments
+cli.addOptions(uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
 
-if arguments.count == 2 && arguments[1] == "--uninstall" {
+private let (success, error) = cli.parse(strict:true)
+if !success {
+	println(error!)
+	cli.printUsage()
+	exit(EX_USAGE)
+}
+
+private let helper = Helper()
+
+if uninstall.value {
 	helper.uninstall()
 	exit(EXIT_SUCCESS)
 }
 
-if arguments.count == 2 && arguments[1] == "--version" {
+if version.value {
 	println("MonolingualHelper version \(helper.version)")
 	exit(EXIT_SUCCESS)
 }
 
-helper.run()
+if includes.isSet {
+	let request = HelperRequest()
+	request.dryRun = dryRun.value
+	request.doStrip = strip.value
+	request.trash = trash.value
+	request.includes = includes.value
+	request.excludes = excludes.value
+	request.bundleBlacklist = bundles.value.flatMap { Set<String>($0) }
+	request.directories = delete.value.flatMap { Set<String>($0) }
+	request.thin = thin.value
+	helper.processRequest(request, progress: nil) { (result) -> Void in
+		exit(Int32(result))
+	}
+	NSRunLoop.currentRunLoop().run()
+} else {
+	helper.run()
+}

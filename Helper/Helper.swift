@@ -71,7 +71,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		let context = HelperContext(request)
 
-		NSLog("Received request: %@", request)
+		//NSLog("Received request: %@", request)
 
 		// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
 		let progress = NSProgress(totalUnitCount: -1)

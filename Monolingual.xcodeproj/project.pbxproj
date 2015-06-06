@@ -33,6 +33,9 @@
 		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
+		955CE2971B20D8D800F64646 /* CommandLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955CE2941B20D8D800F64646 /* CommandLine.swift */; };
+		955CE2981B20D8D800F64646 /* Option.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955CE2951B20D8D800F64646 /* Option.swift */; };
+		955CE2991B20D8D800F64646 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955CE2961B20D8D800F64646 /* StringExtensions.swift */; };
 		9572AB171977E8E5002E4AF4 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9572AB161977E8E5002E4AF4 /* Setting.swift */; };
 		959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEED919714E0500A433C0 /* ISTableView.swift */; };
 		959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */; };
@@ -159,6 +162,9 @@
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = Resources/de.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = "Lies-mich.rtfd"; path = "Resources/Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = README.rtfd; path = Resources/README.rtfd; sourceTree = "<group>"; };
+		955CE2941B20D8D800F64646 /* CommandLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommandLine.swift; path = Externals/CommandLine/CommandLine/CommandLine.swift; sourceTree = "<group>"; };
+		955CE2951B20D8D800F64646 /* Option.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Option.swift; path = Externals/CommandLine/CommandLine/Option.swift; sourceTree = "<group>"; };
+		955CE2961B20D8D800F64646 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StringExtensions.swift; path = Externals/CommandLine/CommandLine/StringExtensions.swift; sourceTree = "<group>"; };
 		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Setting.swift; path = Classes/Setting.swift; sourceTree = "<group>"; };
 		95773339197939B70008E1A4 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Resources/it.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -296,6 +302,7 @@
 			isa = PBXGroup;
 			children = (
 				080E96DDFE201D6D7F000001 /* Classes */,
+				955CE2901B20D88E00F64646 /* Externals */,
 				95EB7AAD1AE777F90066369B /* lipo */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				952DDC661AD56D61001BADD1 /* Helper */,
@@ -415,6 +422,24 @@
 				9552639F1AE67351001AD4F3 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		955CE2901B20D88E00F64646 /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+				955CE29A1B20D8DC00F64646 /* CommandLine */,
+			);
+			name = Externals;
+			sourceTree = "<group>";
+		};
+		955CE29A1B20D8DC00F64646 /* CommandLine */ = {
+			isa = PBXGroup;
+			children = (
+				955CE2941B20D8D800F64646 /* CommandLine.swift */,
+				955CE2951B20D8D800F64646 /* Option.swift */,
+				955CE2961B20D8D800F64646 /* StringExtensions.swift */,
+			);
+			name = CommandLine;
 			sourceTree = "<group>";
 		};
 		95CEEA4F1ACD94320043CEDC /* Readmes */ = {
@@ -859,11 +884,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				955CE2981B20D8D800F64646 /* Option.swift in Sources */,
 				95355AE01AD806DD00872850 /* Helper.swift in Sources */,
 				95355AD31AD7F31200872850 /* main.swift in Sources */,
+				955CE2991B20D8D800F64646 /* StringExtensions.swift in Sources */,
 				95355AD61AD7F50200872850 /* HelperProtocol.swift in Sources */,
 				95355AD91AD7F5C500872850 /* HelperRequest.swift in Sources */,
 				95355ADE1AD7FAF900872850 /* HelperContext.swift in Sources */,
+				955CE2971B20D8D800F64646 /* CommandLine.swift in Sources */,
 				95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
