@@ -6,7 +6,17 @@ PODS:
 DEPENDENCIES:
   - FabricOSX/Core (~> 1.2.4)
   - FabricOSX/Crashlytics (~> 1.2.4)
-  - SMJobKit (~> 0.0.5)
+  - SMJobKit (from `https://github.com/IngmarStein/SMJobKit`, branch `swift2`)
+
+EXTERNAL SOURCES:
+  SMJobKit:
+    :branch: swift2
+    :git: https://github.com/IngmarStein/SMJobKit
+
+CHECKOUT OPTIONS:
+  SMJobKit:
+    :commit: 0af53fe3f0bd4de00f57a6e97ba23126ab8165eb
+    :git: https://github.com/IngmarStein/SMJobKit
 
 SPEC CHECKSUMS:
   FabricOSX: 5a828d3a96721b58a88e276c61921bd64431137d
