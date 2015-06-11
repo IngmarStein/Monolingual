@@ -22,39 +22,40 @@ private let thin = MultiStringOption(shortFlag: "t", longFlag: "thin", required:
 
 cli.addOptions(uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
 
-private let (success, error) = cli.parse(true)
-if !success {
-	print(error!)
+do {
+	try cli.parse(true)
+
+	let helper = Helper()
+
+	if uninstall.value {
+		helper.uninstall()
+		exit(EXIT_SUCCESS)
+	}
+
+	if version.value {
+		print("MonolingualHelper version \(helper.version)")
+		exit(EXIT_SUCCESS)
+	}
+
+	if includes.isSet {
+		let request = HelperRequest()
+		request.dryRun = dryRun.value
+		request.doStrip = strip.value
+		request.trash = trash.value
+		request.includes = includes.value
+		request.excludes = excludes.value
+		request.bundleBlacklist = bundles.value.flatMap { Set<String>($0) }
+		request.directories = delete.value.flatMap { Set<String>($0) }
+		request.thin = thin.value
+		helper.processRequest(request, progress: nil) { (result) -> Void in
+			exit(Int32(result))
+		}
+		NSRunLoop.currentRunLoop().run()
+	} else {
+		helper.run()
+	}
+} catch {
+	print(error)
 	cli.printUsage()
 	exit(EX_USAGE)
-}
-
-private let helper = Helper()
-
-if uninstall.value {
-	helper.uninstall()
-	exit(EXIT_SUCCESS)
-}
-
-if version.value {
-	print("MonolingualHelper version \(helper.version)")
-	exit(EXIT_SUCCESS)
-}
-
-if includes.isSet {
-	let request = HelperRequest()
-	request.dryRun = dryRun.value
-	request.doStrip = strip.value
-	request.trash = trash.value
-	request.includes = includes.value
-	request.excludes = excludes.value
-	request.bundleBlacklist = bundles.value.flatMap { Set<String>($0) }
-	request.directories = delete.value.flatMap { Set<String>($0) }
-	request.thin = thin.value
-	helper.processRequest(request, progress: nil) { (result) -> Void in
-		exit(Int32(result))
-	}
-	NSRunLoop.currentRunLoop().run()
-} else {
-	helper.run()
 }
