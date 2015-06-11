@@ -34,9 +34,7 @@ final class PreferencesViewController : NSViewController {
 
 		oPanel.beginWithCompletionHandler { result in
 			if NSModalResponseOK == result {
-				if let urls = oPanel.URLs as? [NSURL] {
-					self.roots.addObjects(urls.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
-				}
+				self.roots.addObjects(oPanel.URLs.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
 			}
 		}
 	}

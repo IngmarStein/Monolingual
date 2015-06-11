@@ -11,7 +11,7 @@ import Foundation
 final class ServiceDelegate : NSObject, NSXPCListenerDelegate {
 	func listener(listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		newConnection.exportedInterface = NSXPCInterface(withProtocol: XPCServiceProtocol.self)
-		var exportedObject = XPCService()
+		let exportedObject = XPCService()
 		newConnection.exportedObject = exportedObject
 		newConnection.resume()
 		return true

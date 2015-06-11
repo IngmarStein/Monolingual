@@ -11,7 +11,7 @@ import Foundation
 private let arguments = Process.arguments
 
 private func usage() {
-	println("usage: lipo <executables> --arch <architecture>")
+	print("usage: lipo <executables> --arch <architecture>")
 	exit(EXIT_SUCCESS)
 }
 
@@ -35,9 +35,9 @@ if let lipo = Lipo(archs: architectures) where !inputFiles.isEmpty && !architect
 	var sizeDiff = 0
 	for file in inputFiles {
 		if lipo.run(file, sizeDiff: &sizeDiff) {
-			println("\(file): saved \(sizeDiff) bytes")
+			print("\(file): saved \(sizeDiff) bytes")
 		} else {
-			println("\(file): lipo failed")
+			print("\(file): lipo failed")
 		}
 	}
 } else {

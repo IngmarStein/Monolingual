@@ -22,9 +22,9 @@ private let thin = MultiStringOption(shortFlag: "t", longFlag: "thin", required:
 
 cli.addOptions(uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
 
-private let (success, error) = cli.parse(strict:true)
+private let (success, error) = cli.parse(true)
 if !success {
-	println(error!)
+	print(error!)
 	cli.printUsage()
 	exit(EX_USAGE)
 }
@@ -37,7 +37,7 @@ if uninstall.value {
 }
 
 if version.value {
-	println("MonolingualHelper version \(helper.version)")
+	print("MonolingualHelper version \(helper.version)")
 	exit(EXIT_SUCCESS)
 }
 

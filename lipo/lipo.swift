@@ -74,16 +74,16 @@ private let CPU_SUBTYPE_HPPA_7100LC : cpu_subtype_t		= 1
 
 private func CPU_SUBTYPE_INTEL(f: Int, m: Int) -> cpu_subtype_t { return cpu_subtype_t(f + (m << 4)) }
 
-private let CPU_SUBTYPE_I386_ALL =			CPU_SUBTYPE_INTEL(3, 0)
-private let CPU_SUBTYPE_486 =				CPU_SUBTYPE_INTEL(4, 0)
-private let CPU_SUBTYPE_486SX =				CPU_SUBTYPE_INTEL(4, 8)	// 8 << 4 = 128
-private let CPU_SUBTYPE_586 =				CPU_SUBTYPE_INTEL(5, 0)
-private let CPU_SUBTYPE_PENT =				CPU_SUBTYPE_INTEL(5, 0)
-private let CPU_SUBTYPE_PENTPRO =			CPU_SUBTYPE_INTEL(6, 1)
-private let CPU_SUBTYPE_PENTII_M3 =			CPU_SUBTYPE_INTEL(6, 3)
-private let CPU_SUBTYPE_PENTII_M5 =			CPU_SUBTYPE_INTEL(6, 5)
-private let CPU_SUBTYPE_PENTIUM_3 =			CPU_SUBTYPE_INTEL(8, 0)
-private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(10, 0)
+private let CPU_SUBTYPE_I386_ALL =			CPU_SUBTYPE_INTEL(3, m: 0)
+private let CPU_SUBTYPE_486 =				CPU_SUBTYPE_INTEL(4, m: 0)
+private let CPU_SUBTYPE_486SX =				CPU_SUBTYPE_INTEL(4, m: 8)	// 8 << 4 = 128
+private let CPU_SUBTYPE_586 =				CPU_SUBTYPE_INTEL(5, m: 0)
+private let CPU_SUBTYPE_PENT =				CPU_SUBTYPE_INTEL(5, m: 0)
+private let CPU_SUBTYPE_PENTPRO =			CPU_SUBTYPE_INTEL(6, m: 1)
+private let CPU_SUBTYPE_PENTII_M3 =			CPU_SUBTYPE_INTEL(6, m: 3)
+private let CPU_SUBTYPE_PENTII_M5 =			CPU_SUBTYPE_INTEL(6, m: 5)
+private let CPU_SUBTYPE_PENTIUM_3 =			CPU_SUBTYPE_INTEL(8, m: 0)
+private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(10, m: 0)
 
 /*
  * The structure describing an architecture flag with the string of the flag
@@ -313,16 +313,18 @@ class Lipo {
 	 * for later operations.
 	 */
 	private func processInputFile() -> Bool {
-		var error: NSError?
-		let fileAttributes = NSFileManager.defaultManager().attributesOfItemAtPath(fileName, error: &error)
-		if fileAttributes == nil {
-			NSLog("can't stat input file '%@'", fileName)
+		do {
+			try NSFileManager.defaultManager().attributesOfItemAtPath(fileName)
+		} catch let error as NSError {
+			NSLog("can't stat input file '%@': %@", fileName, error)
 			return false
 		}
 
-		let data = NSData(contentsOfFile:fileName, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error)
-		if data == nil {
-			NSLog("can't map input file '%@'", fileName)
+		let data: NSData?
+		do {
+			data = try NSData(contentsOfFile:fileName, options:([.DataReadingMappedAlways, .DataReadingUncached]))
+		} catch let error as NSError {
+			NSLog("can't map input file '%@': %@", fileName, error)
 			return false
 		}
 		inputData = data
@@ -408,7 +410,7 @@ class Lipo {
 
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
-			thinFiles.sort { (thin1: ThinFile, thin2: ThinFile) in
+			thinFiles.sortInPlace { (thin1: ThinFile, thin2: ThinFile) in
 				return thin1.fatArch.align < thin2.fatArch.align
 			}
 		}
@@ -429,7 +431,7 @@ class Lipo {
 			var fatHeader = fatHeaderToFile(fat_header(magic: FAT_MAGIC, nfat_arch: UInt32(nthinFiles)))
 			var offset = UInt32(sizeof(fat_header) + nthinFiles * sizeof(fat_arch))
 			thinFiles = thinFiles.map { thinFile in
-				offset = rnd(offset, 1 << thinFile.fatArch.align)
+				offset = rnd(offset, r: 1 << thinFile.fatArch.align)
 				let fatArch = thinFile.fatArch
 				let result = ThinFile(data: thinFile.data, fatArch: fat_arch(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: offset, size: fatArch.size, align: fatArch.align))
 				offset += thinFile.fatArch.size
@@ -441,7 +443,7 @@ class Lipo {
 				NSLog("can't write fat header to output file: %@", temporaryFile)
 				return false
 			}
-			for (i, thinFile) in enumerate(thinFiles) {
+			for (i, thinFile) in thinFiles.enumerate() {
 				/*
 				 * If we are ordering the ARM64 slice last of the fat_arch
 				 * structs, so skip it in this loop.
@@ -513,13 +515,14 @@ class Lipo {
 
 		fileHandle.closeFile()
 
-		if let temporaryURL = NSURL(fileURLWithPath: temporaryFile), inputURL = NSURL(fileURLWithPath: fileName) {
-			var error: NSError?
-			if !NSFileManager.defaultManager().replaceItemAtURL(inputURL, withItemAtURL: temporaryURL, backupItemName: nil, options: .allZeros, resultingItemURL: nil, error: &error) {
-				NSLog("can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error!)
-			}
+		let temporaryURL = NSURL(fileURLWithPath: temporaryFile)
+		let inputURL = NSURL(fileURLWithPath: fileName)
+		do {
+			try NSFileManager.defaultManager().replaceItemAtURL(inputURL, withItemAtURL: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
+		} catch let error as NSError {
+			NSLog("can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
 		}
-		
+
 		return true
 	}
 	
@@ -532,7 +535,7 @@ class Lipo {
 		/*
 		 * Look for a 64-bit arm slice.
 		 */
-		for (i, thinFile) in enumerate(thinFiles) {
+		for (i, thinFile) in thinFiles.enumerate() {
 			if thinFile.fatArch.cputype == CPU_TYPE_ARM64 {
 				return i
 			}
@@ -549,7 +552,7 @@ class Lipo {
 		/*
 		 * Look for a x86_64h slice.
 		 */
-		for (i, thinFile) in enumerate(thinFiles) {
+		for (i, thinFile) in thinFiles.enumerate() {
 			if thinFile.fatArch.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.fatArch.cpusubtype) == CPU_SUBTYPE_X86_64_H {
 				return i
 			}

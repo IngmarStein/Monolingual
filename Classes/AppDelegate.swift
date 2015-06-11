@@ -24,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		let defaultRoots = [ applications, developer, library, systemPath ]
 		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
-		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [NSObject : AnyObject])
+		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [String : AnyObject])
 
 		Fabric.with([Crashlytics()])
 	}
@@ -36,7 +36,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func application(sender: NSApplication, openFile filename: String) -> Bool {
 		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
 		
-		NSNotificationCenter.defaultCenter().postNotificationName(ProcessApplicationNotification, object: self, userInfo: (dict as! [NSObject : AnyObject]))
+		NSNotificationCenter.defaultCenter().postNotificationName(ProcessApplicationNotification, object: self, userInfo: (dict as [NSObject : AnyObject]))
 		
 		return true
 	}
@@ -59,7 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	@IBAction func showPreferences(sender: AnyObject) {
 		if preferencesWindowController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			preferencesWindowController = storyboard!.instantiateControllerWithIdentifier("PreferencesWindow") as? NSWindowController
+			preferencesWindowController = storyboard.instantiateControllerWithIdentifier("PreferencesWindow") as? NSWindowController
 		}
 		preferencesWindowController?.showWindow(sender)
 	}

@@ -54,10 +54,13 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	// see https://devforums.apple.com/message/1004420#1004420
 	func uninstall() {
-		//let removeTask = NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "net.sourceforge.MonolingualHelper"])
-		let unloadTask = NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist"])
-		NSFileManager.defaultManager().removeItemAtPath("/Library/PrivilegedHelperTools/net.sourceforge.MonolingualHelper", error: nil)
-		NSFileManager.defaultManager().removeItemAtPath("/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist", error: nil)
+		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "net.sourceforge.MonolingualHelper"])
+		NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist"])
+		do {
+			try NSFileManager.defaultManager().removeItemAtPath("/Library/PrivilegedHelperTools/net.sourceforge.MonolingualHelper")
+			try NSFileManager.defaultManager().removeItemAtPath("/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist")
+		} catch _ {
+		}
 	}
 
 	func exitWithCode(exitCode: Int) {
@@ -92,9 +95,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 					if progress.cancelled {
 						break
 					}
-					if let url = NSURL(fileURLWithPath:file) {
-						context.remove(url)
-					}
+					context.remove(NSURL(fileURLWithPath:file))
 				}
 			}
 
@@ -107,9 +108,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 						if progress.cancelled {
 							break
 						}
-						if let root = root {
-							self.processDirectory(root, context:context)
-						}
+						self.processDirectory(root, context:context)
 					}
 				}
 			}
@@ -121,9 +120,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 						if progress.cancelled {
 							break
 						}
-						if let root = root {
-							self.thinDirectory(root, context:context, lipo: lipo)
-						}
+						self.thinDirectory(root, context:context, lipo: lipo)
 					}
 				}
 			}
@@ -160,7 +157,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		context.addCodeResourcesToBlacklist(url)
 
-		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:prefetchedProperties, options:.allZeros, errorHandler:nil) {
+		if let dirEnumerator = context.fileManager.enumeratorAtURL(url, includingPropertiesForKeys:prefetchedProperties, options:[], errorHandler:nil) {
 			for entry in dirEnumerator {
 				if let progress = context.progress where progress.cancelled {
 					return
@@ -168,7 +165,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				let theURL = entry as! NSURL
 
 				var isDirectory: AnyObject?
-				theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
+				do {
+					try theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey)
+				} catch _ {
+				}
 
 				if let isDirectory = isDirectory as? Bool where isDirectory {
 					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) {
@@ -186,7 +186,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	func processDirectory(url: NSURL, context:HelperContext) {
 		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey]) { theURL, dirEnumerator in
 			var isDirectory: AnyObject?
-			theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey, error:nil)
+			do {
+				try theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey)
+			} catch _ {
+			}
 
 			if let isDirectory = isDirectory as? Bool where isDirectory {
 				if let lastComponent = theURL.lastPathComponent, directories = context.request.directories {
@@ -210,9 +213,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	func thinDirectory(url: NSURL, context:HelperContext, lipo: Lipo) {
 		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey]) { theURL, dirEnumerator in
-			if let resourceValues = theURL.resourceValuesForKeys([NSURLIsRegularFileKey, NSURLIsExecutableKey], error: nil), isExecutable = resourceValues[NSURLIsExecutableKey] as? Bool, isRegularFile = resourceValues[NSURLIsRegularFileKey] as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
-				var error: NSError?
-				if let data = NSData(contentsOfURL:theURL, options:(.DataReadingMappedAlways | .DataReadingUncached), error:&error) {
+			do {
+				let resourceValues = try theURL.resourceValuesForKeys([NSURLIsRegularFileKey, NSURLIsExecutableKey])
+				if let isExecutable = resourceValues[NSURLIsExecutableKey] as? Bool, isRegularFile = resourceValues[NSURLIsRegularFileKey] as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+					let data = try NSData(contentsOfURL:theURL, options:([.DataReadingMappedAlways, .DataReadingUncached]))
 					var magic: UInt32 = 0
 					if data.length >= sizeof(UInt32) {
 						data.getBytes(&magic, length: sizeof(UInt32))
@@ -225,6 +229,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 						}
 					}
 				}
+			} catch _ {
 			}
 		}
 	}
@@ -242,38 +247,50 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func stripFile(url: NSURL, context:HelperContext) {
-		var error: NSError?
 		// do not modify executables with code signatures
-		if !hasCodeSignature(url), let attributes = context.fileManager.attributesOfItemAtPath(url.path!, error:&error) {
-			let path = url.path!
-			var size: AnyObject?
-			if !url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey, error:nil) {
-				url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey, error:nil)
-			}
-			let oldSize = size as! Int
+		if !hasCodeSignature(url) {
+			do {
+				let attributes = try context.fileManager.attributesOfItemAtPath(url.path!)
+				let path = url.path!
+				var size: AnyObject?
+				do {
+					try url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+				} catch _ {
+					try! url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+				}
 
-			let task = NSTask.launchedTaskWithLaunchPath("/usr/bin/strip", arguments:["-u", "-x", "-S", "-", path])
-			task.waitUntilExit()
+				let oldSize = size as! Int
 
-			if task.terminationStatus != EXIT_SUCCESS {
-				NSLog("/usr/bin/strip failed with exit status %d", task.terminationStatus)
-			}
+				let task = NSTask.launchedTaskWithLaunchPath("/usr/bin/strip", arguments:["-u", "-x", "-S", "-", path])
+				task.waitUntilExit()
 
-			let newAttributes = [ NSFileOwnerAccountID : attributes[NSFileOwnerAccountID]!,
-								  NSFileGroupOwnerAccountID : attributes[NSFileGroupOwnerAccountID]!,
-								  NSFilePosixPermissions : attributes[NSFilePosixPermissions]!
-								]
+				if task.terminationStatus != EXIT_SUCCESS {
+					NSLog("/usr/bin/strip failed with exit status %d", task.terminationStatus)
+				}
 
-			if !context.fileManager.setAttributes(newAttributes, ofItemAtPath:path, error:&error) {
-				NSLog("Failed to set file attributes for '%@': %@", path, error!)
-			}
-			if !url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey, error:nil) {
-				url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey, error:nil)
-			}
-			let newSize = size as! Int
-			if oldSize > newSize {
-				let sizeDiff = oldSize - newSize
-				context.reportProgress(url, size:sizeDiff)
+				let newAttributes = [
+					NSFileOwnerAccountID : attributes[NSFileOwnerAccountID]!,
+					NSFileGroupOwnerAccountID : attributes[NSFileGroupOwnerAccountID]!,
+					NSFilePosixPermissions : attributes[NSFilePosixPermissions]!
+				]
+
+				do {
+					try context.fileManager.setAttributes(newAttributes, ofItemAtPath:path)
+				} catch let error as NSError {
+					NSLog("Failed to set file attributes for '%@': %@", path, error)
+				}
+				do {
+					try url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+				} catch _ {
+					try! url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+				}
+				let newSize = size as! Int
+				if oldSize > newSize {
+					let sizeDiff = oldSize - newSize
+					context.reportProgress(url, size:sizeDiff)
+				}
+			} catch let error as NSError {
+				NSLog("Failed to get file attributes for '%@': %@", url, error)
 			}
 		}
 	}

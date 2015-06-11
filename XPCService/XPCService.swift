@@ -32,7 +32,6 @@ final class XPCService: NSObject, XPCServiceProtocol {
 				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"") ]))
 			case .AuthorizationInteractionNotAllowed, .AuthorizationFailed:
 				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to authorize as an administrator.", comment:"") ]))
-			default: ()
 			}
 		}
 		reply(nil)

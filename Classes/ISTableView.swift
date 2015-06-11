@@ -16,7 +16,7 @@ final class ISTableView : NSTableView {
 			let row = self.selectedRow
 			if row != -1 {
 				if let arrangedObjects = self.arrayController.arrangedObjects as? [Setting] {
-					var setting = arrangedObjects[row]
+					let setting = arrangedObjects[row]
 					setting.enabled = !setting.enabled
 				}
 			}

@@ -162,7 +162,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
-	override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
+	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [NSObject : AnyObject]?, context: UnsafeMutablePointer<Void>) {
 		if keyPath == "completedUnitCount" {
 			if let progress = object as? NSProgress, url = progress.userInfo?[NSProgressFileURLKey] as? NSURL {
 				processProgress(url, size:Int(progress.completedUnitCount), appName:progress.userInfo?["appName"] as? String)
@@ -181,10 +181,10 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			var lang : String?
 		
 			if self.mode == .Languages {
-				for pathComponent in file.pathComponents as! [String] {
+				for pathComponent in file.pathComponents! {
 					if pathComponent.pathExtension == "lproj" {
 						for language in self.languages {
-							if contains(language.folders, pathComponent) {
+							if language.folders.contains(pathComponent) {
 								lang = language.displayName
 								break
 							}
@@ -265,7 +265,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 		if self.progressViewController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			self.progressViewController = storyboard!.instantiateControllerWithIdentifier("ProgressViewController") as? ProgressViewController
+			self.progressViewController = storyboard.instantiateControllerWithIdentifier("ProgressViewController") as? ProgressViewController
 		}
 		self.progressViewController?.delegate = self
 		self.presentViewControllerAsSheet(self.progressViewController!)
@@ -281,8 +281,6 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
 			NSLog("XPCService error: %@", error)
 		} as? XPCServiceProtocol
-
-		var shouldTryInstall = true
 
 		if let xpcService = xpcService {
 			xpcService.connect() { endpoint -> Void in
@@ -307,7 +305,6 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 							xpcService.bundledHelperVersion() { bundledVersion in
 								if installedVersion == bundledVersion {
 									// helper is current
-									shouldTryInstall = false
 									dispatch_async(dispatch_get_main_queue()) {
 										self.runHelper(arguments)
 									}
@@ -510,11 +507,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		let currentLocale = NSLocale.currentLocale()
 
 		// never check the user's preferred languages, English the the user's locale be default
-		let userLanguages = Set<String>((NSLocale.preferredLanguages() as! [String]).map {
+		let userLanguages = Set<String>((NSLocale.preferredLanguages()).map {
 			return $0.stringByReplacingOccurrencesOfString("-", withString:"_")
 		} + ["en", currentLocale.localeIdentifier])
 
-		let availableLocalizations = Set<String>((NSLocale.availableLocaleIdentifiers() as! [String])
+		let availableLocalizations = Set<String>((NSLocale.availableLocaleIdentifiers())
 			// add some known locales not contained in availableLocaleIdentifiers
 			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi" ])
 
@@ -522,14 +519,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let components = NSLocale.componentsFromLocaleIdentifier(localeIdentifier)
-			if let language = components[NSLocaleLanguageCode] as? String, country = components[NSLocaleCountryCode] as? String {
+			if let language = components[NSLocaleLanguageCode], country = components[NSLocaleCountryCode] {
 				folders.append("\(language)-\(country).lproj")
 			} else if let displayName = systemLocale.displayNameForKey(NSLocaleIdentifier, value: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
 			let displayName = currentLocale.displayNameForKey(NSLocaleIdentifier, value: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
 			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
-		}.sorted { $0.displayName < $1.displayName }
+		}.sort { $0.displayName < $1.displayName }
 
 		let archs = [
 			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: CPU_TYPE_ARM,       cpu_subtype: CPU_SUBTYPE_ARM_ALL),

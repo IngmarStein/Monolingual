@@ -85,13 +85,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	private func appNameForURL(url: NSURL) -> String? {
-		let pathComponents = url.pathComponents as! [String]
-		for (i, pathComponent) in enumerate(pathComponents) {
+		let pathComponents = url.pathComponents!
+		for (i, pathComponent) in pathComponents.enumerate() {
 			if pathComponent.pathExtension == "app" {
 				if let bundleURL = NSURL.fileURLWithPathComponents(Array(pathComponents[0...i])), bundle = NSBundle(URL: bundleURL) {
 					var displayName: String?
-					if let bundleLocalizations = bundle.localizations,
-						localization = NSBundle.preferredLocalizationsFromArray(bundleLocalizations, forPreferences: NSLocale.preferredLanguages()).first as? String,
+					if let localization = NSBundle.preferredLocalizationsFromArray(bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
 						infoPlistStringsURL = bundle.URLForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
 						strings = NSDictionary(contentsOfURL: infoPlistStringsURL) as? [String:String] {
 						displayName = strings["CFBundleDisplayName"]
@@ -138,7 +137,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
 			// check if any file in below url has been blacklisted
-			if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:nil, options:.allZeros, errorHandler:nil) {
+			if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:nil, options:[], errorHandler:nil) {
 				for entry in dirEnumerator {
 					let theURL = entry as! NSURL
 					if isFileBlacklisted(theURL) {
@@ -150,20 +149,38 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			// try to move the file to the user's trash
 			var success = false
 			seteuid(request.uid)
-			success = fileManager.trashItemAtURL(url, resultingItemURL:&dstURL, error:&error)
+			do {
+				try fileManager.trashItemAtURL(url, resultingItemURL:&dstURL)
+				success = true
+			} catch let error1 as NSError {
+				error = error1
+				success = false
+			}
 			seteuid(0)
 			if !success {
-				// move the file to root's trash
-				success = self.fileManager.trashItemAtURL(url, resultingItemURL:&dstURL, error:&error)
+				do {
+					// move the file to root's trash
+					try self.fileManager.trashItemAtURL(url, resultingItemURL:&dstURL)
+					// move the file to root's trash
+					success = true
+				} catch let error1 as NSError {
+					error = error1
+					success = false
+				}
 			}
 
 			if success {
-				if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:.allZeros, errorHandler:nil) {
+				if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil) {
 					for entry in dirEnumerator {
 						let theURL = entry as! NSURL
 						var size: AnyObject?
-						if !theURL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey, error:nil) {
-							theURL.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey, error:nil)
+						do {
+							try theURL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+						} catch _ {
+							do {
+								try theURL.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+							} catch _ {
+							}
 						}
 						if let size = size as? Int {
 							reportProgress(theURL, size:size)
@@ -174,9 +191,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 				NSLog("Error trashing '%s': %@", url.fileSystemRepresentation, error)
 			}
 		} else {
-			if !self.fileManager.removeItemAtURL(url, error:&error) {
+			do {
+				try self.fileManager.removeItemAtURL(url)
+			} catch let error1 as NSError {
+				error = error1
 				if let error = error {
-					if let underlyingError = error.userInfo?[NSUnderlyingErrorKey] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
+					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
 						NSLog("Error removing '%s': %@", url.fileSystemRepresentation, error)
@@ -192,8 +212,13 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 
 		var size: AnyObject?
-		if !URL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey, error:nil) {
-			URL.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey, error:nil)
+		do {
+			try URL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+		} catch _ {
+			do {
+				try URL.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+			} catch _ {
+			}
 		}
 
 		if let size = size as? Int {

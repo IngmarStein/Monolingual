@@ -30,7 +30,7 @@ import Foundation
 		super.init()
 	}
 
-	required init(coder aDecoder: NSCoder) {
+	required init?(coder aDecoder: NSCoder) {
 		// https://devforums.apple.com/message/1124684
 		let stringClass = NSString.self as AnyObject as! NSObject
 		let arrayClass = NSArray.self as AnyObject as! NSObject
