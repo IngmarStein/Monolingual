@@ -63,7 +63,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	private var progress: NSProgress?
 
 	private lazy var xpcServiceConnection: NSXPCConnection = {
-		let connection = NSXPCConnection(serviceName: "net.sourceforge.Monolingual.XPCService")
+		let connection = NSXPCConnection(serviceName: "com.github.IngmarStein.Monolingual.XPCService")
 		connection.remoteObjectInterface = NSXPCInterface(withProtocol:XPCServiceProtocol.self)
 		connection.resume()
 		return connection

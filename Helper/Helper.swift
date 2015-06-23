@@ -22,7 +22,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	override init() {
-		listener = NSXPCListener(machServiceName: "net.sourceforge.MonolingualHelper")
+		listener = NSXPCListener(machServiceName: "com.github.IngmarStein.Monolingual.Helper")
 
 		super.init()
 
@@ -54,11 +54,11 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	// see https://devforums.apple.com/message/1004420#1004420
 	func uninstall() {
-		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "net.sourceforge.MonolingualHelper"])
-		NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist"])
+		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
+		NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
-			try NSFileManager.defaultManager().removeItemAtPath("/Library/PrivilegedHelperTools/net.sourceforge.MonolingualHelper")
-			try NSFileManager.defaultManager().removeItemAtPath("/Library/LaunchDaemons/net.sourceforge.MonolingualHelper.plist")
+			try NSFileManager.defaultManager().removeItemAtPath("/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
+			try NSFileManager.defaultManager().removeItemAtPath("/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
 		} catch _ {
 		}
 	}

@@ -40,7 +40,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 
 	func connect(reply:(NSXPCListenerEndpoint?) -> Void) {
 		if helperToolConnection == nil {
-			let connection = NSXPCConnection(machServiceName: "net.sourceforge.MonolingualHelper", options: .Privileged)
+			let connection = NSXPCConnection(machServiceName: "com.github.IngmarStein.Monolingual.Helper", options: .Privileged)
 			connection.remoteObjectInterface = NSXPCInterface(withProtocol:HelperProtocol.self)
 			connection.invalidationHandler = {
 				self.helperToolConnection = nil

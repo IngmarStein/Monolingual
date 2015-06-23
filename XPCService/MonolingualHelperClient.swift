@@ -11,6 +11,6 @@ import SMJobKit
 
 final class MonolingualHelperClient : Client {
 	override class var serviceIdentifier: String {
-		return "net.sourceforge.MonolingualHelper"
+		return "com.github.IngmarStein.Monolingual.Helper"
 	}
 }
