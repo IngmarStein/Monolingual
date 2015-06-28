@@ -1,18 +1,18 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.1)
+    activesupport (4.2.3)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    claide (0.8.1)
-    cocoapods (0.37.2)
+    claide (0.8.2)
+    cocoapods (0.38.0.beta.1)
       activesupport (>= 3.2.15)
-      claide (~> 0.8.1)
-      cocoapods-core (= 0.37.2)
-      cocoapods-downloader (~> 0.9.0)
+      claide (~> 0.8.2)
+      cocoapods-core (= 0.38.0.beta.1)
+      cocoapods-downloader (~> 0.9.1)
       cocoapods-plugins (~> 0.4.2)
       cocoapods-trunk (~> 0.6.1)
       cocoapods-try (~> 0.4.5)
@@ -20,12 +20,12 @@ GEM
       escape (~> 0.0.4)
       molinillo (~> 0.2.3)
       nap (~> 0.8)
-      xcodeproj (~> 0.24.2)
-    cocoapods-core (0.37.2)
+      xcodeproj (~> 0.25.0)
+    cocoapods-core (0.38.0.beta.1)
       activesupport (>= 3.2.15)
       fuzzy_match (~> 2.0.4)
       nap (~> 0.8.0)
-    cocoapods-downloader (0.9.0)
+    cocoapods-downloader (0.9.1)
     cocoapods-plugins (0.4.2)
       nap
     cocoapods-trunk (0.6.1)
@@ -36,7 +36,7 @@ GEM
     escape (0.0.4)
     fuzzy_match (2.0.4)
     i18n (0.7.0)
-    json (1.8.2)
+    json (1.8.3)
     minitest (5.7.0)
     molinillo (0.2.3)
     nap (0.8.0)
@@ -44,7 +44,7 @@ GEM
     thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    xcodeproj (0.24.2)
+    xcodeproj (0.25.1)
       activesupport (>= 3)
       colored (~> 1.2)
 
@@ -52,4 +52,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods (~> 0.37.2)
+  cocoapods (~> 0.38.0.beta.1)
+
+BUNDLED WITH
+   1.10.5
