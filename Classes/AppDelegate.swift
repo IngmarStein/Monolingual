@@ -16,7 +16,7 @@ let ProcessApplicationNotification = "ProcessApplicationNotification"
 final class AppDelegate: NSObject, NSApplicationDelegate {
 	var preferencesWindowController : NSWindowController?
 
-	func applicationDidFinishLaunching(NSNotification) {
+	func applicationDidFinishLaunching(_: NSNotification) {
 		let applications = [ "Path" : "/Applications", "Languages" : true, "Architectures" : true ]
 		let developer    = [ "Path" : "/Developer",    "Languages" : true, "Architectures" : true ]
 		let library      = [ "Path" : "/Library",      "Languages" : true, "Architectures" : true ]
@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		Fabric.with([Crashlytics()])
 	}
 
-	func applicationShouldTerminateAfterLastWindowClosed(NSApplication) -> Bool {
+	func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
 		return true
 	}
 
@@ -48,11 +48,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		NSWorkspace.sharedWorkspace().openURL(docURL!)
 	}
 	
-	@IBAction func openWebsite(AnyObject) {
+	@IBAction func openWebsite(_: AnyObject) {
 		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual")!)
 	}
 	
-	@IBAction func donate(AnyObject) {
+	@IBAction func donate(_: AnyObject) {
 		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 

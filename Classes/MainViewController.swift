@@ -152,7 +152,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
-			let count = progress.userInfo?[NSProgressFileCompletedCountKey] as? Int ?? 0
+			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey:NSProgressFileURLKey)
 			if let appName = appName {
@@ -162,10 +162,10 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 	}
 
-	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [NSObject : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
 		if keyPath == "completedUnitCount" {
-			if let progress = object as? NSProgress, url = progress.userInfo?[NSProgressFileURLKey] as? NSURL {
-				processProgress(url, size:Int(progress.completedUnitCount), appName:progress.userInfo?["appName"] as? String)
+			if let progress = object as? NSProgress, url = progress.userInfo[NSProgressFileURLKey] as? NSURL {
+				processProgress(url, size:Int(progress.completedUnitCount), appName:progress.userInfo["appName"] as? String)
 			}
 		}
 	}

@@ -112,7 +112,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	func reportProgress(url: NSURL, size:Int) {
 		let appName = appNameForURL(url)
 		if let progress = progress {
-			let count = progress.userInfo?[NSProgressFileCompletedCountKey] as? Int ?? 0
+			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(url, forKey:NSProgressFileURLKey)
 			if let appName = appName {

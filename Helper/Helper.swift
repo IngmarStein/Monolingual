@@ -39,7 +39,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		NSRunLoop.currentRunLoop().run()
 	}
 
-	@objc func timeout(NSTimer) {
+	@objc func timeout(_: NSTimer) {
 		NSLog("timeout while waiting for request")
 		exitWithCode(Int(EXIT_SUCCESS))
 	}
