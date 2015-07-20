@@ -1,11 +1,13 @@
 PODS:
-  - FabricOSX/Core (1.2.6)
-  - FabricOSX/Crashlytics (1.2.6)
+  - Crashlytics-OSX (3.0.11)
+  - Fabric-OSX (1.2.8):
+    - Fabric-OSX/Base (= 1.2.8)
+  - Fabric-OSX/Base (1.2.8)
   - SMJobKit (0.0.5)
 
 DEPENDENCIES:
-  - FabricOSX/Core (~> 1.2.6)
-  - FabricOSX/Crashlytics (~> 1.2.6)
+  - Crashlytics-OSX (~> 3.0.11)
+  - Fabric-OSX (~> 1.2.8)
   - SMJobKit (from `https://github.com/IngmarStein/SMJobKit`, branch `swift2`)
 
 EXTERNAL SOURCES:
@@ -19,7 +21,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/IngmarStein/SMJobKit
 
 SPEC CHECKSUMS:
-  FabricOSX: 649d26dab63ddf6af72958ec594898d230525b57
+  Crashlytics-OSX: efcae3e2e4b998bda4e3c4f4c5a18c09ca2507c4
+  Fabric-OSX: 39ad94afe9cd0c7e908306d4fd1f3238fbfcf058
   SMJobKit: fc7a6dccd4ce74ca06c513b35ac81472bc63b782
 
-COCOAPODS: 0.38.0.beta.2
+COCOAPODS: 0.38.0
