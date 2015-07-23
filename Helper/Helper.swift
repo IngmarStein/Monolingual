@@ -235,12 +235,11 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func hasCodeSignature(url: NSURL) -> Bool {
-		var codeRef: Unmanaged<SecStaticCode>?
-
-		let result = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &codeRef)
-		if result == errSecSuccess, let codeRef = codeRef?.takeRetainedValue() {
-			var requirement: Unmanaged<SecRequirement>?
-			let result2 = SecCodeCopyDesignatedRequirement(codeRef, SecCSFlags(kSecCSDefaultFlags), &requirement)
+		var codeRef: SecStaticCode?
+		let result = SecStaticCodeCreateWithPath(url, .DefaultFlags, &codeRef)
+		if result == errSecSuccess, let codeRef = codeRef {
+			var requirement: SecRequirement?
+			let result2 = SecCodeCopyDesignatedRequirement(codeRef, .DefaultFlags, &requirement)
 			return result2 == errSecSuccess
 		}
 		return false
