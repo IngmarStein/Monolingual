@@ -29,7 +29,7 @@ clean:
 
 release: clean archive
 	# Check code signature
-	codesign -vvv --deep $(BUILD_DIR)/Monolingual.app
+	codesign -vvv --deep --strict $(BUILD_DIR)/Monolingual.app
 	# Check SMJobBless code signing setup
 	./SMJobBlessUtil.py check $(BUILD_DIR)/Monolingual.app/Contents/XPCServices/Monolingual.xpc
 	# Check app against Gatekeeper system policies
