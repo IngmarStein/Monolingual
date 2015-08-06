@@ -88,7 +88,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	private func appNameForURL(url: NSURL) -> String? {
 		let pathComponents = url.pathComponents!
 		for (i, pathComponent) in pathComponents.enumerate() {
-			if pathComponent.pathExtension == "app" {
+			if (pathComponent as NSString).pathExtension == "app" {
 				if let bundleURL = NSURL.fileURLWithPathComponents(Array(pathComponents[0...i])), bundle = NSBundle(URL: bundleURL) {
 					var displayName: String?
 					if let localization = NSBundle.preferredLocalizationsFromArray(bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,

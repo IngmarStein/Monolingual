@@ -182,7 +182,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		
 			if self.mode == .Languages {
 				for pathComponent in file.pathComponents! {
-					if pathComponent.pathExtension == "lproj" {
+					if (pathComponent as NSString).pathExtension == "lproj" {
 						for language in self.languages {
 							if language.folders.contains(pathComponent) {
 								lang = language.displayName
