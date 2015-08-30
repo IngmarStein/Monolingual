@@ -46,6 +46,9 @@
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
+		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; settings = {ASSET_TAGS = (); }; };
+		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; settings = {ASSET_TAGS = (); }; };
+		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; settings = {ASSET_TAGS = (); }; };
 		95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
@@ -190,6 +193,9 @@
 		95B70C491AD2715500801026 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
 		95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.github.IngmarStein.Monolingual.Helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		95CA05351B93680E000ABDCE /* hello1 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello1; path = util/hello1; sourceTree = SOURCE_ROOT; };
+		95CA05361B93680E000ABDCE /* hello2 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello2; path = util/hello2; sourceTree = SOURCE_ROOT; };
+		95CA05371B93680E000ABDCE /* hello3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello3; path = util/hello3; sourceTree = SOURCE_ROOT; };
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Resources/it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = LEESMIJ.rtfd; path = Resources/LEESMIJ.rtfd; sourceTree = "<group>"; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = Leggimi.rtfd; path = Resources/Leggimi.rtfd; sourceTree = "<group>"; };
@@ -419,6 +425,7 @@
 		9552639E1AE67351001AD4F3 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				95CA053B1B936817000ABDCE /* Test Data */,
 				9552639F1AE67351001AD4F3 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -440,6 +447,16 @@
 				955CE2961B20D8D800F64646 /* StringExtensions.swift */,
 			);
 			name = CommandLine;
+			sourceTree = "<group>";
+		};
+		95CA053B1B936817000ABDCE /* Test Data */ = {
+			isa = PBXGroup;
+			children = (
+				95CA05351B93680E000ABDCE /* hello1 */,
+				95CA05361B93680E000ABDCE /* hello2 */,
+				95CA05371B93680E000ABDCE /* hello3 */,
+			);
+			name = "Test Data";
 			sourceTree = "<group>";
 		};
 		95CEEA4F1ACD94320043CEDC /* Readmes */ = {
@@ -648,6 +665,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				95CA053A1B93680E000ABDCE /* hello3 in Resources */,
+				95CA05391B93680E000ABDCE /* hello2 in Resources */,
+				95CA05381B93680E000ABDCE /* hello1 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
