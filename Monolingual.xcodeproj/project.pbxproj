@@ -556,7 +556,6 @@
 				95E236F51AD5331300076008 /* CopyFiles */,
 				440A39D4174D126D6CAD623D /* Copy Pods Resources */,
 				9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */,
-				950611801ADC069700E730CA /* Codesign Embedded Frameworks */,
 			);
 			buildRules = (
 			);
@@ -770,20 +769,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# already contained in the main app\nrm -f \"${CONFIGURATION_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"/libswift*.dylib\n";
-		};
-		950611801ADC069700E730CA /* Codesign Embedded Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Codesign Embedded Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS;\ndo\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
 		};
 		95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
