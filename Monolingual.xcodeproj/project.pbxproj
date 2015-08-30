@@ -755,7 +755,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"Release\" = \"${CONFIGURATION}\" ]; then\n    ./Pods/FabricOSX/Fabric.framework/run 9367389c9ba1c46bb506967bf78235d24bdefc65 7a6a19ca726915f847582d51190afcf756d57e1d299d9fca036cfb517345ea9c\nfi";
+			shellScript = "if [ \"Release\" = \"${CONFIGURATION}\" ]; then\n    ./Pods/Fabric-OSX/Fabric.framework/run 9367389c9ba1c46bb506967bf78235d24bdefc65 7a6a19ca726915f847582d51190afcf756d57e1d299d9fca036cfb517345ea9c\nfi";
 		};
 		9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
