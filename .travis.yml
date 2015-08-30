@@ -3,13 +3,13 @@ xcode_workspace: Monolingual.xcworkspace
 xcode_scheme: Travis
 osx_image: xcode7
 cache:
-  - bundler
-  - cocoapods
+- bundler
+- cocoapods
 before_script:
-- ./scripts/add-key.sh
+- "./scripts/add-key.sh"
 - brew update && brew upgrade xctool || true
 after_script:
-- ./scripts/remove-key.sh
+- "./scripts/remove-key.sh"
 env:
   global:
-    secure: jjaXYarcD0tZEIwxH7BL8f3CPWP8fvrMhPMkippCSnvVPbTc07jZv/gHhf6W2x3814ka5BerdJhxWf40IAdfcKJh69r1Ztc8lgLpttq17JTCq76aT2i5nVLD7F4tex+F14lG9kaIK2fkF9295rwIzQe6JBYo89mOA2Ry9Tv1VNk=
+    secure: I8qZoxRt+YPMqfVk19YrOuiuUg0Vtzr1NN3FSk9sqpckFUy1Hw63L3Ajntj28WiwjYgj7AgnMNPk4ZFRn4j23cPUuMvUApEFZk+prsXt5y46cxrmUqeKNfSU57aA4xEkXFOZ+I268veuM4ziRr9NnJ+XiBDlFMmzS1kOBQN5szU=
