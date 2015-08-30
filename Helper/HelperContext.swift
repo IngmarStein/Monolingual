@@ -104,7 +104,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 						return displayName
 					}
 				}
-				return pathComponent.substringToIndex(advance(pathComponent.endIndex, -4))
+				return pathComponent.substringToIndex(pathComponent.endIndex.advancedBy(-4))
 			}
 		}
 		return nil

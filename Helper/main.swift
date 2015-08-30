@@ -37,7 +37,7 @@ do {
 		exit(EXIT_SUCCESS)
 	}
 
-	if includes.isSet {
+	if includes.wasSet {
 		let request = HelperRequest()
 		request.dryRun = dryRun.value
 		request.doStrip = strip.value

@@ -554,7 +554,6 @@
 				95E236D71AD526DF00076008 /* Frameworks */,
 				95E236D81AD526DF00076008 /* Resources */,
 				95E236F51AD5331300076008 /* CopyFiles */,
-				1CE8BEADA3AAD0213D0B85C4 /* Embed Pods Frameworks */,
 				440A39D4174D126D6CAD623D /* Copy Pods Resources */,
 				9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */,
 				950611801ADC069700E730CA /* Codesign Embedded Frameworks */,
@@ -684,21 +683,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1CE8BEADA3AAD0213D0B85C4 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-XPCService/Pods-XPCService-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2060D4587EB3086BE297D6A7 /* Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
