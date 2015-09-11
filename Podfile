@@ -10,5 +10,5 @@ target "Monolingual" do
 end
 
 target "XPCService" do
-	pod 'SMJobKit', :git => 'https://github.com/IngmarStein/SMJobKit', :branch => 'swift2'
+	pod 'SMJobKit', '~> 0.0.6'
 end
