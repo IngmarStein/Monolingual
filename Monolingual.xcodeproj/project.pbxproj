@@ -572,6 +572,7 @@
 				95E236D81AD526DF00076008 /* Resources */,
 				95E236F51AD5331300076008 /* CopyFiles */,
 				440A39D4174D126D6CAD623D /* Copy Pods Resources */,
+				957F705D1BAF2767003A49C2 /* Embed Pods Frameworks */,
 				9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */,
 			);
 			buildRules = (
@@ -789,6 +790,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# already contained in the main app\nrm -f \"${CONFIGURATION_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"/libswift*.dylib\n";
+		};
+		957F705D1BAF2767003A49C2 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-XPCService/Pods-XPCService-frameworks.sh\"\n";
 		};
 		95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
