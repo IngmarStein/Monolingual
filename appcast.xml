@@ -6,11 +6,11 @@
 		<description>Most recent changes with links to updates.</description>
 		<docs>http://blogs.law.harvard.edu/tech/rss</docs>
 		<language>en</language>
-		<pubDate>Thu, 02 Apr 2015 17:30:51 +0200</pubDate>
-		<lastBuildDate>Thu, 02 Apr 2015 17:30:51 +0200</lastBuildDate>
+		<pubDate>Sun, 20 Sep 2015 19:45:21 +0200</pubDate>
+		<lastBuildDate>Sun, 20 Sep 2015 19:45:21 +0200</lastBuildDate>
 		<atom:link href="https://ingmarstein.github.io/Monolingual/appcast.xml" rel="self" type="application/rss+xml"/>
 		<item>
-			<title>Version 1.6.7</title>
+			<title>Version 1.7.0</title>
 			<sparkle:minimumSystemVersion>10.10.0</sparkle:minimumSystemVersion>
 			<description><![CDATA[
 <html>
@@ -21,13 +21,16 @@
 	</head>
 	<body>
 		<ul>
-			<li>Various bugfixes.</li>
+		<li>Monolingual now uses <a href="https://www.apple.com/osx/what-is/security/">App Sandboxing</a>.</li>
+		<li>The reported space savings should now be more accurate (HFS+ file compression is taken into account).</li>
+		<li>After updating Monolingual, the password needs to be entered only once.</li>
+		<li>Upgrade notice: Monolingual’s application identifier has changed which means that your settings won’t be migrated to the new version.</li>
 		</ul>
 	</body>
 </html>
 ]]></description>
-			<pubDate>Thu, 02 Apr 2015 17:30:51 +0200</pubDate>
-			<enclosure sparkle:md5sum="e156685a0a9540bd4859ff9567bb959f" sparkle:dsaSignature="MC0CFFOaM7kX9/dKH/4VeBYeS2lgqMVhAhUAlkb9A9cJORYdqqPSGsrI0KD+MK8=" sparkle:version="1.6.7" url="https://github.com/IngmarStein/Monolingual/releases/download/v1.6.7/Monolingual-1.6.7.tar.bz2" length="4797046" type="application/octet-stream"/>
+			<pubDate>Sun, 20 Sep 2015 19:45:21 +0200</pubDate>
+			<enclosure sparkle:md5sum="ad68763313a5c6144bbe625107343432" sparkle:dsaSignature="MCwCFHTQ3ADp+K9jC007XmMZC/Xti+reAhRe4GCfgcrP6i/RqIlTEqzCjcCJBg==" sparkle:version="1.7.0" url="https://github.com/IngmarStein/Monolingual/releases/download/v1.7.0/Monolingual-1.7.0.zip" length="6327251" type="application/octet-stream"/>
 		</item>
 	</channel>
 </rss>
