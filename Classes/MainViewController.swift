@@ -268,7 +268,9 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			self.progressViewController = storyboard.instantiateControllerWithIdentifier("ProgressViewController") as? ProgressViewController
 		}
 		self.progressViewController?.delegate = self
-		self.presentViewControllerAsSheet(self.progressViewController!)
+		if self.progressViewController!.presentingViewController == nil {
+			self.presentViewControllerAsSheet(self.progressViewController!)
+		}
 
 		let notification = NSUserNotification()
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
