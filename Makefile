@@ -45,7 +45,7 @@ release: clean archive
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
 		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_ZIP)")/g" \
-		-e "s/%FILENAME%/$(RELEASE_NAME).zip/g" \
+		-e "s/%FILENAME%/$(RELEASE_ZIP)/g" \
 		-e "s/%MD5%/$$(md5 -q $(RELEASE_ZIP))/g" \
 		-e "s@%SIGNATURE%@$$(openssl dgst -sha1 -binary < $(RELEASE_ZIP) | openssl dgst -dss1 -sign ~/.ssh/monolingual_priv.pem | openssl enc -base64)@g" \
 		appcast.xml.tmpl > $(RELEASE_DIR)/appcast.xml
