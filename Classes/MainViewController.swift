@@ -99,7 +99,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			}
 		}
 	}
-	
+
 	@IBAction func removeArchitectures(sender: AnyObject) {
 		self.mode = .Architectures
 
@@ -114,7 +114,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 
 		log.message("\nModified files:\n")
-	
+
 		let num_archs = archs.count
 		if num_archs == self.architectures.count {
 			let alert = NSAlert()
@@ -179,7 +179,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		} else {
 			// parse file name
 			var lang : String?
-		
+
 			if self.mode == .Languages {
 				for pathComponent in file.pathComponents! {
 					if (pathComponent as NSString).pathExtension == "lproj" {
@@ -333,7 +333,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	func progressViewControllerDidCancel(progressViewController: ProgressViewController) {
 		progressDidEnd(false)
 	}
-	
+
 	private func progressDidEnd(completed: Bool) {
 		if self.progress == nil {
 			return
@@ -366,11 +366,11 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment:"")
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
-		
+
 			let notification = NSUserNotification()
 			notification.title = NSLocalizedString("Monolingual finished", comment:"")
 			notification.informativeText = NSLocalizedString("Finished removing files", comment:"")
-			
+
 			NSUserNotificationCenter.defaultUserNotificationCenter().deliverNotification(notification)
 		}
 
@@ -381,16 +381,16 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 
 		log.close()
-	
+
 		NSProcessInfo.processInfo().enableSuddenTermination()
 	}
-	
+
 	private func checkAndRemove() {
 		if checkRoots() && checkLanguages() {
 			doRemoveLanguages()
 		}
 	}
-	
+
 	private func checkRoots() -> Bool {
 		var languageEnabled = false
 		let roots = self.roots
@@ -400,7 +400,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				break
 			}
 		}
-		
+
 		if !languageEnabled {
 			let alert = NSAlert()
 			alert.alertStyle = .InformationalAlertStyle
@@ -408,10 +408,10 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Nothing done", comment:"")
 		}
-		
+
 		return languageEnabled
 	}
-	
+
 	private func checkLanguages() -> Bool {
 		var englishChecked = false
 		for language in self.languages {
@@ -420,7 +420,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				break
 			}
 		}
-		
+
 		if englishChecked {
 			// Display a warning
 			let alert = NSAlert()
@@ -428,24 +428,24 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			alert.addButtonWithTitle(NSLocalizedString("Cancel", comment:""))
 			alert.addButtonWithTitle(NSLocalizedString("Continue", comment:""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
-			
+
 			alert.beginSheetModalForWindow(self.view.window!) { response in
 				if response == NSAlertSecondButtonReturn {
 					self.doRemoveLanguages()
 				}
 			}
 		}
-		
+
 		return !englishChecked
 	}
-	
+
 	private func doRemoveLanguages() {
 		self.mode = .Languages
-	
+
 		log.open()
 		let now = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .ShortStyle, timeStyle: .ShortStyle)
 		log.message("Monolingual started at \(now)\nRemoving languages: ")
-	
+
 		let roots = self.roots
 
 		let includes = roots.filter { $0.languages } .map { $0.path }
@@ -461,7 +461,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		for exclude in excludes {
 			NSLog("Excluding root \(exclude)")
 		}
-		
+
 		var rCount = 0
 		var folders = Set<String>()
 		for language in self.languages {
@@ -479,7 +479,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		if NSUserDefaults.standardUserDefaults().boolForKey("NIB") {
 			folders.insert("designable.nib")
 		}
-	
+
 		log.message("\nDeleted files: \n")
 		if rCount == self.languages.count {
 			let alert = NSAlert()
@@ -504,7 +504,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			log.close()
 		}
 	}
-	
+
 	override func viewDidLoad() {
 		let currentLocale = NSLocale.currentLocale()
 
@@ -553,20 +553,27 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
-		if hostInfo.cpu_type == CPU_TYPE_X86 && (hostInfo.cpu_subtype == CPU_SUBTYPE_X86_64_ALL || hostInfo.cpu_subtype == CPU_SUBTYPE_X86_64_H) {
+		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
-			hostInfo = host_basic_info_data_t(
-				max_cpus: hostInfo.max_cpus,
-				avail_cpus: hostInfo.avail_cpus,
-				memory_size: hostInfo.memory_size,
-				cpu_type: CPU_TYPE_X86_64,
-				cpu_subtype: hostInfo.cpu_subtype,
-				cpu_threadtype: hostInfo.cpu_threadtype,
-				physical_cpu: hostInfo.physical_cpu,
-				physical_cpu_max: hostInfo.physical_cpu_max,
-				logical_cpu: hostInfo.logical_cpu,
-				logical_cpu_max: hostInfo.logical_cpu_max,
-				max_mem: hostInfo.max_mem)
+			var x86_64 : Int = 0
+			var x86_64_size = Int(sizeof(Int))
+			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
+			if ret == 0 {
+				if x86_64 != 0 {
+					hostInfo = host_basic_info_data_t(
+						max_cpus: hostInfo.max_cpus,
+						avail_cpus: hostInfo.avail_cpus,
+						memory_size: hostInfo.memory_size,
+						cpu_type: CPU_TYPE_X86_64,
+						cpu_subtype: (hostInfo.cpu_subtype == CPU_SUBTYPE_X86_64_H) ? CPU_SUBTYPE_X86_64_H : CPU_SUBTYPE_X86_64_ALL,
+						cpu_threadtype: hostInfo.cpu_threadtype,
+						physical_cpu: hostInfo.physical_cpu,
+						physical_cpu_max: hostInfo.physical_cpu_max,
+						logical_cpu: hostInfo.logical_cpu,
+						logical_cpu_max: hostInfo.logical_cpu_max,
+						max_mem: hostInfo.max_mem)
+				}
+			}
 		}
 
 		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
@@ -590,7 +597,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 			}
 		}
-		
+
 		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserverForName(ProcessApplicationNotification, object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
@@ -602,5 +609,5 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		}
 		xpcServiceConnection.invalidate()
 	}
-	
+
 }
