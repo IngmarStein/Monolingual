@@ -46,9 +46,9 @@
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
-		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; settings = {ASSET_TAGS = (); }; };
-		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; settings = {ASSET_TAGS = (); }; };
-		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; settings = {ASSET_TAGS = (); }; };
+		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; };
+		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; };
+		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; };
 		95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
@@ -610,7 +610,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -1247,7 +1247,7 @@
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				SEPARATE_STRIP = YES;
-				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-objc-missing-property-synthesis",
