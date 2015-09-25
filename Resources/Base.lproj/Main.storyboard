@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B17c" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9052" systemVersion="15B17c" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <deployment version="101003" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9052"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
@@ -308,7 +308,7 @@
                                                         <animations/>
                                                     </scroller>
                                                     <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="ojR-eS-P1m">
-                                                        <rect key="frame" x="330" y="23" width="15" height="253"/>
+                                                        <rect key="frame" x="329" y="23" width="16" height="253"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <animations/>
                                                     </scroller>
@@ -321,8 +321,8 @@
                                                         <outlet property="nextKeyView" destination="0Gf-z3-wgw" id="7Ej-gN-ug3"/>
                                                     </connections>
                                                 </scrollView>
-                                                <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0Gf-z3-wgw">
-                                                    <rect key="frame" x="281" y="9" width="91" height="32"/>
+                                                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0Gf-z3-wgw">
+                                                    <rect key="frame" x="283" y="9" width="89" height="32"/>
                                                     <animations/>
                                                     <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="7bE-Hh-5SU">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -467,7 +467,7 @@
                                                         <animations/>
                                                     </scroller>
                                                     <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="OqA-Jo-yiV">
-                                                        <rect key="frame" x="330" y="23" width="15" height="253"/>
+                                                        <rect key="frame" x="329" y="23" width="16" height="253"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <animations/>
                                                     </scroller>
@@ -480,8 +480,8 @@
                                                         <outlet property="nextKeyView" destination="65V-iD-EUO" id="j0b-88-ERa"/>
                                                     </connections>
                                                 </scrollView>
-                                                <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="65V-iD-EUO">
-                                                    <rect key="frame" x="282" y="9" width="91" height="32"/>
+                                                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="65V-iD-EUO">
+                                                    <rect key="frame" x="283" y="9" width="89" height="32"/>
                                                     <animations/>
                                                     <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="oQU-Vk-TEO">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -493,8 +493,8 @@
                                                         <outlet property="nextKeyView" destination="3Kl-1z-1DJ" id="P7b-ya-VAy"/>
                                                     </connections>
                                                 </button>
-                                                <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" misplaced="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HY1-Mt-SGD">
-                                                    <rect key="frame" x="18" y="19" width="263" height="14"/>
+                                                <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HY1-Mt-SGD">
+                                                    <rect key="frame" x="18" y="19" width="265" height="14"/>
                                                     <animations/>
                                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Current architecture: %@" id="yB7-o0-eDt">
                                                         <font key="font" metaFont="smallSystem"/>
@@ -628,8 +628,8 @@
                                     <rect key="frame" x="2" y="2" width="412" height="245"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N6P-44-zxI">
-                                            <rect key="frame" x="335" y="5" width="66" height="32"/>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="N6P-44-zxI">
+                                            <rect key="frame" x="336" y="5" width="65" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="aFz-HG-feS">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -793,8 +793,8 @@
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="txs-gW-YkQ">
-                                            <rect key="frame" x="244" y="5" width="91" height="32"/>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="txs-gW-YkQ">
+                                            <rect key="frame" x="247" y="5" width="89" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="iw9-pP-alf">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -871,8 +871,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="420" height="105"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <progressIndicator verticalHuggingPriority="750" misplaced="YES" minValue="10" maxValue="100" doubleValue="10" bezeled="NO" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="W8a-kQ-cLh">
-                                <rect key="frame" x="20" y="19" width="303" height="20"/>
+                            <progressIndicator wantsLayer="YES" verticalHuggingPriority="750" minValue="10" maxValue="100" doubleValue="10" bezeled="NO" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="W8a-kQ-cLh">
+                                <rect key="frame" x="20" y="19" width="304" height="20"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="18" id="5o4-wU-7gj"/>
                                 </constraints>
@@ -896,8 +896,8 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EFT-7p-uKL">
-                                <rect key="frame" x="323" y="13" width="83" height="32"/>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EFT-7p-uKL">
+                                <rect key="frame" x="324" y="13" width="82" height="32"/>
                                 <animations/>
                                 <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="vMP-PK-qKF">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
