@@ -18,10 +18,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(_: NSNotification) {
 		let applications = [ "Path" : "/Applications", "Languages" : true, "Architectures" : true ]
-		let developer    = [ "Path" : "/Developer",    "Languages" : true, "Architectures" : true ]
 		let library      = [ "Path" : "/Library",      "Languages" : true, "Architectures" : true ]
-		let systemPath   = [ "Path" : "/System",       "Languages" : true, "Architectures" : false ]
-		let defaultRoots = [ applications, developer, library, systemPath ]
+		let defaultRoots = [ applications, library ]
 		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
 		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [String : AnyObject])

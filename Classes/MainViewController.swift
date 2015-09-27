@@ -62,6 +62,8 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 	private var helperConnection : NSXPCConnection?
 	private var progress: NSProgress?
 
+	private let sipProtectedLocations = [ "/System", "/bin" ]
+
 	private lazy var xpcServiceConnection: NSXPCConnection = {
 		let connection = NSXPCConnection(serviceName: "com.github.IngmarStein.Monolingual.XPCService")
 		connection.remoteObjectInterface = NSXPCInterface(withProtocol:XPCServiceProtocol.self)
@@ -131,7 +133,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			request.doStrip = NSUserDefaults.standardUserDefaults().boolForKey("Strip")
 			request.bundleBlacklist = Set<String>(self.blacklist!.filter { $0.architectures } .map { $0.bundle })
 			request.includes = roots.filter { $0.architectures } .map { $0.path }
-			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + [ "/System/Library/Frameworks", "/System/Library/PrivateFrameworks" ]
+			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + sipProtectedLocations
 			request.thin = archs
 
 			for item in request.bundleBlacklist! {
@@ -449,7 +451,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		let roots = self.roots
 
 		let includes = roots.filter { $0.languages } .map { $0.path }
-		let excludes = roots.filter { !$0.languages } .map { $0.path }
+		let excludes = roots.filter { !$0.languages } .map { $0.path } + sipProtectedLocations
 		let bl = self.blacklist!.filter { $0.languages } .map { $0.bundle }
 
 		for item in bl {
