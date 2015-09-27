@@ -396,14 +396,14 @@ class Lipo {
 		let temporaryFile = "\(fileName).lipo"
 		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
-			NSLog("can't create temporary output file: %s", temporaryFile);
+			NSLog("can't create temporary output file: %@", temporaryFile);
 			return false
 		}
 		let fileHandle = NSFileHandle(fileDescriptor: fd, closeOnDealloc: true)
 		/*
 		let fileHandle: NSFileHandle! = NSFileHandle(forWritingAtPath: temporaryFile)
 		if fileHandle == nil {
-			NSLog("can't create temporary output file: %s", temporaryFile);
+			NSLog("can't create temporary output file: %@", temporaryFile);
 			return false
 		}
 		*/

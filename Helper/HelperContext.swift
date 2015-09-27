@@ -116,6 +116,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(url, forKey:NSProgressFileURLKey)
+			progress.setUserInfoObject(size, forKey:"sizeDifference")
 			if let appName = appName {
 				progress.setUserInfoObject(appName, forKey: "appName")
 			}
@@ -189,7 +190,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 					}
 				}
 			} else if let error = error {
-				NSLog("Error trashing '%s': %@", url.fileSystemRepresentation, error)
+				NSLog("Error trashing '%s': %@", url.path!, error)
 			}
 		} else {
 			do {
@@ -200,7 +201,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
-						NSLog("Error removing '%s': %@", url.fileSystemRepresentation, error)
+						NSLog("Error removing '%s': %@", url.path!, error)
 					}
 				}
 			}
@@ -212,6 +213,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			return false
 		}
 
+		// TODO: it is wrong to report process here, deletion might fail (e.g. for SIP restricted files)
 		var size: AnyObject?
 		do {
 			try URL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
@@ -235,4 +237,9 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
 	}
 
+	func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAtURL URL: NSURL) -> Bool {
+		NSLog("Error removing '%s': %@", URL.path!, error)
+
+		return true
+	}
 }

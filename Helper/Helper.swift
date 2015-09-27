@@ -221,6 +221,9 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 					if data.length >= sizeof(UInt32) {
 						data.getBytes(&magic, length: sizeof(UInt32))
 
+						if let pathExtension = theURL.pathExtension where pathExtension == "class" {
+							return
+						}
 						if magic == FAT_MAGIC || magic == FAT_CIGAM {
 							self.thinFile(theURL, context:context, lipo: lipo)
 						}
