@@ -325,6 +325,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 									// helper is different version
 									performInstallation = true
 									helper.uninstall()
+									helper.exitWithCode(Int(EXIT_SUCCESS))
 									connection.invalidate()
 								}
 							}
