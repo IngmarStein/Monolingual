@@ -518,7 +518,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 
 		let availableLocalizations = Set<String>((NSLocale.availableLocaleIdentifiers())
 			// add some known locales not contained in availableLocaleIdentifiers
-			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi" ])
+			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW" ])
 
 		let systemLocale = NSLocale(localeIdentifier: "en_US_POSIX")
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
