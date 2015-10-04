@@ -201,7 +201,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
-						NSLog("Error removing '%s': %@", url.path!, error)
+						NSLog("Error removing '%@': %@", url.path!, error)
 					}
 				}
 			}
@@ -209,7 +209,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	private func fileManager(fileManager: NSFileManager, shouldProcessItemAtURL URL:NSURL) -> Bool {
-		if request.dryRun || isFileBlacklisted(URL) {
+		if request.dryRun || isFileBlacklisted(URL) || URL.isProtected {
 			return false
 		}
 
@@ -238,7 +238,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAtURL URL: NSURL) -> Bool {
-		NSLog("Error removing '%s': %@", URL.path!, error)
+		NSLog("Error removing '%@': %@", URL.path!, error)
 
 		return true
 	}

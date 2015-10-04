@@ -10,6 +10,16 @@ import Foundation
 import MachO.fat
 import MachO.loader
 
+extension NSURL {
+	func hasExtendedAttribute(attribute: String) -> Bool {
+		return getxattr(self.path!, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
+	}
+
+	var isProtected : Bool {
+		return hasExtendedAttribute("com.apple.rootless")
+	}
+}
+
 final class Helper : NSObject, NSXPCListenerDelegate {
 
 	private var listener: NSXPCListener
@@ -55,7 +65,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	// see https://devforums.apple.com/message/1004420#1004420
 	func uninstall() {
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
-		NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
+		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
 			try NSFileManager.defaultManager().removeItemAtPath("/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
 			try NSFileManager.defaultManager().removeItemAtPath("/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
@@ -151,7 +161,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			return
 		}
 
-		if context.isExcluded(url) || context.isDirectoryBlacklisted(url) {
+		if context.isExcluded(url) || context.isDirectoryBlacklisted(url) || url.isProtected {
 			return
 		}
 
@@ -171,7 +181,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				}
 
 				if let isDirectory = isDirectory as? Bool where isDirectory {
-					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) {
+					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || theURL.isProtected {
 						dirEnumerator.skipDescendents()
 						continue
 					}

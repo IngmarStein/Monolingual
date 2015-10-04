@@ -290,6 +290,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		if let xpcService = xpcService {
 			xpcService.connect() { endpoint -> Void in
 				if let endpoint = endpoint {
+					var performInstallation = false
 					let connection = NSXPCConnection(listenerEndpoint: endpoint)
 					let interface = NSXPCInterface(withProtocol:HelperProtocol.self)
 					interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: "processRequest:progress:reply:", argumentIndex: 1, ofReply: false)
@@ -297,6 +298,13 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					connection.invalidationHandler = {
 						NSLog("XPC connection to helper invalidated.")
 						self.helperConnection = nil
+						if performInstallation {
+							self.installHelper() { success in
+								if success {
+									self.checkAndRunHelper(arguments)
+								}
+							}
+						}
 					}
 					connection.resume()
 					self.helperConnection = connection
@@ -315,6 +323,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 									}
 								} else {
 									// helper is different version
+									performInstallation = true
 									helper.uninstall()
 									connection.invalidate()
 								}
