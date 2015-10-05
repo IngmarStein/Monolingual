@@ -22,28 +22,20 @@ final class Log {
 	}
 
 	let logFileURL = NSURL(fileURLWithPath:"\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
-	var logFile : NSFileHandle? = nil
+	var logFile : NSOutputStream? = nil
 
 	func open() {
-		if let path = logFileURL.path {
-			NSFileManager.defaultManager().createFileAtPath(path, contents: nil, attributes: nil)
-			do {
-				logFile = try NSFileHandle(forWritingToURL:logFileURL)
-			} catch let error as NSError {
-				NSLog("Failed to open log file: \(error)")
-			}
-			logFile?.seekToEndOfFile()
-		}
+		logFile = NSOutputStream(URL: logFileURL, append: true)
+		logFile?.open()
 	}
 
 	func message(message: String) {
-		if let data = message.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
-			logFile?.writeData(data)
-		}
+		let data = [UInt8](message.utf8)
+		logFile?.write(data, maxLength: data.count)
 	}
 
 	func close() {
-		logFile?.closeFile()
+		logFile?.close()
 		logFile = nil
 	}
 	
