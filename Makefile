@@ -1,9 +1,10 @@
 TOP=$(shell pwd)
-RELEASE_VERSION=1.7.2
+RELEASE_VERSION=1.7.3
 RELEASE_DIR=$(TOP)/release-$(RELEASE_VERSION)
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
-RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_NAME).tar.bz2
+RELEASE_ZIPFILE=$(RELEASE_NAME).tar.bz2
+RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_ZIPFILE)
 SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
 ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
@@ -22,7 +23,7 @@ deployment:
 
 archive:
 	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release archive -archivePath $(ARCHIVE)
-	xcodebuild -exportArchive -exportFormat APP -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR)/Monolingual.app -exportWithOriginalSigningIdentity
+	xcodebuild -exportArchive -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR) -exportOptionsPlist exportOptions.plist
 
 clean:
 	-rm -rf $(BUILD_DIR) $(RELEASE_DIR)
@@ -45,7 +46,7 @@ release: clean archive
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
 		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_ZIP)")/g" \
-		-e "s/%FILENAME%/$(RELEASE_ZIP)/g" \
+		-e "s/%FILENAME%/$(RELEASE_ZIPFILE)/g" \
 		-e "s/%MD5%/$$(md5 -q $(RELEASE_ZIP))/g" \
 		-e "s@%SIGNATURE%@$$(openssl dgst -sha1 -binary < $(RELEASE_ZIP) | openssl dgst -dss1 -sign ~/.ssh/monolingual_priv.pem | openssl enc -base64)@g" \
 		appcast.xml.tmpl > $(RELEASE_DIR)/appcast.xml
