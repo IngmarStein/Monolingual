@@ -208,6 +208,9 @@
 		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = lipo.swift; path = lipo/lipo.swift; sourceTree = SOURCE_ROOT; };
 		95EB7AAC1AE777F90066369B /* lipo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lipo; sourceTree = BUILT_PRODUCTS_DIR; };
 		95EB7AAE1AE777F90066369B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		95EBC3A11BD989F00022BA4A /* ru */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ru; path = Resources/ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		95EBC3A21BD98A460022BA4A /* ru */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ru; path = Resources/ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		95EBC3A61BD98A720022BA4A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = Resources/ru.lproj/Main.strings; sourceTree = "<group>"; };
 		95EDCC84062C3B83007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = Resources/fr.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = LisezMoi.rtfd; path = Resources/LisezMoi.rtfd; sourceTree = "<group>"; };
 		95EDCC8B062C4393007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = Resources/fr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -647,6 +650,7 @@
 				nl,
 				ro,
 				ko,
+				ru,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			projectDirPath = "";
@@ -955,6 +959,7 @@
 				F6E6809F1AC22DFE00A5CBD8 /* nl */,
 				950217341AD16F8D00907A24 /* ro */,
 				954DE0001AD4ED4F0097145C /* ko */,
+				95EBC3A11BD989F00022BA4A /* ru */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -992,6 +997,7 @@
 				F6E6809D1AC22DFE00A5CBD8 /* nl */,
 				950217391AD16FE500907A24 /* ro */,
 				954DE0051AD4EE8C0097145C /* ko */,
+				95EBC3A61BD98A720022BA4A /* ru */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -1012,6 +1018,7 @@
 				F6E6809E1AC22DFE00A5CBD8 /* nl */,
 				950217351AD16FB000907A24 /* ro */,
 				954DE0011AD4EDB60097145C /* ko */,
+				95EBC3A21BD98A460022BA4A /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
