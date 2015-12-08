@@ -485,7 +485,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 						log.message(" ")
 					}
 					log.message(path)
-					rCount++
+					rCount = rCount + 1
 				}
 			}
 		}

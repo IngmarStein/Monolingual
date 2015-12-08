@@ -22,10 +22,11 @@ if arguments.count < 4 {
 private var inputFiles = [String]()
 private var architectures = [String]()
 
-for var i=1; i<arguments.count; ++i {
+for var i=1; i<arguments.count; i=i+1 {
 	let arg = arguments[i]
-	if arg == "--arch" && i+1<arguments.count {
-		architectures.append(arguments[++i])
+	if arg == "--arch" && i+1 < arguments.count {
+		i = i + 1
+		architectures.append(arguments[i])
 	} else {
 		inputFiles.append(arg)
 	}
