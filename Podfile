@@ -5,8 +5,8 @@ use_frameworks!
 
 target "Monolingual" do
 #	pod 'Sparkle', '~> 1.11.0'
-	pod 'Fabric', '~> 1.6.2'
-	pod 'Crashlytics', '~> 3.5.0'
+	pod 'Fabric', '~> 1.6.3'
+	pod 'Crashlytics', '~> 3.6.0'
 end
 
 target "XPCService" do
