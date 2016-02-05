@@ -5,7 +5,7 @@ use_frameworks!
 
 target "Monolingual" do
 #	pod 'Sparkle', '~> 1.11.0'
-	pod 'Fabric', '~> 1.6.4'
+	pod 'Fabric', '~> 1.6.5'
 	pod 'Crashlytics', '~> 3.6.0'
 end
 
