@@ -35,6 +35,14 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		return false
 	}
 
+	func excludeDirectory(url: NSURL) {
+		if request.excludes != nil {
+			request.excludes?.append(url.path!)
+		} else {
+			request.excludes = [url.path!]
+		}
+	}
+
 	func isDirectoryBlacklisted(path: NSURL) -> Bool {
 		if let bundle = NSBundle(URL: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
 			return bundleBlacklist.contains(bundleIdentifier)

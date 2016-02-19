@@ -222,23 +222,35 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinDirectory(url: NSURL, context:HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey]) { theURL, dirEnumerator in
+		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey,NSURLIsApplicationKey]) { theURL, dirEnumerator in
 			do {
-				let resourceValues = try theURL.resourceValuesForKeys([NSURLIsRegularFileKey, NSURLIsExecutableKey])
+				let resourceValues = try theURL.resourceValuesForKeys([NSURLIsRegularFileKey, NSURLIsExecutableKey, NSURLIsApplicationKey])
 				if let isExecutable = resourceValues[NSURLIsExecutableKey] as? Bool, isRegularFile = resourceValues[NSURLIsRegularFileKey] as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+					if let pathExtension = theURL.pathExtension where pathExtension == "class" {
+						return
+					}
+
 					let data = try NSData(contentsOfURL:theURL, options:([.DataReadingMappedAlways, .DataReadingUncached]))
 					var magic: UInt32 = 0
 					if data.length >= sizeof(UInt32) {
 						data.getBytes(&magic, length: sizeof(UInt32))
 
-						if let pathExtension = theURL.pathExtension where pathExtension == "class" {
-							return
-						}
 						if magic == FAT_MAGIC || magic == FAT_CIGAM {
 							self.thinFile(theURL, context:context, lipo: lipo)
 						}
 						if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
 							self.stripFile(theURL, context:context)
+						}
+					}
+				} else if let isApplication = resourceValues[NSURLIsApplicationKey] as? Bool where isApplication {
+					// don't thin universal frameworks contained in a single-architecture application
+					// see https://github.com/IngmarStein/Monolingual/issues/67
+					if let bundle = NSBundle(URL: theURL), executableArchitectures = bundle.executableArchitectures where executableArchitectures.count == 1 {
+						if let sharedFrameworksURL = bundle.sharedFrameworksURL {
+							context.excludeDirectory(sharedFrameworksURL)
+						}
+						if let privateFrameworksURL = bundle.privateFrameworksURL {
+							context.excludeDirectory(privateFrameworksURL)
 						}
 					}
 				}
