@@ -18,7 +18,7 @@ private let includes = MultiStringOption(shortFlag: "i", longFlag: "include", re
 private let excludes = MultiStringOption(shortFlag: "x", longFlag: "exclude", required: false, helpMessage: "Exclude directory.")
 private let bundles = MultiStringOption(shortFlag: "b", longFlag: "bundle", required: false, helpMessage: "Exclude a bundle from processing (e.g. \"com.apple.iPhoto\").")
 private let delete = MultiStringOption(shortFlag: "d", longFlag: "delete", required: false, helpMessage: "Name of a file or directory to delete (e.g. \"fr.lproj\").")
-private let thin = MultiStringOption(shortFlag: "t", longFlag: "thin", required: false, helpMessage: "Remove architecture from universal binary (e.g. \"ppc\").")
+private let thin = MultiStringOption(shortFlag: "a", longFlag: "thin", required: false, helpMessage: "Remove architecture from universal binary (e.g. \"ppc\").")
 
 cli.addOptions(uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
 
