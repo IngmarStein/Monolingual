@@ -44,7 +44,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		NSLog("MonolingualHelper started")
 
 		listener.resume()
-		timer = NSTimer.scheduledTimerWithTimeInterval(timeoutInterval, target: self, selector: "timeout:", userInfo: nil, repeats: false)
+		timer = NSTimer.scheduledTimerWithTimeInterval(timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
 
 		NSRunLoop.currentRunLoop().run()
 	}
@@ -145,8 +145,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		let interface = NSXPCInterface(withProtocol: HelperProtocol.self)
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
-		interface.setClasses(classes, forSelector: "processRequest:progress:reply:", argumentIndex: 0, ofReply: false)
-		interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: "processRequest:progress:reply:", argumentIndex: 1, ofReply: false)
+		interface.setClasses(classes, forSelector: #selector(Helper.processRequest(_:progress:reply:)), argumentIndex: 0, ofReply: false)
+		interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: #selector(Helper.processRequest(_:progress:reply:)), argumentIndex: 1, ofReply: false)
 		newConnection.exportedInterface = interface
 		newConnection.exportedObject = self
 		newConnection.resume()

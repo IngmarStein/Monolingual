@@ -293,7 +293,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 					var performInstallation = false
 					let connection = NSXPCConnection(listenerEndpoint: endpoint)
 					let interface = NSXPCInterface(withProtocol:HelperProtocol.self)
-					interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: "processRequest:progress:reply:", argumentIndex: 1, ofReply: false)
+					interface.setInterface(NSXPCInterface(withProtocol: ProgressProtocol.self), forSelector: #selector(HelperProtocol.processRequest(_:progress:reply:)), argumentIndex: 1, ofReply: false)
 					connection.remoteObjectInterface = interface
 					connection.invalidationHandler = {
 						NSLog("XPC connection to helper invalidated.")
