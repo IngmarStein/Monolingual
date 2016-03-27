@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C48a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
@@ -208,6 +208,7 @@
                                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                             <font key="font" metaFont="titleBar" size="12"/>
                                                                         </buttonCell>
+                                                                        <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="enabled"/>
                                                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                         <prototypeCellViews>
                                                                             <tableCellView id="Xq0-Mr-jZo">
@@ -250,6 +251,7 @@
                                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                         </textFieldCell>
+                                                                        <sortDescriptor key="sortDescriptorPrototype" selector="localizedCompare:" sortKey="displayName"/>
                                                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                         <prototypeCellViews>
                                                                             <tableCellView id="e5v-OJ-Mpl">
@@ -286,6 +288,7 @@
                                                                 </tableColumns>
                                                                 <connections>
                                                                     <binding destination="iQT-Fj-d72" name="content" keyPath="arrangedObjects" id="jlu-yx-YUl"/>
+                                                                    <binding destination="iQT-Fj-d72" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="jlu-yx-YUl" id="iB9-9A-fcI"/>
                                                                     <outlet property="arrayController" destination="iQT-Fj-d72" id="zOG-Dx-IUV"/>
                                                                 </connections>
                                                             </tableView>
@@ -339,11 +342,11 @@
                                                 <scrollView horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MvI-uV-IhN">
                                                     <rect key="frame" x="20" y="57" width="346" height="277"/>
                                                     <clipView key="contentView" id="SKk-Kv-SfJ">
-                                                        <rect key="frame" x="1" y="0.0" width="329" height="260"/>
+                                                        <rect key="frame" x="1" y="0.0" width="344" height="276"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="NlO-4R-8fn" viewBased="YES" id="oIA-xq-q0B" customClass="ISTableView" customModule="Monolingual" customModuleProvider="target">
-                                                                <rect key="frame" x="0.0" y="0.0" width="329" height="237"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="344" height="253"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                                 <size key="intercellSpacing" width="3" height="2"/>
                                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -359,6 +362,7 @@
                                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                             <font key="font" metaFont="titleBar" size="12"/>
                                                                         </buttonCell>
+                                                                        <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="enabled"/>
                                                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                         <prototypeCellViews>
                                                                             <tableCellView id="frg-uD-vBQ">
@@ -383,7 +387,7 @@
                                                                             </tableCellView>
                                                                         </prototypeCellViews>
                                                                     </tableColumn>
-                                                                    <tableColumn identifier="Name" editable="NO" width="258.17822265625" minWidth="73.17822265625" maxWidth="1000" id="5qX-Sa-tJD">
+                                                                    <tableColumn identifier="Name" editable="NO" width="273.17822265625" minWidth="73.17822265625" maxWidth="1000" id="5qX-Sa-tJD">
                                                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Architecture">
                                                                             <font key="font" metaFont="smallSystem"/>
                                                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -394,13 +398,14 @@
                                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                         </textFieldCell>
+                                                                        <sortDescriptor key="sortDescriptorPrototype" selector="localizedCompare:" sortKey="displayName"/>
                                                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                         <prototypeCellViews>
                                                                             <tableCellView id="IXo-bT-dJA">
-                                                                                <rect key="frame" x="69" y="1" width="258" height="17"/>
+                                                                                <rect key="frame" x="69" y="1" width="273" height="17"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                                 <subviews>
-                                                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pWo-oD-xuT">
+                                                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="pWo-oD-xuT">
                                                                                         <rect key="frame" x="2" y="0.0" width="253" height="17"/>
                                                                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" id="yiF-fN-fVE">
                                                                                             <font key="font" metaFont="system"/>
@@ -433,6 +438,7 @@
                                                                 </tableColumns>
                                                                 <connections>
                                                                     <binding destination="qgA-ij-Tg9" name="content" keyPath="arrangedObjects" id="GRv-u8-CfU"/>
+                                                                    <binding destination="qgA-ij-Tg9" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="GRv-u8-CfU" id="53a-Fr-g1E"/>
                                                                     <outlet property="arrayController" destination="qgA-ij-Tg9" id="gem-Sl-eOb"/>
                                                                 </connections>
                                                             </tableView>
@@ -440,15 +446,15 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </clipView>
                                                     <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="YC3-bL-1je">
-                                                        <rect key="frame" x="1" y="260" width="329" height="16"/>
+                                                        <rect key="frame" x="1" y="260" width="344" height="16"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
                                                     <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="OqA-Jo-yiV">
-                                                        <rect key="frame" x="330" y="23" width="15" height="237"/>
+                                                        <rect key="frame" x="329" y="23" width="16" height="253"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
                                                     <tableHeaderView key="headerView" id="NlO-4R-8fn">
-                                                        <rect key="frame" x="0.0" y="0.0" width="329" height="23"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="344" height="23"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </tableHeaderView>
                                                     <connections>
@@ -507,7 +513,7 @@
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <arrayController objectClassName="ArchitectureSetting" clearsFilterPredicateOnInsertion="NO" id="qgA-ij-Tg9" userLabel="Architectures">
+                <arrayController objectClassName="ArchitectureSetting" clearsFilterPredicateOnInsertion="NO" automaticallyRearrangesObjects="YES" id="qgA-ij-Tg9" userLabel="Architectures">
                     <declaredKeys>
                         <string>name</string>
                         <string>enabled</string>
@@ -517,7 +523,7 @@
                         <binding destination="XfG-lQ-9wD" name="contentArray" keyPath="architectures" id="KkR-Te-ZzZ"/>
                     </connections>
                 </arrayController>
-                <arrayController objectClassName="LanguageSetting" clearsFilterPredicateOnInsertion="NO" id="iQT-Fj-d72" userLabel="Languages">
+                <arrayController objectClassName="LanguageSetting" clearsFilterPredicateOnInsertion="NO" automaticallyRearrangesObjects="YES" id="iQT-Fj-d72" userLabel="Languages">
                     <declaredKeys>
                         <string>displayName</string>
                         <string>enabled</string>
@@ -628,6 +634,7 @@
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="titleBar" size="12"/>
                                                                 </buttonCell>
+                                                                <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="Languages"/>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="wZm-eP-xef">
@@ -663,6 +670,7 @@
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
+                                                                <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="Architectures"/>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="rsx-mP-b9k">
@@ -699,6 +707,7 @@
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
+                                                                <sortDescriptor key="sortDescriptorPrototype" selector="localizedCompare:" sortKey="Path"/>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="a8l-8R-7ag">
@@ -729,6 +738,7 @@
                                                         <connections>
                                                             <binding destination="NZ6-CJ-opI" name="content" keyPath="arrangedObjects" id="N6S-dW-0Tb"/>
                                                             <binding destination="NZ6-CJ-opI" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="N6S-dW-0Tb" id="4NJ-TO-daz"/>
+                                                            <binding destination="NZ6-CJ-opI" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="4NJ-TO-daz" id="nK1-qJ-bF8"/>
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
@@ -795,7 +805,7 @@
                     </connections>
                 </viewController>
                 <customObject id="Psc-fF-xHW" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <arrayController clearsFilterPredicateOnInsertion="NO" id="NZ6-CJ-opI" userLabel="Roots">
+                <arrayController clearsFilterPredicateOnInsertion="NO" automaticallyRearrangesObjects="YES" id="NZ6-CJ-opI" userLabel="Roots">
                     <declaredKeys>
                         <string>Path</string>
                         <string>Languages</string>
