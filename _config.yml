@@ -10,3 +10,16 @@ github_username:  IngmarStein
 # Build settings
 markdown: kramdown
 permalink: pretty
+
+# Data settings
+github_url: https://github.com/IngmarStein/Monolingual
+github_version_url: https://github.com/IngmarStein/Monolingual/releases/tag/v
+github_download_url: https://github.com/IngmarStein/Monolingual/releases/download/vVERSION/Monolingual-VERSION
+sourceforge_url: https://sourceforge.net/projects/monolingual/
+
+defaults:
+  - scope:
+      path: ''
+      type: data
+    values:
+      history: no
