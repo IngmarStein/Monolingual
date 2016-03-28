@@ -4,7 +4,11 @@ layout: default
 		<div id="sidebar">
 			<h3>Download</h3>
 			<p id="download">
-				<a class="download" href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}"></a>
+				<a class="download" href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}">
+					<picture>
+						<img src="images/Monolingual_64.png" srcset="images/Monolingual_64.png, images/Monolingual_128.png 2x">
+					</picture>
+				</a>
 				<br />
 				<a href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}">Version {{ site.data.versions.first.version }}</a>
 			</p>
@@ -41,4 +45,7 @@ layout: default
 
 		<h2>Screenshot</h2>
 		<div class="screenshot">
+			<picture>
+				<img src="images/Monolingual-1.6.7-en.png" srcset="images/Monolingual-1.6.7-en.png, images/Monolingual-1.6.7-en_2x.png 2x">
+			</picture>
 		</div>

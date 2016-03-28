@@ -2,7 +2,7 @@ html
 {
 	margin: 0;
 	padding: 0;
-	font-family: "Helvetica Neue", "Helvetica", "Lucida Grande", Verdana, sans-serif;
+	font-family: -apple-system, "Helvetica Neue", "Helvetica", "Lucida Grande", Verdana, sans-serif;
 	font-size: 11pt;
 }
 img
@@ -162,46 +162,16 @@ div.screenshot {
 	margin: auto;
 	width: 541px;
 	height: 563px;
-	background-image: url(../images/Monolingual-1.6.7-en.png);
-	background-size: cover;
 }
-@media screen and (-webkit-min-device-pixel-ratio: 2) {
-	div.screenshot {
-		background-image: url(../images/Monolingual-1.6.7-en_2x.png);
-	}
-}
-
 a.download {
-	width: 64px;
-	height: 64px;
-	background-image: url(../images/Monolingual_64.png);
-	background-size: cover;
-	display: inline-block;
+	text-decoration: none;
 }
-@media screen and (-webkit-min-device-pixel-ratio: 2) {
-	a.download {
-		background-image: url(../images/Monolingual_128.png);
-	}
-}
-
 a.html5badge {
-	width: 32px;
-	height: 32px;
-	background-image: url(../images/HTML5_Badge_32.png);
-	background-size: cover;
-	display: inline-block;
+	text-decoration: none;
 }
-@media screen and (-webkit-min-device-pixel-ratio: 2) {
-	a.html5badge {
-		background-image: url(../images/HTML5_Badge_64.png);
-	}
-}
-
 div#compliance
 {
-	position: absolute;
-	right: 30px;
-	bottom: 20px;
+	text-align: right;
 }
 /* IE treats absolute in a fashion of his own, */
 /* so let's fall back to a static, right-aligned div */
