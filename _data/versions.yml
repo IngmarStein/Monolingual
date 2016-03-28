@@ -1,0 +1,414 @@
+- version: 1.7.3
+  release: 2016-03-27
+  changes:
+    - Russian localization.
+    - 'Fixed a regression: tables can now be sorted again.'
+  sparkle:
+    md5: 839aae2c332e8bcae5f2716649e4a3e7
+    dsa: MCwCFEoHWPi4zz4HYSPyVyyjSbNqauD9AhQGPxNWmR5gsgYzaqnQR6AzhYGdCQ==
+    filesize: 7925623
+  minimum: '10.11'
+
+- version: 1.7.2
+  release: 2015-10-04
+  changes:
+    - Various bugfixes.
+  sparkle:
+    md5: 86633de7db4507b1aca9f479c7c5099c
+    dsa: MC0CFE9b6YZNt0bb2IMRbREvs76J+7MNAhUAhEF1gz8qp9wSawR9MKxM8xY0PfU=
+    filesize: 7626082
+  minimum: '10.11'
+
+- version: 1.7.1
+  release: 2015-09-23
+  changes:
+    - Various bugfixes.
+  minimum: '10.11'
+
+- version: 1.7.0
+  release: 2015-09-20
+  changes:
+    - >
+      Monolingual now uses <a
+      href="https://www.apple.com/osx/what-is/security/">App Sandboxing</a>.
+    - >
+      The reported space savings should now be more accurate (HFS+ file
+      compression is taken into account).
+    - After updating Monolingual, the password needs to be entered only once.
+    - >
+      Upgrade notice: Monolingual's application identifier has changed which
+      means that your settings won't be migrated to the new version.
+  minimum: '10.11'
+
+- version: 1.6.7
+  release: 2015-04-02
+  changes:
+    - Various bugfixes.
+  minimum: '10.10'
+
+- version: 1.6.6
+  release: 2015-03-29
+  changes:
+    - Various bugfixes.
+  minimum: '10.10'
+
+- version: 1.6.5
+  release: 2015-03-26
+  changes:
+    - Various bugfixes.
+  minimum: '10.10'
+
+- version: 1.6.4
+  release: 2015-03-25
+  changes:
+    - Korean localization by Woosuk Park.
+    - Dutch localization by Tobias T.
+    - Add support for the new resource rules format introduced in Mavericks.
+  minimum: '10.10'
+
+- version: 1.6.3
+  release: 2014-12-25
+  changes:
+    - Various bugfixes.
+  minimum: '10.10'
+
+- version: 1.6.2
+  release: 2014-12-19
+  changes:
+    - Various bugfixes.
+  minimum: '10.10'
+
+- version: 1.6.1
+  release: 2014-11-01
+  changes:
+    - Various bugfixes.
+  minimum: '10.10'
+
+- version: 1.6.0
+  release: 2014-10-17
+  changes:
+    - >
+      Monolingual has been rewritten in Swift and now requires OS X 10.10
+      (Yosemite).
+  minimum: '10.10'
+
+- version: 1.5.10
+  release: 2014-04-17
+  changes:
+    - Fixed a code signing issue.
+  minimum: '10.7'
+
+- version: 1.5.9
+  release: 2014-04-15
+  changes:
+    - Added Greek translation.
+  minimum: '10.7'
+
+- version: 1.5.8
+  release: 2013-11-09
+  changes:
+    - Fixed default language selection on Mavericks.
+    - Added sk_SK.lproj for Slovakian localizations.
+    - Added fil.lproj for Filipino localizations.
+    - Added es_419.lproj for Spanish localizations.
+  minimum: '10.7'
+
+- version: 1.5.7
+  release: 2012-10-17
+  changes:
+    - Fixed an issue when upgrading from Monolingual 1.5.0 or 1.5.1.
+  minimum: '10.7'
+
+- version: 1.5.6
+  release: 2012-10-06
+  changes:
+    - Fixed helper tool upgrade process.
+  minimum: '10.7'
+
+- version: 1.5.5
+  release: 2012-10-03
+  changes:
+    - Miscellaneous bugfixes.
+  minimum: '10.7'
+
+- version: 1.5.4
+  release: 2012-09-26
+  changes:
+    - Restored compatibility with Mac OS X 10.7 Lion.
+  minimum: '10.7'
+
+- version: 1.5.3
+  release: 2012-09-24
+  changes:
+    - Removed the dangerous ability to remove keyboard layouts.
+    - Uses Notification Center instead of Growl on Mountain Lion.
+    - Automatically terminate the helper process.
+    - New retina-ready icon by Matt Davey.
+  minimum: '10.7'
+
+- version: 1.5.2
+  release: 2012-08-06
+  changes:
+    - Corrected Developer ID for Gatekeeper.
+  minimum: '10.7'
+
+- version: 1.5.1
+  release: 2012-08-05
+  changes:
+    - Restored compatibility with Mac OS X 10.7.
+    - Fixed a bug which prevented list entries to be (de-)selected.
+  minimum: '10.7'
+
+- version: 1.5.0
+  release: 2012-08-05
+  changes:
+    - Signed with a Developer ID for Gatekeeper support (Mountain Lion).
+    - >
+      Asks for administrator password only once (to install a privileged
+      helper tool).
+    - >
+      Now requires OS X 10.7 and a 64-bit capable Mac (to leverage new
+      technologies such as XPC and ARC).
+  minimum: '10.7'
+
+- version: 1.4.5
+  release: 2010-12-05
+  changes:
+    - Miscellaneous bugfixes.
+  minimum: '10.5'
+
+- version: 1.4.4
+  release: 2010-06-07
+  changes:
+    - Fix blacklist.
+  minimum: '10.5'
+
+- version: 1.4.3
+  release: 2010-03-09
+  changes:
+    - Downloadable blacklist.
+    - >
+      Keep files that are listed in the CodeResources of a bundle, so that the
+      code signing remains valid.
+  minimum: '10.5'
+
+- version: 1.4.2
+  release: 2010-02-03
+  changes:
+    - Added Spanish localization by Fran Ramírez.
+    - Bugfix in the Italian localization.
+    - Added JollysFastVNC to the blacklist.
+  minimum: '10.5'
+
+- version: 1.4.1
+  release: 2009-09-08
+  changes:
+    - Bugfixes.
+  minimum: '10.5'
+
+- version: 1.4.0
+  release: 2009-09-05
+  changes:
+    - Snow Leopard support.
+  minimum: '10.5'
+
+- version: 1.3.9
+  release: 2008-03-27
+  changes:
+    - Bugfixes.
+  minimum: '10.2'
+
+- version: 1.3.8
+  release: 2008-02-05
+  changes:
+    - Added Starry Night to the blacklist.
+    - Better CPU check for Core 2 processors.
+    - >
+      Monolingual now logs all operations to
+      <code>~/Library/Logs/Monolingual.log</code>.
+    - Added ability to strip debug information from binaries.
+  minimum: '10.2'
+
+- version: 1.3.7
+  release: 2007-01-07
+  changes:
+    - Added DiskWarrior to the blacklist.
+    - Added en_NZ locale [English (New Zealand)].
+    - >
+      Automatic updates using <a
+      href="http://andymatuschak.org/pages/sparkle">Sparkle</a>.
+    - Excluded <code>/System/Library/PrivateFrameworks</code>.
+  minimum: '10.2'
+
+- version: 1.3.6
+  release: 2006-12-31
+  changes:
+    - Fixed a frequently reported crash on launch.
+  minimum: '10.2'
+
+- version: 1.3.5
+  release: 2006-12-23
+  changes:
+    - >
+      Exclude <code>/System/Library/Frameworks</code> when removing
+      architectures (needed to run PowerPC applications on Intel Macs).
+  minimum: '10.2'
+
+- version: 1.3.4
+  release: 2006-08-08
+  changes:
+    - Added support for x86_64.
+  minimum: '10.2'
+
+- version: 1.3.3
+  release: 2006-08-05
+  changes:
+    - >
+      Added a blacklist to exlude popular applications which employ checksums
+      from being stripped.
+    - Bugfixes.
+  minimum: '10.2'
+
+- version: 1.3.2
+  release: 2006-02-04
+  changes:
+    - Fixed an infinite loop if "/" is added to the directory list.
+    - Removing architectures is now much faster.
+    - >
+      Universal binaries containing only a single architecture are now
+      converted to non-univeral binaries, saving some more space.
+    - Several bugfixes.
+    - Added a "Donate" menu item.
+  minimum: '10.2'
+
+- version: 1.3.1
+  release: 2006-02-01
+  changes:
+    - Fixed a performance regression introduced in 1.3.0.
+    - Added five more languages to the list.
+  minimum: '10.2'
+
+- version: 1.3.0
+  release: 2006-01-29
+  changes:
+    - <a href="http://www.apple.com/universal/">Universal Binary</a>.
+    - Added feature to remove unwanted architectures from universal binaries.
+    - Added "check for update" menu item.
+  minimum: '10.2'
+
+- version: 1.2.9
+  release: 2005-05-02
+  changes:
+    - >
+      Support for <a href="http://www.apple.com/macosx/tiger/index.html">Mac OS
+      X 10.4 (Tiger)</a>.
+    - Updated <a href="http://growl.info">Growl</a> support.
+    - Improved German readme by Andreas Kromke.
+  minimum: '10.2'
+
+- version: 1.2.8
+  release: 2005-02-28
+  changes:
+    - >
+      Added the possibility to exclude certain paths from being searched for
+      language files. Few applications like Adobe Acrobat explicitly check for
+      the existence of some files and refuse to start if those files are missing
+      (although they are not needed), so add those applications to the exclude
+      list.
+  minimum: '10.2'
+
+- version: 1.2.7
+  release: 2004-10-26
+  changes:
+    - <a href="http://growl.info">Growl</a> support.
+  minimum: '10.2'
+
+- version: 1.2.6
+  release: 2004-09-09
+  changes:
+    - Italian localization by Mirko de Grandis.
+  minimum: '10.2'
+
+- version: 1.2.5
+  release: 2004-08-29
+  changes:
+    - Recompiled with <a href="https://www.apple.com/xcode">Xcode</a> 1.5.
+    - >
+      Added an option to move language files to the trash instead of deleting
+      them.
+  minimum: '10.2'
+
+- version: 1.2.4
+  release: 2004-05-28
+  changes:
+    - Added a few more languages.
+    - Added the ability to remove keyboard layouts and input methods.
+    - The search paths for language files can now be customized.
+    - Some assorted bugfixes.
+  minimum: '10.2'
+
+- version: 1.2.3
+  release: 2004-04-13
+  changes:
+    - Display a warning dialog when trying to delete English language files.
+    - French localization by François Besoli.
+  minimum: '10.2'
+
+- version: 1.2.2
+  release: 2004-04-12
+  changes:
+    - Always uncheck 'English'.
+    - Some minor tweaks (performance improvement, smaller file size).
+    - Truncate the middle part of long filenames.
+  minimum: '10.2'
+
+- version: 1.2.1
+  release: 2004-04-10
+  changes:
+    - Changed all links to point to the new home at SourceForge.
+    - Made main window resizeable.
+    - Updated screenshots.
+  minimum: '10.2'
+
+- version: 1.2.0
+  release: 2004-04-09
+  changes:
+    - >
+      Version 1.2.0 was almost completely rewritten and features a completely
+      new user interface. Monolingual no longer uses a custom password panel but
+      Mac OS X's Security Framework. The perl script is no longer needed by the
+      application, but is still included in the Monolingual distribution. Many
+      languages have been added. Requires OS X 10.2 or later.
+  minimum: '10.2'
+
+- version: 1.1.2
+  changes:
+    - >
+      Adds German localization and documentation by Alex Thurley, and fixes a
+      GUI bug that occurs when all languages except one are selected.
+  history: yes
+
+- version: 1.1.1
+  changes:
+    - >
+      Adds Swedish localization by Joel Arvidsson and Polish localization by
+      Mariusz Ostrowski, as well as auto-detecting the current language and some
+      minor GUI fixes.
+  history: yes
+
+- version: '1.1'
+  changes:
+    - >
+      Adds support for removing all of the new languages introduced by Apple.
+      Many people have inadvertantly added these to their system using Software
+      Update. It also removes the of "two-letter country" resources to reclaim
+      additional space.
+  history: yes
+
+- version: 1.0.1
+  changes:
+    - >
+      Adds Japanese localization by Takehiko Hatatani and an icon by Adam Betts,
+      as well as fixing a problem in OS X 10.1.2 where an incorrect password
+      causes the program to freeze.
+  history: yes

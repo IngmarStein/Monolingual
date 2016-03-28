@@ -1,34 +1,42 @@
+---
+layout: null
+---
 <?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
 	<channel>
-		<title>Monolingual Changelog</title>
-		<link>https://ingmarstein.github.io/Monolingual/appcast.xml</link>
+		<title>{{ site.title | xml_escape }} Updates</title>
+		<link>{{ "appcast.xml" | prepend: site.baseurl | prepend: site.url }}</link>
 		<description>Most recent changes with links to updates.</description>
-		<docs>http://blogs.law.harvard.edu/tech/rss</docs>
-		<language>en</language>
-		<pubDate>Sun, 27 Mar 2016 20:16:42 +0200</pubDate>
-		<lastBuildDate>Sun, 27 Mar 2016 20:16:42 +0200</lastBuildDate>
-		<atom:link href="https://ingmarstein.github.io/Monolingual/appcast.xml" rel="self" type="application/rss+xml"/>
+    {% assign versions = site.data.versions | where:'history', no | group_by:'minimum' %}
+    {% for version in versions %}{% for entry in version.items limit:1 %}
 		<item>
-			<title>Version 1.7.3</title>
-			<sparkle:minimumSystemVersion>10.11</sparkle:minimumSystemVersion>
-			<description><![CDATA[
-<html>
-	<head>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8">
-		<title>What's new in Monolingual?</title>
-		<meta name="robots" content="anchors">
-	</head>
-	<body>
-		<ul>
-		<li>Russian localization.</li>
-		<li>Fixed a regression: tables can now be sorted again.</li>
-		</ul>
-	</body>
-</html>
-]]></description>
-			<pubDate>Sun, 27 Mar 2016 20:16:42 +0200</pubDate>
-			<enclosure sparkle:md5sum="839aae2c332e8bcae5f2716649e4a3e7" sparkle:dsaSignature="MCwCFEoHWPi4zz4HYSPyVyyjSbNqauD9AhQGPxNWmR5gsgYzaqnQR6AzhYGdCQ==" sparkle:version="1.7.3" url="https://github.com/IngmarStein/Monolingual/releases/download/v1.7.3/Monolingual-1.7.3.tar.bz2" length="7925623" type="application/octet-stream"/>
+			<title>Version {{ entry.version | xml_escape }}</title>
+			<sparkle:minimumSystemVersion>{{ entry.minimum | xml_escape }}</sparkle:minimumSystemVersion>
+      {% if entry.changes.size == 1 %}
+			<description>
+        <![CDATA[
+          <p>{{ entry.changes }}<p>
+        ]]>
+      </description>
+      {% elsif entry.changes.size > 1 %}
+      <description>
+        <![CDATA[
+          <ul>
+            {% for entry in entry.changes %}
+            <li>{{ entry }}</li>
+            {% endfor %}
+          </ul>
+        ]]>
+      </description>
+      {% endif %}
+			<pubDate>{{ entry.release | date_to_xmlschema }}</pubDate>
+      {% if entry.sparkle %}
+			<enclosure url="{{ site.github_download_url | replace: 'VERSION', entry.version | append: '.tar.bz2' | xml_escape }}" sparkle:version="{{ entry.version | string | xml_escape }}" length="{{ entry.sparkle.filesize | string | xml_escape }}" type="application/octet-stream" sparkle:dsaSignature="{{ entry.sparkle.dsa | string | xml_escape }}" sparkle:md5sum="{{ entry.sparkle.md5 | string | xml_escape }}" />
+      {% else %}
+      <sparkle:version>{{ entry.version | xml_escape }}</sparkle:version>
+      <link>{{ site.github_version_url | append: entry.version | strip | xml_escape }}</link>
+      {% endif %}
 		</item>
+    {% endfor %}{% endfor %}
 	</channel>
 </rss>

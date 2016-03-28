@@ -1,21 +1,20 @@
 ---
 layout: default
-title: Monolingual
 ---
 		<div id="sidebar">
 			<h3>Download</h3>
 			<p id="download">
-				<a class="download" href="https://github.com/IngmarStein/Monolingual/releases/download/v1.7.3/Monolingual-1.7.3.dmg"></a>
+				<a class="download" href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}"></a>
 				<br />
-				<a href="https://github.com/IngmarStein/Monolingual/releases/download/v1.7.3/Monolingual-1.7.3.dmg">Version 1.7.3 (64-bit)</a>
+				<a href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}">Version {{ site.data.versions.first.version }}</a>
 			</p>
 
 			<h3>Links</h3>
 				<ul>
-					<li><a href="https://github.com/IngmarStein/Monolingual">GitHub page</a></li>
-					<li><a href="http://sourceforge.net/projects/monolingual">SourceForge project page</a></li>
-					<li><a href="https://github.com/IngmarStein/Monolingual/releases">All Downloads</a></li>
-					
+					<li><a href="{{ site.github_url }}">GitHub page</a></li>
+					<li><a href="{{ site.sourceforge_url }}">SourceForge project page</a></li>
+					<li><a href="{{ site.github_url | append: '/releases' }}">All Downloads</a></li>
+
 					<li><br /><a href="donate.html"><img src="images/project-support.jpg" width="88" height="32" class="link" alt="Support This Project" /></a></li>
 				</ul>
 		</div>
@@ -34,10 +33,10 @@ title: Monolingual
 			space for more useful things&#8230; like international mp3 files, email or whatever you like.
 		</p>
 		<p>
-			<a href="https://github.com/IngmarStein/Monolingual/releases/download/v1.6.7/Monolingual-1.6.7.dmg">Version 1.6.7</a> is the last version for OS X 10.10 (Yosemite).
-			<a href="https://github.com/IngmarStein/Monolingual/releases/download/v1.5.10/Monolingual-1.5.10.dmg">Version 1.5.10</a> is the last version for Mac OS X 10.7 (Lion), OS X 10.8 (Mountain Lion) and OS X 10.9 (Mavericks).
-			<a href="https://github.com/IngmarStein/Monolingual/releases/download/v1.4.5/Monolingual-1.4.5.dmg">Version 1.4.5</a> is the last version for Mac OS X 10.6 (Snow Leopard) which also includes PowerPC support.
-			<a href="https://github.com/IngmarStein/Monolingual/releases/download/v1.3.9/Monolingual-1.3.9.dmg">Version 1.3.9</a> is the last version for Mac OS X 10.4 (Tiger).
+			<a href="{{ site.github_download_url | replace: 'VERSION', '1.6.7' | append: '.dmg' }}">Version 1.6.7</a> is the last version for OS X 10.10 (Yosemite).
+			<a href="{{ site.github_download_url | replace: 'VERSION', '1.5.10' | append: '.dmg' }}">Version 1.5.10</a> is the last version for Mac OS X 10.7 (Lion), OS X 10.8 (Mountain Lion) and OS X 10.9 (Mavericks).
+			<a href="{{ site.github_download_url | replace: 'VERSION', '1.4.5' | append: '.dmg' }}">Version 1.4.5</a> is the last version for Mac OS X 10.6 (Snow Leopard) which also includes PowerPC support.
+			<a href="{{ site.github_download_url | replace: 'VERSION', '1.3.9' | append: '.dmg' }}">Version 1.3.9</a> is the last version for Mac OS X 10.4 (Tiger).
 		</p>
 
 		<h2>Screenshot</h2>
