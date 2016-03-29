@@ -50,4 +50,6 @@ GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
 
 ## Status
 
-[![Build Status](https://travis-ci.org/IngmarStein/Monolingual.svg?branch=master)](https://travis-ci.org/IngmarStein/Monolingual)
+[![Build Status](https://img.shields.io/travis/IngmarStein/Monolingual.svg)](https://travis-ci.org/IngmarStein/Monolingual)
+[![Dependencies](https://img.shields.io/gemnasium/IngmarStein/Monolingual.svg)](https://gemnasium.com/IngmarStein/Monolingual)
+[![Code Climate](https://img.shields.io/codeclimate/github/IngmarStein/Monolingual.svg)](https://codeclimate.com/github/IngmarStein/Monolingual)

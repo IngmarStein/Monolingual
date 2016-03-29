@@ -9,7 +9,7 @@ SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
 ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
 ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
-XCODEBUILD=$(shell which xctool || echo "xcodebuild")
+XCODEBUILD=$(shell which xcbuild || shell which xctool || echo "xcodebuild")
 
 .PHONY: all release development deployment archive clean
 
