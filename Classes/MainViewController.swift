@@ -536,6 +536,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			let components = NSLocale.componentsFromLocaleIdentifier(localeIdentifier)
 			if let language = components[NSLocaleLanguageCode], country = components[NSLocaleCountryCode] {
 				folders.append("\(language)-\(country).lproj")
+				folders.append("\(language)_\(country).lproj")
 			} else if let displayName = systemLocale.displayNameForKey(NSLocaleIdentifier, value: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
