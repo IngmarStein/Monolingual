@@ -50,7 +50,11 @@ do {
 		helper.processRequest(request, progress: nil) { (result) -> Void in
 			exit(Int32(result))
 		}
+		#if swift(>=3.0)
+		NSRunLoop.current().run()
+		#else
 		NSRunLoop.currentRunLoop().run()
+		#endif
 	} else {
 		helper.run()
 	}

@@ -38,10 +38,17 @@ import Foundation
 		let stringArray = Set([stringClass, arrayClass])
 		let stringSet = Set([stringClass, setClass])
 
+		#if swift(>=3.0)
+		dryRun = aDecoder.decodeBool(forKey: "dryRun")
+		doStrip = aDecoder.decodeBool(forKey: "doStrip")
+		uid = uid_t(aDecoder.decodeInteger(forKey: "uid"))
+		trash = aDecoder.decodeBool(forKey: "trash")
+		#else
 		dryRun = aDecoder.decodeBoolForKey("dryRun")
 		doStrip = aDecoder.decodeBoolForKey("doStrip")
 		uid = uid_t(aDecoder.decodeIntegerForKey("uid"))
 		trash = aDecoder.decodeBoolForKey("trash")
+		#endif
 		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey:"includes") as? [String]
 		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey:"excludes") as? [String]
 		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey:"bundleBlacklist") as? Set<String>
@@ -52,6 +59,20 @@ import Foundation
 		super.init()
 	}
 
+	#if swift(>=3.0)
+	func encode(with coder: NSCoder) {
+		coder.encode(dryRun, forKey:"dryRun")
+		coder.encode(doStrip, forKey:"doStrip")
+		coder.encode(Int(uid), forKey:"uid")
+		coder.encode(trash, forKey:"trash")
+		coder.encode(includes, forKey:"includes")
+		coder.encode(excludes, forKey:"excludes")
+		coder.encode(bundleBlacklist, forKey:"bundleBlacklist")
+		coder.encode(directories, forKey:"directories")
+		coder.encode(files, forKey:"files")
+		coder.encode(thin, forKey:"thin")
+	}
+	#else
 	func encodeWithCoder(coder : NSCoder) {
 		coder.encodeBool(dryRun, forKey:"dryRun")
 		coder.encodeBool(doStrip, forKey:"doStrip")
@@ -64,6 +85,7 @@ import Foundation
 		coder.encodeObject(files, forKey:"files")
 		coder.encodeObject(thin, forKey:"thin")
 	}
+	#endif
 
 	static func supportsSecureCoding() -> Bool {
 		return true

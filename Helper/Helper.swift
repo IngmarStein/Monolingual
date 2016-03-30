@@ -26,9 +26,14 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	private var timer: NSTimer?
 	private let timeoutInterval = NSTimeInterval(30.0)
 	private let workerQueue = NSOperationQueue()
+	private var isRootless = true
 
 	var version: String {
+		#if swift(>=3.0)
+		return NSBundle.main().object(forInfoDictionaryKey:"CFBundleVersion") as! String
+		#else
 		return NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleVersion") as! String
+		#endif
 	}
 
 	override init() {
@@ -38,15 +43,21 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
+		isRootless = checkRootless()
+		NSLog("isRootless=\(isRootless)")
 	}
 
 	func run() {
 		NSLog("MonolingualHelper started")
 
 		listener.resume()
+		#if swift(>=3.0)
+		timer = NSTimer.scheduledTimer(withTimeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
+		NSRunLoop.current().run()
+		#else
 		timer = NSTimer.scheduledTimerWithTimeInterval(timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
-
 		NSRunLoop.currentRunLoop().run()
+		#endif
 	}
 
 	@objc func timeout(_: NSTimer) {
@@ -82,7 +93,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	func processRequest(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply:(Int) -> Void) {
 		timer?.invalidate()
 
-		let context = HelperContext(request)
+		let context = HelperContext(request, rootless: isRootless)
 
 		//NSLog("Received request: %@", request)
 
@@ -161,7 +172,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 			return
 		}
 
-		if context.isExcluded(url) || context.isDirectoryBlacklisted(url) || url.isProtected {
+		if context.isExcluded(url) || context.isDirectoryBlacklisted(url) || (isRootless && url.isProtected) {
 			return
 		}
 
@@ -181,7 +192,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				}
 
 				if let isDirectory = isDirectory as? Bool where isDirectory {
-					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || theURL.isProtected {
+					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || (isRootless && theURL.isProtected) {
 						dirEnumerator.skipDescendents()
 						continue
 					}
@@ -285,7 +296,11 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 				let oldSize = size as! Int
 
+				#if swift(>=3.0)
+				let task = NSTask.launchedTask(withLaunchPath: "/usr/bin/strip", arguments: ["-u", "-x", "-S", "-", path])
+				#else
 				let task = NSTask.launchedTaskWithLaunchPath("/usr/bin/strip", arguments:["-u", "-x", "-S", "-", path])
+				#endif
 				task.waitUntilExit()
 
 				if task.terminationStatus != EXIT_SUCCESS {
@@ -317,5 +332,33 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				NSLog("Failed to get file attributes for '%@': %@", url, error)
 			}
 		}
+	}
+
+	// check if SIP is enabled, see https://github.com/IngmarStein/Monolingual/issues/74
+	func checkRootless() -> Bool {
+		let protectedDirectory = NSURL(fileURLWithPath: "/System/Monolingual.sip", isDirectory: true)
+		let fileManager = NSFileManager.defaultManager()
+
+		do {
+			#if swift(>=3.0)
+			try fileManager.createDirectory(at: protectedDirectory, withIntermediateDirectories: false, attributes: nil)
+			#else
+			try fileManager.createDirectoryAtURL(protectedDirectory, withIntermediateDirectories: false, attributes: nil)
+			#endif
+		} catch {
+			return true
+		}
+
+		do {
+			#if swift(>=3.0)
+			try fileManager.removeItem(at: protectedDirectory)
+			#else
+			try fileManager.removeItemAtURL(protectedDirectory)
+			#endif
+		} catch let error as NSError {
+			NSLog("Failed to remove temporary file '%@': %@", protectedDirectory, error)
+		}
+
+		return false
 	}
 }

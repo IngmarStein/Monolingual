@@ -15,9 +15,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	var progress: NSProgress?
 	private var fileBlacklist = Set<NSURL>()
 	var fileManager = NSFileManager()
+	let isRootless: Bool
 
-	init(_ request: HelperRequest) {
+	init(_ request: HelperRequest, rootless: Bool) {
 		self.request = request
+		self.isRootless = rootless
 
 		super.init()
 
@@ -65,7 +67,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	func addCodeResourcesToBlacklist(url: NSURL) {
 		var codeRef: SecStaticCode?
+		#if swift(>=3.0)
+		let result = SecStaticCodeCreateWithPath(url, .defaultFlags, &codeRef)
+		#else
 		let result = SecStaticCodeCreateWithPath(url, .DefaultFlags, &codeRef)
+		#endif
 		if result == errSecSuccess, let code = codeRef {
 			var codeInfoRef: CFDictionary?
 			// warning: this relies on kSecCSInternalInformation
@@ -160,7 +166,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			var success = false
 			seteuid(request.uid)
 			do {
+				#if swift(>=3.0)
+				try fileManager.trashItem(at: url, resultingItemURL:&dstURL)
+				#else
 				try fileManager.trashItemAtURL(url, resultingItemURL:&dstURL)
+				#endif
 				success = true
 			} catch let error1 as NSError {
 				error = error1
@@ -170,8 +180,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			if !success {
 				do {
 					// move the file to root's trash
+					#if swift(>=3.0)
+					try self.fileManager.trashItem(at: url, resultingItemURL:&dstURL)
+					#else
 					try self.fileManager.trashItemAtURL(url, resultingItemURL:&dstURL)
-					// move the file to root's trash
+					#endif
 					success = true
 				} catch let error1 as NSError {
 					error = error1
@@ -202,7 +215,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			}
 		} else {
 			do {
+				#if swift(>=3.0)
+				try self.fileManager.removeItem(at: url)
+				#else
 				try self.fileManager.removeItemAtURL(url)
+				#endif
 			} catch let error1 as NSError {
 				error = error1
 				if let error = error {
@@ -217,11 +234,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	private func fileManager(fileManager: NSFileManager, shouldProcessItemAtURL URL:NSURL) -> Bool {
-		if request.dryRun || isFileBlacklisted(URL) || URL.isProtected {
+		if request.dryRun || isFileBlacklisted(URL) || (isRootless && URL.isProtected) {
 			return false
 		}
 
-		// TODO: it is wrong to report process here, deletion might fail (e.g. for SIP restricted files)
+		// TODO: it is wrong to report process here, deletion might fail
 		var size: AnyObject?
 		do {
 			try URL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
@@ -241,6 +258,17 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	//MARK: - NSFileManagerDelegate
 
+	#if swift(>=3.0)
+	func fileManager(fileManager: NSFileManager, shouldRemoveItemAt URL: NSURL) -> Bool {
+		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
+	}
+
+	func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
+		NSLog("Error removing '%@': %@", URL.path!, error)
+
+		return true
+	}
+	#else
 	func fileManager(fileManager: NSFileManager, shouldRemoveItemAtURL URL: NSURL) -> Bool {
 		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
 	}
@@ -250,4 +278,5 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 		return true
 	}
+	#endif
 }
