@@ -16,26 +16,30 @@ final class PreferencesViewController : NSViewController {
 	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
 	@IBAction func togglePreference(sender: AnyObject) {
-		let selectionIndex = self.roots.selectionIndex
+		let selectionIndex = roots.selectionIndex
 		let dummy = []
-		self.roots.addObject(dummy)
-		self.roots.removeObject(dummy)
-		self.roots.setSelectionIndex(selectionIndex)
+		roots.addObject(dummy)
+		roots.removeObject(dummy)
+		roots.setSelectionIndex(selectionIndex)
 		tableView.window?.makeFirstResponder(tableView)
 	}
 
-	@IBAction func add(sender: AnyObject) {
-		let oPanel = NSOpenPanel()
+    @IBAction func performAction(sender: NSSegmentedControl) {
+        if sender.selectedSegment == 0 {
+            let oPanel = NSOpenPanel()
 
-		oPanel.allowsMultipleSelection = true
-		oPanel.canChooseDirectories = true
-		oPanel.canChooseFiles = false
-		oPanel.treatsFilePackagesAsDirectories = true
+            oPanel.allowsMultipleSelection = true
+            oPanel.canChooseDirectories = true
+            oPanel.canChooseFiles = false
+            oPanel.treatsFilePackagesAsDirectories = true
 
-		oPanel.beginWithCompletionHandler { result in
-			if NSModalResponseOK == result {
-				self.roots.addObjects(oPanel.URLs.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
-			}
-		}
-	}
+            oPanel.beginWithCompletionHandler { result in
+                if NSModalResponseOK == result {
+                    self.roots.addObjects(oPanel.URLs.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
+                }
+            }
+        } else if sender.selectedSegment == 1 {
+            roots.remove(sender)
+        }
+    }
 }
