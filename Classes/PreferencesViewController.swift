@@ -24,22 +24,22 @@ final class PreferencesViewController : NSViewController {
 		tableView.window?.makeFirstResponder(tableView)
 	}
 
-    @IBAction func performAction(sender: NSSegmentedControl) {
-        if sender.selectedSegment == 0 {
-            let oPanel = NSOpenPanel()
+	@IBAction func performAction(sender: NSSegmentedControl) {
+		if sender.selectedSegment == 0 {
+			let oPanel = NSOpenPanel()
 
-            oPanel.allowsMultipleSelection = true
-            oPanel.canChooseDirectories = true
-            oPanel.canChooseFiles = false
-            oPanel.treatsFilePackagesAsDirectories = true
+			oPanel.allowsMultipleSelection = true
+			oPanel.canChooseDirectories = true
+			oPanel.canChooseFiles = false
+			oPanel.treatsFilePackagesAsDirectories = true
 
-            oPanel.beginWithCompletionHandler { result in
-                if NSModalResponseOK == result {
-                    self.roots.addObjects(oPanel.URLs.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
-                }
-            }
-        } else if sender.selectedSegment == 1 {
-            roots.remove(sender)
-        }
-    }
+			oPanel.beginWithCompletionHandler { result in
+				if NSModalResponseOK == result {
+					self.roots.addObjects(oPanel.URLs.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
+				}
+			}
+		} else if sender.selectedSegment == 1 {
+			roots.remove(sender)
+		}
+	}
 }
