@@ -312,8 +312,8 @@
                                                     </connections>
                                                 </scrollView>
                                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0Gf-z3-wgw">
-                                                    <rect key="frame" x="286" y="10" width="89" height="32"/>
-                                                    <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="7bE-Hh-5SU">
+                                                    <rect key="frame" x="276" y="10" width="99" height="32"/>
+                                                    <buttonCell key="cell" type="push" title="Remove…" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="7bE-Hh-5SU">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
                                                         <string key="keyEquivalent"></string>
@@ -462,8 +462,8 @@
                                                     </connections>
                                                 </scrollView>
                                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="65V-iD-EUO">
-                                                    <rect key="frame" x="286" y="10" width="89" height="32"/>
-                                                    <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="oQU-Vk-TEO">
+                                                    <rect key="frame" x="276" y="10" width="99" height="32"/>
+                                                    <buttonCell key="cell" type="push" title="Remove…" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="oQU-Vk-TEO">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
                                                         <string key="keyEquivalent"></string>
@@ -474,7 +474,7 @@
                                                     </connections>
                                                 </button>
                                                 <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HY1-Mt-SGD">
-                                                    <rect key="frame" x="15" y="20" width="268" height="14"/>
+                                                    <rect key="frame" x="15" y="20" width="261" height="14"/>
                                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Current architecture: %@" id="yB7-o0-eDt">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -485,7 +485,7 @@
                                             <constraints>
                                                 <constraint firstItem="MvI-uV-IhN" firstAttribute="top" secondItem="iOc-2Z-Ipp" secondAttribute="top" constant="3" id="0VC-Fx-FvK"/>
                                                 <constraint firstAttribute="trailing" secondItem="MvI-uV-IhN" secondAttribute="trailing" constant="17" id="Cd4-em-1dk"/>
-                                                <constraint firstItem="65V-iD-EUO" firstAttribute="leading" secondItem="HY1-Mt-SGD" secondAttribute="trailing" constant="11" id="MYE-Qu-fmO"/>
+                                                <constraint firstItem="65V-iD-EUO" firstAttribute="leading" secondItem="HY1-Mt-SGD" secondAttribute="trailing" constant="8" id="MYE-Qu-fmO"/>
                                                 <constraint firstItem="HY1-Mt-SGD" firstAttribute="baseline" secondItem="65V-iD-EUO" secondAttribute="baseline" id="ad2-R5-1Mu"/>
                                                 <constraint firstAttribute="trailing" secondItem="65V-iD-EUO" secondAttribute="trailing" constant="17" id="caA-GF-CLp"/>
                                                 <constraint firstItem="MvI-uV-IhN" firstAttribute="leading" secondItem="iOc-2Z-Ipp" secondAttribute="leading" constant="17" id="hln-Qp-e4J"/>
