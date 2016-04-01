@@ -736,6 +736,7 @@
                                                             <binding destination="NZ6-CJ-opI" name="content" keyPath="arrangedObjects" id="N6S-dW-0Tb"/>
                                                             <binding destination="NZ6-CJ-opI" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="N6S-dW-0Tb" id="4NJ-TO-daz"/>
                                                             <binding destination="NZ6-CJ-opI" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="4NJ-TO-daz" id="nK1-qJ-bF8"/>
+                                                            <outlet property="delegate" destination="ZgY-e8-I9G" id="65S-rj-oLr"/>
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
@@ -765,7 +766,7 @@
                                                     <segment image="NSAddTemplate" width="23">
                                                         <nil key="label"/>
                                                     </segment>
-                                                    <segment image="NSRemoveTemplate" width="23" tag="1">
+                                                    <segment image="NSRemoveTemplate" width="23" enabled="NO" tag="1">
                                                         <nil key="label"/>
                                                     </segment>
                                                 </segments>
@@ -831,6 +832,7 @@
                     </view>
                     <connections>
                         <outlet property="roots" destination="NZ6-CJ-opI" id="PUh-zT-UpX"/>
+                        <outlet property="segmentedControl" destination="fbf-bv-ZvL" id="Fvf-7Y-Pas"/>
                         <outlet property="tableView" destination="opZ-3w-oKJ" id="Git-fV-BBZ"/>
                     </connections>
                 </viewController>
