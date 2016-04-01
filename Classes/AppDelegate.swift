@@ -17,10 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	var preferencesWindowController : NSWindowController?
 
 	func applicationDidFinishLaunching(_: NSNotification) {
-		let applications = [ "Path" : "/Applications", "Languages" : true, "Architectures" : true ]
-		let library      = [ "Path" : "/Library",      "Languages" : true, "Architectures" : true ]
-		let defaultRoots = [ applications, library ]
-		let defaultDict  = [ "Roots" : defaultRoots, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
+		let defaultDict  = [ "Roots" : Root.defaults, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
 		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [String : AnyObject])
 

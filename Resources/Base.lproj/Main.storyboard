@@ -659,7 +659,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Architectures" width="89" minWidth="31.095699310302734" maxWidth="1000" id="No6-FX-Y9X">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Architectures">
-                                                                    <font key="font" metaFont="systemMedium" size="11"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
@@ -736,6 +736,7 @@
                                                             <binding destination="NZ6-CJ-opI" name="content" keyPath="arrangedObjects" id="N6S-dW-0Tb"/>
                                                             <binding destination="NZ6-CJ-opI" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="N6S-dW-0Tb" id="4NJ-TO-daz"/>
                                                             <binding destination="NZ6-CJ-opI" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="4NJ-TO-daz" id="nK1-qJ-bF8"/>
+                                                            <outlet property="delegate" destination="ZgY-e8-I9G" id="65S-rj-oLr"/>
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
@@ -758,28 +759,41 @@
                                             </tableHeaderView>
                                         </scrollView>
                                         <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fbf-bv-ZvL">
-                                            <rect key="frame" x="18" y="8" width="55" height="24"/>
+                                            <rect key="frame" x="18" y="8" width="53" height="24"/>
                                             <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="momentary" id="hCz-Dk-15A">
                                                 <font key="font" metaFont="system"/>
                                                 <segments>
-                                                    <segment image="NSAddTemplate" width="24">
+                                                    <segment image="NSAddTemplate" width="23">
                                                         <nil key="label"/>
                                                     </segment>
-                                                    <segment image="NSRemoveTemplate" width="24" tag="1">
+                                                    <segment image="NSRemoveTemplate" width="23" enabled="NO" tag="1">
                                                         <nil key="label"/>
                                                     </segment>
                                                 </segments>
                                             </segmentedCell>
                                             <connections>
-                                                <action selector="performAction:" target="ZgY-e8-I9G" id="c1y-bX-CAF"/>
+                                                <action selector="modifyPaths:" target="ZgY-e8-I9G" id="rZs-wd-bbQ"/>
                                             </connections>
                                         </segmentedControl>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nHt-AT-ZAU">
+                                            <rect key="frame" x="257" y="3" width="141" height="32"/>
+                                            <buttonCell key="cell" type="push" title="Restore Defaults" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XNp-m4-e9I">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="restoreDefaults:" target="ZgY-e8-I9G" id="3mX-sl-LJJ"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="tBG-2t-RdI" firstAttribute="top" secondItem="phW-MN-TLV" secondAttribute="top" constant="10" id="7ux-Ce-nHb"/>
+                                        <constraint firstAttribute="bottom" secondItem="nHt-AT-ZAU" secondAttribute="bottom" constant="10" id="GAH-AJ-qBW"/>
                                         <constraint firstItem="fbf-bv-ZvL" firstAttribute="leading" secondItem="phW-MN-TLV" secondAttribute="leading" constant="20" id="LbX-au-Tbp"/>
+                                        <constraint firstItem="fbf-bv-ZvL" firstAttribute="top" secondItem="tBG-2t-RdI" secondAttribute="bottom" constant="8" id="Vwh-Cp-HdL"/>
+                                        <constraint firstAttribute="trailing" secondItem="nHt-AT-ZAU" secondAttribute="trailing" constant="20" id="ZsW-W7-8cN"/>
                                         <constraint firstAttribute="bottom" secondItem="fbf-bv-ZvL" secondAttribute="bottom" constant="10" id="aue-Eq-9fU"/>
-                                        <constraint firstAttribute="bottom" secondItem="tBG-2t-RdI" secondAttribute="bottom" constant="39" id="hfG-gs-4Df"/>
+                                        <constraint firstItem="nHt-AT-ZAU" firstAttribute="top" secondItem="tBG-2t-RdI" secondAttribute="bottom" constant="8" id="xa7-jU-EpT"/>
                                     </constraints>
                                 </view>
                                 <constraints>
@@ -818,6 +832,7 @@
                     </view>
                     <connections>
                         <outlet property="roots" destination="NZ6-CJ-opI" id="PUh-zT-UpX"/>
+                        <outlet property="segmentedControl" destination="fbf-bv-ZvL" id="Fvf-7Y-Pas"/>
                         <outlet property="tableView" destination="opZ-3w-oKJ" id="Git-fV-BBZ"/>
                     </connections>
                 </viewController>
