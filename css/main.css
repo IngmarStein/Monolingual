@@ -12,7 +12,7 @@ img
 a.external
 {
 	padding-right: 16px;
-	background: transparent url(../images/external.png) no-repeat center right;
+	background: transparent url(../images/external.svg) no-repeat center right;
 }
 a:link,
 a:visited
@@ -24,12 +24,7 @@ a:active
 {
 	color: #78b;
 }
-img#ub
-{
-	margin-top: 1em;
-}
-p,
-dd
+p,dd
 {
 	line-height: 1.5;
 }
@@ -92,11 +87,6 @@ ul#navbar li a
 	padding: 4px 1em;
 	color: #000;
 	text-decoration: none !important;
-}
-acronym
-{
-	border-bottom: 1px dotted #666;
-	cursor: help;
 }
 h1
 {
@@ -189,17 +179,4 @@ dl.faq dd:first-letter
 {
 	font-weight: bold;
 	font-size: 12pt;
-}
-
-input.paypal {
-	background-image: url(../images/paypal.png);
-	width: 100px;
-	height: 26px;
-	background-size: cover;
-	display: inline-block;
-}
-@media screen and (-webkit-min-device-pixel-ratio: 2) {
-	input.paypal {
-		background-image: url(../images/paypal_2x.png);
-	}
 }
