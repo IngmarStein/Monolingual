@@ -24,7 +24,7 @@ final class PreferencesViewController : NSViewController {
 		tableView.window?.makeFirstResponder(tableView)
 	}
 
-	@IBAction func performAction(sender: NSSegmentedControl) {
+	@IBAction func modifyPaths(sender: NSSegmentedControl) {
 		if sender.selectedSegment == 0 {
 			let oPanel = NSOpenPanel()
 
@@ -42,4 +42,10 @@ final class PreferencesViewController : NSViewController {
 			roots.remove(sender)
 		}
 	}
+
+	@IBAction func restoreDefaults(sender: NSButton) {
+		roots.content = nil
+		roots.addObjects(Root.defaults)
+	}
+
 }
