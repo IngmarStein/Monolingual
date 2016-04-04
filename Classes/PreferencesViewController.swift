@@ -14,7 +14,7 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 	@IBOutlet private var tableView: NSTableView!
 	@IBOutlet weak var segmentedControl: NSSegmentedControl!
 
-	func tableViewSelectionIsChanging(notification: NSNotification) {
+	func tableViewSelectionDidChange(notification: NSNotification) {
 		segmentedControl.setEnabled(tableView.numberOfSelectedRows > 0, forSegment: 1)
 	}
 
