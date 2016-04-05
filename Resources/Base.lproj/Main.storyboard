@@ -584,7 +584,7 @@
                         <subviews>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="de3-Hy-9QC">
                                 <rect key="frame" x="18" y="58" width="414" height="18"/>
-                                <buttonCell key="cell" type="check" title="Move language files to trash" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="GpT-ew-TUw">
+                                <buttonCell key="cell" type="check" title="Move language files to Trash" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="GpT-ew-TUw">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -594,7 +594,7 @@
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="bfw-zw-wXa">
                                 <rect key="frame" x="18" y="38" width="414" height="18"/>
-                                <buttonCell key="cell" type="check" title="Check for updates at startup" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="Ug3-e7-H88">
+                                <buttonCell key="cell" type="check" title="Automatically check for updates" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="Ug3-e7-H88">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -602,7 +602,7 @@
                                     <binding destination="4nR-6U-bWS" name="value" keyPath="values.SUEnableAutomaticChecks" id="jCr-Ff-5tx"/>
                                 </connections>
                             </button>
-                            <box verticalHuggingPriority="249" title="Directories:" translatesAutoresizingMaskIntoConstraints="NO" id="55G-Fd-xJZ">
+                            <box verticalHuggingPriority="249" title="Directories" translatesAutoresizingMaskIntoConstraints="NO" id="55G-Fd-xJZ">
                                 <rect key="frame" x="17" y="78" width="416" height="252"/>
                                 <view key="contentView" id="phW-MN-TLV">
                                     <rect key="frame" x="2" y="2" width="412" height="235"/>
