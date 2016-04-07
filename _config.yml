@@ -18,8 +18,15 @@ github_download_url: https://github.com/IngmarStein/Monolingual/releases/downloa
 sourceforge_url: https://sourceforge.net/projects/monolingual/
 
 defaults:
-  - scope:
+  -
+    scope:
       path: ''
       type: data
     values:
       history: no
+  -
+    scope:
+      path: ''
+      type: "pages"
+    values:
+      layout: 'default'
