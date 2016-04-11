@@ -46,9 +46,15 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 	}
 
 	func isDirectoryBlacklisted(path: NSURL) -> Bool {
+		#if swift(>=3.0)
+		if let bundle = NSBundle(url: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
+			return bundleBlacklist.contains(bundleIdentifier)
+		}
+		#else
 		if let bundle = NSBundle(URL: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
 			return bundleBlacklist.contains(bundleIdentifier)
 		}
+		#endif
 		return false
 	}
 
@@ -61,7 +67,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			if let valueDict = value as? [String:AnyObject], optional = valueDict["optional"] as? Bool where optional {
 				continue
 			}
+			#if swift(>=3.0)
+			fileBlacklist.insert(baseURL.appendingPathComponent(key))
+			#else
 			fileBlacklist.insert(baseURL.URLByAppendingPathComponent(key))
+			#endif
 		}
 	}
 
@@ -79,13 +89,22 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			let result2 = SecCodeCopySigningInformation(code, kSecCSInternalInformation, &codeInfoRef)
 			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [NSObject:AnyObject] {
 				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject:AnyObject] {
-					let contentsDirectory = url.URLByAppendingPathComponent("Contents", isDirectory: true)
 					let baseURL: NSURL
+					#if swift(>=3.0)
+					let contentsDirectory = url.appendingPathComponent("Contents", isDirectory: true)
+					if let path = contentsDirectory.path where fileManager.fileExists(atPath: path) {
+						baseURL = contentsDirectory
+					} else {
+						baseURL = url
+					}
+					#else
+					let contentsDirectory = url.URLByAppendingPathComponent("Contents", isDirectory: true)
 					if let path = contentsDirectory.path where fileManager.fileExistsAtPath(path) {
 						baseURL = contentsDirectory
 					} else {
 						baseURL = url
 					}
+					#endif
 					if let files = resDir["files"] as? [String:AnyObject] {
 						addFileDictionaryToBlacklist(files, baseURL: baseURL)
 					}
@@ -99,23 +118,54 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 	}
 
+	#if swift(>=3.0)
+	private func appNameForURL(url: NSURL) -> String? {
+		let pathComponents = url.pathComponents!
+		for (i, pathComponent) in pathComponents.enumerated() {
+			if (pathComponent as NSString).pathExtension == "app" {
+				if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0...i])) {
+					if let bundle = NSBundle(url: bundleURL) {
+						var displayName: String?
+						if let localization = NSBundle.preferredLocalizations(from: bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
+							infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+							strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String:String] {
+							displayName = strings["CFBundleDisplayName"]
+						}
+						if displayName == nil {
+							// seems not to be localized?!?
+							displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
+						}
+						if let displayName = displayName {
+							return displayName
+						}
+					}
+				}
+				return pathComponent.substring(to: pathComponent.endIndex.advanced(by: -4))
+			}
+		}
+		return nil
+	}
+	#else
 	private func appNameForURL(url: NSURL) -> String? {
 		let pathComponents = url.pathComponents!
 		for (i, pathComponent) in pathComponents.enumerate() {
 			if (pathComponent as NSString).pathExtension == "app" {
-				if let bundleURL = NSURL.fileURLWithPathComponents(Array(pathComponents[0...i])), bundle = NSBundle(URL: bundleURL) {
-					var displayName: String?
-					if let localization = NSBundle.preferredLocalizationsFromArray(bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
-						infoPlistStringsURL = bundle.URLForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-						strings = NSDictionary(contentsOfURL: infoPlistStringsURL) as? [String:String] {
-						displayName = strings["CFBundleDisplayName"]
-					}
-					if displayName == nil {
-						// seems not to be localized?!?
-						displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
-					}
-					if let displayName = displayName {
-						return displayName
+				if let bundleURL = NSURL.fileURLWithPathComponents(Array(pathComponents[0...i])) {
+					let bundle = NSBundle(URL: bundleURL)
+					if let bundle = bundle {
+						var displayName: String?
+						if let localization = NSBundle.preferredLocalizationsFromArray(bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
+							infoPlistStringsURL = bundle.URLForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+							strings = NSDictionary(contentsOfURL: infoPlistStringsURL) as? [String:String] {
+							displayName = strings["CFBundleDisplayName"]
+						}
+						if displayName == nil {
+							// seems not to be localized?!?
+							displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
+						}
+						if let displayName = displayName {
+							return displayName
+						}
 					}
 				}
 				return pathComponent.substringToIndex(pathComponent.endIndex.advancedBy(-4))
@@ -123,6 +173,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 		return nil
 	}
+	#endif
 
 	func reportProgress(url: NSURL, size:Int) {
 		let appName = appNameForURL(url)
@@ -153,7 +204,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
 			// check if any file in below url has been blacklisted
-			if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:nil, options:[], errorHandler:nil) {
+			#if swift(>=3.0)
+			let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:nil, options:[], errorHandler:nil)
+			#else
+			let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:nil, options:[], errorHandler:nil)
+			#endif
+			if let dirEnumerator = dirEnumerator {
 				for entry in dirEnumerator {
 					let theURL = entry as! NSURL
 					if isFileBlacklisted(theURL) {
@@ -193,7 +249,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			}
 
 			if success {
-				if let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil) {
+				#if swift(>=3.0)
+				let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil)
+				#else
+				let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil)
+				#endif
+				if let dirEnumerator = dirEnumerator {
 					for entry in dirEnumerator {
 						let theURL = entry as! NSURL
 						var size: AnyObject?

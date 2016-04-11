@@ -314,7 +314,11 @@ class Lipo {
 	 */
 	private func processInputFile() -> Bool {
 		do {
+			#if swift(>=3.0)
+			try NSFileManager.defaultManager().attributesOfItem(atPath: fileName)
+			#else
 			try NSFileManager.defaultManager().attributesOfItemAtPath(fileName)
+			#endif
 		} catch let error as NSError {
 			NSLog("can't stat input file '%@': %@", fileName, error)
 			return false
@@ -322,7 +326,11 @@ class Lipo {
 
 		let data: NSData?
 		do {
+			#if swift(>=3.0)
+			data = try NSData(contentsOfFile:fileName, options:([.dataReadingMappedAlways, .dataReadingUncached]))
+			#else
 			data = try NSData(contentsOfFile:fileName, options:([.DataReadingMappedAlways, .DataReadingUncached]))
+			#endif
 		} catch let error as NSError {
 			NSLog("can't map input file '%@': %@", fileName, error)
 			return false
@@ -333,10 +341,18 @@ class Lipo {
 
 		// check if this file is a fat file
 		if size >= sizeof(fat_header) {
+			#if swift(>=3.0)
+			let magic = UnsafePointer<UInt32>(addr).pointee
+			#else
 			let magic = UnsafePointer<UInt32>(addr).memory
+			#endif
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
 				let headerPointer = UnsafePointer<fat_header>(addr)
+				#if swift(>=3.0)
+				fatHeader = fatHeaderFromFile(headerPointer.pointee)
+				#else
 				fatHeader = fatHeaderFromFile(headerPointer.memory)
+				#endif
 				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch) + sizeof(fat_header)
 				if big_size > size {
 					NSLog("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName)
@@ -376,7 +392,11 @@ class Lipo {
 				} else {
 					// create a thin file struct for each arch in the fat file
 					thinFiles = fatArchs.map { fatArch in
+						#if swift(>=3.0)
+						let data = self.inputData.subdata(with: NSRange(location: Int(fatArch.offset), length: Int(fatArch.size)))
+						#else
 						let data = self.inputData.subdataWithRange(NSRange(location: Int(fatArch.offset), length: Int(fatArch.size)))
+						#endif
 						return ThinFile(data: data, fatArch: fatArch)
 					}
 				}
@@ -410,9 +430,15 @@ class Lipo {
 
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
+			#if swift(>=3.0)
+			thinFiles.sort { (thin1: ThinFile, thin2: ThinFile) in
+				return thin1.fatArch.align < thin2.fatArch.align
+			}
+			#else
 			thinFiles.sortInPlace { (thin1: ThinFile, thin2: ThinFile) in
 				return thin1.fatArch.align < thin2.fatArch.align
 			}
+			#endif
 		}
 
 		var arm64FatArch: Int?
@@ -443,7 +469,12 @@ class Lipo {
 				NSLog("can't write fat header to output file: %@", temporaryFile)
 				return false
 			}
-			for (i, thinFile) in thinFiles.enumerate() {
+			#if swift(>=3.0)
+			let thinFilesEnumerator = thinFiles.enumerated()
+			#else
+			let thinFilesEnumerator = thinFiles.enumerate()
+			#endif
+			for (i, thinFile) in thinFilesEnumerator {
 				/*
 				 * If we are ordering the ARM64 slice last of the fat_arch
 				 * structs, so skip it in this loop.
@@ -518,7 +549,11 @@ class Lipo {
 		let temporaryURL = NSURL(fileURLWithPath: temporaryFile)
 		let inputURL = NSURL(fileURLWithPath: fileName)
 		do {
+			#if swift(>=3.0)
+			try NSFileManager.defaultManager().replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
+			#else
 			try NSFileManager.defaultManager().replaceItemAtURL(inputURL, withItemAtURL: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
+			#endif
 		} catch let error as NSError {
 			NSLog("can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
 		}
@@ -532,10 +567,13 @@ class Lipo {
 	 * NULL.
 	 */
 	private func getArm64FatArch() -> Int? {
-		/*
-		 * Look for a 64-bit arm slice.
-		 */
-		for (i, thinFile) in thinFiles.enumerate() {
+		// Look for a 64-bit arm slice.
+		#if swift(>=3.0)
+		let thinFilesEnumerator = thinFiles.enumerated()
+		#else
+		let thinFilesEnumerator = thinFiles.enumerate()
+		#endif
+		for (i, thinFile) in thinFilesEnumerator {
 			if thinFile.fatArch.cputype == CPU_TYPE_ARM64 {
 				return i
 			}
@@ -549,10 +587,13 @@ class Lipo {
 	 * NULL.
 	 */
 	private func getX8664hFatArch() -> Int? {
-		/*
-		 * Look for a x86_64h slice.
-		 */
-		for (i, thinFile) in thinFiles.enumerate() {
+		// Look for a x86_64h slice.
+		#if swift(>=3.0)
+		let thinFilesEnumerator = thinFiles.enumerated()
+		#else
+		let thinFilesEnumerator = thinFiles.enumerate()
+		#endif
+		for (i, thinFile) in thinFilesEnumerator {
 			if thinFile.fatArch.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.fatArch.cpusubtype) == CPU_SUBTYPE_X86_64_H {
 				return i
 			}

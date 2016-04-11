@@ -73,7 +73,7 @@ import Foundation
 		coder.encode(thin, forKey:"thin")
 	}
 	#else
-	func encodeWithCoder(coder : NSCoder) {
+	func encodeWithCoder(coder: NSCoder) {
 		coder.encodeBool(dryRun, forKey:"dryRun")
 		coder.encodeBool(doStrip, forKey:"doStrip")
 		coder.encodeInteger(Int(uid), forKey:"uid")
