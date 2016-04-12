@@ -60,6 +60,8 @@ import Foundation
 	}
 
 	#if swift(>=3.0)
+	// https://bugs.swift.org/browse/SR-1208
+	@objc(encodeWithCoder:)
 	func encode(with coder: NSCoder) {
 		coder.encode(dryRun, forKey:"dryRun")
 		coder.encode(doStrip, forKey:"doStrip")
