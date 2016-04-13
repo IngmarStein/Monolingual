@@ -10,5 +10,5 @@ target "Monolingual" do
 end
 
 target "XPCService" do
-	pod 'SMJobKit', '~> 0.0.6'
+	pod 'SMJobKit', '~> 0.0.7'
 end
