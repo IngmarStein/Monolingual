@@ -26,7 +26,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		fileManager.delegate = self
 	}
 
-	func isExcluded(url: NSURL) -> Bool {
+	func isExcluded(_ url: NSURL) -> Bool {
 		if let path = url.path, excludes = request.excludes {
 			for exclude in excludes {
 				if path.hasPrefix(exclude) {
@@ -37,7 +37,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		return false
 	}
 
-	func excludeDirectory(url: NSURL) {
+	func excludeDirectory(_ url: NSURL) {
 		if request.excludes != nil {
 			request.excludes?.append(url.path!)
 		} else {
@@ -45,43 +45,29 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 	}
 
-	func isDirectoryBlacklisted(path: NSURL) -> Bool {
-		#if swift(>=3.0)
+	func isDirectoryBlacklisted(_ path: NSURL) -> Bool {
 		if let bundle = NSBundle(url: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
 			return bundleBlacklist.contains(bundleIdentifier)
 		}
-		#else
-		if let bundle = NSBundle(URL: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
-			return bundleBlacklist.contains(bundleIdentifier)
-		}
-		#endif
 		return false
 	}
 
-	func isFileBlacklisted(url: NSURL) -> Bool {
+	func isFileBlacklisted(_ url: NSURL) -> Bool {
 		return fileBlacklist.contains(url)
 	}
 
-	private func addFileDictionaryToBlacklist(files: [String:AnyObject], baseURL:NSURL) {
+	private func addFileDictionaryToBlacklist(_ files: [String:AnyObject], baseURL:NSURL) {
 		for (key, value) in files {
 			if let valueDict = value as? [String:AnyObject], optional = valueDict["optional"] as? Bool where optional {
 				continue
 			}
-			#if swift(>=3.0)
 			fileBlacklist.insert(baseURL.appendingPathComponent(key))
-			#else
-			fileBlacklist.insert(baseURL.URLByAppendingPathComponent(key))
-			#endif
 		}
 	}
 
-	func addCodeResourcesToBlacklist(url: NSURL) {
+	func addCodeResourcesToBlacklist(_ url: NSURL) {
 		var codeRef: SecStaticCode?
-		#if swift(>=3.0)
-		let result = SecStaticCodeCreateWithPath(url, .defaultFlags, &codeRef)
-		#else
-		let result = SecStaticCodeCreateWithPath(url, .DefaultFlags, &codeRef)
-		#endif
+		let result = SecStaticCodeCreateWithPath(url, [], &codeRef)
 		if result == errSecSuccess, let code = codeRef {
 			var codeInfoRef: CFDictionary?
 			// warning: this relies on kSecCSInternalInformation
@@ -90,21 +76,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [NSObject:AnyObject] {
 				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject:AnyObject] {
 					let baseURL: NSURL
-					#if swift(>=3.0)
 					let contentsDirectory = url.appendingPathComponent("Contents", isDirectory: true)
 					if let path = contentsDirectory.path where fileManager.fileExists(atPath: path) {
 						baseURL = contentsDirectory
 					} else {
 						baseURL = url
 					}
-					#else
-					let contentsDirectory = url.URLByAppendingPathComponent("Contents", isDirectory: true)
-					if let path = contentsDirectory.path where fileManager.fileExistsAtPath(path) {
-						baseURL = contentsDirectory
-					} else {
-						baseURL = url
-					}
-					#endif
 					if let files = resDir["files"] as? [String:AnyObject] {
 						addFileDictionaryToBlacklist(files, baseURL: baseURL)
 					}
@@ -118,8 +95,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 	}
 
-	#if swift(>=3.0)
-	private func appNameForURL(url: NSURL) -> String? {
+	private func appNameForURL(_ url: NSURL) -> String? {
 		let pathComponents = url.pathComponents!
 		for (i, pathComponent) in pathComponents.enumerated() {
 			if (pathComponent as NSString).pathExtension == "app" {
@@ -127,7 +103,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 					if let bundle = NSBundle(url: bundleURL) {
 						var displayName: String?
 						if let localization = NSBundle.preferredLocalizations(from: bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
-							infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+							infoPlistStringsURL = bundle.urlForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
 							strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String:String] {
 							displayName = strings["CFBundleDisplayName"]
 						}
@@ -145,35 +121,6 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 		return nil
 	}
-	#else
-	private func appNameForURL(url: NSURL) -> String? {
-		let pathComponents = url.pathComponents!
-		for (i, pathComponent) in pathComponents.enumerate() {
-			if (pathComponent as NSString).pathExtension == "app" {
-				if let bundleURL = NSURL.fileURLWithPathComponents(Array(pathComponents[0...i])) {
-					let bundle = NSBundle(URL: bundleURL)
-					if let bundle = bundle {
-						var displayName: String?
-						if let localization = NSBundle.preferredLocalizationsFromArray(bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
-							infoPlistStringsURL = bundle.URLForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-							strings = NSDictionary(contentsOfURL: infoPlistStringsURL) as? [String:String] {
-							displayName = strings["CFBundleDisplayName"]
-						}
-						if displayName == nil {
-							// seems not to be localized?!?
-							displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
-						}
-						if let displayName = displayName {
-							return displayName
-						}
-					}
-				}
-				return pathComponent.substringToIndex(pathComponent.endIndex.advancedBy(-4))
-			}
-		}
-		return nil
-	}
-	#endif
 
 	func reportProgress(url: NSURL, size:Int) {
 		let appName = appNameForURL(url)
@@ -188,11 +135,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			progress.completedUnitCount += size
 		}
 		if let progress = remoteProgress {
-			progress.processed(url.path!, size: size, appName: appName)
+			progress.processed(file: url.path!, size: size, appName: appName)
 		}
 	}
 
-	func remove(url: NSURL) {
+	func remove(_ url: NSURL) {
 		var error: NSError? = nil
 		if request.trash {
 			if request.dryRun {
@@ -222,11 +169,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			var success = false
 			seteuid(request.uid)
 			do {
-				#if swift(>=3.0)
 				try fileManager.trashItem(at: url, resultingItemURL:&dstURL)
-				#else
-				try fileManager.trashItemAtURL(url, resultingItemURL:&dstURL)
-				#endif
 				success = true
 			} catch let error1 as NSError {
 				error = error1
@@ -267,7 +210,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 							}
 						}
 						if let size = size as? Int {
-							reportProgress(theURL, size:size)
+							reportProgress(url: theURL, size:size)
 						}
 					}
 				}
@@ -276,11 +219,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			}
 		} else {
 			do {
-				#if swift(>=3.0)
 				try self.fileManager.removeItem(at: url)
-				#else
-				try self.fileManager.removeItemAtURL(url)
-				#endif
 			} catch let error1 as NSError {
 				error = error1
 				if let error = error {
@@ -294,7 +233,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 	}
 
-	private func fileManager(fileManager: NSFileManager, shouldProcessItemAtURL URL:NSURL) -> Bool {
+	private func fileManager(_ fileManager: NSFileManager, shouldProcessItemAtURL URL:NSURL) -> Bool {
 		if request.dryRun || isFileBlacklisted(URL) || (isRootless && URL.isProtected) {
 			return false
 		}
@@ -311,7 +250,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 
 		if let size = size as? Int {
-			reportProgress(URL, size:size)
+			reportProgress(url: URL, size:size)
 		}
 
 		return true
@@ -319,25 +258,13 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	//MARK: - NSFileManagerDelegate
 
-	#if swift(>=3.0)
-	func fileManager(fileManager: NSFileManager, shouldRemoveItemAt URL: NSURL) -> Bool {
+	func fileManager(_ fileManager: NSFileManager, shouldRemoveItemAt URL: NSURL) -> Bool {
 		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
 	}
 
-	func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
+	func fileManager(_ fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
 		NSLog("Error removing '%@': %@", URL.path!, error)
 
 		return true
 	}
-	#else
-	func fileManager(fileManager: NSFileManager, shouldRemoveItemAtURL URL: NSURL) -> Bool {
-		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
-	}
-
-	func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAtURL URL: NSURL) -> Bool {
-		NSLog("Error removing '%@': %@", URL.path!, error)
-
-		return true
-	}
-	#endif
 }

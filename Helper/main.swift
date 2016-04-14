@@ -20,10 +20,10 @@ private let bundles = MultiStringOption(shortFlag: "b", longFlag: "bundle", requ
 private let delete = MultiStringOption(shortFlag: "d", longFlag: "delete", required: false, helpMessage: "Name of a file or directory to delete (e.g. \"fr.lproj\").")
 private let thin = MultiStringOption(shortFlag: "a", longFlag: "thin", required: false, helpMessage: "Remove architecture from universal binary (e.g. \"ppc\").")
 
-cli.addOptions(uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
+cli.addOptions(options: uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
 
 do {
-	try cli.parse(true)
+	try cli.parse(strict: true)
 
 	let helper = Helper()
 
@@ -50,11 +50,7 @@ do {
 		helper.processRequest(request, progress: nil) { (result) -> Void in
 			exit(Int32(result))
 		}
-		#if swift(>=3.0)
 		NSRunLoop.current().run()
-		#else
-		NSRunLoop.currentRunLoop().run()
-		#endif
 	} else {
 		helper.run()
 	}

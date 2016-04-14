@@ -74,16 +74,16 @@ private let CPU_SUBTYPE_HPPA_7100LC : cpu_subtype_t		= 1
 
 private func CPU_SUBTYPE_INTEL(f: Int, m: Int) -> cpu_subtype_t { return cpu_subtype_t(f + (m << 4)) }
 
-private let CPU_SUBTYPE_I386_ALL =			CPU_SUBTYPE_INTEL(3, m: 0)
-private let CPU_SUBTYPE_486 =				CPU_SUBTYPE_INTEL(4, m: 0)
-private let CPU_SUBTYPE_486SX =				CPU_SUBTYPE_INTEL(4, m: 8)	// 8 << 4 = 128
-private let CPU_SUBTYPE_586 =				CPU_SUBTYPE_INTEL(5, m: 0)
-private let CPU_SUBTYPE_PENT =				CPU_SUBTYPE_INTEL(5, m: 0)
-private let CPU_SUBTYPE_PENTPRO =			CPU_SUBTYPE_INTEL(6, m: 1)
-private let CPU_SUBTYPE_PENTII_M3 =			CPU_SUBTYPE_INTEL(6, m: 3)
-private let CPU_SUBTYPE_PENTII_M5 =			CPU_SUBTYPE_INTEL(6, m: 5)
-private let CPU_SUBTYPE_PENTIUM_3 =			CPU_SUBTYPE_INTEL(8, m: 0)
-private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(10, m: 0)
+private let CPU_SUBTYPE_I386_ALL =			CPU_SUBTYPE_INTEL(f: 3, m: 0)
+private let CPU_SUBTYPE_486 =				CPU_SUBTYPE_INTEL(f: 4, m: 0)
+private let CPU_SUBTYPE_486SX =				CPU_SUBTYPE_INTEL(f: 4, m: 8)	// 8 << 4 = 128
+private let CPU_SUBTYPE_586 =				CPU_SUBTYPE_INTEL(f: 5, m: 0)
+private let CPU_SUBTYPE_PENT =				CPU_SUBTYPE_INTEL(f: 5, m: 0)
+private let CPU_SUBTYPE_PENTPRO =			CPU_SUBTYPE_INTEL(f: 6, m: 1)
+private let CPU_SUBTYPE_PENTII_M3 =			CPU_SUBTYPE_INTEL(f: 6, m: 3)
+private let CPU_SUBTYPE_PENTII_M5 =			CPU_SUBTYPE_INTEL(f: 6, m: 5)
+private let CPU_SUBTYPE_PENTIUM_3 =			CPU_SUBTYPE_INTEL(f: 8, m: 0)
+private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(f: 10, m: 0)
 
 /*
  * The structure describing an architecture flag with the string of the flag
@@ -240,7 +240,7 @@ class Lipo {
 		}
 	}
 
-	func run(path: String, inout sizeDiff: Int) -> Bool {
+	func run(path: String, sizeDiff: inout Int) -> Bool {
 		var success = true
 		var newsize = 0
 
@@ -412,7 +412,7 @@ class Lipo {
 	 * createFat() creates a fat output file from the thin files.
 	 * TODO: Use the NSFileHandle API as soon as it allows error handling without exceptions.
 	 */
-	private func createFat(inout newsize: Int) -> Bool {
+	private func createFat(newsize: inout Int) -> Bool {
 		let temporaryFile = "\(fileName).lipo"
 		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
@@ -568,12 +568,7 @@ class Lipo {
 	 */
 	private func getArm64FatArch() -> Int? {
 		// Look for a 64-bit arm slice.
-		#if swift(>=3.0)
-		let thinFilesEnumerator = thinFiles.enumerated()
-		#else
-		let thinFilesEnumerator = thinFiles.enumerate()
-		#endif
-		for (i, thinFile) in thinFilesEnumerator {
+		for (i, thinFile) in thinFiles.enumerated() {
 			if thinFile.fatArch.cputype == CPU_TYPE_ARM64 {
 				return i
 			}
@@ -588,12 +583,7 @@ class Lipo {
 	 */
 	private func getX8664hFatArch() -> Int? {
 		// Look for a x86_64h slice.
-		#if swift(>=3.0)
-		let thinFilesEnumerator = thinFiles.enumerated()
-		#else
-		let thinFilesEnumerator = thinFiles.enumerate()
-		#endif
-		for (i, thinFile) in thinFilesEnumerator {
+		for (i, thinFile) in thinFiles.enumerated() {
 			if thinFile.fatArch.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.fatArch.cpusubtype) == CPU_SUBTYPE_X86_64_H {
 				return i
 			}

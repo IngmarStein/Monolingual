@@ -59,7 +59,6 @@ import Foundation
 		super.init()
 	}
 
-	#if swift(>=3.0)
 	// https://bugs.swift.org/browse/SR-1208
 	@objc(encodeWithCoder:)
 	func encode(with coder: NSCoder) {
@@ -74,20 +73,6 @@ import Foundation
 		coder.encode(files, forKey:"files")
 		coder.encode(thin, forKey:"thin")
 	}
-	#else
-	func encodeWithCoder(coder: NSCoder) {
-		coder.encodeBool(dryRun, forKey:"dryRun")
-		coder.encodeBool(doStrip, forKey:"doStrip")
-		coder.encodeInteger(Int(uid), forKey:"uid")
-		coder.encodeBool(trash, forKey:"trash")
-		coder.encodeObject(includes, forKey:"includes")
-		coder.encodeObject(excludes, forKey:"excludes")
-		coder.encodeObject(bundleBlacklist, forKey:"bundleBlacklist")
-		coder.encodeObject(directories, forKey:"directories")
-		coder.encodeObject(files, forKey:"files")
-		coder.encodeObject(thin, forKey:"thin")
-	}
-	#endif
 
 	static func supportsSecureCoding() -> Bool {
 		return true
