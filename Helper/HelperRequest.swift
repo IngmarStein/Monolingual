@@ -38,17 +38,10 @@ import Foundation
 		let stringArray = Set([stringClass, arrayClass])
 		let stringSet = Set([stringClass, setClass])
 
-		#if swift(>=3.0)
 		dryRun = aDecoder.decodeBool(forKey: "dryRun")
 		doStrip = aDecoder.decodeBool(forKey: "doStrip")
 		uid = uid_t(aDecoder.decodeInteger(forKey: "uid"))
 		trash = aDecoder.decodeBool(forKey: "trash")
-		#else
-		dryRun = aDecoder.decodeBoolForKey("dryRun")
-		doStrip = aDecoder.decodeBoolForKey("doStrip")
-		uid = uid_t(aDecoder.decodeIntegerForKey("uid"))
-		trash = aDecoder.decodeBoolForKey("trash")
-		#endif
 		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey:"includes") as? [String]
 		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey:"excludes") as? [String]
 		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey:"bundleBlacklist") as? Set<String>

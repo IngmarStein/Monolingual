@@ -182,7 +182,7 @@ private let archFlags : [ArchFlag] = [
 	ArchFlag(name: "arm64v8",  cputype: CPU_TYPE_ARM64,   cpusubtype:CPU_SUBTYPE_ARM64_V8)
 ]
 
-private func getArchFromFlag(name: String) -> ArchFlag? {
+private func getArchFromFlag(_ name: String) -> ArchFlag? {
 	for flag in archFlags {
 		if flag.name == name {
 			return flag
@@ -200,7 +200,7 @@ private func rnd(v: UInt32, r: UInt32) -> UInt32 {
 	return v2 & (~r2)
 }
 
-private func cpuSubtypeWithMask(subtype: cpu_subtype_t) -> cpu_subtype_t {
+private func cpuSubtypeWithMask(_ subtype: cpu_subtype_t) -> cpu_subtype_t {
 	return subtype & CPU_SUBTYPE_MASK
 }
 
@@ -271,7 +271,7 @@ class Lipo {
 			NSLog("-remove's specified would result in an empty fat file")
 			success = false
 		} else {
-			success = createFat(&newsize)
+			success = createFat(newsize: &newsize)
 			if success {
 				sizeDiff = inputData.length - newsize
 			}
@@ -282,15 +282,15 @@ class Lipo {
 		return success
 	}
 
-	private func fatHeaderFromFile(fatHeader: fat_header) -> fat_header {
+	private func fatHeaderFromFile(_ fatHeader: fat_header) -> fat_header {
 		return fat_header(magic: UInt32(bigEndian: fatHeader.magic), nfat_arch: UInt32(bigEndian: fatHeader.nfat_arch))
 	}
 
-	private func fatHeaderToFile(fatHeader: fat_header) -> fat_header {
+	private func fatHeaderToFile(_ fatHeader: fat_header) -> fat_header {
 		return fat_header(magic: fatHeader.magic.bigEndian, nfat_arch: fatHeader.nfat_arch.bigEndian)
 	}
 
-	private func fatArchFromFile(fatArch: fat_arch) -> fat_arch {
+	private func fatArchFromFile(_ fatArch: fat_arch) -> fat_arch {
 		return fat_arch(
 			cputype: cpu_type_t(bigEndian: fatArch.cputype),
 			cpusubtype: cpu_subtype_t(bigEndian: fatArch.cpusubtype),
@@ -299,7 +299,7 @@ class Lipo {
 			align: UInt32(bigEndian: fatArch.align))
 	}
 
-	private func fatArchToFile(fatArch: fat_arch) -> fat_arch {
+	private func fatArchToFile(_ fatArch: fat_arch) -> fat_arch {
 		return fat_arch(
 			cputype: fatArch.cputype.bigEndian,
 			cpusubtype: fatArch.cpusubtype.bigEndian,
@@ -314,11 +314,7 @@ class Lipo {
 	 */
 	private func processInputFile() -> Bool {
 		do {
-			#if swift(>=3.0)
 			try NSFileManager.defaultManager().attributesOfItem(atPath: fileName)
-			#else
-			try NSFileManager.defaultManager().attributesOfItemAtPath(fileName)
-			#endif
 		} catch let error as NSError {
 			NSLog("can't stat input file '%@': %@", fileName, error)
 			return false
@@ -326,11 +322,7 @@ class Lipo {
 
 		let data: NSData?
 		do {
-			#if swift(>=3.0)
 			data = try NSData(contentsOfFile:fileName, options:([.dataReadingMappedAlways, .dataReadingUncached]))
-			#else
-			data = try NSData(contentsOfFile:fileName, options:([.DataReadingMappedAlways, .DataReadingUncached]))
-			#endif
 		} catch let error as NSError {
 			NSLog("can't map input file '%@': %@", fileName, error)
 			return false
@@ -341,18 +333,10 @@ class Lipo {
 
 		// check if this file is a fat file
 		if size >= sizeof(fat_header) {
-			#if swift(>=3.0)
 			let magic = UnsafePointer<UInt32>(addr).pointee
-			#else
-			let magic = UnsafePointer<UInt32>(addr).memory
-			#endif
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
 				let headerPointer = UnsafePointer<fat_header>(addr)
-				#if swift(>=3.0)
 				fatHeader = fatHeaderFromFile(headerPointer.pointee)
-				#else
-				fatHeader = fatHeaderFromFile(headerPointer.memory)
-				#endif
 				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch) + sizeof(fat_header)
 				if big_size > size {
 					NSLog("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName)
@@ -392,11 +376,7 @@ class Lipo {
 				} else {
 					// create a thin file struct for each arch in the fat file
 					thinFiles = fatArchs.map { fatArch in
-						#if swift(>=3.0)
 						let data = self.inputData.subdata(with: NSRange(location: Int(fatArch.offset), length: Int(fatArch.size)))
-						#else
-						let data = self.inputData.subdataWithRange(NSRange(location: Int(fatArch.offset), length: Int(fatArch.size)))
-						#endif
 						return ThinFile(data: data, fatArch: fatArch)
 					}
 				}
@@ -430,15 +410,9 @@ class Lipo {
 
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
-			#if swift(>=3.0)
 			thinFiles.sort { (thin1: ThinFile, thin2: ThinFile) in
 				return thin1.fatArch.align < thin2.fatArch.align
 			}
-			#else
-			thinFiles.sortInPlace { (thin1: ThinFile, thin2: ThinFile) in
-				return thin1.fatArch.align < thin2.fatArch.align
-			}
-			#endif
 		}
 
 		var arm64FatArch: Int?
@@ -457,7 +431,7 @@ class Lipo {
 			var fatHeader = fatHeaderToFile(fat_header(magic: FAT_MAGIC, nfat_arch: UInt32(nthinFiles)))
 			var offset = UInt32(sizeof(fat_header) + nthinFiles * sizeof(fat_arch))
 			thinFiles = thinFiles.map { thinFile in
-				offset = rnd(offset, r: 1 << thinFile.fatArch.align)
+				offset = rnd(v: offset, r: 1 << thinFile.fatArch.align)
 				let fatArch = thinFile.fatArch
 				let result = ThinFile(data: thinFile.data, fatArch: fat_arch(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: offset, size: fatArch.size, align: fatArch.align))
 				offset += thinFile.fatArch.size
@@ -469,11 +443,7 @@ class Lipo {
 				NSLog("can't write fat header to output file: %@", temporaryFile)
 				return false
 			}
-			#if swift(>=3.0)
 			let thinFilesEnumerator = thinFiles.enumerated()
-			#else
-			let thinFilesEnumerator = thinFiles.enumerate()
-			#endif
 			for (i, thinFile) in thinFilesEnumerator {
 				/*
 				 * If we are ordering the ARM64 slice last of the fat_arch
@@ -549,11 +519,7 @@ class Lipo {
 		let temporaryURL = NSURL(fileURLWithPath: temporaryFile)
 		let inputURL = NSURL(fileURLWithPath: fileName)
 		do {
-			#if swift(>=3.0)
 			try NSFileManager.defaultManager().replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
-			#else
-			try NSFileManager.defaultManager().replaceItemAtURL(inputURL, withItemAtURL: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
-			#endif
 		} catch let error as NSError {
 			NSLog("can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
 		}

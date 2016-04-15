@@ -20,7 +20,7 @@ private let bundles = MultiStringOption(shortFlag: "b", longFlag: "bundle", requ
 private let delete = MultiStringOption(shortFlag: "d", longFlag: "delete", required: false, helpMessage: "Name of a file or directory to delete (e.g. \"fr.lproj\").")
 private let thin = MultiStringOption(shortFlag: "a", longFlag: "thin", required: false, helpMessage: "Remove architecture from universal binary (e.g. \"ppc\").")
 
-cli.addOptions(options: uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
+cli.addOptions(uninstall, version, dryRun, strip, trash, includes, excludes, bundles, delete, thin)
 
 do {
 	try cli.parse(strict: true)

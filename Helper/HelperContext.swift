@@ -151,12 +151,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
 			// check if any file in below url has been blacklisted
-			#if swift(>=3.0)
-			let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:nil, options:[], errorHandler:nil)
-			#else
-			let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:nil, options:[], errorHandler:nil)
-			#endif
-			if let dirEnumerator = dirEnumerator {
+			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:nil, options:[], errorHandler:nil) {
 				for entry in dirEnumerator {
 					let theURL = entry as! NSURL
 					if isFileBlacklisted(theURL) {
@@ -179,11 +174,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			if !success {
 				do {
 					// move the file to root's trash
-					#if swift(>=3.0)
 					try self.fileManager.trashItem(at: url, resultingItemURL:&dstURL)
-					#else
-					try self.fileManager.trashItemAtURL(url, resultingItemURL:&dstURL)
-					#endif
 					success = true
 				} catch let error1 as NSError {
 					error = error1
@@ -192,12 +183,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			}
 
 			if success {
-				#if swift(>=3.0)
-				let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil)
-				#else
-				let dirEnumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil)
-				#endif
-				if let dirEnumerator = dirEnumerator {
+				if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil) {
 					for entry in dirEnumerator {
 						let theURL = entry as! NSURL
 						var size: AnyObject?
