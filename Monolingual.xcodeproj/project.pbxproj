@@ -56,7 +56,6 @@
 		95E236EE1AD526F700076008 /* XPCServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */; };
 		95E236F01AD52C0E00076008 /* XPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EF1AD52C0E00076008 /* XPCService.swift */; };
 		95E236F21AD52C7100076008 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236F11AD52C7100076008 /* main.swift */; };
-		95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		95E236F71AD5356B00076008 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
 		95EB7AAF1AE777F90066369B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AAE1AE777F90066369B /* main.swift */; };
 		95EB7AB31AE7780C0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
@@ -137,16 +136,6 @@
 			name = "Embed XPC Services";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95E236F51AD5331300076008 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Contents/Library/LaunchServices;
-			dstSubfolderSpec = 1;
-			files = (
-				95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		95EB7AAA1AE777F90066369B /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -166,6 +155,15 @@
 				9E689EC71CC0E20D003B9A2F /* Lipo.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E689ECE1CC11046003B9A2F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -228,7 +226,7 @@
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95B70C491AD2715500801026 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		95B9D1801769CF3A0072A7E0 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = Monolingual/Media.xcassets; sourceTree = "<group>"; };
-		95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.github.IngmarStein.Monolingual.Helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = com.github.IngmarStein.Monolingual.Helper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95CA05351B93680E000ABDCE /* hello1 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello1; path = util/hello1; sourceTree = SOURCE_ROOT; };
 		95CA05361B93680E000ABDCE /* hello2 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello2; path = util/hello2; sourceTree = SOURCE_ROOT; };
 		95CA05371B93680E000ABDCE /* hello3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello3; path = util/hello3; sourceTree = SOURCE_ROOT; };
@@ -348,7 +346,7 @@
 			isa = PBXGroup;
 			children = (
 				95A130430608F93000D8E30C /* Monolingual.app */,
-				95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */,
+				95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper.app */,
 				95E236DA1AD526DF00076008 /* Monolingual.xpc */,
 				9552639C1AE67351001AD4F3 /* Helper Tests.xctest */,
 				95EB7AAC1AE777F90066369B /* lipo */,
@@ -616,6 +614,8 @@
 			buildPhases = (
 				95C3C95D0610144300D417BC /* Sources */,
 				95C3C95E0610144300D417BC /* Frameworks */,
+				9E689ECE1CC11046003B9A2F /* CopyFiles */,
+				9E689ECF1CC1106D003B9A2F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -625,8 +625,8 @@
 			);
 			name = Helper;
 			productName = Helper;
-			productReference = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */;
-			productType = "com.apple.product-type.tool";
+			productReference = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper.app */;
+			productType = "com.apple.product-type.application";
 		};
 		95E236D91AD526DF00076008 /* XPCService */ = {
 			isa = PBXNativeTarget;
@@ -636,7 +636,7 @@
 				95E236D61AD526DF00076008 /* Sources */,
 				95E236D71AD526DF00076008 /* Frameworks */,
 				95E236D81AD526DF00076008 /* Resources */,
-				95E236F51AD5331300076008 /* CopyFiles */,
+				9E689ED21CC111EB003B9A2F /* Copy Helper */,
 				9E689EC51CC0E1F5003B9A2F /* Copy Frameworks */,
 				9510C84D1CA85A5B0050C330 /* 📦 Embed Pods Frameworks */,
 				C85E63067E59241F3FA0F225 /* 📦 Copy Pods Resources */,
@@ -937,6 +937,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\nXPCSERVICES=`find \"${FRAMEWORK}/XPCServices\" -type d -depth 1`\nRESULT=$?\nif [[ $RESULT == 0 ]] ; then\n  for XPCSERVICE in $XPCSERVICES; do\n    `codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\n  done\nfi\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
+		};
+		9E689ECF1CC1106D003B9A2F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Extracts the helper CLI tool from its application bundle.\n# The helper is built as a Mac app so that it doesn't statically link the Swift runtime\n\ncp -v \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"";
+		};
+		9E689ED21CC111EB003B9A2F /* Copy Helper */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Helper";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices\"\ncp -v \"${BUILT_PRODUCTS_DIR}/com.github.IngmarStein.Monolingual.Helper\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices\"";
 		};
 		C85E63067E59241F3FA0F225 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

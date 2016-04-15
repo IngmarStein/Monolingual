@@ -41,7 +41,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
-		NSLog("isRootless=\(isRootless)")
+		//NSLog("isRootless=\(isRootless)")
 	}
 
 	func run() {
