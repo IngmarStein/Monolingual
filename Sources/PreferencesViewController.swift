@@ -23,8 +23,8 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 	@IBAction func togglePreference(sender: AnyObject) {
 		let selectionIndex = roots.selectionIndex
 		let dummy = []
-		roots.addObject(dummy)
-		roots.removeObject(dummy)
+		roots.add(dummy)
+		roots.remove(dummy)
 		roots.setSelectionIndex(selectionIndex)
 		tableView.window?.makeFirstResponder(tableView)
 	}
@@ -38,9 +38,9 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 			oPanel.canChooseFiles = false
 			oPanel.treatsFilePackagesAsDirectories = true
 
-			oPanel.beginWithCompletionHandler { result in
+			oPanel.begin { result in
 				if NSModalResponseOK == result {
-					self.roots.addObjects(oPanel.URLs.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
+					self.roots.add(oPanel.urls.map { [ "Path" : $0.path!, "Languages" : true, "Architectures" : true ] })
 				}
 			}
 		} else if sender.selectedSegment == 1 {
@@ -53,7 +53,7 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 
 	@IBAction func restoreDefaults(sender: NSButton) {
 		roots.content = nil
-		roots.addObjects(Root.defaults)
+		roots.add(Root.defaults)
 	}
 
 }

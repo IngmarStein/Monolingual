@@ -146,11 +146,11 @@
 		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArchitectureSetting.swift; path = Sources/ArchitectureSetting.swift; sourceTree = "<group>"; };
 		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Root.swift; path = Sources/Root.swift; sourceTree = "<group>"; };
 		95337A201B09EAC600303823 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
-		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = Helper/main.swift; sourceTree = "<group>"; };
-		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperProtocol.swift; path = Helper/HelperProtocol.swift; sourceTree = "<group>"; };
-		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperRequest.swift; path = Helper/HelperRequest.swift; sourceTree = "<group>"; };
-		95355ADD1AD7FAF900872850 /* HelperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperContext.swift; path = Helper/HelperContext.swift; sourceTree = "<group>"; };
-		95355ADF1AD806DD00872850 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = Helper.swift; path = Helper/Helper.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = Helper/Sources/main.swift; sourceTree = "<group>"; };
+		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperProtocol.swift; path = Helper/Sources/HelperProtocol.swift; sourceTree = "<group>"; };
+		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperRequest.swift; path = Helper/Sources/HelperRequest.swift; sourceTree = "<group>"; };
+		95355ADD1AD7FAF900872850 /* HelperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperContext.swift; path = Helper/Sources/HelperContext.swift; sourceTree = "<group>"; };
+		95355ADF1AD806DD00872850 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = Helper.swift; path = Helper/Sources/Helper.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		9539D83711453596007E698C /* blacklist.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = blacklist.plist; sourceTree = "<group>"; };
 		954DDFFF1AD4ED350097145C /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ko; path = Resources/ko.lproj/Credits.html; sourceTree = "<group>"; };
 		954DE0001AD4ED4F0097145C /* ko */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ko; path = Resources/ko.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -173,8 +173,8 @@
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95852A7F1119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Spanish; path = Resources/es.lproj/Credits.html; sourceTree = "<group>"; };
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Resources/es.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-launchd.plist"; path = "Helper/MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
-		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-Info.plist"; path = "Helper/MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
+		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-launchd.plist"; path = "Helper/Sources/MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
+		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-Info.plist"; path = "Helper/Sources/MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		95955DF81A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = hr; path = Resources/hr.lproj/Credits.html; sourceTree = "<group>"; };
 		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95955DFA1A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -411,7 +411,8 @@
 				955263A01AE67351001AD4F3 /* Helper_Tests.swift */,
 				9552639E1AE67351001AD4F3 /* Supporting Files */,
 			);
-			path = "Helper Tests";
+			name = "Helper Tests";
+			path = Helper/Tests;
 			sourceTree = "<group>";
 		};
 		9552639E1AE67351001AD4F3 /* Supporting Files */ = {
@@ -1113,17 +1114,17 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "Helper/MonolingualHelper-Info.plist";
+				INFOPLIST_FILE = "Helper/Sources/MonolingualHelper-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"Helper/MonolingualHelper-Info.plist",
+					"Helper/Sources/MonolingualHelper-Info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"Helper/MonolingualHelper-launchd.plist",
+					"Helper/Sources/MonolingualHelper-launchd.plist",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.Helper;
 				PRODUCT_NAME = com.github.IngmarStein.Monolingual.Helper;
@@ -1137,17 +1138,17 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "Helper/MonolingualHelper-Info.plist";
+				INFOPLIST_FILE = "Helper/Sources/MonolingualHelper-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"Helper/MonolingualHelper-Info.plist",
+					"Helper/Sources/MonolingualHelper-Info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"Helper/MonolingualHelper-launchd.plist",
+					"Helper/Sources/MonolingualHelper-launchd.plist",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.Helper;
 				PRODUCT_NAME = com.github.IngmarStein.Monolingual.Helper;

@@ -17,19 +17,19 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		reply(MonolingualHelperClient.bundledVersion!)
 	}
 
-	func installHelperTool(reply:(NSError?) -> Void) {
+	func installHelperTool(withReply reply:(NSError?) -> Void) {
 		do {
-			try MonolingualHelperClient.installWithPrompt(nil)
+			try MonolingualHelperClient.installWithPrompt(prompt: nil)
 		} catch let error as SMJError {
 			switch error {
-			case SMJError.BundleNotFound, SMJError.UnsignedBundle, SMJError.BadBundleSecurity, SMJError.BadBundleCodeSigningDictionary, SMJError.UnableToBless:
+			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary, SMJError.unableToBless:
 				NSLog("Failed to bless helper. Error: \(error)")
 				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to install helper utility.", comment:"") ]))
-			case SMJError.AuthorizationDenied:
+			case SMJError.authorizationDenied:
 				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("You entered an incorrect administrator password.", comment:"") ]))
-			case SMJError.AuthorizationCanceled:
+			case SMJError.authorizationCanceled:
 				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"") ]))
-			case SMJError.AuthorizationInteractionNotAllowed, SMJError.AuthorizationFailed:
+			case SMJError.authorizationInteractionNotAllowed, SMJError.authorizationFailed:
 				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to authorize as an administrator.", comment:"") ]))
 			}
 		} catch {
@@ -38,10 +38,10 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		reply(nil)
 	}
 
-	func connect(reply:(NSXPCListenerEndpoint?) -> Void) {
+	func connect(withReply reply:(NSXPCListenerEndpoint?) -> Void) {
 		if helperToolConnection == nil {
-			let connection = NSXPCConnection(machServiceName: "com.github.IngmarStein.Monolingual.Helper", options: .Privileged)
-			connection.remoteObjectInterface = NSXPCInterface(withProtocol:HelperProtocol.self)
+			let connection = NSXPCConnection(machServiceName: "com.github.IngmarStein.Monolingual.Helper", options: .privileged)
+			connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
 			connection.invalidationHandler = {
 				self.helperToolConnection = nil
 			}

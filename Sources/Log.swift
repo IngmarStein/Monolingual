@@ -15,7 +15,7 @@ final class Log {
 	class var realHomeDirectory : String {
 		let pw = getpwuid(getuid())
 		if pw != nil {
-			return String.fromCString(pw.memory.pw_dir)!
+			return String(cString: pw.pointee.pw_dir)
 		} else {
 			return NSHomeDirectory()
 		}
@@ -25,11 +25,11 @@ final class Log {
 	var logFile : NSOutputStream? = nil
 
 	func open() {
-		logFile = NSOutputStream(URL: logFileURL, append: true)
+		logFile = NSOutputStream(url: logFileURL, append: true)
 		logFile?.open()
 	}
 
-	func message(message: String) {
+	func message(_ message: String) {
 		let data = [UInt8](message.utf8)
 		logFile?.write(data, maxLength: data.count)
 	}

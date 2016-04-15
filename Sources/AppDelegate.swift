@@ -19,19 +19,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func applicationDidFinishLaunching(_: NSNotification) {
 		let defaultDict  = [ "Roots" : Root.defaults, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
-		NSUserDefaults.standardUserDefaults().registerDefaults(defaultDict as! [String : AnyObject])
+		NSUserDefaults.standard().register(defaultDict as! [String : AnyObject])
 
 		Fabric.with([Crashlytics()])
 	}
 
-	func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
+	func applicationShouldTerminate(afterLastWindowClosed sender: NSApplication) -> Bool {
 		return true
 	}
 
 	func application(sender: NSApplication, openFile filename: String) -> Bool {
 		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
 		
-		NSNotificationCenter.defaultCenter().postNotificationName(ProcessApplicationNotification, object: self, userInfo: (dict as [NSObject : AnyObject]))
+		NSNotificationCenter.defaultCenter().post(name: ProcessApplicationNotification, object: self, userInfo: (dict as [NSObject : AnyObject]))
 		
 		return true
 	}
@@ -39,22 +39,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	//MARK: - Actions
 	
 	@IBAction func documentationBundler(sender : NSMenuItem) {
-		let docURL = NSBundle.mainBundle().URLForResource(sender.title, withExtension:nil)
-		NSWorkspace.sharedWorkspace().openURL(docURL!)
+		let docURL = NSBundle.main().urlForResource(sender.title, withExtension:nil)
+		NSWorkspace.shared().open(docURL!)
 	}
 	
 	@IBAction func openWebsite(_: AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual")!)
+		NSWorkspace.shared().open(NSURL(string:"https://ingmarstein.github.io/Monolingual")!)
 	}
 	
 	@IBAction func donate(_: AnyObject) {
-		NSWorkspace.sharedWorkspace().openURL(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
+		NSWorkspace.shared().open(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
 	@IBAction func showPreferences(sender: AnyObject) {
 		if preferencesWindowController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			preferencesWindowController = storyboard.instantiateControllerWithIdentifier("PreferencesWindow") as? NSWindowController
+			preferencesWindowController = storyboard.instantiateController(withIdentifier: "PreferencesWindow") as? NSWindowController
 		}
 		preferencesWindowController?.showWindow(sender)
 	}

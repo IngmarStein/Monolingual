@@ -11,7 +11,7 @@ import Cocoa
 final class ISTableView : NSTableView {
 	@IBOutlet private var arrayController: NSArrayController!
 
-	override func keyDown(theEvent: NSEvent) {
+	override func keyDown(_ theEvent: NSEvent) {
 		if let characters = theEvent.charactersIgnoringModifiers where characters.hasPrefix(" ") {
 			let row = self.selectedRow
 			if row != -1 {

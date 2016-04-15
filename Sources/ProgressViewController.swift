@@ -6,7 +6,7 @@
 import Cocoa
 
 protocol ProgressViewControllerDelegate : class {
-	func progressViewControllerDidCancel(progressViewController: ProgressViewController)
+	func progressViewControllerDidCancel(_ progressViewController: ProgressViewController)
 }
 
 final class ProgressViewController : NSViewController {
