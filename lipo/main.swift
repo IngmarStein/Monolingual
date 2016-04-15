@@ -33,7 +33,7 @@ while let arg = args.next() {
 	}
 }
 
-if let lipo = Liposuction(archs: architectures) where !inputFiles.isEmpty && !architectures.isEmpty {
+if let lipo = Lipo(archs: architectures) where !inputFiles.isEmpty && !architectures.isEmpty {
 	var sizeDiff = 0
 	for file in inputFiles {
 		if lipo.run(file, sizeDiff: &sizeDiff) {
