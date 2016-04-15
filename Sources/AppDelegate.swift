@@ -38,7 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	//MARK: - Actions
 	
-	@IBAction func documentationBundler(sender : NSMenuItem) {
+	@IBAction func documentationBundler(_ sender : NSMenuItem) {
 		let docURL = NSBundle.main().urlForResource(sender.title, withExtension:nil)
 		NSWorkspace.shared().open(docURL!)
 	}
@@ -51,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		NSWorkspace.shared().open(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
-	@IBAction func showPreferences(sender: AnyObject) {
+	@IBAction func showPreferences(_ sender: AnyObject) {
 		if preferencesWindowController == nil {
 			let storyboard = NSStoryboard(name:"Main", bundle:nil)
 			preferencesWindowController = storyboard.instantiateController(withIdentifier: "PreferencesWindow") as? NSWindowController

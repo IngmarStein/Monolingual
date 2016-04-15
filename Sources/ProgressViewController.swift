@@ -48,7 +48,7 @@ final class ProgressViewController : NSViewController {
 		self.progressBar.stopAnimation(self)
 	}
 	
-	@IBAction func cancelButton(sender: AnyObject) {
+	@IBAction func cancelButton(_ sender: AnyObject) {
 		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
 		self.fileText.stringValue = ""
 

@@ -20,7 +20,7 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 
 	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
-	@IBAction func togglePreference(sender: AnyObject) {
+	@IBAction func togglePreference(_ sender: AnyObject) {
 		let selectionIndex = roots.selectionIndex
 		let dummy = []
 		roots.add(dummy)
@@ -29,7 +29,7 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 		tableView.window?.makeFirstResponder(tableView)
 	}
 
-	@IBAction func modifyPaths(sender: NSSegmentedControl) {
+	@IBAction func modifyPaths(_ sender: NSSegmentedControl) {
 		if sender.selectedSegment == 0 {
 			let oPanel = NSOpenPanel()
 
@@ -51,7 +51,7 @@ final class PreferencesViewController : NSViewController, NSTableViewDelegate {
 		segmentedControl.setEnabled(tableView.numberOfSelectedRows > 0, forSegment: 1)
 	}
 
-	@IBAction func restoreDefaults(sender: NSButton) {
+	@IBAction func restoreDefaults(_ sender: NSButton) {
 		roots.content = nil
 		roots.add(Root.defaults)
 	}
