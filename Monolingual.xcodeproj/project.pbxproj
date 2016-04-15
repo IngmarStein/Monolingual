@@ -65,6 +65,8 @@
 		9E689EAC1CC0DBCE003B9A2F /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		9E689EAF1CC0DBE3003B9A2F /* Lipo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E689EA41CC0DBB5003B9A2F /* Lipo.framework */; };
 		9E689EB01CC0DBE3003B9A2F /* CommandLine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E689E8A1CC0D9D2003B9A2F /* CommandLine.framework */; };
+		9E689EC61CC0E20D003B9A2F /* CommandLine.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 9E689E8A1CC0D9D2003B9A2F /* CommandLine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9E689EC71CC0E20D003B9A2F /* Lipo.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 9E689EA41CC0DBB5003B9A2F /* Lipo.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,6 +155,18 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		9E689EC51CC0E1F5003B9A2F /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9E689EC61CC0E20D003B9A2F /* CommandLine.framework in Copy Frameworks */,
+				9E689EC71CC0E20D003B9A2F /* Lipo.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -623,7 +637,7 @@
 				95E236D71AD526DF00076008 /* Frameworks */,
 				95E236D81AD526DF00076008 /* Resources */,
 				95E236F51AD5331300076008 /* CopyFiles */,
-				9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */,
+				9E689EC51CC0E1F5003B9A2F /* Copy Frameworks */,
 				9510C84D1CA85A5B0050C330 /* 📦 Embed Pods Frameworks */,
 				C85E63067E59241F3FA0F225 /* 📦 Copy Pods Resources */,
 			);
@@ -881,20 +895,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"Release\" = \"${CONFIGURATION}\" ]; then\n    ./Pods/Fabric/run 9367389c9ba1c46bb506967bf78235d24bdefc65 7a6a19ca726915f847582d51190afcf756d57e1d299d9fca036cfb517345ea9c\nfi";
-		};
-		9506117F1ADBFF1700E730CA /* Remove Swift Runtime From Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Remove Swift Runtime From Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# already contained in the main app\nrm -f \"${CONFIGURATION_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"/libswift*.dylib\n";
 		};
 		9510C84D1CA85A5B0050C330 /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1228,7 +1228,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "Helper/Sources/MonolingualHelper-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/../../Frameworks @executable_path/../../../../../Frameworks";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1252,7 +1252,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "Helper/Sources/MonolingualHelper-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/../../Frameworks @executable_path/../../../../../Frameworks";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1404,6 +1404,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ingmar Stein (ADVP2P7SJK)";
 				COMBINE_HIDPI_IMAGES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1449,6 +1450,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ingmar Stein (ADVP2P7SJK)";
 				COMBINE_HIDPI_IMAGES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1689,6 +1691,7 @@
 				9E689EAB1CC0DBB5003B9A2F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
