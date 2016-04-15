@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Lipo
 import MachO.fat
 import MachO.loader
 

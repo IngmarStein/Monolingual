@@ -204,7 +204,7 @@ private func cpuSubtypeWithMask(_ subtype: cpu_subtype_t) -> cpu_subtype_t {
 	return subtype & CPU_SUBTYPE_MASK
 }
 
-class Lipo {
+public class Lipo {
 	// Thin files from the input file to operate on
 	private struct ThinFile {
 		var data: NSData
@@ -217,7 +217,7 @@ class Lipo {
 	private var thinFiles: [ThinFile]!
 	private var removeArchFlags : [ArchFlag]!
 
-	init?(archs: [String]) {
+	public init?(archs: [String]) {
 
 		removeArchFlags = []
 		removeArchFlags.reserveCapacity(archs.count)
@@ -240,7 +240,7 @@ class Lipo {
 		}
 	}
 
-	func run(path: String, sizeDiff: inout Int) -> Bool {
+	public func run(path: String, sizeDiff: inout Int) -> Bool {
 		var success = true
 		var newsize = 0
 
