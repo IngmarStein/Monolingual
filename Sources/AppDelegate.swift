@@ -28,7 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		return true
 	}
 
-	func application(sender: NSApplication, openFile filename: String) -> Bool {
+	@objc(application:openFile:) func application(_ sender: NSApplication, openFile filename: String) -> Bool {
 		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
 		
 		NSNotificationCenter.defaultCenter().post(name: ProcessApplicationNotification, object: self, userInfo: (dict as [NSObject : AnyObject]))
