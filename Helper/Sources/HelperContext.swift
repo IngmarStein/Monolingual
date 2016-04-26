@@ -244,11 +244,11 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 	//MARK: - NSFileManagerDelegate
 
-	func fileManager(_ fileManager: NSFileManager, shouldRemoveItemAt URL: NSURL) -> Bool {
+	@objc(fileManager:shouldRemoveItemAtURL:) func fileManager(_ fileManager: NSFileManager, shouldRemoveItemAt URL: NSURL) -> Bool {
 		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
 	}
 
-	func fileManager(_ fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
+	@objc(fileManager:shouldProceedAfterError:removingItemAtURL:) func fileManager(_ fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
 		NSLog("Error removing '%@': %@", URL.path!, error)
 
 		return true

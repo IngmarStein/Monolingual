@@ -143,7 +143,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	//MARK: - NSXPCListenerDelegate
 
-	func listener(listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+	@objc(listener:shouldAcceptNewConnection:) func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)

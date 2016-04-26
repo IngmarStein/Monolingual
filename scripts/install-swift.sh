@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ev
-SWIFT_SNAPSHOT="swift-DEVELOPMENT-SNAPSHOT-2016-04-12-a"
+SWIFT_SNAPSHOT="swift-DEVELOPMENT-SNAPSHOT-2016-04-25-a"
 
 echo "Installing ${SWIFT_SNAPSHOT}..."
 if [ ! -f "${SWIFT_SNAPSHOT}-ubuntu14.04.tar.gz" ]; then
