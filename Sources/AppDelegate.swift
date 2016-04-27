@@ -16,10 +16,30 @@ let ProcessApplicationNotification = "ProcessApplicationNotification"
 final class AppDelegate: NSObject, NSApplicationDelegate {
 	var preferencesWindowController : NSWindowController?
 
+	// validate values stored in NSUserDefaults and reset to default if necessary
+	private func validateDefaults() {
+		let defaults = NSUserDefaults.standard()
+
+		let roots = defaults.array(forKey: "Roots")
+		if roots == nil || roots!.index(where: { (root) -> Bool in
+			if let rootDictionary = root as? NSDictionary {
+				return rootDictionary.object(forKey: "Path") == nil
+					|| rootDictionary.object(forKey: "Languages") == nil
+					|| rootDictionary.object(forKey: "Architectures") == nil
+			} else {
+				return true
+			}
+		}) != nil {
+			defaults.set(Root.defaults, forKey: "Roots")
+		}
+	}
+
 	func applicationDidFinishLaunching(_: NSNotification) {
 		let defaultDict  = [ "Roots" : Root.defaults, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
 		NSUserDefaults.standard().register(defaultDict as! [String : AnyObject])
+
+		validateDefaults()
 
 		Fabric.with([Crashlytics()])
 	}
