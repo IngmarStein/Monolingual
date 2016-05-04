@@ -116,7 +116,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 						}
 					}
 				}
-				return pathComponent.substring(to: pathComponent.endIndex.advanced(by: -4))
+				return pathComponent.substring(to: pathComponent.index(pathComponent.endIndex, offsetBy: -4))
 			}
 		}
 		return nil

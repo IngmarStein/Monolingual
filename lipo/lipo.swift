@@ -314,7 +314,7 @@ class Lipo {
 	 */
 	private func processInputFile() -> Bool {
 		do {
-			try NSFileManager.defaultManager().attributesOfItem(atPath: fileName)
+			try NSFileManager.default().attributesOfItem(atPath: fileName)
 		} catch let error as NSError {
 			NSLog("can't stat input file '%@': %@", fileName, error)
 			return false
@@ -519,7 +519,7 @@ class Lipo {
 		let temporaryURL = NSURL(fileURLWithPath: temporaryFile)
 		let inputURL = NSURL(fileURLWithPath: fileName)
 		do {
-			try NSFileManager.defaultManager().replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
+			try NSFileManager.default().replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error as NSError {
 			NSLog("can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
 		}

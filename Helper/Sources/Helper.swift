@@ -69,8 +69,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
-			try NSFileManager.defaultManager().removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
-			try NSFileManager.defaultManager().removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
+			try NSFileManager.default().removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
+			try NSFileManager.default().removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
 		} catch _ {
 		}
 	}
@@ -326,7 +326,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	// check if SIP is enabled, see https://github.com/IngmarStein/Monolingual/issues/74
 	func checkRootless() -> Bool {
 		let protectedDirectory = NSURL(fileURLWithPath: "/System/Monolingual.sip", isDirectory: true)
-		let fileManager = NSFileManager.defaultManager()
+		let fileManager = NSFileManager.default()
 
 		do {
 			try fileManager.createDirectory(at: protectedDirectory, withIntermediateDirectories: false, attributes: nil)

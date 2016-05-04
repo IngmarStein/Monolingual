@@ -279,7 +279,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		notification.title = NSLocalizedString("Monolingual started", comment:"")
 		notification.informativeText = NSLocalizedString("Started removing files", comment:"")
 
-		NSUserNotificationCenter.defaultUserNotificationCenter().deliver(notification)
+		NSUserNotificationCenter.default().deliver(notification)
 	}
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
@@ -384,7 +384,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			notification.title = NSLocalizedString("Monolingual finished", comment:"")
 			notification.informativeText = NSLocalizedString("Finished removing files", comment:"")
 
-			NSUserNotificationCenter.defaultUserNotificationCenter().deliver(notification)
+			NSUserNotificationCenter.default().deliver(notification)
 		}
 
 		if let connection = self.helperConnection {
@@ -612,14 +612,14 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 			}
 		}
 
-		self.processApplicationObserver = NSNotificationCenter.defaultCenter().addObserver(forName: ProcessApplicationNotification, object: nil, queue: nil) { notification in
+		self.processApplicationObserver = NSNotificationCenter.default().addObserver(forName: ProcessApplicationNotification, object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}
 
 	deinit {
 		if let observer = self.processApplicationObserver {
-			NSNotificationCenter.defaultCenter().removeObserver(observer)
+			NSNotificationCenter.default().removeObserver(observer)
 		}
 		xpcServiceConnection.invalidate()
 	}
