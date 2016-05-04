@@ -12,7 +12,7 @@ import XCTest
 class Helper_Tests: XCTestCase {
 
 	private var testDir: NSURL {
-		return NSURL(fileURLWithPath: NSFileManager.defaultManager().currentDirectoryPath, isDirectory: true).appendingPathComponent("testdata")
+		return NSURL(fileURLWithPath: NSFileManager.default().currentDirectoryPath, isDirectory: true).appendingPathComponent("testdata")
 	}
 
 	private var utilDir: NSURL {
@@ -23,7 +23,7 @@ class Helper_Tests: XCTestCase {
 		let appDir = testDir.appendingPathComponent("\(name).app")
 		let localizableStringsData = NSData(base64Encoded: "dGVzdA==", options: [])!
 		let infoPlist = [ "CFBundleIdentifier" : bundleIdentifier ] as NSDictionary
-		let fileManager = NSFileManager.defaultManager()
+		let fileManager = NSFileManager.default()
 
 		do {
 			try fileManager.createDirectory(at: appDir.appendingPathComponent("Contents/Resources/en.lproj"), withIntermediateDirectories: true, attributes: nil)
@@ -45,7 +45,7 @@ class Helper_Tests: XCTestCase {
 		createTestApp(name: "excluded", bundleIdentifier:"com.test.excluded")
 		createTestApp(name: "blacklisted", bundleIdentifier:"com.test.blacklisted")
 
-		let fileManager = NSFileManager.defaultManager()
+		let fileManager = NSFileManager.default()
 		do {
 			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello1"), to: testDir.appendingPathComponent("hello1"))
 			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello2"), to: testDir.appendingPathComponent("hello2"))
@@ -58,7 +58,7 @@ class Helper_Tests: XCTestCase {
     override func tearDown() {
         super.tearDown()
 
-		let fileManager = NSFileManager.defaultManager()
+		let fileManager = NSFileManager.default()
 		try! fileManager.removeItem(atPath: "testdata")
     }
 
@@ -78,7 +78,7 @@ class Helper_Tests: XCTestCase {
 		helper.processRequest(request, progress: nil) { (exitCode) -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
-			let fileManager = NSFileManager.defaultManager()
+			let fileManager = NSFileManager.default()
 			XCTAssert(fileManager.fileExists(atPath: self.testDir.appendingPathComponent("test.app/Contents/Resources/en.lproj/Localizable.strings").path!), "English localization should be untouched")
 			XCTAssert(fileManager.fileExists(atPath: self.testDir.appendingPathComponent("test.app/Contents/Resources/de.lproj/Localizable.strings").path!), "German localization app should be untouched")
 			XCTAssert(!fileManager.fileExists(atPath: self.testDir.appendingPathComponent("test.app/Contents/Resources/fr.lproj/Localizable.strings").path!), "French localization should have been removed")
@@ -101,7 +101,7 @@ class Helper_Tests: XCTestCase {
 
 	private func assertFileSize(path: NSURL, expectedSize: Int, message: String) {
 		do {
-			let attributes = try NSFileManager.defaultManager().attributesOfItem(atPath: path.path!)
+			let attributes = try NSFileManager.default().attributesOfItem(atPath: path.path!)
 			let size = attributes[NSFileSize] as? Int
 			XCTAssertEqual(size, expectedSize, message)
 		} catch _ {
@@ -132,7 +132,7 @@ class Helper_Tests: XCTestCase {
 		helper.processRequest(request, progress: nil) { (exitCode) -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
-			let fileManager = NSFileManager.defaultManager()
+			let fileManager = NSFileManager.default()
 			XCTAssert(fileManager.fileExists(atPath: self.testDir.appendingPathComponent("hello1").path!), "non-fat file should be present")
 			XCTAssert(fileManager.fileExists(atPath: self.testDir.appendingPathComponent("hello2").path!), "2-arch fat file should be present")
 			XCTAssert(fileManager.fileExists(atPath: self.testDir.appendingPathComponent("hello3").path!), "3-arch fat file should be present")
