@@ -13,6 +13,9 @@ before_script:
 - "./scripts/add-key.sh"
 - brew update && brew upgrade xctool || true
 - "./scripts/install-swift.sh"
+script:
+- xcodebuild -workspace Monolingual.xcworkspace -scheme Travis build
+- xctool -workspace Monolingual.xcworkspace -scheme Travis test -parallelize
 after_script:
 - "./scripts/remove-key.sh"
 env:
