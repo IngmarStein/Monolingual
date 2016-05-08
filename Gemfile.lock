@@ -8,11 +8,11 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     claide (1.0.0.rc.1)
-    cocoapods (1.0.0.rc.1)
+    cocoapods (1.0.0.rc.2)
       activesupport (>= 4.0.2)
       claide (= 1.0.0.rc.1)
-      cocoapods-core (= 1.0.0.rc.1)
-      cocoapods-deintegrate (= 1.0.0.rc.1)
+      cocoapods-core (= 1.0.0.rc.2)
+      cocoapods-deintegrate (= 1.0.0.rc.2)
       cocoapods-downloader (= 1.0.0.rc.1)
       cocoapods-plugins (= 1.0.0.rc.1)
       cocoapods-search (= 1.0.0.rc.1)
@@ -24,12 +24,12 @@ GEM
       fourflusher (~> 0.3.0)
       molinillo (~> 0.4.5)
       nap (~> 1.0)
-      xcodeproj (= 1.0.0.rc.1)
-    cocoapods-core (1.0.0.rc.1)
+      xcodeproj (= 1.0.0.rc.2)
+    cocoapods-core (1.0.0.rc.2)
       activesupport (>= 4.0.2)
       fuzzy_match (~> 2.0.4)
       nap (~> 1.0)
-    cocoapods-deintegrate (1.0.0.rc.1)
+    cocoapods-deintegrate (1.0.0.rc.2)
     cocoapods-downloader (1.0.0.rc.1)
     cocoapods-plugins (1.0.0.rc.1)
       nap
@@ -52,7 +52,7 @@ GEM
     thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    xcodeproj (1.0.0.rc.1)
+    xcodeproj (1.0.0.rc.2)
       activesupport (>= 3)
       claide (= 1.0.0.rc.1)
       colored (~> 1.2)
@@ -61,7 +61,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods (~> 1.0.0.rc.1)
+  cocoapods (~> 1.0.0.rc.2)
 
 BUNDLED WITH
    1.12.1
