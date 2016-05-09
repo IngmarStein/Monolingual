@@ -8,18 +8,18 @@
 
 import Foundation
 
-@objc(HelperRequest) class HelperRequest : NSObject, NSSecureCoding {
+@objc(HelperRequest) class HelperRequest: NSObject, NSSecureCoding {
 
-	var dryRun : Bool
-	var doStrip : Bool
-	var uid : uid_t
-	var trash : Bool
-	var includes : [String]?
-	var excludes : [String]?
-	var bundleBlacklist : Set<String>?
-	var directories : Set<String>?
-	var files : [String]?
-	var thin : [String]?
+	var dryRun: Bool
+	var doStrip: Bool
+	var uid: uid_t
+	var trash: Bool
+	var includes: [String]?
+	var excludes: [String]?
+	var bundleBlacklist: Set<String>?
+	var directories: Set<String>?
+	var files: [String]?
+	var thin: [String]?
 
 	override init() {
 		dryRun = false
@@ -42,12 +42,12 @@ import Foundation
 		doStrip = aDecoder.decodeBool(forKey: "doStrip")
 		uid = uid_t(aDecoder.decodeInteger(forKey: "uid"))
 		trash = aDecoder.decodeBool(forKey: "trash")
-		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey:"includes") as? [String]
-		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey:"excludes") as? [String]
-		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey:"bundleBlacklist") as? Set<String>
-		directories = aDecoder.decodeObjectOfClasses(stringSet, forKey:"directories") as? Set<String>
-		files = aDecoder.decodeObjectOfClasses(stringArray, forKey:"files") as? [String]
-		thin = aDecoder.decodeObjectOfClasses(stringArray, forKey:"thin") as? [String]
+		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "includes") as? [String]
+		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "excludes") as? [String]
+		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey: "bundleBlacklist") as? Set<String>
+		directories = aDecoder.decodeObjectOfClasses(stringSet, forKey: "directories") as? Set<String>
+		files = aDecoder.decodeObjectOfClasses(stringArray, forKey: "files") as? [String]
+		thin = aDecoder.decodeObjectOfClasses(stringArray, forKey: "thin") as? [String]
 
 		super.init()
 	}
@@ -55,19 +55,20 @@ import Foundation
 	// https://bugs.swift.org/browse/SR-1208
 	@objc(encodeWithCoder:)
 	func encode(with coder: NSCoder) {
-		coder.encode(dryRun, forKey:"dryRun")
-		coder.encode(doStrip, forKey:"doStrip")
-		coder.encode(Int(uid), forKey:"uid")
-		coder.encode(trash, forKey:"trash")
-		coder.encode(includes, forKey:"includes")
-		coder.encode(excludes, forKey:"excludes")
-		coder.encode(bundleBlacklist, forKey:"bundleBlacklist")
-		coder.encode(directories, forKey:"directories")
-		coder.encode(files, forKey:"files")
-		coder.encode(thin, forKey:"thin")
+		coder.encode(dryRun, forKey: "dryRun")
+		coder.encode(doStrip, forKey: "doStrip")
+		coder.encode(Int(uid), forKey: "uid")
+		coder.encode(trash, forKey: "trash")
+		coder.encode(includes, forKey: "includes")
+		coder.encode(excludes, forKey: "excludes")
+		coder.encode(bundleBlacklist, forKey: "bundleBlacklist")
+		coder.encode(directories, forKey: "directories")
+		coder.encode(files, forKey: "files")
+		coder.encode(thin, forKey: "thin")
 	}
 
 	static func supportsSecureCoding() -> Bool {
 		return true
 	}
+
 }

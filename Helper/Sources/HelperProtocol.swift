@@ -10,11 +10,11 @@ import Foundation
 
 @objc protocol HelperProtocol {
 
-	func connectWithEndpointReply(_ reply:(NSXPCListenerEndpoint) -> Void)
-	func getVersionWithReply(_ reply:(String) -> Void)
+	func connectWithEndpointReply(_ reply: (NSXPCListenerEndpoint) -> Void)
+	func getVersionWithReply(_ reply: (String) -> Void)
 	func uninstall()
 	func exitWithCode(_ exitCode: Int)
-	func processRequest(_ request: HelperRequest, progress: ProgressProtocol?, reply:(Int) -> Void)
+	func processRequest(_ request: HelperRequest, progress: ProgressProtocol?, reply: (Int) -> Void)
 
 }
 

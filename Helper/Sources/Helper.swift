@@ -179,7 +179,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 				var isDirectory: AnyObject?
 				do {
-					try theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey)
+					try theURL.getResourceValue(&isDirectory, forKey: NSURLIsDirectoryKey)
 				} catch _ {
 				}
 
@@ -200,7 +200,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey]) { theURL, dirEnumerator in
 			var isDirectory: AnyObject?
 			do {
-				try theURL.getResourceValue(&isDirectory, forKey:NSURLIsDirectoryKey)
+				try theURL.getResourceValue(&isDirectory, forKey: NSURLIsDirectoryKey)
 			} catch _ {
 			}
 
@@ -282,9 +282,9 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				let path = url.path!
 				var size: AnyObject?
 				do {
-					try url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+					try url.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)
 				} catch _ {
-					try! url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+					try! url.getResourceValue(&size, forKey: NSURLFileAllocatedSizeKey)
 				}
 
 				let oldSize = size as! Int
@@ -308,9 +308,9 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 					NSLog("Failed to set file attributes for '%@': %@", path, error)
 				}
 				do {
-					try url.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+					try url.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)
 				} catch _ {
-					try! url.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+					try! url.getResourceValue(&size, forKey: NSURLFileAllocatedSizeKey)
 				}
 				let newSize = size as! Int
 				if oldSize > newSize {

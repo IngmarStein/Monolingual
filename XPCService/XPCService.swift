@@ -13,32 +13,32 @@ import XPC
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?
 
-	func bundledHelperVersion(reply:(String) -> Void) {
+	func bundledHelperVersion(reply: (String) -> Void) {
 		reply(MonolingualHelperClient.bundledVersion!)
 	}
 
-	func installHelperTool(withReply reply:(NSError?) -> Void) {
+	func installHelperTool(withReply reply: (NSError?) -> Void) {
 		do {
 			try MonolingualHelperClient.installWithPrompt(prompt: nil)
 		} catch let error as SMJError {
 			switch error {
 			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary, SMJError.unableToBless:
 				NSLog("Failed to bless helper. Error: \(error)")
-				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to install helper utility.", comment:"") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
 			case SMJError.authorizationDenied:
-				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("You entered an incorrect administrator password.", comment:"") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
 			case SMJError.authorizationCanceled:
-				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "") ]))
 			case SMJError.authorizationInteractionNotAllowed, SMJError.authorizationFailed:
-				reply(NSError(domain:"XPCService", code:error.code, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("Failed to authorize as an administrator.", comment:"") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to authorize as an administrator.", comment: "") ]))
 			}
 		} catch {
-			reply(NSError(domain:"XPCService", code:0, userInfo:[ NSLocalizedDescriptionKey:NSLocalizedString("An unknown error occurred.", comment:"") ]))
+			reply(NSError(domain: "XPCService", code: 0, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("An unknown error occurred.", comment: "") ]))
 		}
 		reply(nil)
 	}
 
-	func connect(withReply reply:(NSXPCListenerEndpoint?) -> Void) {
+	func connect(withReply reply: (NSXPCListenerEndpoint?) -> Void) {
 		if helperToolConnection == nil {
 			let connection = NSXPCConnection(machServiceName: "com.github.IngmarStein.Monolingual.Helper", options: .privileged)
 			connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
@@ -49,11 +49,11 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			helperToolConnection = connection
 		}
 
-		let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler() { error in
+		let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler { error in
 			NSLog("XPCService failed to connect to helper: %@", error)
 			reply(nil)
 		} as! HelperProtocol
-		helper.connectWithEndpointReply() { endpoint -> Void in
+		helper.connectWithEndpointReply { endpoint -> Void in
 			reply(endpoint)
 		}
 	}

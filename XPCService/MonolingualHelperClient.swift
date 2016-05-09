@@ -9,7 +9,7 @@
 import Foundation
 import SMJobKit
 
-final class MonolingualHelperClient : Client {
+final class MonolingualHelperClient: Client {
 	override class var serviceIdentifier: String {
 		return "com.github.IngmarStein.Monolingual.Helper"
 	}

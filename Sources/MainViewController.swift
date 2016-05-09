@@ -92,9 +92,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		// Display a warning first
 		let alert = NSAlert()
 		alert.alertStyle = .warningAlertStyle
-		alert.addButton(withTitle: NSLocalizedString("Cancel", comment:""))
-		alert.addButton(withTitle: NSLocalizedString("Continue", comment:""))
-		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment:"")
+		alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
+		alert.addButton(withTitle: NSLocalizedString("Continue", comment: ""))
+		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment: "")
 		alert.beginSheetModal(for: self.view.window!) { responseCode in
 			if NSAlertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
@@ -121,7 +121,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if num_archs == self.architectures.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = NSLocalizedString("Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", comment:"")
+			alert.messageText = NSLocalizedString("Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Cannot remove all architectures", "")
 			log.close()
@@ -155,11 +155,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
 			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
-			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey:NSProgressFileURLKey)
-			progress.setUserInfoObject(size, forKey:"sizeDifference")
+			progress.setUserInfoObject(count + 1, forKey: NSProgressFileCompletedCountKey)
+			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey: NSProgressFileURLKey)
+			progress.setUserInfoObject(size, forKey: "sizeDifference")
 			if let appName = appName {
-				progress.setUserInfoObject(appName, forKey:"appName")
+				progress.setUserInfoObject(appName, forKey: "appName")
 			}
 			progress.completedUnitCount += size
 		}
@@ -178,7 +178,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let message : String
 		if self.mode == .Architectures {
-			message = NSLocalizedString("Removing architecture from universal binary", comment:"")
+			message = NSLocalizedString("Removing architecture from universal binary", comment: "")
 		} else {
 			// parse file name
 			var lang : String?
@@ -196,11 +196,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				}
 			}
 			if let app = appName, lang = lang {
-				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment:""), lang, app)
+				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment: ""), lang, app)
 			} else if let lang = lang {
-				message = String(format:NSLocalizedString("Removing language %@…", comment:""), lang)
+				message = String(format:NSLocalizedString("Removing language %@…", comment: ""), lang)
 			} else {
-				message = String(format:NSLocalizedString("Removing %@…", comment:""), file)
+				message = String(format:NSLocalizedString("Removing %@…", comment: ""), file)
 			}
 		}
 
@@ -276,8 +276,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		let notification = NSUserNotification()
-		notification.title = NSLocalizedString("Monolingual started", comment:"")
-		notification.informativeText = NSLocalizedString("Started removing files", comment:"")
+		notification.title = NSLocalizedString("Monolingual started", comment: "")
+		notification.informativeText = NSLocalizedString("Started removing files", comment: "")
 
 		NSUserNotificationCenter.default().deliver(notification)
 	}
@@ -370,19 +370,19 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment:""), byteCount)
+			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment:""), byteCount)
-			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment:"")
+			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount)
+			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 
 			let notification = NSUserNotification()
-			notification.title = NSLocalizedString("Monolingual finished", comment:"")
-			notification.informativeText = NSLocalizedString("Finished removing files", comment:"")
+			notification.title = NSLocalizedString("Monolingual finished", comment: "")
+			notification.informativeText = NSLocalizedString("Finished removing files", comment: "")
 
 			NSUserNotificationCenter.default().deliver(notification)
 		}
@@ -417,9 +417,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if !languageEnabled {
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment:"")
+			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
-			//NSLocalizedString("Nothing done", comment:"")
+			//NSLocalizedString("Nothing done", comment: "")
 		}
 
 		return languageEnabled
@@ -438,9 +438,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			// Display a warning
 			let alert = NSAlert()
 			alert.alertStyle = .criticalAlertStyle
-			alert.addButton(withTitle: NSLocalizedString("Cancel", comment:""))
-			alert.addButton(withTitle: NSLocalizedString("Continue", comment:""))
-			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment:"")
+			alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
+			alert.addButton(withTitle: NSLocalizedString("Continue", comment: ""))
+			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment: "")
 
 			alert.beginSheetModal(for: self.view.window!) { response in
 				if response == NSAlertSecondButtonReturn {
@@ -497,8 +497,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if rCount == self.languages.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = NSLocalizedString("Cannot remove all languages", comment:"")
-			alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment:"")
+			alert.messageText = NSLocalizedString("Cannot remove all languages", comment: "")
+			alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 			log.close()
 		} else if rCount > 0 {
@@ -590,13 +590,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		}
 
-		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment:"")
+		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment: "")
 
 		self.architectures = archs.map { arch in
 			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpu_type)
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
-				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment:""), arch.displayName)
+				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName)
 			}
 			return architecture
 		}

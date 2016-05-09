@@ -22,7 +22,7 @@ class Helper_Tests: XCTestCase {
 	private func createTestApp(name: String, bundleIdentifier: String) {
 		let appDir = testDir.appendingPathComponent("\(name).app")
 		let localizableStringsData = NSData(base64Encoded: "dGVzdA==", options: [])!
-		let infoPlist = [ "CFBundleIdentifier" : bundleIdentifier ] as NSDictionary
+		let infoPlist = [ "CFBundleIdentifier": bundleIdentifier ] as NSDictionary
 		let fileManager = NSFileManager.default()
 
 		do {
@@ -153,4 +153,5 @@ class Helper_Tests: XCTestCase {
 			}
 		}
 	}
+
 }

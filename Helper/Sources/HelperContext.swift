@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class HelperContext : NSObject, NSFileManagerDelegate {
+final class HelperContext: NSObject, NSFileManagerDelegate {
 
 	var request: HelperRequest
 	var remoteProgress: ProgressProtocol?
@@ -56,9 +56,9 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		return fileBlacklist.contains(url)
 	}
 
-	private func addFileDictionaryToBlacklist(_ files: [String:AnyObject], baseURL:NSURL) {
+	private func addFileDictionaryToBlacklist(_ files: [String: AnyObject], baseURL: NSURL) {
 		for (key, value) in files {
-			if let valueDict = value as? [String:AnyObject], optional = valueDict["optional"] as? Bool where optional {
+			if let valueDict = value as? [String: AnyObject], optional = valueDict["optional"] as? Bool where optional {
 				continue
 			}
 			fileBlacklist.insert(baseURL.appendingPathComponent(key))
@@ -71,10 +71,10 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		if result == errSecSuccess, let code = codeRef {
 			var codeInfoRef: CFDictionary?
 			// warning: this relies on kSecCSInternalInformation
-			let kSecCSInternalInformation = SecCSFlags(rawValue: 1)
-			let result2 = SecCodeCopySigningInformation(code, kSecCSInternalInformation, &codeInfoRef)
-			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [NSObject:AnyObject] {
-				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject:AnyObject] {
+			let secCSInternalInformation = SecCSFlags(rawValue: 1)
+			let result2 = SecCodeCopySigningInformation(code, secCSInternalInformation, &codeInfoRef)
+			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [NSObject: AnyObject] {
+				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject: AnyObject] {
 					let baseURL: NSURL
 					let contentsDirectory = url.appendingPathComponent("Contents", isDirectory: true)
 					if let path = contentsDirectory.path where fileManager.fileExists(atPath: path) {
@@ -82,12 +82,12 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 					} else {
 						baseURL = url
 					}
-					if let files = resDir["files"] as? [String:AnyObject] {
+					if let files = resDir["files"] as? [String: AnyObject] {
 						addFileDictionaryToBlacklist(files, baseURL: baseURL)
 					}
 					// Version 2 Code Signature (introduced in Mavericks)
 					// https://developer.apple.com/library/mac/technotes/tn2206
-					if let files = resDir["files2"] as? [String:AnyObject] {
+					if let files = resDir["files2"] as? [String: AnyObject] {
 						addFileDictionaryToBlacklist(files, baseURL: baseURL)
 					}
 				}
@@ -104,7 +104,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 						var displayName: String?
 						if let localization = NSBundle.preferredLocalizations(from: bundle.localizations, forPreferences: NSLocale.preferredLanguages()).first,
 							infoPlistStringsURL = bundle.urlForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-							strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String:String] {
+							strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
 							displayName = strings["CFBundleDisplayName"]
 						}
 						if displayName == nil {
@@ -122,13 +122,13 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		return nil
 	}
 
-	func reportProgress(url: NSURL, size:Int) {
+	func reportProgress(url: NSURL, size: Int) {
 		let appName = appNameForURL(url)
 		if let progress = progress {
 			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject(count + 1, forKey:NSProgressFileCompletedCountKey)
-			progress.setUserInfoObject(url, forKey:NSProgressFileURLKey)
-			progress.setUserInfoObject(size, forKey:"sizeDifference")
+			progress.setUserInfoObject(count + 1, forKey: NSProgressFileCompletedCountKey)
+			progress.setUserInfoObject(url, forKey: NSProgressFileURLKey)
+			progress.setUserInfoObject(size, forKey: "sizeDifference")
 			if let appName = appName {
 				progress.setUserInfoObject(appName, forKey: "appName")
 			}
@@ -151,7 +151,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
 			// check if any file in below url has been blacklisted
-			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:nil, options:[], errorHandler:nil) {
+			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: nil, options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
 					let theURL = entry as! NSURL
 					if isFileBlacklisted(theURL) {
@@ -164,7 +164,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			var success = false
 			seteuid(request.uid)
 			do {
-				try fileManager.trashItem(at: url, resultingItemURL:&dstURL)
+				try fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 				success = true
 			} catch let error1 as NSError {
 				error = error1
@@ -174,7 +174,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			if !success {
 				do {
 					// move the file to root's trash
-					try self.fileManager.trashItem(at: url, resultingItemURL:&dstURL)
+					try self.fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 					success = true
 				} catch let error1 as NSError {
 					error = error1
@@ -183,20 +183,20 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 			}
 
 			if success {
-				if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys:[NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options:[], errorHandler:nil) {
+				if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [NSURLTotalFileAllocatedSizeKey, NSURLFileAllocatedSizeKey], options: [], errorHandler: nil) {
 					for entry in dirEnumerator {
 						let theURL = entry as! NSURL
 						var size: AnyObject?
 						do {
-							try theURL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+							try theURL.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)
 						} catch _ {
 							do {
-								try theURL.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+								try theURL.getResourceValue(&size, forKey: NSURLFileAllocatedSizeKey)
 							} catch _ {
 							}
 						}
 						if let size = size as? Int {
-							reportProgress(url: theURL, size:size)
+							reportProgress(url: theURL, size: size)
 						}
 					}
 				}
@@ -219,7 +219,7 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		}
 	}
 
-	private func fileManager(_ fileManager: NSFileManager, shouldProcessItemAtURL URL:NSURL) -> Bool {
+	private func fileManager(_ fileManager: NSFileManager, shouldProcessItemAtURL URL: NSURL) -> Bool {
 		if request.dryRun || isFileBlacklisted(URL) || (isRootless && URL.isProtected) {
 			return false
 		}
@@ -227,25 +227,25 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 		// TODO: it is wrong to report process here, deletion might fail
 		var size: AnyObject?
 		do {
-			try URL.getResourceValue(&size, forKey:NSURLTotalFileAllocatedSizeKey)
+			try URL.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)
 		} catch _ {
 			do {
-				try URL.getResourceValue(&size, forKey:NSURLFileAllocatedSizeKey)
+				try URL.getResourceValue(&size, forKey: NSURLFileAllocatedSizeKey)
 			} catch _ {
 			}
 		}
 
 		if let size = size as? Int {
-			reportProgress(url: URL, size:size)
+			reportProgress(url: URL, size: size)
 		}
 
 		return true
 	}
 
-	//MARK: - NSFileManagerDelegate
+	// MARK: - NSFileManagerDelegate
 
 	@objc(fileManager:shouldRemoveItemAtURL:) func fileManager(_ fileManager: NSFileManager, shouldRemoveItemAt URL: NSURL) -> Bool {
-		return self.fileManager(fileManager, shouldProcessItemAtURL:URL)
+		return self.fileManager(fileManager, shouldProcessItemAtURL: URL)
 	}
 
 	@objc(fileManager:shouldProceedAfterError:removingItemAtURL:) func fileManager(_ fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
@@ -253,4 +253,5 @@ final class HelperContext : NSObject, NSFileManagerDelegate {
 
 		return true
 	}
+
 }
