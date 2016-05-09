@@ -13,16 +13,16 @@
 
 import Cocoa
 
-enum MonolingualMode : Int {
+enum MonolingualMode: Int {
 	case Languages = 0
 	case Architectures
 }
 
 struct ArchitectureInfo {
-	let name : String
-	let displayName : String
-	let cpu_type : cpu_type_t
-	let cpu_subtype : cpu_subtype_t
+	let name: String
+	let displayName: String
+	let cpu_type: cpu_type_t
+	let cpu_subtype: cpu_subtype_t
 }
 
 // these defines are not (yet) visible to Swift
@@ -46,20 +46,20 @@ func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
 
-final class MainViewController : NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
+final class MainViewController: NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
 
-	@IBOutlet private weak var currentArchitecture : NSTextField!
+	@IBOutlet private weak var currentArchitecture: NSTextField!
 
-	private var progressViewController : ProgressViewController?
+	private var progressViewController: ProgressViewController?
 
-	private var blacklist : [BlacklistEntry]?
-	dynamic var languages : [LanguageSetting]!
-	dynamic var architectures : [ArchitectureSetting]!
+	private var blacklist: [BlacklistEntry]?
+	dynamic var languages: [LanguageSetting]!
+	dynamic var architectures: [ArchitectureSetting]!
 
-	private var mode : MonolingualMode = .Languages
-	private var processApplication : Root?
-	private var processApplicationObserver : NSObjectProtocol?
-	private var helperConnection : NSXPCConnection?
+	private var mode: MonolingualMode = .Languages
+	private var processApplication: Root?
+	private var processApplicationObserver: NSObjectProtocol?
+	private var helperConnection: NSXPCConnection?
 	private var progress: NSProgress?
 
 	private let sipProtectedLocations = [ "/System", "/bin" ]
@@ -71,7 +71,7 @@ final class MainViewController : NSViewController, ProgressViewControllerDelegat
 		return connection
 	}()
 
-	private var roots : [Root] {
+	private var roots: [Root] {
 		if let application = self.processApplication {
 			return [ application ]
 		} else {

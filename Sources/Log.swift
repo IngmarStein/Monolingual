@@ -12,7 +12,7 @@ final class Log {
 
 	// use the real (non-sandboxed) directory $HOME/Library/Logs for the log file as long as we have the temporary exception com.apple.security.temporary-exception.files.home-relative-path.read-write.
 	// NSHomeDirectory() points to $HOME/Library/Containers/com.github.IngmarStein.Monolingual/Data
-	class var realHomeDirectory : String {
+	class var realHomeDirectory: String {
 		let pw = getpwuid(getuid())
 		if pw != nil {
 			return String(cString: pw.pointee.pw_dir)
@@ -21,8 +21,8 @@ final class Log {
 		}
 	}
 
-	let logFileURL = NSURL(fileURLWithPath:"\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
-	var logFile : NSOutputStream? = nil
+	let logFileURL = NSURL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
+	var logFile: NSOutputStream? = nil
 
 	func open() {
 		logFile = NSOutputStream(url: logFileURL, append: true)
@@ -38,7 +38,7 @@ final class Log {
 		logFile?.close()
 		logFile = nil
 	}
-	
+
 	deinit {
 		close()
 	}

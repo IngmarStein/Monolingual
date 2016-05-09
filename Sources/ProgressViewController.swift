@@ -5,18 +5,18 @@
 
 import Cocoa
 
-protocol ProgressViewControllerDelegate : class {
+protocol ProgressViewControllerDelegate: class {
 	func progressViewControllerDidCancel(_ progressViewController: ProgressViewController)
 }
 
-final class ProgressViewController : NSViewController {
+final class ProgressViewController: NSViewController {
 	@IBOutlet private weak var progressBar: NSProgressIndicator!
 	@IBOutlet private weak var applicationText: NSTextField!
 	@IBOutlet private weak var fileText: NSTextField!
-	
-	weak var delegate : ProgressViewControllerDelegate?
-	
-	var file : String {
+
+	weak var delegate: ProgressViewControllerDelegate?
+
+	var file: String {
 	get {
 		return self.fileText.stringValue
 	}
@@ -25,7 +25,7 @@ final class ProgressViewController : NSViewController {
 	}
 	}
 
-	var text : String {
+	var text: String {
 	get {
 		return self.applicationText.stringValue
 	}
@@ -33,13 +33,13 @@ final class ProgressViewController : NSViewController {
 		self.applicationText.stringValue = newValue
 	}
 	}
-	
+
 	override func viewDidLoad() {
 		self.progressBar.usesThreadedAnimation = true
 	}
-	
+
 	override func viewWillAppear() {
-		self.applicationText.stringValue = NSLocalizedString("Removing...", comment:"")
+		self.applicationText.stringValue = NSLocalizedString("Removing...", comment: "")
 		self.fileText.stringValue = ""
 		self.progressBar.startAnimation(self)
 	}
@@ -47,11 +47,12 @@ final class ProgressViewController : NSViewController {
 	override func viewWillDisappear() {
 		self.progressBar.stopAnimation(self)
 	}
-	
+
 	@IBAction func cancelButton(_ sender: AnyObject) {
-		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment:"")
+		self.applicationText.stringValue = NSLocalizedString("Canceling operation...", comment: "")
 		self.fileText.stringValue = ""
 
 		self.delegate?.progressViewControllerDidCancel(self)
 	}
+
 }

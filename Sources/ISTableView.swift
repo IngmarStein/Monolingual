@@ -8,7 +8,7 @@
 
 import Cocoa
 
-final class ISTableView : NSTableView {
+final class ISTableView: NSTableView {
 	@IBOutlet private var arrayController: NSArrayController!
 
 	override func keyDown(_ theEvent: NSEvent) {
@@ -24,4 +24,5 @@ final class ISTableView : NSTableView {
 			super.keyDown(theEvent)
 		}
 	}
+
 }

@@ -9,7 +9,7 @@
 import Foundation
 
 // Cocoa Bindings requires NSObject
-class Setting : NSObject {
+class Setting: NSObject {
 	dynamic var enabled: Bool = false
 
 	init(enabled: Bool) {

@@ -14,7 +14,7 @@ let ProcessApplicationNotification = "ProcessApplicationNotification"
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
-	var preferencesWindowController : NSWindowController?
+	var preferencesWindowController: NSWindowController?
 
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {

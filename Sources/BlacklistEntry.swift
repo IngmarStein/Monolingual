@@ -9,12 +9,12 @@
 import Foundation
 
 struct BlacklistEntry {
-	let bundle : String
-	let languages : Bool
-	let architectures : Bool
-	
-	init(dictionary: [NSObject:AnyObject]) {
-		self.bundle = dictionary["bundle"] as! String
+	let bundle: String
+	let languages: Bool
+	let architectures: Bool
+
+	init(dictionary: [NSObject: AnyObject]) {
+		self.bundle = dictionary["bundle"] as? String ?? ""
 		self.languages = dictionary["languages"]!.boolValue
 		self.architectures = dictionary["architectures"]!.boolValue
 	}
