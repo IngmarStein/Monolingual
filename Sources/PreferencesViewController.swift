@@ -40,7 +40,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 
 			oPanel.begin { result in
 				if NSModalResponseOK == result {
-					self.roots.add(oPanel.urls.map { [ "Path": $0.path!, "Languages": true, "Architectures": true ] })
+					self.roots.add(oPanel.urls.map { [ "Path": $0.path! as NSString, "Languages": true, "Architectures": true ] })
 				}
 			}
 		} else if sender.selectedSegment == 1 {
