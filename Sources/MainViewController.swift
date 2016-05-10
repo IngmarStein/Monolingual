@@ -154,12 +154,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
-			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject(count + 1, forKey: NSProgressFileCompletedCountKey)
+			let count = progress.userInfo[NSProgressFileCompletedCountKey as NSString] as? Int ?? 0
+			progress.setUserInfoObject((count + 1) as NSNumber, forKey: NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey: NSProgressFileURLKey)
-			progress.setUserInfoObject(size, forKey: "sizeDifference")
+			progress.setUserInfoObject(size as NSNumber, forKey: "sizeDifference")
 			if let appName = appName {
-				progress.setUserInfoObject(appName, forKey: "appName")
+				progress.setUserInfoObject(appName as NSString, forKey: "appName")
 			}
 			progress.completedUnitCount += size
 		}
@@ -167,7 +167,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
 		if keyPath == "completedUnitCount" {
-			if let progress = object as? NSProgress, url = progress.userInfo[NSProgressFileURLKey] as? NSURL, size = progress.userInfo["sizeDifference"] as? Int {
+			if let progress = object as? NSProgress, url = progress.userInfo[NSProgressFileURLKey as NSString] as? NSURL, size = progress.userInfo["sizeDifference"] as? Int {
 				processProgress(file: url, size:size, appName:progress.userInfo["appName"] as? String)
 			}
 		}
@@ -196,9 +196,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				}
 			}
 			if let app = appName, lang = lang {
-				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment: ""), lang, app)
+				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment: ""), lang as NSString, app as NSString)
 			} else if let lang = lang {
-				message = String(format:NSLocalizedString("Removing language %@…", comment: ""), lang)
+				message = String(format:NSLocalizedString("Removing language %@…", comment: ""), lang as NSString)
 			} else {
 				message = String(format:NSLocalizedString("Removing %@…", comment: ""), file)
 			}
@@ -370,13 +370,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount)
+			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount as NSString)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount)
+			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount as NSString)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 
@@ -537,10 +537,10 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			if let language = components[NSLocaleLanguageCode], country = components[NSLocaleCountryCode] {
 				folders.append("\(language)-\(country).lproj")
 				folders.append("\(language)_\(country).lproj")
-			} else if let displayName = systemLocale.displayName(forKey: NSLocaleIdentifier, value: localeIdentifier) {
+			} else if let displayName = systemLocale.displayName(forKey: NSLocaleIdentifier as NSString, value: localeIdentifier as NSString) {
 				folders.append("\(displayName).lproj")
 			}
-			let displayName = currentLocale.displayName(forKey: NSLocaleIdentifier, value: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
+			let displayName = currentLocale.displayName(forKey: NSLocaleIdentifier as NSString, value: localeIdentifier as NSString) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
 			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 		}.sorted { $0.displayName < $1.displayName }
 
@@ -596,7 +596,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpu_type)
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
-				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName)
+				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName as NSString)
 			}
 			return architecture
 		}

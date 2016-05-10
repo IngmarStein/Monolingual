@@ -30,14 +30,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 				return true
 			}
 		}) != nil {
-			defaults.set(Root.defaults, forKey: "Roots")
+			defaults.set(Root.defaults as NSArray, forKey: "Roots")
 		}
 	}
 
 	func applicationDidFinishLaunching(_: NSNotification) {
-		let defaultDict  = [ "Roots" : Root.defaults, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
+		let defaultDict: [String: AnyObject]  = [ "Roots" : Root.defaults as AnyObject, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
-		NSUserDefaults.standard().register(defaultDict as! [String : AnyObject])
+		NSUserDefaults.standard().register(defaultDict)
 
 		validateDefaults()
 
@@ -49,9 +49,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	@objc(application:openFile:) func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-		let dict = [ "Path" : filename, "Language" : true, "Architectures" : true ]
-		
-		NSNotificationCenter.default().post(name: ProcessApplicationNotification, object: self, userInfo: (dict as [NSObject : AnyObject]))
+		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
+
+		NSNotificationCenter.default().post(name: ProcessApplicationNotification, object: self, userInfo: dict)
 		
 		return true
 	}

@@ -125,12 +125,12 @@ final class HelperContext: NSObject, NSFileManagerDelegate {
 	func reportProgress(url: NSURL, size: Int) {
 		let appName = appNameForURL(url)
 		if let progress = progress {
-			let count = progress.userInfo[NSProgressFileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject(count + 1, forKey: NSProgressFileCompletedCountKey)
+			let count = progress.userInfo[NSProgressFileCompletedCountKey as NSString] as? Int ?? 0
+			progress.setUserInfoObject((count + 1) as NSNumber, forKey: NSProgressFileCompletedCountKey)
 			progress.setUserInfoObject(url, forKey: NSProgressFileURLKey)
-			progress.setUserInfoObject(size, forKey: "sizeDifference")
+			progress.setUserInfoObject(size as NSNumber, forKey: "sizeDifference")
 			if let appName = appName {
-				progress.setUserInfoObject(appName, forKey: "appName")
+				progress.setUserInfoObject(appName as NSString, forKey: "appName")
 			}
 			progress.completedUnitCount += size
 		}
@@ -201,7 +201,7 @@ final class HelperContext: NSObject, NSFileManagerDelegate {
 					}
 				}
 			} else if let error = error {
-				NSLog("Error trashing '%s': %@", url.path!, error)
+				NSLog("Error trashing '%s': %@", url.path! as NSString, error)
 			}
 		} else {
 			do {
@@ -209,10 +209,10 @@ final class HelperContext: NSObject, NSFileManagerDelegate {
 			} catch let error1 as NSError {
 				error = error1
 				if let error = error {
-					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
+					if let underlyingError = error.userInfo[NSUnderlyingErrorKey as NSString] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
-						NSLog("Error removing '%@': %@", url.path!, error)
+						NSLog("Error removing '%@': %@", url.path! as NSString, error)
 					}
 				}
 			}
@@ -249,7 +249,7 @@ final class HelperContext: NSObject, NSFileManagerDelegate {
 	}
 
 	@objc(fileManager:shouldProceedAfterError:removingItemAtURL:) func fileManager(_ fileManager: NSFileManager, shouldProceedAfterError error: NSError, removingItemAt URL: NSURL) -> Bool {
-		NSLog("Error removing '%@': %@", URL.path!, error)
+		NSLog("Error removing '%@': %@", URL.path! as NSString, error)
 
 		return true
 	}

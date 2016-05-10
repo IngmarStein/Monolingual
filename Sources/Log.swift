@@ -13,8 +13,7 @@ final class Log {
 	// use the real (non-sandboxed) directory $HOME/Library/Logs for the log file as long as we have the temporary exception com.apple.security.temporary-exception.files.home-relative-path.read-write.
 	// NSHomeDirectory() points to $HOME/Library/Containers/com.github.IngmarStein.Monolingual/Data
 	class var realHomeDirectory: String {
-		let pw = getpwuid(getuid())
-		if pw != nil {
+		if let pw = getpwuid(getuid()) {
 			return String(cString: pw.pointee.pw_dir)
 		} else {
 			return NSHomeDirectory()

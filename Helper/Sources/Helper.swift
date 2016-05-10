@@ -305,7 +305,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath:path)
 				} catch let error as NSError {
-					NSLog("Failed to set file attributes for '%@': %@", path, error)
+					NSLog("Failed to set file attributes for '%@': %@", path as NSString, error)
 				}
 				do {
 					try url.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)

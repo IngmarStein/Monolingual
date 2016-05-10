@@ -42,12 +42,12 @@ import Foundation
 		doStrip = aDecoder.decodeBool(forKey: "doStrip")
 		uid = uid_t(aDecoder.decodeInteger(forKey: "uid"))
 		trash = aDecoder.decodeBool(forKey: "trash")
-		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "includes") as? [String]
-		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "excludes") as? [String]
-		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey: "bundleBlacklist") as? Set<String>
-		directories = aDecoder.decodeObjectOfClasses(stringSet, forKey: "directories") as? Set<String>
-		files = aDecoder.decodeObjectOfClasses(stringArray, forKey: "files") as? [String]
-		thin = aDecoder.decodeObjectOfClasses(stringArray, forKey: "thin") as? [String]
+		includes = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "includes") as? [String]
+		excludes = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "excludes") as? [String]
+		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet as NSSet, forKey: "bundleBlacklist") as? Set<String>
+		directories = aDecoder.decodeObjectOfClasses(stringSet as NSSet, forKey: "directories") as? Set<String>
+		files = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "files") as? [String]
+		thin = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "thin") as? [String]
 
 		super.init()
 	}
@@ -59,12 +59,24 @@ import Foundation
 		coder.encode(doStrip, forKey: "doStrip")
 		coder.encode(Int(uid), forKey: "uid")
 		coder.encode(trash, forKey: "trash")
-		coder.encode(includes, forKey: "includes")
-		coder.encode(excludes, forKey: "excludes")
-		coder.encode(bundleBlacklist, forKey: "bundleBlacklist")
-		coder.encode(directories, forKey: "directories")
-		coder.encode(files, forKey: "files")
-		coder.encode(thin, forKey: "thin")
+		if let includes = self.includes {
+			coder.encode(includes as NSArray, forKey: "includes")
+		}
+		if let excludes = self.excludes {
+			coder.encode(excludes as NSArray, forKey: "excludes")
+		}
+		if let bundleBlacklist = self.bundleBlacklist {
+			coder.encode(bundleBlacklist as NSSet, forKey: "bundleBlacklist")
+		}
+		if let directories = self.directories {
+			coder.encode(directories as NSSet, forKey: "directories")
+		}
+		if let files = self.files {
+			coder.encode(files as NSArray, forKey: "files")
+		}
+		if let thin = self.thin {
+			coder.encode(thin as NSArray, forKey: "thin")
+		}
 	}
 
 	static func supportsSecureCoding() -> Bool {
