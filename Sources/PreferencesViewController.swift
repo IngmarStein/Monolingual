@@ -44,7 +44,8 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 				}
 			}
 		} else if sender.selectedSegment == 1 {
-			roots.remove(sender)
+			// FIXME: Swift 3 (2016-03-09) maps -[NSArrayController remove:] and -[NSArrayController removeObject:] to NSArrayController.remove(_ sender: AnyObject?) .remove(_ object: AnyObject), respectively
+			roots.remove(sender as AnyObject?)
 		}
 
 		// Delegate will not respond when an item is added or removed.
