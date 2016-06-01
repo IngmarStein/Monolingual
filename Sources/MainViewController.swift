@@ -196,11 +196,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				}
 			}
 			if let app = appName, lang = lang {
-				message = String(format:NSLocalizedString("Removing language %@ from %@…", comment: ""), lang as NSString, app as NSString)
+				message = String(format: NSLocalizedString("Removing language %@ from %@…", comment: ""), lang as NSString, app as NSString)
 			} else if let lang = lang {
-				message = String(format:NSLocalizedString("Removing language %@…", comment: ""), lang as NSString)
+				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), lang as NSString)
 			} else {
-				message = String(format:NSLocalizedString("Removing %@…", comment: ""), file)
+				message = String(format: NSLocalizedString("Removing %@…", comment: ""), file)
 			}
 		}
 
@@ -376,7 +376,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .informationalAlertStyle
-			alert.messageText = String(format:NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount as NSString)
+			alert.messageText = String(format: NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount as NSString)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 
@@ -596,7 +596,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpu_type)
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
-				self.currentArchitecture.stringValue = String(format:NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName as NSString)
+				self.currentArchitecture.stringValue = String(format: NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName as NSString)
 			}
 			return architecture
 		}
