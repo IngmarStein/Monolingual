@@ -528,7 +528,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */;
 			buildPhases = (
-				4B6992436AF109B55DF552C7 /* 📦 Check Pods Manifest.lock */,
+				4B6992436AF109B55DF552C7 /* [CP] Check Pods Manifest.lock */,
 				95A1302C0608F92F00D8E30C /* Resources */,
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
@@ -537,8 +537,8 @@
 				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
 				950183451AF4FC26007F74C3 /* Fabric */,
-				8081F625CF6A0B5E1DA7C2BF /* 📦 Embed Pods Frameworks */,
-				4A2909F1281673578E8D708C /* 📦 Copy Pods Resources */,
+				8081F625CF6A0B5E1DA7C2BF /* [CP] Embed Pods Frameworks */,
+				4A2909F1281673578E8D708C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -570,13 +570,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95E236E91AD526DF00076008 /* Build configuration list for PBXNativeTarget "XPCService" */;
 			buildPhases = (
-				2FB13E69095670B83A3B069B /* 📦 Check Pods Manifest.lock */,
+				2FB13E69095670B83A3B069B /* [CP] Check Pods Manifest.lock */,
 				95E236D61AD526DF00076008 /* Sources */,
 				95E236D71AD526DF00076008 /* Frameworks */,
 				95E236D81AD526DF00076008 /* Resources */,
 				95E236F51AD5331300076008 /* CopyFiles */,
 				9510C84D1CA85A5B0050C330 /* 📦 Embed Pods Frameworks */,
-				C85E63067E59241F3FA0F225 /* 📦 Copy Pods Resources */,
+				C85E63067E59241F3FA0F225 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -707,14 +707,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2FB13E69095670B83A3B069B /* 📦 Check Pods Manifest.lock */ = {
+		2FB13E69095670B83A3B069B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -722,14 +722,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		4A2909F1281673578E8D708C /* 📦 Copy Pods Resources */ = {
+		4A2909F1281673578E8D708C /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -737,14 +737,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Monolingual/Pods-Monolingual-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4B6992436AF109B55DF552C7 /* 📦 Check Pods Manifest.lock */ = {
+		4B6992436AF109B55DF552C7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -752,14 +752,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		8081F625CF6A0B5E1DA7C2BF /* 📦 Embed Pods Frameworks */ = {
+		8081F625CF6A0B5E1DA7C2BF /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -823,14 +823,14 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\nXPCSERVICES=`find \"${FRAMEWORK}/XPCServices\" -type d -depth 1`\nRESULT=$?\nif [[ $RESULT == 0 ]] ; then\n  for XPCSERVICE in $XPCSERVICES; do\n    `codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\n  done\nfi\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
 		};
-		C85E63067E59241F3FA0F225 /* 📦 Copy Pods Resources */ = {
+		C85E63067E59241F3FA0F225 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
