@@ -393,7 +393,7 @@ class Lipo {
 	 * TODO: Use the NSFileHandle API as soon as it allows error handling without exceptions.
 	 */
 	private func createFat(newsize: inout Int) -> Bool {
-		let temporaryFile = "\(fileName).lipo"
+		let temporaryFile = "\(fileName!).lipo"
 		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
 			NSLog("can't create temporary output file: %@", temporaryFile as NSString);
