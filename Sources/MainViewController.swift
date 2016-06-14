@@ -60,7 +60,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private var processApplication: Root?
 	private var processApplicationObserver: NSObjectProtocol?
 	private var helperConnection: NSXPCConnection?
-	private var progress: NSProgress?
+	private var progress: Progress?
 
 	private let sipProtectedLocations = [ "/System", "/bin" ]
 
@@ -75,7 +75,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if let application = self.processApplication {
 			return [ application ]
 		} else {
-			let pref = NSUserDefaults.standard().array(forKey: "Roots") as? [[NSObject : AnyObject]]
+			let pref = UserDefaults.standard().array(forKey: "Roots") as? [[String : AnyObject]]
 			return pref?.map { Root(dictionary: $0) } ?? [Root]()
 		}
 	}
@@ -91,7 +91,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	@IBAction func removeLanguages(_ sender: AnyObject) {
 		// Display a warning first
 		let alert = NSAlert()
-		alert.alertStyle = .warningAlertStyle
+		alert.alertStyle = .warning
 		alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
 		alert.addButton(withTitle: NSLocalizedString("Continue", comment: ""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment: "")
@@ -107,7 +107,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		log.open()
 
-		let now = NSDateFormatter.localizedString(from: NSDate(), dateStyle: .shortStyle, timeStyle: .shortStyle)
+		let now = DateFormatter.localizedString(from: Date(), dateStyle: .shortStyle, timeStyle: .shortStyle)
 		log.message("Monolingual started at \(now)\nRemoving architectures: ")
 
 		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
@@ -120,7 +120,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		let num_archs = archs.count
 		if num_archs == self.architectures.count {
 			let alert = NSAlert()
-			alert.alertStyle = .informationalAlertStyle
+			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Cannot remove all architectures", "")
@@ -130,7 +130,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let roots = self.roots
 
 			let request = HelperRequest()
-			request.doStrip = NSUserDefaults.standard().bool(forKey: "Strip")
+			request.doStrip = UserDefaults.standard().bool(forKey: "Strip")
 			request.bundleBlacklist = Set<String>(self.blacklist!.filter { $0.architectures } .map { $0.bundle })
 			request.includes = roots.filter { $0.architectures } .map { $0.path }
 			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + sipProtectedLocations
@@ -154,9 +154,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
-			let count = progress.userInfo[NSProgressFileCompletedCountKey as NSString] as? Int ?? 0
-			progress.setUserInfoObject((count + 1) as NSNumber, forKey: NSProgressFileCompletedCountKey)
-			progress.setUserInfoObject(NSURL(fileURLWithPath: file), forKey: NSProgressFileURLKey)
+			let count = progress.userInfo[Progress.Key.fileCompletedCountKey as NSString] as? Int ?? 0
+			progress.setUserInfoObject((count + 1) as NSNumber, forKey: Progress.Key.fileCompletedCountKey.rawValue)
+			progress.setUserInfoObject(URL(fileURLWithPath: file), forKey: Progress.Key.fileURLKey.rawValue)
 			progress.setUserInfoObject(size as NSNumber, forKey: "sizeDifference")
 			if let appName = appName {
 				progress.setUserInfoObject(appName as NSString, forKey: "appName")
@@ -165,15 +165,15 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
 		if keyPath == "completedUnitCount" {
-			if let progress = object as? NSProgress, url = progress.userInfo[NSProgressFileURLKey as NSString] as? NSURL, size = progress.userInfo["sizeDifference"] as? Int {
+			if let progress = object as? Progress, url = progress.userInfo[Progress.Key.fileURLKey as NSString] as? URL, size = progress.userInfo["sizeDifference"] as? Int {
 				processProgress(file: url, size:size, appName:progress.userInfo["appName"] as? String)
 			}
 		}
 	}
 
-	private func processProgress(file: NSURL, size: Int, appName: String?) {
+	private func processProgress(file: URL, size: Int, appName: String?) {
 		log.message("\(file.path!): \(size)\n")
 
 		let message : String
@@ -204,7 +204,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		}
 
-		dispatch_async(dispatch_get_main_queue()) {
+		DispatchQueue.main.async {
 			if let viewController = self.progressViewController, path = file.path {
 				viewController.text = message
 				viewController.file = path
@@ -221,9 +221,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if let xpcService = xpcService {
 			xpcService.installHelperTool { error in
 				if let error = error {
-					dispatch_async(dispatch_get_main_queue()) {
+					DispatchQueue.main.async {
 						let alert = NSAlert()
-						alert.alertStyle = .criticalAlertStyle
+						alert.alertStyle = .critical
 						alert.messageText = error.localizedDescription
 						alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 						log.close()
@@ -237,9 +237,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func runHelper(arguments: HelperRequest) {
-		NSProcessInfo.processInfo().disableSuddenTermination()
+		ProcessInfo.processInfo().disableSuddenTermination()
 
-		let progress = NSProgress(totalUnitCount: -1)
+		let progress = Progress(totalUnitCount: -1)
 		progress.becomeCurrent(withPendingUnitCount: -1)
 		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .new, context: nil)
 
@@ -248,7 +248,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
 			NSLog("Error communicating with helper: %@", error)
-			dispatch_async(dispatch_get_main_queue()) {
+			DispatchQueue.main.async {
 				self.finishProcessing()
 			}
 		} as! HelperProtocol
@@ -257,7 +257,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			NSLog("helper finished with exit code: \(exitCode)")
 			helper.exitWithCode(exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {
-				dispatch_async(dispatch_get_main_queue()) {
+				DispatchQueue.main.async {
 					self.finishProcessing()
 				}
 			}
@@ -267,12 +267,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.progress = progress
 
 		if self.progressViewController == nil {
-			let storyboard = NSStoryboard(name:"Main", bundle:nil)
+			let storyboard = NSStoryboard(name: "Main", bundle: nil)
 			self.progressViewController = storyboard.instantiateController(withIdentifier: "ProgressViewController") as? ProgressViewController
 		}
 		self.progressViewController?.delegate = self
 		if self.progressViewController!.presenting == nil {
-			self.present(asSheet: self.progressViewController!)
+			presentViewControllerAsSheet(self.progressViewController!)
 		}
 
 		let notification = NSUserNotification()
@@ -318,7 +318,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 							xpcService.bundledHelperVersion() { bundledVersion in
 								if installedVersion == bundledVersion {
 									// helper is current
-									dispatch_async(dispatch_get_main_queue()) {
+									DispatchQueue.main.async {
 										self.runHelper(arguments: arguments)
 									}
 								} else {
@@ -356,7 +356,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.dismiss(self.progressViewController!)
 
 		let progress = self.progress!
-		let byteCount = NSByteCountFormatter.string(fromByteCount: max(progress.completedUnitCount, 0), countStyle: .file)
+		let byteCount = ByteCountFormatter.string(fromByteCount: max(progress.completedUnitCount, 0), countStyle: .file)
 		self.progress = nil
 
 		if !completed {
@@ -369,13 +369,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 
 			let alert = NSAlert()
-			alert.alertStyle = .informationalAlertStyle
+			alert.alertStyle = .informational
 			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount as NSString)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
-			alert.alertStyle = .informationalAlertStyle
+			alert.alertStyle = .informational
 			alert.messageText = String(format: NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount as NSString)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
@@ -395,7 +395,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		log.close()
 
-		NSProcessInfo.processInfo().enableSuddenTermination()
+		ProcessInfo.processInfo().enableSuddenTermination()
 	}
 
 	private func checkAndRemove() {
@@ -416,7 +416,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		if !languageEnabled {
 			let alert = NSAlert()
-			alert.alertStyle = .informationalAlertStyle
+			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Nothing done", comment: "")
@@ -437,7 +437,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if englishChecked {
 			// Display a warning
 			let alert = NSAlert()
-			alert.alertStyle = .criticalAlertStyle
+			alert.alertStyle = .critical
 			alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
 			alert.addButton(withTitle: NSLocalizedString("Continue", comment: ""))
 			alert.messageText = NSLocalizedString("You are about to delete the English language files. Are you sure you want to do that?", comment: "")
@@ -456,7 +456,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.mode = .Languages
 
 		log.open()
-		let now = NSDateFormatter.localizedString(from: NSDate(), dateStyle: .shortStyle, timeStyle: .shortStyle)
+		let now = DateFormatter.localizedString(from: Date(), dateStyle: .shortStyle, timeStyle: .shortStyle)
 		log.message("Monolingual started at \(now)\nRemoving languages: ")
 
 		let roots = self.roots
@@ -489,14 +489,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				}
 			}
 		}
-		if NSUserDefaults.standard().bool(forKey: "NIB") {
+		if UserDefaults.standard().bool(forKey: "NIB") {
 			folders.insert("designable.nib")
 		}
 
 		log.message("\nDeleted files: \n")
 		if rCount == self.languages.count {
 			let alert = NSAlert()
-			alert.alertStyle = .informationalAlertStyle
+			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Cannot remove all languages", comment: "")
 			alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
@@ -505,7 +505,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			// start things off if we have something to remove!
 
 			let request = HelperRequest()
-			request.trash = NSUserDefaults.standard().bool(forKey: "Trash")
+			request.trash = UserDefaults.standard().bool(forKey: "Trash")
 			request.uid = getuid()
 			request.bundleBlacklist = Set<String>(bl)
 			request.includes = includes
@@ -519,28 +519,28 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	override func viewDidLoad() {
-		let currentLocale = NSLocale.current()
+		let currentLocale = Locale.current()
 
 		// never check the user's preferred languages, English the the user's locale be default
-		let userLanguages = Set<String>((NSLocale.preferredLanguages()).map {
+		let userLanguages = Set<String>((Locale.preferredLanguages()).map {
 			return $0.replacingOccurrences(of: "-", with:"_")
 		} + ["en", currentLocale.localeIdentifier])
 
-		let availableLocalizations = Set<String>((NSLocale.availableLocaleIdentifiers())
+		let availableLocalizations = Set<String>((Locale.availableLocaleIdentifiers())
 			// add some known locales not contained in availableLocaleIdentifiers
 			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW" ])
 
-		let systemLocale = NSLocale(localeIdentifier: "en_US_POSIX")
+		let systemLocale = Locale(localeIdentifier: "en_US_POSIX")
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
-			let components = NSLocale.components(fromLocaleIdentifier: localeIdentifier)
-			if let language = components[NSLocaleLanguageCode], country = components[NSLocaleCountryCode] {
+			let components = Locale.components(fromLocaleIdentifier: localeIdentifier)
+			if let language = components[Locale.Key.languageCode.rawValue], country = components[Locale.Key.countryCode.rawValue] {
 				folders.append("\(language)-\(country).lproj")
 				folders.append("\(language)_\(country).lproj")
-			} else if let displayName = systemLocale.displayName(forKey: NSLocaleIdentifier as NSString, value: localeIdentifier as NSString) {
+			} else if let displayName = systemLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier as NSString) {
 				folders.append("\(displayName).lproj")
 			}
-			let displayName = currentLocale.displayName(forKey: NSLocaleIdentifier as NSString, value: localeIdentifier as NSString) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
+			let displayName = currentLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier as NSString) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
 			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 		}.sorted { $0.displayName < $1.displayName }
 
@@ -602,24 +602,24 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		// load blacklist from bundle
-		if let blacklistBundle = NSBundle.main().urlForResource("blacklist", withExtension:"plist"), entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
+		if let blacklistBundle = Bundle.main().urlForResource("blacklist", withExtension:"plist"), entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		// load remote blacklist asynchronously
-		dispatch_async(dispatch_get_main_queue()) {
-			if let blacklistURL = NSURL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOf: blacklistURL) as? [[NSObject:AnyObject]] {
+		DispatchQueue.main.async {
+			if let blacklistURL = URL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOf: blacklistURL) as? [[NSObject:AnyObject]] {
 				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 			}
 		}
 
-		self.processApplicationObserver = NSNotificationCenter.default().addObserver(forName: ProcessApplicationNotification, object: nil, queue: nil) { notification in
+		self.processApplicationObserver = NotificationCenter.default().addObserver(forName: NSNotification.Name(rawValue: ProcessApplicationNotification), object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}
 
 	deinit {
 		if let observer = self.processApplicationObserver {
-			NSNotificationCenter.default().removeObserver(observer)
+			NotificationCenter.default().removeObserver(observer)
 		}
 		xpcServiceConnection.invalidate()
 	}

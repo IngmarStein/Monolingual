@@ -20,7 +20,7 @@ final class Log {
 		}
 	}
 
-	let logFileURL = NSURL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
+	let logFileURL = URL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
 	var logFile: NSOutputStream? = nil
 
 	func open() {

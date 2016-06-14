@@ -19,10 +19,10 @@ struct Root {
 		return [ applications, localLibrary ]
 	}
 
-	init(dictionary: [NSObject: AnyObject]) {
+	init(dictionary: [String: Any]) {
 		self.path = dictionary["Path"] as? String ?? ""
-		self.languages = dictionary["Languages"]?.boolValue ?? false
-		self.architectures = dictionary["Architectures"]?.boolValue ?? false
+		self.languages = dictionary["Languages"] as? Bool ?? false
+		self.architectures = dictionary["Architectures"] as? Bool ?? false
 	}
 
 }

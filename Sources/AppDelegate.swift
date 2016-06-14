@@ -18,7 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {
-		let defaults = NSUserDefaults.standard()
+		let defaults = UserDefaults.standard()
 
 		let roots = defaults.array(forKey: "Roots")
 		if roots == nil || roots!.index(where: { (root) -> Bool in
@@ -34,24 +34,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		}
 	}
 
-	func applicationDidFinishLaunching(_: NSNotification) {
+	func applicationDidFinishLaunching(_: Notification) {
 		let defaultDict: [String: AnyObject]  = [ "Roots" : Root.defaults as AnyObject, "Trash" : false, "Strip" : false, "NSApplicationCrashOnExceptions" : true ]
 
-		NSUserDefaults.standard().register(defaultDict)
+		UserDefaults.standard().register(defaultDict)
 
 		validateDefaults()
 
 		Fabric.with([Crashlytics()])
 	}
 
-	func applicationShouldTerminate(afterLastWindowClosed sender: NSApplication) -> Bool {
+	func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
 		return true
 	}
 
-	@objc(application:openFile:) func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+	func application(_ sender: NSApplication, openFile filename: String) -> Bool {
 		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
 
-		NSNotificationCenter.default().post(name: ProcessApplicationNotification, object: self, userInfo: dict)
+		NotificationCenter.default().post(name: NSNotification.Name(rawValue: ProcessApplicationNotification), object: self, userInfo: dict)
 		
 		return true
 	}
@@ -59,16 +59,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	//MARK: - Actions
 	
 	@IBAction func documentationBundler(_ sender : NSMenuItem) {
-		let docURL = NSBundle.main().urlForResource(sender.title, withExtension:nil)
+		let docURL = Bundle.main().urlForResource(sender.title, withExtension:nil)
 		NSWorkspace.shared().open(docURL!)
 	}
 	
 	@IBAction func openWebsite(_: AnyObject) {
-		NSWorkspace.shared().open(NSURL(string:"https://ingmarstein.github.io/Monolingual")!)
+		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual")!)
 	}
 	
 	@IBAction func donate(_: AnyObject) {
-		NSWorkspace.shared().open(NSURL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
+		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
 	@IBAction func showPreferences(_ sender: AnyObject) {

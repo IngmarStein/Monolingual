@@ -10,7 +10,7 @@ import Foundation
 import MachO.fat
 import MachO.loader
 
-extension NSURL {
+extension URL {
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
 		return getxattr(self.path!, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
 	}
@@ -23,13 +23,13 @@ extension NSURL {
 final class Helper : NSObject, NSXPCListenerDelegate {
 
 	private var listener: NSXPCListener
-	private var timer: NSTimer?
-	private let timeoutInterval = NSTimeInterval(30.0)
-	private let workerQueue = NSOperationQueue()
+	private var timer: Timer?
+	private let timeoutInterval = TimeInterval(30.0)
+	private let workerQueue = OperationQueue()
 	private var isRootless = true
 
 	var version: String {
-		return NSBundle.main().objectForInfoDictionaryKey("CFBundleVersion") as! String
+		return Bundle.main().objectForInfoDictionaryKey("CFBundleVersion") as! String
 	}
 
 	override init() {
@@ -47,11 +47,11 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		NSLog("MonolingualHelper started")
 
 		listener.resume()
-		timer = NSTimer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
-		NSRunLoop.current().run()
+		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
+		RunLoop.current().run()
 	}
 
-	@objc func timeout(_: NSTimer) {
+	@objc func timeout(_: Timer) {
 		NSLog("timeout while waiting for request")
 		exitWithCode(Int(EXIT_SUCCESS))
 	}
@@ -69,8 +69,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
-			try NSFileManager.default().removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
-			try NSFileManager.default().removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
+			try FileManager.default().removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
+			try FileManager.default().removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
 		} catch _ {
 		}
 	}
@@ -89,7 +89,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		//NSLog("Received request: %@", request)
 
 		// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
-		let progress = NSProgress(totalUnitCount: -1)
+		let progress = Progress(totalUnitCount: -1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
 			NSLog("Stopping MonolingualHelper")
@@ -107,11 +107,11 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 					if progress.isCancelled {
 						break
 					}
-					context.remove(NSURL(fileURLWithPath:file))
+					context.remove(URL(fileURLWithPath:file))
 				}
 			}
 
-			let roots = request.includes?.map { NSURL(fileURLWithPath: $0, isDirectory: true) }
+			let roots = request.includes?.map { URL(fileURLWithPath: $0, isDirectory: true) }
 
 			if let roots = roots {
 				// recursively delete directories
@@ -143,7 +143,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	//MARK: - NSXPCListenerDelegate
 
-	@objc(listener:shouldAcceptNewConnection:) func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+	func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)
@@ -158,7 +158,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	//MARK: -
 
-	private func iterateDirectory(_ url: NSURL, context:HelperContext, prefetchedProperties:[String], block:(NSURL, NSDirectoryEnumerator) -> Void) {
+	private func iterateDirectory(_ url: URL, context:HelperContext, prefetchedProperties:[String], block:(URL, FileManager.DirectoryEnumerator) -> Void) {
 		if let progress = context.progress where progress.isCancelled {
 			return
 		}
@@ -169,26 +169,26 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		context.addCodeResourcesToBlacklist(url)
 
-		let dirEnumerator = context.fileManager.enumerator(at: url, includingPropertiesForKeys:prefetchedProperties, options:[], errorHandler:nil)
+		let dirEnumerator = context.fileManager.enumerator(at: url, includingPropertiesForKeys: prefetchedProperties, options:[], errorHandler:nil)
 		if let dirEnumerator = dirEnumerator {
 			for entry in dirEnumerator {
 				if let progress = context.progress where progress.isCancelled {
 					return
 				}
-				let theURL = entry as! NSURL
+				let theURL = entry as! URL
 
-				var isDirectory: AnyObject?
 				do {
-					try theURL.getResourceValue(&isDirectory, forKey: NSURLIsDirectoryKey)
-				} catch _ {
-				}
+					let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
 
-				if let isDirectory = isDirectory as? Bool where isDirectory {
-					if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || (isRootless && theURL.isProtected) {
-						dirEnumerator.skipDescendents()
-						continue
+					if let isDirectory = resourceValues.isDirectory where isDirectory {
+						if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || (isRootless && theURL.isProtected) {
+							dirEnumerator.skipDescendents()
+							continue
+						}
+						context.addCodeResourcesToBlacklist(theURL)
 					}
-					context.addCodeResourcesToBlacklist(theURL)
+				} catch _ {
+					// ignore
 				}
 
 				block(theURL, dirEnumerator)
@@ -196,26 +196,25 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	func processDirectory(_ url: NSURL, context:HelperContext) {
-		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey]) { theURL, dirEnumerator in
-			var isDirectory: AnyObject?
+	func processDirectory(_ url: URL, context:HelperContext) {
+		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue]) { theURL, dirEnumerator in
 			do {
-				try theURL.getResourceValue(&isDirectory, forKey: NSURLIsDirectoryKey)
-			} catch _ {
-			}
+				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
 
-			if let isDirectory = isDirectory as? Bool where isDirectory {
-				if let lastComponent = theURL.lastPathComponent, directories = context.request.directories {
-					if directories.contains(lastComponent) {
-						context.remove(theURL)
-						dirEnumerator.skipDescendents()
+				if let isDirectory = resourceValues.isDirectory where isDirectory {
+					if let lastComponent = theURL.lastPathComponent, directories = context.request.directories {
+						if directories.contains(lastComponent) {
+							context.remove(theURL)
+							dirEnumerator.skipDescendents()
+						}
 					}
 				}
+			} catch _ {
 			}
 		}
 	}
 
-	func thinFile(url: NSURL, context: HelperContext, lipo: Lipo) {
+	func thinFile(url: URL, context: HelperContext, lipo: Lipo) {
 		var sizeDiff: Int = 0
 		if lipo.run(path: url.path!, sizeDiff: &sizeDiff) {
 			if sizeDiff > 0 {
@@ -224,16 +223,16 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	func thinDirectory(_ url: NSURL, context:HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context:context, prefetchedProperties:[NSURLIsDirectoryKey,NSURLIsRegularFileKey,NSURLIsExecutableKey,NSURLIsApplicationKey]) { theURL, dirEnumerator in
+	func thinDirectory(_ url: URL, context:HelperContext, lipo: Lipo) {
+		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue,URLResourceKey.isRegularFileKey.rawValue,URLResourceKey.isExecutableKey.rawValue,URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
 			do {
-				let resourceValues = try theURL.resourceValues(forKeys: [NSURLIsRegularFileKey, NSURLIsExecutableKey, NSURLIsApplicationKey])
-				if let isExecutable = resourceValues[NSURLIsExecutableKey] as? Bool, isRegularFile = resourceValues[NSURLIsRegularFileKey] as? Bool where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
+				if let isExecutable = resourceValues.isExecutable, isRegularFile = resourceValues.isRegularFile where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
 					if let pathExtension = theURL.pathExtension where pathExtension == "class" {
 						return
 					}
 
-					let data = try NSData(contentsOf:theURL, options:([.dataReadingMappedAlways, .dataReadingUncached]))
+					let data = try NSData(contentsOf:theURL as URL, options:([.dataReadingMappedAlways, .dataReadingUncached]))
 					var magic: UInt32 = 0
 					if data.length >= sizeof(UInt32) {
 						data.getBytes(&magic, length: sizeof(UInt32))
@@ -245,10 +244,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 							self.stripFile(theURL, context:context)
 						}
 					}
-				} else if let isApplication = resourceValues[NSURLIsApplicationKey] as? Bool where isApplication {
+				} else if let isApplication = resourceValues.isApplication where isApplication {
 					// don't thin universal frameworks contained in a single-architecture application
 					// see https://github.com/IngmarStein/Monolingual/issues/67
-					let bundle = NSBundle(url: theURL)
+					let bundle = Bundle(url: theURL as URL)
 					if let bundle = bundle, executableArchitectures = bundle.executableArchitectures where executableArchitectures.count == 1 {
 						if let sharedFrameworksURL = bundle.sharedFrameworksURL {
 							context.excludeDirectory(sharedFrameworksURL)
@@ -263,7 +262,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	func hasCodeSignature(url: NSURL) -> Bool {
+	func hasCodeSignature(url: URL) -> Bool {
 		var codeRef: SecStaticCode?
 		let result = SecStaticCodeCreateWithPath(url, [], &codeRef)
 		if result == errSecSuccess, let codeRef = codeRef {
@@ -274,22 +273,21 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		return false
 	}
 
-	func stripFile(_ url: NSURL, context:HelperContext) {
+	func stripFile(_ url: URL, context:HelperContext) {
 		// do not modify executables with code signatures
 		if !hasCodeSignature(url: url) {
 			do {
 				let attributes = try context.fileManager.attributesOfItem(atPath: url.path!)
 				let path = url.path!
-				var size: AnyObject?
+				let oldSize: Int
 				do {
-					try url.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)
+					let resourceValues = try url.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+					oldSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
 				} catch _ {
-					try! url.getResourceValue(&size, forKey: NSURLFileAllocatedSizeKey)
+					return
 				}
 
-				let oldSize = size as! Int
-
-				let task = NSTask.launchedTask(withLaunchPath: "/usr/bin/strip", arguments: ["-u", "-x", "-S", "-", path])
+				let task = Task.launchedTask(withLaunchPath: "/usr/bin/strip", arguments: ["-u", "-x", "-S", "-", path])
 				task.waitUntilExit()
 
 				if task.terminationStatus != EXIT_SUCCESS {
@@ -297,9 +295,9 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				}
 
 				let newAttributes = [
-					NSFileOwnerAccountID : attributes[NSFileOwnerAccountID]!,
-					NSFileGroupOwnerAccountID : attributes[NSFileGroupOwnerAccountID]!,
-					NSFilePosixPermissions : attributes[NSFilePosixPermissions]!
+					FileAttributeKey.ownerAccountID.rawValue: attributes[FileAttributeKey.ownerAccountID.rawValue]!,
+					FileAttributeKey.groupOwnerAccountID.rawValue: attributes[FileAttributeKey.groupOwnerAccountID.rawValue]!,
+					FileAttributeKey.posixPermissions.rawValue: attributes[FileAttributeKey.posixPermissions.rawValue]!
 				]
 
 				do {
@@ -307,15 +305,16 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				} catch let error as NSError {
 					NSLog("Failed to set file attributes for '%@': %@", path as NSString, error)
 				}
+
 				do {
-					try url.getResourceValue(&size, forKey: NSURLTotalFileAllocatedSizeKey)
+					let resourceValues = try url.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+					let newSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
+
+					if oldSize > newSize {
+						let sizeDiff = oldSize - newSize
+						context.reportProgress(url: url, size:sizeDiff)
+					}
 				} catch _ {
-					try! url.getResourceValue(&size, forKey: NSURLFileAllocatedSizeKey)
-				}
-				let newSize = size as! Int
-				if oldSize > newSize {
-					let sizeDiff = oldSize - newSize
-					context.reportProgress(url: url, size:sizeDiff)
 				}
 			} catch let error as NSError {
 				NSLog("Failed to get file attributes for '%@': %@", url, error)
@@ -325,17 +324,17 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 	// check if SIP is enabled, see https://github.com/IngmarStein/Monolingual/issues/74
 	func checkRootless() -> Bool {
-		let protectedDirectory = NSURL(fileURLWithPath: "/System/Monolingual.sip", isDirectory: true)
-		let fileManager = NSFileManager.default()
+		let protectedDirectory = URL(fileURLWithPath: "/System/Monolingual.sip", isDirectory: true)
+		let fileManager = FileManager.default()
 
 		do {
-			try fileManager.createDirectory(at: protectedDirectory, withIntermediateDirectories: false, attributes: nil)
+			try fileManager.createDirectory(at: protectedDirectory as URL, withIntermediateDirectories: false, attributes: nil)
 		} catch {
 			return true
 		}
 
 		do {
-			try fileManager.removeItem(at: protectedDirectory)
+			try fileManager.removeItem(at: protectedDirectory as URL)
 		} catch let error as NSError {
 			NSLog("Failed to remove temporary file '%@': %@", protectedDirectory, error)
 		}
