@@ -15,7 +15,6 @@ platform :mac do
   before_all do
     # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
     cocoapods
-
   end
 
   desc "Runs all the tests"
@@ -27,7 +26,7 @@ platform :mac do
   desc "This will also make sure the profile is up to date"
   lane :debug do
     # match(type: "appstore") # more information: https://codesigning.guide
-    gym(scheme: "Monolingual", configuration: "Debug", destination: "platform=OS X")
+    gym(configuration: "Debug")
     #pilot
   end
 
@@ -35,7 +34,7 @@ platform :mac do
   lane :release do
     # match(type: "appstore")
     # snapshot
-    gym(scheme: "Monolingual", configuration: "Release")
+    gym(configuration: "Release", clean: true)
     # deliver(force: true)
     # frameit
   end

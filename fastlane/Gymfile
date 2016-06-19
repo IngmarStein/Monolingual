@@ -1,0 +1,11 @@
+# For more information about this configuration visit
+# https://github.com/fastlane/gym#gymfile
+
+scheme "Monolingual"
+
+# sdk "iphoneos9.0"
+destination "platform=OS X"
+
+output_directory "./build"
+
+export_options "exportOptions.plist"

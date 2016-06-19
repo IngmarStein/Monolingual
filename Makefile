@@ -7,28 +7,23 @@ RELEASE_ZIPFILE=$(RELEASE_NAME).tar.bz2
 RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_ZIPFILE)
 SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
-ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
-ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
-XCODEBUILD=$(shell which xcbuild || which xctool || echo "xcodebuild")
+#ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
+#ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
 
 .PHONY: all release development deployment archive clean
 
 all: deployment
 
-development:
-	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Debug build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
+development: clean
+	fastlane debug
 
-deployment:
-	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release build CONFIGURATION_BUILD_DIR=$(BUILD_DIR)
-
-archive:
-	$(XCODEBUILD) -workspace Monolingual.xcworkspace -scheme Monolingual -configuration Release archive -archivePath $(ARCHIVE)
-	xcodebuild -exportArchive -archivePath $(ARCHIVE) -exportPath $(BUILD_DIR) -exportOptionsPlist exportOptions.plist
+deployment: clean
+	fastlane release
 
 clean:
 	-rm -rf $(BUILD_DIR) $(RELEASE_DIR)
 
-release: clean archive
+release: clean deployment
 	# Check code signature
 	codesign -vvv --deep --strict $(BUILD_DIR)/Monolingual.app
 	# Check SMJobBless code signing setup
@@ -36,7 +31,7 @@ release: clean archive
 	# Check app against Gatekeeper system policies
 	spctl -vv --assess --type execute $(BUILD_DIR)/Monolingual.app
 	mkdir -p $(RELEASE_DIR)/build
-	cp -R $(ARCHIVE) $(RELEASE_DIR)
+	#cp -R $(ARCHIVE) $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
