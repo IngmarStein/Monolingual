@@ -14,8 +14,6 @@ let ProcessApplicationNotification = "ProcessApplicationNotification"
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
-	var preferencesWindowController: NSWindowController?
-
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {
 		let defaults = UserDefaults.standard()
@@ -52,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
 
 		NotificationCenter.default().post(name: NSNotification.Name(rawValue: ProcessApplicationNotification), object: self, userInfo: dict)
-		
+
 		return true
 	}
 	
@@ -71,11 +69,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
-	@IBAction func showPreferences(_ sender: AnyObject) {
-		if preferencesWindowController == nil {
-			let storyboard = NSStoryboard(name:"Main", bundle:nil)
-			preferencesWindowController = storyboard.instantiateController(withIdentifier: "PreferencesWindow") as? NSWindowController
-		}
-		preferencesWindowController?.showWindow(sender)
-	}
 }
