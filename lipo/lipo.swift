@@ -15,62 +15,62 @@ private let CPU_SUBTYPE_MASK: cpu_subtype_t = 0xffffff  // mask for feature flag
 private let MAXSECTALIGN = 15 // 2**15 or 0x8000
 
 // these defines are not (yet) visible to Swift
-private let CPU_TYPE_ANY : cpu_type_t					= -1
+private let CPU_TYPE_ANY: cpu_type_t					= -1
 private let CPU_TYPE_MC680x0: cpu_type_t				= 6
-private let CPU_TYPE_X86 : cpu_type_t					= 7
+private let CPU_TYPE_X86: cpu_type_t					= 7
 private let CPU_TYPE_I386								= CPU_TYPE_X86		// compatibility
-private let CPU_TYPE_X86_64 : cpu_type_t				= CPU_TYPE_X86 | CPU_ARCH_ABI64
-private let CPU_TYPE_HPPA : cpu_type_t					= 11
-private let CPU_TYPE_ARM : cpu_type_t					= 12
-private let CPU_TYPE_ARM64 : cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
-private let CPU_TYPE_MC88000 : cpu_type_t				= 13
-private let CPU_TYPE_SPARC : cpu_type_t					= 14
-private let CPU_TYPE_I860 : cpu_type_t					= 15
-private let CPU_TYPE_POWERPC : cpu_type_t				= 18
-private let CPU_TYPE_POWERPC64 : cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+private let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
+private let CPU_TYPE_HPPA: cpu_type_t					= 11
+private let CPU_TYPE_ARM: cpu_type_t					= 12
+private let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
+private let CPU_TYPE_MC88000: cpu_type_t				= 13
+private let CPU_TYPE_SPARC: cpu_type_t					= 14
+private let CPU_TYPE_I860: cpu_type_t					= 15
+private let CPU_TYPE_POWERPC: cpu_type_t				= 18
+private let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
 
-private let CPU_SUBTYPE_MULTIPLE : cpu_subtype_t		= -1
-private let CPU_SUBTYPE_LITTLE_ENDIAN : cpu_subtype_t	= 0
-private let CPU_SUBTYPE_BIG_ENDIAN : cpu_subtype_t		= 1
+private let CPU_SUBTYPE_MULTIPLE: cpu_subtype_t		= -1
+private let CPU_SUBTYPE_LITTLE_ENDIAN: cpu_subtype_t	= 0
+private let CPU_SUBTYPE_BIG_ENDIAN: cpu_subtype_t		= 1
 
-private let CPU_SUBTYPE_ARM_ALL : cpu_subtype_t			= 0
-private let CPU_SUBTYPE_ARM64_ALL : cpu_subtype_t		= 0
-private let CPU_SUBTYPE_ARM_V4T : cpu_subtype_t			= 5
-private let CPU_SUBTYPE_ARM_V6 : cpu_subtype_t			= 6
-private let CPU_SUBTYPE_ARM_V5TEJ : cpu_subtype_t		= 7
-private let CPU_SUBTYPE_ARM_XSCALE : cpu_subtype_t		= 8
-private let CPU_SUBTYPE_ARM_V7 : cpu_subtype_t			= 9
-private let CPU_SUBTYPE_ARM_V7F : cpu_subtype_t			= 10
-private let CPU_SUBTYPE_ARM_V7S : cpu_subtype_t			= 11
-private let CPU_SUBTYPE_ARM_V7K : cpu_subtype_t			= 12
-private let CPU_SUBTYPE_ARM_V6M : cpu_subtype_t			= 14
-private let CPU_SUBTYPE_ARM_V7M : cpu_subtype_t			= 15
-private let CPU_SUBTYPE_ARM_V7EM : cpu_subtype_t		= 16
+private let CPU_SUBTYPE_ARM_ALL: cpu_subtype_t			= 0
+private let CPU_SUBTYPE_ARM64_ALL: cpu_subtype_t		= 0
+private let CPU_SUBTYPE_ARM_V4T: cpu_subtype_t			= 5
+private let CPU_SUBTYPE_ARM_V6: cpu_subtype_t			= 6
+private let CPU_SUBTYPE_ARM_V5TEJ: cpu_subtype_t		= 7
+private let CPU_SUBTYPE_ARM_XSCALE: cpu_subtype_t		= 8
+private let CPU_SUBTYPE_ARM_V7: cpu_subtype_t			= 9
+private let CPU_SUBTYPE_ARM_V7F: cpu_subtype_t			= 10
+private let CPU_SUBTYPE_ARM_V7S: cpu_subtype_t			= 11
+private let CPU_SUBTYPE_ARM_V7K: cpu_subtype_t			= 12
+private let CPU_SUBTYPE_ARM_V6M: cpu_subtype_t			= 14
+private let CPU_SUBTYPE_ARM_V7M: cpu_subtype_t			= 15
+private let CPU_SUBTYPE_ARM_V7EM: cpu_subtype_t		    = 16
 
-private let CPU_SUBTYPE_ARM64_V8 : cpu_subtype_t		= 1
+private let CPU_SUBTYPE_ARM64_V8: cpu_subtype_t		    = 1
 
-private let CPU_SUBTYPE_POWERPC_ALL : cpu_subtype_t		= 0
-private let CPU_SUBTYPE_POWERPC_601 : cpu_subtype_t		= 1
-private let CPU_SUBTYPE_POWERPC_603 : cpu_subtype_t		= 3
-private let CPU_SUBTYPE_POWERPC_603e : cpu_subtype_t	= 4
-private let CPU_SUBTYPE_POWERPC_603ev : cpu_subtype_t	= 5
-private let CPU_SUBTYPE_POWERPC_604 : cpu_subtype_t		= 6
-private let CPU_SUBTYPE_POWERPC_604e : cpu_subtype_t	= 7
-private let CPU_SUBTYPE_POWERPC_750 : cpu_subtype_t		= 9
-private let CPU_SUBTYPE_POWERPC_7400 : cpu_subtype_t	= 10
-private let CPU_SUBTYPE_POWERPC_7450 : cpu_subtype_t	= 11
-private let CPU_SUBTYPE_POWERPC_970 : cpu_subtype_t		= 100
-private let CPU_SUBTYPE_X86_ALL : cpu_subtype_t			= 3
-private let CPU_SUBTYPE_X86_64_ALL : cpu_subtype_t		= 3
-private let CPU_SUBTYPE_X86_64_H : cpu_subtype_t		= 8
-private let CPU_SUBTYPE_MC680x0_ALL : cpu_subtype_t		= 1
-private let CPU_SUBTYPE_HPPA_ALL : cpu_subtype_t		= 0
-private let CPU_SUBTYPE_SPARC_ALL : cpu_subtype_t		= 0
-private let CPU_SUBTYPE_MC88000_ALL : cpu_subtype_t		= 0
-private let CPU_SUBTYPE_I860_ALL : cpu_subtype_t		= 0
-private let CPU_SUBTYPE_MC68040 : cpu_subtype_t			= 2
-private let CPU_SUBTYPE_MC68030_ONLY : cpu_subtype_t	= 3
-private let CPU_SUBTYPE_HPPA_7100LC : cpu_subtype_t		= 1
+private let CPU_SUBTYPE_POWERPC_ALL: cpu_subtype_t		= 0
+private let CPU_SUBTYPE_POWERPC_601: cpu_subtype_t		= 1
+private let CPU_SUBTYPE_POWERPC_603: cpu_subtype_t		= 3
+private let CPU_SUBTYPE_POWERPC_603e: cpu_subtype_t	    = 4
+private let CPU_SUBTYPE_POWERPC_603ev: cpu_subtype_t	= 5
+private let CPU_SUBTYPE_POWERPC_604: cpu_subtype_t		= 6
+private let CPU_SUBTYPE_POWERPC_604e: cpu_subtype_t	    = 7
+private let CPU_SUBTYPE_POWERPC_750: cpu_subtype_t		= 9
+private let CPU_SUBTYPE_POWERPC_7400: cpu_subtype_t     = 10
+private let CPU_SUBTYPE_POWERPC_7450: cpu_subtype_t	    = 11
+private let CPU_SUBTYPE_POWERPC_970: cpu_subtype_t		= 100
+private let CPU_SUBTYPE_X86_ALL: cpu_subtype_t			= 3
+private let CPU_SUBTYPE_X86_64_ALL: cpu_subtype_t		= 3
+private let CPU_SUBTYPE_X86_64_H: cpu_subtype_t		    = 8
+private let CPU_SUBTYPE_MC680x0_ALL: cpu_subtype_t		= 1
+private let CPU_SUBTYPE_HPPA_ALL: cpu_subtype_t		    = 0
+private let CPU_SUBTYPE_SPARC_ALL: cpu_subtype_t		= 0
+private let CPU_SUBTYPE_MC88000_ALL: cpu_subtype_t		= 0
+private let CPU_SUBTYPE_I860_ALL: cpu_subtype_t		    = 0
+private let CPU_SUBTYPE_MC68040: cpu_subtype_t			= 2
+private let CPU_SUBTYPE_MC68030_ONLY: cpu_subtype_t	    = 3
+private let CPU_SUBTYPE_HPPA_7100LC: cpu_subtype_t		= 1
 
 private func CPU_SUBTYPE_INTEL(f: Int, m: Int) -> cpu_subtype_t { return cpu_subtype_t(f + (m << 4)) }
 
@@ -113,7 +113,7 @@ public func ==(lhs: fat_arch, rhs: fat_arch) -> Bool {
 	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
-private let archFlags : [ArchFlag] = [
+private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "any",	    cputype: CPU_TYPE_ANY,	  cpusubtype:CPU_SUBTYPE_MULTIPLE),
 	ArchFlag(name: "little",	cputype: CPU_TYPE_ANY,	  cpusubtype:CPU_SUBTYPE_LITTLE_ENDIAN),
 	ArchFlag(name: "big",	    cputype: CPU_TYPE_ANY,	  cpusubtype:CPU_SUBTYPE_BIG_ENDIAN),
@@ -215,7 +215,7 @@ class Lipo {
 	private var inputData: NSData!
 	private var fatHeader: fat_header!
 	private var thinFiles: [ThinFile]!
-	private var removeArchFlags : [ArchFlag]!
+	private var removeArchFlags: [ArchFlag]!
 
 	init?(archs: [String]) {
 

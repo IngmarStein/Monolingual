@@ -15,7 +15,7 @@ extension URL {
 		return getxattr(self.path!, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
 	}
 
-	var isProtected : Bool {
+	var isProtected: Bool {
 		return hasExtendedAttribute("com.apple.rootless")
 	}
 }
@@ -273,7 +273,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		return false
 	}
 
-	func stripFile(_ url: URL, context:HelperContext) {
+	func stripFile(_ url: URL, context: HelperContext) {
 		// do not modify executables with code signatures
 		if !hasCodeSignature(url: url) {
 			do {

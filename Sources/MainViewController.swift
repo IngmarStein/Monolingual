@@ -26,21 +26,21 @@ struct ArchitectureInfo {
 }
 
 // these defines are not (yet) visible to Swift
-let CPU_TYPE_X86 : cpu_type_t					= 7
-let CPU_TYPE_X86_64 : cpu_type_t				= CPU_TYPE_X86 | CPU_ARCH_ABI64
-let CPU_TYPE_ARM : cpu_type_t					= 12
-let CPU_TYPE_ARM64 : cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
-let CPU_TYPE_POWERPC : cpu_type_t				= 18
-let CPU_TYPE_POWERPC64 : cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-let CPU_SUBTYPE_ARM_ALL : cpu_subtype_t			= 0
-let CPU_SUBTYPE_POWERPC_ALL : cpu_subtype_t		= 0
-let CPU_SUBTYPE_POWERPC_750 : cpu_subtype_t		= 9
-let CPU_SUBTYPE_POWERPC_7400 : cpu_subtype_t	= 10
-let CPU_SUBTYPE_POWERPC_7450 : cpu_subtype_t	= 11
-let CPU_SUBTYPE_POWERPC_970 : cpu_subtype_t		= 100
-let CPU_SUBTYPE_X86_ALL : cpu_subtype_t			= 3
-let CPU_SUBTYPE_X86_64_ALL : cpu_subtype_t		= 3
-let CPU_SUBTYPE_X86_64_H : cpu_subtype_t		= 8
+let CPU_TYPE_X86: cpu_type_t					= 7
+let CPU_TYPE_X86_64: cpu_type_t				= CPU_TYPE_X86 | CPU_ARCH_ABI64
+let CPU_TYPE_ARM: cpu_type_t					= 12
+let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
+let CPU_TYPE_POWERPC: cpu_type_t				= 18
+let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+let CPU_SUBTYPE_ARM_ALL: cpu_subtype_t			= 0
+let CPU_SUBTYPE_POWERPC_ALL: cpu_subtype_t		= 0
+let CPU_SUBTYPE_POWERPC_750: cpu_subtype_t		= 9
+let CPU_SUBTYPE_POWERPC_7400: cpu_subtype_t	= 10
+let CPU_SUBTYPE_POWERPC_7450: cpu_subtype_t	= 11
+let CPU_SUBTYPE_POWERPC_970: cpu_subtype_t		= 100
+let CPU_SUBTYPE_X86_ALL: cpu_subtype_t			= 3
+let CPU_SUBTYPE_X86_64_ALL: cpu_subtype_t		= 3
+let CPU_SUBTYPE_X86_64_H: cpu_subtype_t		= 8
 
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_
@@ -176,12 +176,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private func processProgress(file: URL, size: Int, appName: String?) {
 		log.message("\(file.path!): \(size)\n")
 
-		let message : String
+		let message: String
 		if self.mode == .Architectures {
 			message = NSLocalizedString("Removing architecture from universal binary", comment: "")
 		} else {
 			// parse file name
-			var lang : String?
+			var lang: String?
 
 			if self.mode == .Languages {
 				for pathComponent in file.pathComponents! {
@@ -569,7 +569,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
-			var x86_64 : Int = 0
+			var x86_64: Int = 0
 			var x86_64_size = Int(sizeof(Int))
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
