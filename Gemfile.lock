@@ -101,12 +101,13 @@ GEM
       xcode-install (~> 1.4.0)
       xcodeproj (>= 0.20, < 2.0.0)
       xcpretty (>= 0.2.1)
-    fastlane_core (0.46.3)
+    fastlane_core (0.48.0)
       babosa
       colored
       commander (= 4.3.5)
       credentials_manager (>= 0.16.0, < 1.0.0)
       excon (~> 0.45.0)
+      gh_inspector (>= 1.0.1, < 2.0.0)
       highline (>= 1.7.2)
       json
       multi_json
@@ -120,6 +121,7 @@ GEM
       fastlane_core (>= 0.36.1, < 1.0.0)
       mini_magick (~> 4.5.1)
     fuzzy_match (2.0.4)
+    gh_inspector (1.0.1)
     google-api-client (0.9.9)
       addressable (~> 2.3)
       googleauth (~> 0.5)
@@ -221,7 +223,7 @@ GEM
       fastlane_core (>= 0.36.1, < 1.0.0)
       plist (~> 3.1)
       spaceship (>= 0.22.0, < 1.0.0)
-    signet (0.7.2)
+    signet (0.7.3)
       addressable (~> 2.3)
       faraday (~> 0.9)
       jwt (~> 1.5)
