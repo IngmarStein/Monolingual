@@ -205,7 +205,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					}
 				}
 			} else if let error = error {
-				NSLog("Error trashing '%s': %@", url.path! as NSString, error)
+				os_log_error(OS_LOG_DEFAULT, "Error trashing '%@': %@", url.path! as NSString, error)
 			}
 		} else {
 			do {
@@ -216,7 +216,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey as NSString] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
-						NSLog("Error removing '%@': %@", url.path! as NSString, error)
+						os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path! as NSString, error)
 					}
 				}
 			}
@@ -246,7 +246,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: NSError, removingItemAt url: URL) -> Bool {
-		NSLog("Error removing '%@': %@", url.path! as NSString, error)
+		os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path! as NSString, error)
 
 		return true
 	}

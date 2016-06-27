@@ -10,6 +10,18 @@ import Foundation
 import MachO.fat
 import MachO.loader
 
+// TODO: remove the following as soon as the new logging API is available for Swift
+var OS_LOG_DEFAULT = 0
+func os_log_debug(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+func os_log_error(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+func os_log_info(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+
 extension URL {
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
 		return getxattr(self.path!, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
@@ -40,11 +52,11 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
-		//NSLog("isRootless=\(isRootless)")
+		os_log_debug(OS_LOG_DEFAULT, "isRootless=\(isRootless)")
 	}
 
 	func run() {
-		NSLog("MonolingualHelper started")
+		os_log_info(OS_LOG_DEFAULT, "MonolingualHelper started")
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
@@ -52,7 +64,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	@objc func timeout(_: Timer) {
-		NSLog("timeout while waiting for request")
+		os_log_info(OS_LOG_DEFAULT, "timeout while waiting for request")
 		exitWithCode(Int(EXIT_SUCCESS))
 	}
 
@@ -76,7 +88,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func exitWithCode(_ exitCode: Int) {
-		NSLog("exiting with exit status \(exitCode)")
+		os_log_info(OS_LOG_DEFAULT, "exiting with exit status \(exitCode)")
 		workerQueue.waitUntilAllOperationsAreFinished()
 		exit(Int32(exitCode))
 	}
@@ -86,13 +98,13 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		let context = HelperContext(request, rootless: isRootless)
 
-		//NSLog("Received request: %@", request)
+		os_log_debug(OS_LOG_DEFAULT, "Received request: %@", request)
 
 		// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
 		let progress = Progress(totalUnitCount: -1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
-			NSLog("Stopping MonolingualHelper")
+			os_log_info(OS_LOG_DEFAULT, "Stopping MonolingualHelper")
 		}
 		context.progress = progress
 		context.remoteProgress = remoteProgress
@@ -291,7 +303,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				task.waitUntilExit()
 
 				if task.terminationStatus != EXIT_SUCCESS {
-					NSLog("/usr/bin/strip failed with exit status %d", task.terminationStatus)
+					os_log_error(OS_LOG_DEFAULT, "/usr/bin/strip failed with exit status %d", task.terminationStatus)
 				}
 
 				let newAttributes = [
@@ -303,7 +315,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath:path)
 				} catch let error as NSError {
-					NSLog("Failed to set file attributes for '%@': %@", path as NSString, error)
+					os_log_error(OS_LOG_DEFAULT, "Failed to set file attributes for '%@': %@", path as NSString, error)
 				}
 
 				do {
@@ -317,7 +329,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				} catch _ {
 				}
 			} catch let error as NSError {
-				NSLog("Failed to get file attributes for '%@': %@", url, error)
+				os_log_error(OS_LOG_DEFAULT, "Failed to get file attributes for '%@': %@", url, error)
 			}
 		}
 	}
@@ -336,7 +348,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		do {
 			try fileManager.removeItem(at: protectedDirectory as URL)
 		} catch let error as NSError {
-			NSLog("Failed to remove temporary file '%@': %@", protectedDirectory, error)
+			os_log_error(OS_LOG_DEFAULT, "Failed to remove temporary file '%@': %@", protectedDirectory, error)
 		}
 
 		return false

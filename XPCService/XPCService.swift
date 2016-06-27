@@ -10,6 +10,18 @@ import Foundation
 import SMJobKit
 import XPC
 
+// TODO: remove the following as soon as the new logging API is available for Swift
+var OS_LOG_DEFAULT = 0
+func os_log_debug(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+func os_log_error(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+func os_log_info(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?
 
@@ -23,7 +35,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		} catch let error as SMJError {
 			switch error {
 			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary, SMJError.unableToBless:
-				NSLog("Failed to bless helper. Error: \(error)")
+				os_log_error(OS_LOG_DEFAULT, "Failed to bless helper. Error: \(error)")
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("Failed to install helper utility.", comment: "") as NSString ]))
 			case SMJError.authorizationDenied:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("You entered an incorrect administrator password.", comment: "") as NSString ]))
@@ -50,7 +62,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		}
 
 		let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler { error in
-			NSLog("XPCService failed to connect to helper: %@", error)
+			os_log_error(OS_LOG_DEFAULT, "XPCService failed to connect to helper: %@", error)
 			reply(nil)
 		} as! HelperProtocol
 		helper.connectWithEndpointReply { endpoint -> Void in

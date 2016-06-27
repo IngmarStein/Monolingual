@@ -137,13 +137,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			request.thin = archs
 
 			for item in request.bundleBlacklist! {
-				NSLog("Blacklisting \(item)")
+				os_log_info(OS_LOG_DEFAULT, "Blacklisting \(item)")
 			}
 			for include in request.includes! {
-				NSLog("Adding root \(include)")
+				os_log_info(OS_LOG_DEFAULT, "Adding root \(include)")
 			}
 			for exclude in request.excludes! {
-				NSLog("Excluding root \(exclude)")
+				os_log_info(OS_LOG_DEFAULT, "Excluding root \(exclude)")
 			}
 
 			self.checkAndRunHelper(arguments: request)
@@ -215,7 +215,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	func installHelper(reply:(Bool) -> Void) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
-			NSLog("XPCService error: %@", error)
+			os_log_error(OS_LOG_DEFAULT, "XPCService error: %@", error)
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
@@ -247,14 +247,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		//arguments.dryRun = true
 
 		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
-			NSLog("Error communicating with helper: %@", error)
+			os_log_error(OS_LOG_DEFAULT, "Error communicating with helper: %@", error)
 			DispatchQueue.main.async {
 				self.finishProcessing()
 			}
 		} as! HelperProtocol
 
 		helper.processRequest(arguments, progress:self) { exitCode in
-			NSLog("helper finished with exit code: \(exitCode)")
+			os_log_info(OS_LOG_DEFAULT, "helper finished with exit code: \(exitCode)")
 			helper.exitWithCode(exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {
 				DispatchQueue.main.async {
@@ -284,7 +284,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
-			NSLog("XPCService error: %@", error)
+			os_log_error(OS_LOG_DEFAULT, "XPCService error: %@", error)
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
@@ -296,7 +296,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.processRequest(_:progress:reply:)), argumentIndex: 1, ofReply: false)
 					connection.remoteObjectInterface = interface
 					connection.invalidationHandler = {
-						NSLog("XPC connection to helper invalidated.")
+						os_log_error(OS_LOG_DEFAULT, "XPC connection to helper invalidated.")
 						self.helperConnection = nil
 						if performInstallation {
 							self.installHelper() { success in
@@ -311,7 +311,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 					if let connection = self.helperConnection {
 						let helper = connection.remoteObjectProxyWithErrorHandler() { error in
-							NSLog("Error connecting to helper: %@", error)
+							os_log_error(OS_LOG_DEFAULT, "Error connecting to helper: %@", error)
 						} as! HelperProtocol
 
 						helper.getVersionWithReply() { installedVersion in
@@ -332,7 +332,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 						}
 					}
 				} else {
-					NSLog("Failed to get XPC endpoint.")
+					os_log_error(OS_LOG_DEFAULT, "Failed to get XPC endpoint.")
 					self.installHelper() { success in
 						if success {
 							self.checkAndRunHelper(arguments: arguments)
@@ -362,7 +362,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if !completed {
 			// cancel the current progress which tells the helper to stop
 			progress.cancel()
-			NSLog("Closing progress connection")
+			os_log_debug(OS_LOG_DEFAULT, "Closing progress connection")
 
 			if let helper = self.helperConnection?.remoteObjectProxy as? HelperProtocol {
 				helper.exitWithCode(Int(EXIT_FAILURE))
@@ -388,7 +388,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		if let connection = self.helperConnection {
-			NSLog("Closing connection to helper")
+			os_log_info(OS_LOG_DEFAULT, "Closing connection to helper")
 			connection.invalidate()
 			self.helperConnection = nil
 		}
@@ -466,13 +466,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		let bl = self.blacklist!.filter { $0.languages } .map { $0.bundle }
 
 		for item in bl {
-			NSLog("Blacklisting \(item)")
+			os_log_info(OS_LOG_DEFAULT, "Blacklisting \(item)")
 		}
 		for include in includes {
-			NSLog("Adding root \(include)")
+			os_log_info(OS_LOG_DEFAULT, "Adding root \(include)")
 		}
 		for exclude in excludes {
-			NSLog("Excluding root \(exclude)")
+			os_log_info(OS_LOG_DEFAULT, "Excluding root \(exclude)")
 		}
 
 		var rCount = 0

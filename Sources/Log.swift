@@ -8,6 +8,18 @@
 
 import Foundation
 
+// TODO: remove the following as soon as the new logging API is available for Swift
+var OS_LOG_DEFAULT = 0
+func os_log_debug(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+func os_log_error(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+func os_log_info(_ log: Any, _ format: String, _ arguments: CVarArg...) {
+	NSLog("%@", String(format: format, arguments: arguments))
+}
+
 final class Log {
 
 	// use the real (non-sandboxed) directory $HOME/Library/Logs for the log file as long as we have the temporary exception com.apple.security.temporary-exception.files.home-relative-path.read-write.
