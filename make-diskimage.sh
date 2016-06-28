@@ -15,10 +15,11 @@ DMG_NAME=`basename $1`
 DMG_TEMP_NAME=${DMG_DIR}/rw.${DMG_NAME}
 SRC_FOLDER=`cd $2 > /dev/null; pwd`
 VOLUME_NAME=$3
+CODESIGN_IDENTITY=$4
 
 # optional arguments
-APPLESCRIPT=$4
-EULA_RSRC=$5
+APPLESCRIPT=$5
+EULA_RSRC=$6
 
 # Create the image
 echo "creating disk image"
@@ -65,7 +66,7 @@ if [ ! -z "${EULA_RSRC}" -a "${EULA_RSRC}" != "-null-" ]; then
 fi
 
 # sign image
-codesign -s "Developer ID" "${DMG_DIR}/${DMG_NAME}"
+codesign -s "${CODESIGN_IDENTITY}" "${DMG_DIR}/${DMG_NAME}"
 
 echo "disk image done"
 exit 0

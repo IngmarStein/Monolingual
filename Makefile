@@ -7,6 +7,7 @@ RELEASE_ZIPFILE=$(RELEASE_NAME).tar.bz2
 RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_ZIPFILE)
 SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
+CODESIGN_IDENTITY='Developer ID Application: Ingmar Stein (ADVP2P7SJK)'
 #ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
 #ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
 
@@ -36,7 +37,7 @@ release: clean deployment
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
-	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual dmg.js
+	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
 	tar cjf $(RELEASE_ZIP) -C $(BUILD_DIR) Monolingual.app
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \

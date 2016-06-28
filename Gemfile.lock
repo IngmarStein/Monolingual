@@ -72,13 +72,13 @@ GEM
       faraday (>= 0.7.4, < 0.10)
     fastimage (1.6.8)
       addressable (~> 2.3, >= 2.3.5)
-    fastlane (1.95.0)
+    fastlane (1.96.0)
       addressable (~> 2.3)
       bundler (~> 1.12)
       cert (>= 1.4.1, < 2.0.0)
       credentials_manager (>= 0.16.0, < 1.0.0)
       deliver (>= 1.13.1, < 2.0.0)
-      fastlane_core (>= 0.46.3, < 1.0.0)
+      fastlane_core (>= 0.48.0, < 1.0.0)
       frameit (>= 2.7.0, < 3.0.0)
       gym (>= 1.6.3, < 2.0.0)
       krausefx-shenzhen (>= 0.14.7)
@@ -275,7 +275,7 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods (~> 1.0.1)
-  fastlane (~> 1.95.0)
+  fastlane (~> 1.96.0)
 
 BUNDLED WITH
    1.12.5
