@@ -15,7 +15,6 @@ DMG_NAME=`basename $1`
 DMG_TEMP_NAME=${DMG_DIR}/rw.${DMG_NAME}
 SRC_FOLDER=`cd $2 > /dev/null; pwd`
 VOLUME_NAME=$3
-DEVELOPER=`xcode-select --print-path`
 
 # optional arguments
 APPLESCRIPT=$4
@@ -54,16 +53,19 @@ hdiutil detach $DEV_NAME
 
 # compress image
 echo "compressing disk image"
-hdiutil convert $DMG_TEMP_NAME -format UDBZ -o ${DMG_DIR}/${DMG_NAME}
+hdiutil convert $DMG_TEMP_NAME -format UDBZ -o "${DMG_DIR}/${DMG_NAME}"
 rm -f $DMG_TEMP_NAME
 
 # adding EULA resources
 if [ ! -z "${EULA_RSRC}" -a "${EULA_RSRC}" != "-null-" ]; then
 	echo "adding EULA resources"
-	hdiutil unflatten ${DMG_DIR}/${DMG_NAME}
-	"$DEVELOPER/Tools/ResMerger" -a ${EULA_RSRC} -o ${DMG_DIR}/${DMG_NAME}
-	hdiutil flatten ${DMG_DIR}/${DMG_NAME}
+	hdiutil unflatten "${DMG_DIR}/${DMG_NAME}"
+	xcrun ResMerger -a ${EULA_RSRC} -o "${DMG_DIR}/${DMG_NAME}"
+	hdiutil flatten "${DMG_DIR}/${DMG_NAME}"
 fi
+
+# sign image
+codesign -s "Developer ID" "${DMG_DIR}/${DMG_NAME}"
 
 echo "disk image done"
 exit 0
