@@ -78,7 +78,7 @@ import Foundation
 		}
 	}
 
-	static func supportsSecureCoding() -> Bool {
+	static var supportsSecureCoding: Bool {
 		return true
 	}
 

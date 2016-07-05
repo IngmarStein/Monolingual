@@ -46,7 +46,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func isDirectoryBlacklisted(_ path: URL) -> Bool {
-		if let bundle = Bundle(url: path as URL), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
+		if let bundle = Bundle(url: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
 			return bundleBlacklist.contains(bundleIdentifier)
 		}
 		return false
@@ -111,7 +111,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 				if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0...i])) {
 					if let bundle = Bundle(url: bundleURL) {
 						var displayName: String?
-						if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages()).first,
+						if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
 							infoPlistStringsURL = bundle.urlForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
 							strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
 							displayName = strings["CFBundleDisplayName"]
@@ -134,12 +134,12 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	func reportProgress(url: URL, size: Int) {
 		let appName = appNameForURL(url)
 		if let progress = progress {
-			let count = progress.userInfo[Progress.Key.fileCompletedCountKey as NSString] as? Int ?? 0
-			progress.setUserInfoObject((count + 1) as NSNumber, forKey: Progress.Key.fileCompletedCountKey.rawValue)
-			progress.setUserInfoObject(url, forKey: Progress.Key.fileURLKey.rawValue)
-			progress.setUserInfoObject(size as NSNumber, forKey: "sizeDifference")
+			let count = progress.userInfo[ProgressUserInfoKey.fileCompletedCountKey] as? Int ?? 0
+			progress.setUserInfoObject((count + 1) as NSNumber, forKey: ProgressUserInfoKey.fileCompletedCountKey)
+			progress.setUserInfoObject(url, forKey: ProgressUserInfoKey.fileURLKey)
+			progress.setUserInfoObject(size as NSNumber, forKey: ProgressUserInfoKey("sizeDifference"))
 			if let appName = appName {
-				progress.setUserInfoObject(appName as NSString, forKey: "appName")
+				progress.setUserInfoObject(appName as NSString, forKey: ProgressUserInfoKey("appName"))
 			}
 			progress.completedUnitCount += size
 		}
@@ -160,7 +160,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
 			// check if any file in below url has been blacklisted
-			if let dirEnumerator = fileManager.enumerator(at: url as URL, includingPropertiesForKeys: nil, options: [], errorHandler: nil) {
+			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: nil, options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
 					let theURL = entry as! URL
 					if isFileBlacklisted(theURL) {
@@ -173,7 +173,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			var success = false
 			seteuid(request.uid)
 			do {
-				try fileManager.trashItem(at: url as URL, resultingItemURL: &dstURL)
+				try fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 				success = true
 			} catch let error1 as NSError {
 				error = error1
@@ -183,7 +183,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if !success {
 				do {
 					// move the file to root's trash
-					try self.fileManager.trashItem(at: url as URL, resultingItemURL: &dstURL)
+					try self.fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 					success = true
 				} catch let error1 as NSError {
 					error = error1
@@ -209,7 +209,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			}
 		} else {
 			do {
-				try self.fileManager.removeItem(at: url as URL)
+				try self.fileManager.removeItem(at: url)
 			} catch let error1 as NSError {
 				error = error1
 				if let error = error {

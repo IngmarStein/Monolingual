@@ -50,7 +50,7 @@ do {
 		helper.processRequest(request, progress: nil) { (result) -> Void in
 			exit(Int32(result))
 		}
-		RunLoop.current().run()
+		RunLoop.current.run()
 	} else {
 		helper.run()
 	}

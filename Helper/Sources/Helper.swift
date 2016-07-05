@@ -41,7 +41,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	private var isRootless = true
 
 	var version: String {
-		return Bundle.main().objectForInfoDictionaryKey("CFBundleVersion") as! String
+		return Bundle.main.objectForInfoDictionaryKey("CFBundleVersion") as! String
 	}
 
 	override init() {
@@ -60,7 +60,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
-		RunLoop.current().run()
+		RunLoop.current.run()
 	}
 
 	@objc func timeout(_: Timer) {
@@ -81,8 +81,8 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
 		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
-			try FileManager.default().removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
-			try FileManager.default().removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
+			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
+			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
 		} catch _ {
 		}
 	}
@@ -236,7 +236,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinDirectory(_ url: URL, context:HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue,URLResourceKey.isRegularFileKey.rawValue,URLResourceKey.isExecutableKey.rawValue,URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
+		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.isRegularFileKey.rawValue, URLResourceKey.isExecutableKey.rawValue, URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
 				if let isExecutable = resourceValues.isExecutable, isRegularFile = resourceValues.isRegularFile where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
@@ -244,10 +244,10 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 						return
 					}
 
-					let data = try NSData(contentsOf:theURL as URL, options:([.dataReadingMappedAlways, .dataReadingUncached]))
+					let data = try NSData(contentsOf: theURL, options:([.alwaysMapped, .uncached]))
 					var magic: UInt32 = 0
-					if data.length >= sizeof(UInt32) {
-						data.getBytes(&magic, length: sizeof(UInt32))
+					if data.length >= sizeof(UInt32.self) {
+						data.getBytes(&magic, length: sizeof(UInt32.self))
 
 						if magic == FAT_MAGIC || magic == FAT_CIGAM {
 							self.thinFile(url: theURL, context:context, lipo: lipo)
@@ -307,13 +307,13 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 				}
 
 				let newAttributes = [
-					FileAttributeKey.ownerAccountID.rawValue: attributes[FileAttributeKey.ownerAccountID.rawValue]!,
-					FileAttributeKey.groupOwnerAccountID.rawValue: attributes[FileAttributeKey.groupOwnerAccountID.rawValue]!,
-					FileAttributeKey.posixPermissions.rawValue: attributes[FileAttributeKey.posixPermissions.rawValue]!
+					FileAttributeKey.ownerAccountID: attributes[FileAttributeKey.ownerAccountID]!,
+					FileAttributeKey.groupOwnerAccountID: attributes[FileAttributeKey.groupOwnerAccountID]!,
+					FileAttributeKey.posixPermissions: attributes[FileAttributeKey.posixPermissions]!
 				]
 
 				do {
-					try context.fileManager.setAttributes(newAttributes, ofItemAtPath:path)
+					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
 				} catch let error as NSError {
 					os_log_error(OS_LOG_DEFAULT, "Failed to set file attributes for '%@': %@", path as NSString, error)
 				}
@@ -337,7 +337,7 @@ final class Helper : NSObject, NSXPCListenerDelegate {
 	// check if SIP is enabled, see https://github.com/IngmarStein/Monolingual/issues/74
 	func checkRootless() -> Bool {
 		let protectedDirectory = URL(fileURLWithPath: "/System/Monolingual.sip", isDirectory: true)
-		let fileManager = FileManager.default()
+		let fileManager = FileManager.default
 
 		do {
 			try fileManager.createDirectory(at: protectedDirectory as URL, withIntermediateDirectories: false, attributes: nil)

@@ -314,7 +314,7 @@ class Lipo {
 	 */
 	private func processInputFile() -> Bool {
 		do {
-			try FileManager.default().attributesOfItem(atPath: fileName)
+			try FileManager.default.attributesOfItem(atPath: fileName)
 		} catch let error as NSError {
 			os_log_error(OS_LOG_DEFAULT, "can't stat input file '%@': %@", fileName as NSString, error)
 			return false
@@ -322,7 +322,7 @@ class Lipo {
 
 		let data: NSData?
 		do {
-			data = try NSData(contentsOfFile:fileName, options:([.dataReadingMappedAlways, .dataReadingUncached]))
+			data = try NSData(contentsOfFile:fileName, options:([.alwaysMapped, .uncached]))
 		} catch let error as NSError {
 			os_log_error(OS_LOG_DEFAULT, "can't map input file '%@': %@", fileName as NSString, error)
 			return false
@@ -332,18 +332,18 @@ class Lipo {
 		let size = inputData.length
 
 		// check if this file is a fat file
-		if size >= sizeof(fat_header) {
+		if size >= sizeof(fat_header.self) {
 			let magic = UnsafePointer<UInt32>(addr).pointee
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
 				let headerPointer = UnsafePointer<fat_header>(addr)
 				fatHeader = fatHeaderFromFile(headerPointer.pointee)
-				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch) + sizeof(fat_header)
+				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch.self) + sizeof(fat_header.self)
 				if big_size > size {
 					os_log_error(OS_LOG_DEFAULT, "truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName as NSString)
 					inputData = nil
 					return false
 				}
-				let fatArchsPointer = UnsafePointer<fat_arch>(addr + sizeof(fat_header))
+				let fatArchsPointer = UnsafePointer<fat_arch>(addr + sizeof(fat_header.self))
 				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer, count:Int(fatHeader.nfat_arch))).map { self.fatArchFromFile($0) }
 				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
@@ -429,7 +429,7 @@ class Lipo {
 
 			// Fill in the fat header and the fat_arch's offsets.
 			var fatHeader = fatHeaderToFile(fat_header(magic: FAT_MAGIC, nfat_arch: UInt32(nthinFiles)))
-			var offset = UInt32(sizeof(fat_header) + nthinFiles * sizeof(fat_arch))
+			var offset = UInt32(sizeof(fat_header.self) + nthinFiles * sizeof(fat_arch.self))
 			thinFiles = thinFiles.map { thinFile in
 				offset = rnd(v: offset, r: 1 << thinFile.fatArch.align)
 				let fatArch = thinFile.fatArch
@@ -439,7 +439,7 @@ class Lipo {
 			}
 
 			//fileHandle.writeData(NSData(bytesNoCopy: &fatHeader, length: sizeof(fat_header), freeWhenDone: false))
-			if write(fileHandle.fileDescriptor, &fatHeader, sizeof(fat_header)) != sizeof(fat_header) {
+			if write(fileHandle.fileDescriptor, &fatHeader, sizeof(fat_header.self)) != sizeof(fat_header.self) {
 				os_log_error(OS_LOG_DEFAULT, "can't write fat header to output file: %@", temporaryFile as NSString)
 				return false
 			}
@@ -462,7 +462,7 @@ class Lipo {
 
 				var fatArch = fatArchToFile(thinFile.fatArch)
 				//fileHandle.writeData(NSData(bytesNoCopy: &fatArch, length: sizeof(fat_arch), freeWhenDone: false))
-				if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch)) != sizeof(fat_arch) {
+				if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch.self)) != sizeof(fat_arch.self) {
 					os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile as NSString)
 					return false
 				}
@@ -476,7 +476,7 @@ class Lipo {
 		if let arm64FatArch = arm64FatArch {
 			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
 			//fileHandle.writeData(NSData(bytesNoCopy: &fatArch, length: sizeof(fat_arch), freeWhenDone: false))
-			if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch)) != sizeof(fat_arch) {
+			if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch.self)) != sizeof(fat_arch.self) {
 				os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile as NSString)
 				return false
 			}
@@ -489,7 +489,7 @@ class Lipo {
 		if let x8664hFatArch = x8664hFatArch {
 			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
 			//fileHandle.writeData(NSData(bytesNoCopy: &fatArch, length: sizeof(fat_arch), freeWhenDone: false))
-			if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch)) != sizeof(fat_arch) {
+			if write(fileHandle.fileDescriptor, &fatArch, sizeof(fat_arch.self)) != sizeof(fat_arch.self) {
 				os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile as NSString)
 				return false
 			}
@@ -519,7 +519,7 @@ class Lipo {
 		let temporaryURL = URL(fileURLWithPath: temporaryFile)
 		let inputURL = URL(fileURLWithPath: fileName)
 		do {
-			try FileManager.default().replaceItem(at: inputURL as URL, withItemAt: temporaryURL as URL, backupItemName: nil, options: [], resultingItemURL: nil)
+			try FileManager.default.replaceItem(at: inputURL as URL, withItemAt: temporaryURL as URL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error as NSError {
 			os_log_error(OS_LOG_DEFAULT, "can't move temporary file: '%@' to file '%@': %@", temporaryFile as NSString, fileName as NSString, error)
 		}
