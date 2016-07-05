@@ -75,7 +75,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if let application = self.processApplication {
 			return [ application ]
 		} else {
-			let pref = UserDefaults.standard().array(forKey: "Roots") as? [[String : AnyObject]]
+			let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String : AnyObject]]
 			return pref?.map { Root(dictionary: $0) } ?? [Root]()
 		}
 	}
@@ -107,7 +107,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		log.open()
 
-		let now = DateFormatter.localizedString(from: Date(), dateStyle: .shortStyle, timeStyle: .shortStyle)
+		let now = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .short)
 		log.message("Monolingual started at \(now)\nRemoving architectures: ")
 
 		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
@@ -130,7 +130,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let roots = self.roots
 
 			let request = HelperRequest()
-			request.doStrip = UserDefaults.standard().bool(forKey: "Strip")
+			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
 			request.bundleBlacklist = Set<String>(self.blacklist!.filter { $0.architectures } .map { $0.bundle })
 			request.includes = roots.filter { $0.architectures } .map { $0.path }
 			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + sipProtectedLocations
@@ -154,12 +154,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
-			let count = progress.userInfo[Progress.Key.fileCompletedCountKey as NSString] as? Int ?? 0
-			progress.setUserInfoObject((count + 1) as NSNumber, forKey: Progress.Key.fileCompletedCountKey.rawValue)
-			progress.setUserInfoObject(URL(fileURLWithPath: file), forKey: Progress.Key.fileURLKey.rawValue)
-			progress.setUserInfoObject(size as NSNumber, forKey: "sizeDifference")
+			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
+			progress.setUserInfoObject((count + 1) as NSNumber, forKey: .fileCompletedCountKey)
+			progress.setUserInfoObject(URL(fileURLWithPath: file), forKey: .fileURLKey)
+			progress.setUserInfoObject(size as NSNumber, forKey: ProgressUserInfoKey("sizeDifference"))
 			if let appName = appName {
-				progress.setUserInfoObject(appName as NSString, forKey: "appName")
+				progress.setUserInfoObject(appName as NSString, forKey: ProgressUserInfoKey("appName"))
 			}
 			progress.completedUnitCount += size
 		}
@@ -167,8 +167,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
 		if keyPath == "completedUnitCount" {
-			if let progress = object as? Progress, url = progress.userInfo[Progress.Key.fileURLKey as NSString] as? URL, size = progress.userInfo["sizeDifference"] as? Int {
-				processProgress(file: url, size:size, appName:progress.userInfo["appName"] as? String)
+			if let progress = object as? Progress, url = progress.userInfo[.fileURLKey] as? URL, size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
+				processProgress(file: url, size:size, appName:progress.userInfo[ProgressUserInfoKey("appName")] as? String)
 			}
 		}
 	}
@@ -237,7 +237,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func runHelper(arguments: HelperRequest) {
-		ProcessInfo.processInfo().disableSuddenTermination()
+		ProcessInfo.processInfo.disableSuddenTermination()
 
 		let progress = Progress(totalUnitCount: -1)
 		progress.becomeCurrent(withPendingUnitCount: -1)
@@ -279,7 +279,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		notification.title = NSLocalizedString("Monolingual started", comment: "")
 		notification.informativeText = NSLocalizedString("Started removing files", comment: "")
 
-		NSUserNotificationCenter.default().deliver(notification)
+		NSUserNotificationCenter.default.deliver(notification)
 	}
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
@@ -384,7 +384,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			notification.title = NSLocalizedString("Monolingual finished", comment: "")
 			notification.informativeText = NSLocalizedString("Finished removing files", comment: "")
 
-			NSUserNotificationCenter.default().deliver(notification)
+			NSUserNotificationCenter.default.deliver(notification)
 		}
 
 		if let connection = self.helperConnection {
@@ -395,7 +395,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		log.close()
 
-		ProcessInfo.processInfo().enableSuddenTermination()
+		ProcessInfo.processInfo.enableSuddenTermination()
 	}
 
 	private func checkAndRemove() {
@@ -456,7 +456,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.mode = .Languages
 
 		log.open()
-		let now = DateFormatter.localizedString(from: Date(), dateStyle: .shortStyle, timeStyle: .shortStyle)
+		let now = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .short)
 		log.message("Monolingual started at \(now)\nRemoving languages: ")
 
 		let roots = self.roots
@@ -489,7 +489,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				}
 			}
 		}
-		if UserDefaults.standard().bool(forKey: "NIB") {
+		if UserDefaults.standard.bool(forKey: "NIB") {
 			folders.insert("designable.nib")
 		}
 
@@ -505,7 +505,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			// start things off if we have something to remove!
 
 			let request = HelperRequest()
-			request.trash = UserDefaults.standard().bool(forKey: "Trash")
+			request.trash = UserDefaults.standard.bool(forKey: "Trash")
 			request.uid = getuid()
 			request.bundleBlacklist = Set<String>(bl)
 			request.includes = includes
@@ -519,14 +519,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	override func viewDidLoad() {
-		let currentLocale = Locale.current()
+		let currentLocale = Locale.current
 
 		// never check the user's preferred languages, English the the user's locale be default
-		let userLanguages = Set<String>((Locale.preferredLanguages()).map {
+		let userLanguages = Set<String>((Locale.preferredLanguages).map {
 			return $0.replacingOccurrences(of: "-", with:"_")
 		} + ["en", currentLocale.localeIdentifier])
 
-		let availableLocalizations = Set<String>((Locale.availableLocaleIdentifiers())
+		let availableLocalizations = Set<String>((Locale.availableLocaleIdentifiers)
 			// add some known locales not contained in availableLocaleIdentifiers
 			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW" ])
 
@@ -558,7 +558,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_H)
 		]
 
-		var infoCount = mach_msg_type_number_t(sizeof(host_basic_info_data_t)/sizeof(integer_t)) // HOST_BASIC_INFO_COUNT
+		var infoCount = mach_msg_type_number_t(sizeof(host_basic_info_data_t.self) / sizeof(integer_t.self)) // HOST_BASIC_INFO_COUNT
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
 		let my_mach_host_self = mach_host_self()
 		let ret = withUnsafeMutablePointer(&hostInfo) {
@@ -570,7 +570,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
 			var x86_64: Int = 0
-			var x86_64_size = Int(sizeof(Int))
+			var x86_64_size = Int(sizeof(Int.self))
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
 				if x86_64 != 0 {
@@ -602,7 +602,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		// load blacklist from bundle
-		if let blacklistBundle = Bundle.main().urlForResource("blacklist", withExtension:"plist"), entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
+		if let blacklistBundle = Bundle.main.urlForResource("blacklist", withExtension:"plist"), entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		// load remote blacklist asynchronously
@@ -612,14 +612,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		}
 
-		self.processApplicationObserver = NotificationCenter.default().addObserver(forName: NSNotification.Name(rawValue: ProcessApplicationNotification), object: nil, queue: nil) { notification in
+		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: ProcessApplicationNotification), object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}
 
 	deinit {
 		if let observer = self.processApplicationObserver {
-			NotificationCenter.default().removeObserver(observer)
+			NotificationCenter.default.removeObserver(observer)
 		}
 		xpcServiceConnection.invalidate()
 	}

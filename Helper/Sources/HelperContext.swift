@@ -134,9 +134,9 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	func reportProgress(url: URL, size: Int) {
 		let appName = appNameForURL(url)
 		if let progress = progress {
-			let count = progress.userInfo[ProgressUserInfoKey.fileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject((count + 1) as NSNumber, forKey: ProgressUserInfoKey.fileCompletedCountKey)
-			progress.setUserInfoObject(url, forKey: ProgressUserInfoKey.fileURLKey)
+			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
+			progress.setUserInfoObject((count + 1) as NSNumber, forKey: .fileCompletedCountKey)
+			progress.setUserInfoObject(url, forKey: .fileURLKey)
 			progress.setUserInfoObject(size as NSNumber, forKey: ProgressUserInfoKey("sizeDifference"))
 			if let appName = appName {
 				progress.setUserInfoObject(appName as NSString, forKey: ProgressUserInfoKey("appName"))

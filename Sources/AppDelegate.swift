@@ -16,7 +16,7 @@ let ProcessApplicationNotification = "ProcessApplicationNotification"
 final class AppDelegate: NSObject, NSApplicationDelegate {
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {
-		let defaults = UserDefaults.standard()
+		let defaults = UserDefaults.standard
 
 		let roots = defaults.array(forKey: "Roots")
 		if roots == nil || roots!.index(where: { (root) -> Bool in
@@ -35,7 +35,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func applicationDidFinishLaunching(_: Notification) {
 		let defaultDict: [String: AnyObject]  = [ "Roots": Root.defaults as AnyObject, "Trash": false, "Strip": false, "NSApplicationCrashOnExceptions": true ]
 
-		UserDefaults.standard().register(defaultDict)
+		UserDefaults.standard.register(defaultDict)
 
 		validateDefaults()
 
@@ -49,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func application(_ sender: NSApplication, openFile filename: String) -> Bool {
 		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
 
-		NotificationCenter.default().post(name: NSNotification.Name(rawValue: ProcessApplicationNotification), object: self, userInfo: dict)
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: ProcessApplicationNotification), object: self, userInfo: dict)
 
 		return true
 	}
@@ -57,7 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	//MARK: - Actions
 	
 	@IBAction func documentationBundler(_ sender: NSMenuItem) {
-		let docURL = Bundle.main().urlForResource(sender.title, withExtension:nil)
+		let docURL = Bundle.main.urlForResource(sender.title, withExtension:nil)
 		NSWorkspace.shared().open(docURL!)
 	}
 	
