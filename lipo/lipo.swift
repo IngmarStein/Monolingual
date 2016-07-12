@@ -9,12 +9,13 @@
 import Foundation
 import MachO.fat
 
-private let CPU_SUBTYPE_MASK: cpu_subtype_t = 0xffffff  // mask for feature flags
+private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 
 // The maximum section alignment allowed to be specified, as a power of two
-private let MAXSECTALIGN = 15 // 2**15 or 0x8000
+private let maxSectionAlign = 15 // 2**15 or 0x8000
 
 // these defines are not (yet) visible to Swift
+// swiftlint:disable variable_name
 private let CPU_TYPE_ANY: cpu_type_t					= -1
 private let CPU_TYPE_MC680x0: cpu_type_t				= 6
 private let CPU_TYPE_X86: cpu_type_t					= 7
@@ -84,12 +85,13 @@ private let CPU_SUBTYPE_PENTII_M3 =			CPU_SUBTYPE_INTEL(f: 6, m: 3)
 private let CPU_SUBTYPE_PENTII_M5 =			CPU_SUBTYPE_INTEL(f: 6, m: 5)
 private let CPU_SUBTYPE_PENTIUM_3 =			CPU_SUBTYPE_INTEL(f: 8, m: 0)
 private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(f: 10, m: 0)
+// swiftlint:enable variable_name
 
 /*
  * The structure describing an architecture flag with the string of the flag
  * name, and the cputype and cpusubtype.
  */
-private struct ArchFlag : Equatable, Hashable {
+private struct ArchFlag: Equatable, Hashable {
 	var name: String
 	var cputype: cpu_type_t
 	var cpusubtype: cpu_subtype_t
@@ -99,27 +101,28 @@ private struct ArchFlag : Equatable, Hashable {
 	}
 }
 
-extension fat_arch : Hashable {
+extension fat_arch: Hashable {
 	public var hashValue: Int {
 		return cputype.hashValue ^ cpusubtype.hashValue
 	}
 }
 
-private func ==(lhs: ArchFlag, rhs: ArchFlag) -> Bool {
+private func == (lhs: ArchFlag, rhs: ArchFlag) -> Bool {
 	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
-public func ==(lhs: fat_arch, rhs: fat_arch) -> Bool {
+public func == (lhs: fat_arch, rhs: fat_arch) -> Bool {
 	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
+// swiftlint:disable comma
 private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "any",	    cputype: CPU_TYPE_ANY,	  cpusubtype:CPU_SUBTYPE_MULTIPLE),
 	ArchFlag(name: "little",	cputype: CPU_TYPE_ANY,	  cpusubtype:CPU_SUBTYPE_LITTLE_ENDIAN),
 	ArchFlag(name: "big",	    cputype: CPU_TYPE_ANY,	  cpusubtype:CPU_SUBTYPE_BIG_ENDIAN),
 
 	// 64-bit Mach-O architectures
-	
+
 	// architecture families
 	ArchFlag(name: "ppc64",     cputype: CPU_TYPE_POWERPC64, cpusubtype:CPU_SUBTYPE_POWERPC_ALL),
 	ArchFlag(name: "x86_64",    cputype: CPU_TYPE_X86_64, cpusubtype:CPU_SUBTYPE_X86_64_ALL),
@@ -129,7 +132,7 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "ppc970-64", cputype: CPU_TYPE_POWERPC64, cpusubtype:CPU_SUBTYPE_POWERPC_970),
 
 	// 32-bit Mach-O architectures
-	
+
 	// architecture families
 	ArchFlag(name: "ppc",      cputype: CPU_TYPE_POWERPC, cpusubtype:CPU_SUBTYPE_POWERPC_ALL),
 	ArchFlag(name: "x86",      cputype: CPU_TYPE_X86,     cpusubtype:CPU_SUBTYPE_X86_ALL),
@@ -181,6 +184,7 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "armv7em",  cputype: CPU_TYPE_ARM,     cpusubtype:CPU_SUBTYPE_ARM_V7EM),
 	ArchFlag(name: "arm64v8",  cputype: CPU_TYPE_ARM64,   cpusubtype:CPU_SUBTYPE_ARM64_V8)
 ]
+// swiftlint:enable comma
 
 private func getArchFromFlag(_ name: String) -> ArchFlag? {
 	for flag in archFlags {
@@ -201,7 +205,7 @@ private func rnd(v: UInt32, r: UInt32) -> UInt32 {
 }
 
 private func cpuSubtypeWithMask(_ subtype: cpu_subtype_t) -> cpu_subtype_t {
-	return subtype & CPU_SUBTYPE_MASK
+	return subtype & cpuSubtypeMask
 }
 
 class Lipo {
@@ -307,7 +311,7 @@ class Lipo {
 			size: fatArch.size.bigEndian,
 			align: fatArch.align.bigEndian)
 	}
-	
+
 	/*
 	 * processInputFile() checks input file and breaks it down into thin files
 	 * for later operations.
@@ -352,9 +356,9 @@ class Lipo {
 							fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName as NSString)
 						return false
 					}
-					if fatArch.align > UInt32(MAXSECTALIGN) {
+					if fatArch.align > UInt32(maxSectionAlign) {
 						os_log_error(OS_LOG_DEFAULT, "align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
-							fatArch.align, fileName as NSString, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), MAXSECTALIGN)
+							fatArch.align, fileName as NSString, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
 						return false
 					}
 					if (fatArch.offset % (1 << fatArch.align)) != 0 {
@@ -396,7 +400,7 @@ class Lipo {
 		let temporaryFile = "\(fileName!).lipo"
 		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
-			os_log_error(OS_LOG_DEFAULT, "can't create temporary output file: %@", temporaryFile as NSString);
+			os_log_error(OS_LOG_DEFAULT, "can't create temporary output file: %@", temporaryFile as NSString)
 			return false
 		}
 		let fileHandle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
@@ -526,7 +530,7 @@ class Lipo {
 
 		return true
 	}
-	
+
 	/*
 	 * getArm64FatArch() will return a pointer to the fat_arch struct for the
 	 * 64-bit arm slice in the thin_files[i] if it is present.  Else it returns

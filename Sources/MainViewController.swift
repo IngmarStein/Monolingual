@@ -21,13 +21,14 @@ enum MonolingualMode: Int {
 struct ArchitectureInfo {
 	let name: String
 	let displayName: String
-	let cpu_type: cpu_type_t
-	let cpu_subtype: cpu_subtype_t
+	let cpuType: cpu_type_t
+	let cpuSubtype: cpu_subtype_t
 }
 
 // these defines are not (yet) visible to Swift
+// swiftlint:disable variable_name
 let CPU_TYPE_X86: cpu_type_t					= 7
-let CPU_TYPE_X86_64: cpu_type_t				= CPU_TYPE_X86 | CPU_ARCH_ABI64
+let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 let CPU_TYPE_ARM: cpu_type_t					= 12
 let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
 let CPU_TYPE_POWERPC: cpu_type_t				= 18
@@ -41,6 +42,7 @@ let CPU_SUBTYPE_POWERPC_970: cpu_subtype_t		= 100
 let CPU_SUBTYPE_X86_ALL: cpu_subtype_t			= 3
 let CPU_SUBTYPE_X86_64_ALL: cpu_subtype_t		= 3
 let CPU_SUBTYPE_X86_64_H: cpu_subtype_t		= 8
+// swiftlint:enable variable_name
 
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_
@@ -213,7 +215,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	func installHelper(reply:(Bool) -> Void) {
+	func installHelper(reply: (Bool) -> Void) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
 			os_log_error(OS_LOG_DEFAULT, "XPCService error: %@", error)
 		} as? XPCServiceProtocol
@@ -544,19 +546,21 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 		}.sorted { $0.displayName < $1.displayName }
 
+		// swiftlint:disable comma
 		let archs = [
-			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpu_type: CPU_TYPE_ARM,       cpu_subtype: CPU_SUBTYPE_ARM_ALL),
-			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_750),
-			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_7400),
-			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_7450),
-			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpu_type: CPU_TYPE_POWERPC,   cpu_subtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpu_type: CPU_TYPE_POWERPC64, cpu_subtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"x86",       displayName:"Intel 32-bit",           cpu_type: CPU_TYPE_X86,       cpu_subtype: CPU_SUBTYPE_X86_ALL),
-			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_ALL),
-			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpu_type: CPU_TYPE_X86_64,    cpu_subtype: CPU_SUBTYPE_X86_64_H)
+			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_750),
+			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7400),
+			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7450),
+			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name:"x86",       displayName:"Intel 32-bit",           cpuType: CPU_TYPE_X86,       cpuSubtype: CPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
+			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_H)
 		]
+		// swiftlint:enable comma
 
 		var infoCount = mach_msg_type_number_t(sizeof(host_basic_info_data_t.self) / sizeof(integer_t.self)) // HOST_BASIC_INFO_COUNT
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
@@ -593,9 +597,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment: "")
 
 		self.architectures = archs.map { arch in
-			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpu_type)
+			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpuType)
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
-			if hostInfo.cpu_type == arch.cpu_type && hostInfo.cpu_subtype == arch.cpu_subtype {
+			if hostInfo.cpu_type == arch.cpuType && hostInfo.cpu_subtype == arch.cpuSubtype {
 				self.currentArchitecture.stringValue = String(format: NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName as NSString)
 			}
 			return architecture

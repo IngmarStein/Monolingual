@@ -11,6 +11,7 @@ import SMJobKit
 import XPC
 
 // TODO: remove the following as soon as the new logging API is available for Swift
+// swiftlint:disable:next variable_name
 var OS_LOG_DEFAULT = 0
 func os_log_debug(_ log: Any, _ format: String, _ arguments: CVarArg...) {
 	NSLog("%@", String(format: format, arguments: arguments))

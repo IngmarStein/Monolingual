@@ -10,7 +10,7 @@ import Cocoa
 import Fabric
 import Crashlytics
 
-let ProcessApplicationNotification = "ProcessApplicationNotification"
+let processApplicationNotification = "ProcessApplicationNotification"
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -49,22 +49,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func application(_ sender: NSApplication, openFile filename: String) -> Bool {
 		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
 
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: ProcessApplicationNotification), object: self, userInfo: dict)
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: processApplicationNotification), object: self, userInfo: dict)
 
 		return true
 	}
-	
+
 	//MARK: - Actions
-	
+
 	@IBAction func documentationBundler(_ sender: NSMenuItem) {
 		let docURL = Bundle.main.urlForResource(sender.title, withExtension:nil)
 		NSWorkspace.shared().open(docURL!)
 	}
-	
+
 	@IBAction func openWebsite(_: AnyObject) {
 		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual")!)
 	}
-	
+
 	@IBAction func donate(_: AnyObject) {
 		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
