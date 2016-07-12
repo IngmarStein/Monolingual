@@ -19,7 +19,7 @@ platform :mac do
 
   desc "Runs all the tests"
   lane :test do
-    scan(scheme: "Monolingual", destination: "platform=OS X")
+    scan(scheme: "Monolingual", destination: "platform=macOS")
   end
 
   desc "Submit a new Beta Build to Apple TestFlight"
