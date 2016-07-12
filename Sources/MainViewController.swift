@@ -616,7 +616,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		}
 
-		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: ProcessApplicationNotification), object: nil, queue: nil) { notification in
+		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { notification in
 			self.processApplication = Root(dictionary: notification.userInfo!)
 		}
 	}

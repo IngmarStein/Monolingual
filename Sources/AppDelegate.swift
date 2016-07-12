@@ -10,7 +10,7 @@ import Cocoa
 import Fabric
 import Crashlytics
 
-let processApplicationNotification = "ProcessApplicationNotification"
+let processApplicationNotification = NSNotification.Name(rawValue: "ProcessApplicationNotification")
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -49,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func application(_ sender: NSApplication, openFile filename: String) -> Bool {
 		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
 
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: processApplicationNotification), object: self, userInfo: dict)
+		NotificationCenter.default.post(name: processApplicationNotification, object: self, userInfo: dict)
 
 		return true
 	}
