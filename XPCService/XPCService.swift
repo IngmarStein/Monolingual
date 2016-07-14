@@ -65,8 +65,8 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler { error in
 			os_log_error(OS_LOG_DEFAULT, "XPCService failed to connect to helper: %@", error)
 			reply(nil)
-		} as! HelperProtocol
-		helper.connectWithEndpointReply { endpoint -> Void in
+		} as? HelperProtocol
+		helper?.connectWithEndpointReply { endpoint -> Void in
 			reply(endpoint)
 		}
 	}
