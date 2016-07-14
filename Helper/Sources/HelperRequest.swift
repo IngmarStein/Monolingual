@@ -32,27 +32,23 @@ import Foundation
 
 	required init?(coder aDecoder: NSCoder) {
 		// https://devforums.apple.com/message/1124684
-		let stringClass = NSString.self as AnyObject as! NSObject
-		let arrayClass = NSArray.self as AnyObject as! NSObject
-		let setClass = NSSet.self as AnyObject as! NSObject
-		let stringArray = Set([stringClass, arrayClass])
-		let stringSet = Set([stringClass, setClass])
+		let stringArray = NSSet(array: [NSString.self, NSArray.self])
+		let stringSet = NSSet(array: [NSString.self, NSSet.self])
 
 		dryRun = aDecoder.decodeBool(forKey: "dryRun")
 		doStrip = aDecoder.decodeBool(forKey: "doStrip")
 		uid = uid_t(aDecoder.decodeInteger(forKey: "uid"))
 		trash = aDecoder.decodeBool(forKey: "trash")
-		includes = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "includes") as? [String]
-		excludes = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "excludes") as? [String]
-		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet as NSSet, forKey: "bundleBlacklist") as? Set<String>
-		directories = aDecoder.decodeObjectOfClasses(stringSet as NSSet, forKey: "directories") as? Set<String>
-		files = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "files") as? [String]
-		thin = aDecoder.decodeObjectOfClasses(stringArray as NSSet, forKey: "thin") as? [String]
+		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "includes") as? [String]
+		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "excludes") as? [String]
+		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey: "bundleBlacklist") as? Set<String>
+		directories = aDecoder.decodeObjectOfClasses(stringSet, forKey: "directories") as? Set<String>
+		files = aDecoder.decodeObjectOfClasses(stringArray, forKey: "files") as? [String]
+		thin = aDecoder.decodeObjectOfClasses(stringArray, forKey: "thin") as? [String]
 
 		super.init()
 	}
 
-	// https://bugs.swift.org/browse/SR-1208
 	func encode(with coder: NSCoder) {
 		coder.encode(dryRun, forKey: "dryRun")
 		coder.encode(doStrip, forKey: "doStrip")
