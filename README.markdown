@@ -1,7 +1,7 @@
 Monolingual
 ===========
 
-#### A tool for removing unneeded language localization files for OS X
+#### A tool for removing unneeded language localization files for macOS
 
 ## Screenshot
 

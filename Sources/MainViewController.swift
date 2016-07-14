@@ -96,7 +96,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		alert.alertStyle = .warning
 		alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
 		alert.addButton(withTitle: NSLocalizedString("Continue", comment: ""))
-		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling OS X.", comment: "")
+		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages? You will not be able to restore them without reinstalling macOS.", comment: "")
 		alert.beginSheetModal(for: self.view.window!) { responseCode in
 			if NSAlertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
@@ -123,7 +123,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if num_archs == self.architectures.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
-			alert.messageText = NSLocalizedString("Removing all architectures will make OS X inoperable. Please keep at least one architecture and try again.", comment: "")
+			alert.messageText = NSLocalizedString("Removing all architectures will make macOS inoperable. Please keep at least one architecture and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 			//NSLocalizedString("Cannot remove all architectures", "")
 			log.close()
@@ -500,7 +500,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Cannot remove all languages", comment: "")
-			alert.informativeText = NSLocalizedString("Removing all languages will make OS X inoperable. Please keep at least one language and try again.", comment: "")
+			alert.informativeText = NSLocalizedString("Removing all languages will make macOS inoperable. Please keep at least one language and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 			log.close()
 		} else if rCount > 0 {
