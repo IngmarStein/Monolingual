@@ -14,7 +14,7 @@ default_platform :mac
 platform :mac do
   before_all do
     # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
-    cocoapods
+    cocoapods(repo_update: true)
   end
 
   desc "Runs all the tests"

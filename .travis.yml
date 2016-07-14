@@ -7,8 +7,6 @@ cache:
 - cocoapods
 install:
 - bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}
-- bundle exec pod repo update
-- bundle exec pod install
 before_script:
 - "./scripts/add-key.sh"
 #- "./scripts/install-swift.sh"
