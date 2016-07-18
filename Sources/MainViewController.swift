@@ -27,21 +27,9 @@ struct ArchitectureInfo {
 
 // these defines are not (yet) visible to Swift
 // swiftlint:disable variable_name
-let CPU_TYPE_X86: cpu_type_t					= 7
 let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
-let CPU_TYPE_ARM: cpu_type_t					= 12
 let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
-let CPU_TYPE_POWERPC: cpu_type_t				= 18
 let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-let CPU_SUBTYPE_ARM_ALL: cpu_subtype_t			= 0
-let CPU_SUBTYPE_POWERPC_ALL: cpu_subtype_t		= 0
-let CPU_SUBTYPE_POWERPC_750: cpu_subtype_t		= 9
-let CPU_SUBTYPE_POWERPC_7400: cpu_subtype_t	= 10
-let CPU_SUBTYPE_POWERPC_7450: cpu_subtype_t	= 11
-let CPU_SUBTYPE_POWERPC_970: cpu_subtype_t		= 100
-let CPU_SUBTYPE_X86_ALL: cpu_subtype_t			= 3
-let CPU_SUBTYPE_X86_64_ALL: cpu_subtype_t		= 3
-let CPU_SUBTYPE_X86_64_H: cpu_subtype_t		= 8
 // swiftlint:enable variable_name
 
 func mach_task_self() -> mach_port_t {
@@ -169,7 +157,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
 		if keyPath == "completedUnitCount" {
-			if let progress = object as? Progress, url = progress.userInfo[.fileURLKey] as? URL, size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
+			if let progress = object as? Progress, let url = progress.userInfo[.fileURLKey] as? URL, let size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
 				processProgress(file: url, size:size, appName:progress.userInfo[ProgressUserInfoKey("appName")] as? String)
 			}
 		}
@@ -197,7 +185,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					}
 				}
 			}
-			if let app = appName, lang = lang {
+			if let app = appName, let lang = lang {
 				message = String(format: NSLocalizedString("Removing language %@ from %@…", comment: ""), lang as NSString, app as NSString)
 			} else if let lang = lang {
 				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), lang as NSString)
@@ -207,7 +195,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		DispatchQueue.main.async {
-			if let viewController = self.progressViewController, path = file.path {
+			if let viewController = self.progressViewController, let path = file.path {
 				viewController.text = message
 				viewController.file = path
 				NSApp.setWindowsNeedUpdate(true)
@@ -536,7 +524,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let components = Locale.components(fromLocaleIdentifier: localeIdentifier)
-			if let language = components[Locale.Key.languageCode.rawValue], country = components[Locale.Key.countryCode.rawValue] {
+			if let language = components[Locale.Key.languageCode.rawValue], let country = components[Locale.Key.countryCode.rawValue] {
 				folders.append("\(language)-\(country).lproj")
 				folders.append("\(language)_\(country).lproj")
 			} else if let displayName = systemLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier as NSString) {
@@ -606,12 +594,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		// load blacklist from bundle
-		if let blacklistBundle = Bundle.main.urlForResource("blacklist", withExtension:"plist"), entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
+		if let blacklistBundle = Bundle.main.urlForResource("blacklist", withExtension:"plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		// load remote blacklist asynchronously
 		DispatchQueue.main.async {
-			if let blacklistURL = URL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), entries = NSArray(contentsOf: blacklistURL) as? [[NSObject:AnyObject]] {
+			if let blacklistURL = URL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), let entries = NSArray(contentsOf: blacklistURL) as? [[NSObject:AnyObject]] {
 				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 			}
 		}

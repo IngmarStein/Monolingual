@@ -12,7 +12,7 @@ final class ISTableView: NSTableView {
 	@IBOutlet private var arrayController: NSArrayController!
 
 	override func keyDown(_ theEvent: NSEvent) {
-		if let characters = theEvent.charactersIgnoringModifiers where characters.hasPrefix(" ") {
+		if let characters = theEvent.charactersIgnoringModifiers, characters.hasPrefix(" ") {
 			let row = self.selectedRow
 			if row != -1 {
 				if let arrangedObjects = self.arrayController.arrangedObjects as? [Setting] {

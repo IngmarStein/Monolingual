@@ -128,7 +128,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 			if let roots = roots {
 				// recursively delete directories
-				if let directories = request.directories where !directories.isEmpty {
+				if let directories = request.directories, !directories.isEmpty {
 					for root in roots {
 						if progress.isCancelled {
 							break
@@ -139,7 +139,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 			}
 
 			// thin fat binaries
-			if let archs = request.thin, roots = roots where !archs.isEmpty {
+			if let archs = request.thin, let roots = roots, !archs.isEmpty {
 				if let lipo = Lipo(archs: archs) {
 					for root in roots {
 						if progress.isCancelled {
@@ -172,7 +172,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	//MARK: -
 
 	private func iterateDirectory(_ url: URL, context: HelperContext, prefetchedProperties: [String], block: (URL, FileManager.DirectoryEnumerator) -> Void) {
-		if let progress = context.progress where progress.isCancelled {
+		if let progress = context.progress, progress.isCancelled {
 			return
 		}
 
@@ -185,7 +185,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		let dirEnumerator = context.fileManager.enumerator(at: url, includingPropertiesForKeys: prefetchedProperties, options:[], errorHandler:nil)
 		if let dirEnumerator = dirEnumerator {
 			for entry in dirEnumerator {
-				if let progress = context.progress where progress.isCancelled {
+				if let progress = context.progress, progress.isCancelled {
 					return
 				}
 				let theURL = entry as! URL
@@ -193,7 +193,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				do {
 					let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
 
-					if let isDirectory = resourceValues.isDirectory where isDirectory {
+					if let isDirectory = resourceValues.isDirectory, isDirectory {
 						if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || (isRootless && theURL.isProtected) {
 							dirEnumerator.skipDescendents()
 							continue
@@ -210,12 +210,12 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func processDirectory(_ url: URL, context: HelperContext) {
-		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey.rawValue]) { theURL, dirEnumerator in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
 
-				if let isDirectory = resourceValues.isDirectory where isDirectory {
-					if let lastComponent = theURL.lastPathComponent, directories = context.request.directories {
+				if let isDirectory = resourceValues.isDirectory, isDirectory {
+					if let lastComponent = theURL.lastPathComponent, let directories = context.request.directories {
 						if directories.contains(lastComponent) {
 							context.remove(theURL)
 							dirEnumerator.skipDescendents()
@@ -240,8 +240,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.isRegularFileKey.rawValue, URLResourceKey.isExecutableKey.rawValue, URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
-				if let isExecutable = resourceValues.isExecutable, isRegularFile = resourceValues.isRegularFile where isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
-					if let pathExtension = theURL.pathExtension where pathExtension == "class" {
+				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+					if let pathExtension = theURL.pathExtension, pathExtension == "class" {
 						return
 					}
 
@@ -257,11 +257,11 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 							self.stripFile(theURL, context:context)
 						}
 					}
-				} else if let isApplication = resourceValues.isApplication where isApplication {
+				} else if let isApplication = resourceValues.isApplication, isApplication {
 					// don't thin universal frameworks contained in a single-architecture application
 					// see https://github.com/IngmarStein/Monolingual/issues/67
 					let bundle = Bundle(url: theURL as URL)
-					if let bundle = bundle, executableArchitectures = bundle.executableArchitectures where executableArchitectures.count == 1 {
+					if let bundle = bundle, let executableArchitectures = bundle.executableArchitectures, executableArchitectures.count == 1 {
 						if let sharedFrameworksURL = bundle.sharedFrameworksURL {
 							context.excludeDirectory(sharedFrameworksURL)
 						}

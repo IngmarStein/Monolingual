@@ -27,7 +27,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func isExcluded(_ url: URL) -> Bool {
-		if let path = url.path, excludes = request.excludes {
+		if let path = url.path, let excludes = request.excludes {
 			for exclude in excludes {
 				if path.hasPrefix(exclude) {
 					return true
@@ -46,7 +46,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func isDirectoryBlacklisted(_ path: URL) -> Bool {
-		if let bundle = Bundle(url: path), bundleIdentifier = bundle.bundleIdentifier, bundleBlacklist = request.bundleBlacklist {
+		if let bundle = Bundle(url: path), let bundleIdentifier = bundle.bundleIdentifier, let bundleBlacklist = request.bundleBlacklist {
 			return bundleBlacklist.contains(bundleIdentifier)
 		}
 		return false
@@ -58,7 +58,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	private func addFileDictionaryToBlacklist(_ files: [String: AnyObject], baseURL: URL) {
 		for (key, value) in files {
-			if let valueDict = value as? [String: AnyObject], optional = valueDict["optional"] as? Bool where optional {
+			if let valueDict = value as? [String: AnyObject], let optional = valueDict["optional"] as? Bool, optional {
 				continue
 			}
 			do {
@@ -82,7 +82,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					let baseURL: URL
 					do {
 						let contentsDirectory = try url.appendingPathComponent("Contents", isDirectory: true)
-						if let path = contentsDirectory.path where fileManager.fileExists(atPath: path) {
+						if let path = contentsDirectory.path, fileManager.fileExists(atPath: path) {
 							baseURL = contentsDirectory
 						} else {
 							baseURL = url
@@ -112,8 +112,8 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					if let bundle = Bundle(url: bundleURL) {
 						var displayName: String?
 						if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
-							infoPlistStringsURL = bundle.urlForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-							strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
+							let infoPlistStringsURL = bundle.urlForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+							let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
 							displayName = strings["CFBundleDisplayName"]
 						}
 						if displayName == nil {
@@ -213,7 +213,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			} catch let error1 as NSError {
 				error = error1
 				if let error = error {
-					if let underlyingError = error.userInfo[NSUnderlyingErrorKey as NSString] as? NSError where underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
+					if let underlyingError = error.userInfo[NSUnderlyingErrorKey as NSString] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
 						os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path! as NSString, error)
