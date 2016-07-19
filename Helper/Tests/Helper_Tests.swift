@@ -76,7 +76,7 @@ class HelperTests: XCTestCase {
 		request.directories = [ "fr.lproj" ]
 		request.bundleBlacklist = [ "com.test.blacklisted" ]
 
-		let helperExpectation = expectation(withDescription: "Asynchronous helper processing")
+		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
 		helper.processRequest(request, progress: nil) { (exitCode) -> Void in
@@ -100,7 +100,7 @@ class HelperTests: XCTestCase {
 			helperExpectation.fulfill()
 		}
 
-		waitForExpectations(withTimeout: TimeInterval(5.0)) { (error) -> Void in
+		waitForExpectations(timeout: TimeInterval(5.0)) { (error) -> Void in
 			if let error = error {
 				XCTFail("Expectation failed with error: \(error)")
 			}
@@ -134,7 +134,7 @@ class HelperTests: XCTestCase {
 		assertFileSize(path: hello2Path, expectedSize: 16600, message: "2-arch fat file size mismatch")
 		assertFileSize(path: hello3Path, expectedSize: 24792, message: "3-arch fat file size mismatch")
 
-		let helperExpectation = expectation(withDescription: "Asynchronous helper processing")
+		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
 		helper.processRequest(request, progress: nil) { (exitCode) -> Void in
@@ -159,7 +159,7 @@ class HelperTests: XCTestCase {
 			helperExpectation.fulfill()
 		}
 
-		waitForExpectations(withTimeout: TimeInterval(5.0)) { (error) -> Void in
+		waitForExpectations(timeout: TimeInterval(5.0)) { (error) -> Void in
 			if let error = error {
 				XCTFail("Expectation failed with error: \(error)")
 			}
