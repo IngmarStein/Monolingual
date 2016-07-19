@@ -7,7 +7,7 @@ opt_out_usage
 
 # This is the minimum version number required.
 # Update this, if you use features of a newer version
-fastlane_version "1.95.0"
+fastlane_version "1.98.0"
 
 default_platform :mac
 
@@ -19,7 +19,7 @@ platform :mac do
 
   desc "Runs all the tests"
   lane :test do
-    scan(scheme: "Monolingual", destination: "platform=macOS")
+    scan(scheme: "Monolingual")
   end
 
   desc "Submit a new Beta Build to Apple TestFlight"
