@@ -245,16 +245,16 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						return
 					}
 
-					let data = try NSData(contentsOf: theURL, options:([.alwaysMapped, .uncached]))
-					var magic: UInt32 = 0
-					if data.length >= sizeof(UInt32.self) {
-						data.getBytes(&magic, length: sizeof(UInt32.self))
-
-						if magic == FAT_MAGIC || magic == FAT_CIGAM {
-							self.thinFile(url: theURL, context:context, lipo: lipo)
-						}
-						if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
-							self.stripFile(theURL, context:context)
+					let data = try Data(contentsOf: theURL, options:([.alwaysMapped, .uncached]))
+					if data.count >= sizeof(UInt32.self) {
+						data.withUnsafeBytes { (pointer: UnsafePointer<UInt32>) -> Void in
+							let magic = pointer.pointee
+							if magic == FAT_MAGIC || magic == FAT_CIGAM {
+								self.thinFile(url: theURL, context:context, lipo: lipo)
+							}
+							if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
+								self.stripFile(theURL, context:context)
+							}
 						}
 					}
 				} else if let isApplication = resourceValues.isApplication, isApplication {
