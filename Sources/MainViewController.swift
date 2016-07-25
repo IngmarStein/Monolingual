@@ -314,7 +314,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 								} else {
 									// helper is different version
 									performInstallation = true
-									helper.uninstall()
+									// this triggers rdar://23143866 (duplicate of rdar://19601397)
+									//helper.uninstall()
 									helper.exitWithCode(Int(EXIT_SUCCESS))
 									connection.invalidate()
 								}
@@ -513,7 +514,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		// never check the user's preferred languages, English the the user's locale be default
 		let userLanguages = Set<String>((Locale.preferredLanguages).map {
-			return $0.replacingOccurrences(of: "-", with:"_")
+			return $0.replacingOccurrences(of: "-", with: "_")
 		} + ["en", currentLocale.localeIdentifier])
 
 		let availableLocalizations = Set<String>((Locale.availableLocaleIdentifiers)
@@ -536,17 +537,17 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		// swiftlint:disable comma
 		let archs = [
-			ArchitectureInfo(name:"arm",       displayName:"ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
-			ArchitectureInfo(name:"ppc",       displayName:"PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc750",    displayName:"PowerPC G3",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_750),
-			ArchitectureInfo(name:"ppc7400",   displayName:"PowerPC G4",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7400),
-			ArchitectureInfo(name:"ppc7450",   displayName:"PowerPC G4+",            cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7450),
-			ArchitectureInfo(name:"ppc970",    displayName:"PowerPC G5",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"ppc64",     displayName:"PowerPC 64-bit",         cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name:"ppc970-64", displayName:"PowerPC G5 64-bit",      cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name:"x86",       displayName:"Intel 32-bit",           cpuType: CPU_TYPE_X86,       cpuSubtype: CPU_SUBTYPE_X86_ALL),
-			ArchitectureInfo(name:"x86_64",    displayName:"Intel 64-bit",           cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
-			ArchitectureInfo(name:"x86_64h",   displayName:"Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_H)
+			ArchitectureInfo(name: "arm",       displayName: "ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name: "ppc",       displayName: "PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name: "ppc750",    displayName: "PowerPC G3",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_750),
+			ArchitectureInfo(name: "ppc7400",   displayName: "PowerPC G4",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7400),
+			ArchitectureInfo(name: "ppc7450",   displayName: "PowerPC G4+",            cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7450),
+			ArchitectureInfo(name: "ppc970",    displayName: "PowerPC G5",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name: "ppc64",     displayName: "PowerPC 64-bit",         cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name: "ppc970-64", displayName: "PowerPC G5 64-bit",      cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name: "x86",       displayName: "Intel 32-bit",           cpuType: CPU_TYPE_X86,       cpuSubtype: CPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name: "x86_64",    displayName: "Intel 64-bit",           cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
+			ArchitectureInfo(name: "x86_64h",   displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_H)
 		]
 		// swiftlint:enable comma
 
@@ -594,12 +595,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		// load blacklist from bundle
-		if let blacklistBundle = Bundle.main.urlForResource("blacklist", withExtension:"plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject:AnyObject]] {
+		if let blacklistBundle = Bundle.main.urlForResource("blacklist", withExtension: "plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject: AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		// load remote blacklist asynchronously
 		DispatchQueue.main.async {
-			if let blacklistURL = URL(string:"https://ingmarstein.github.io/Monolingual/blacklist.plist"), let entries = NSArray(contentsOf: blacklistURL) as? [[NSObject:AnyObject]] {
+			if let blacklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blacklist.plist"), let entries = NSArray(contentsOf: blacklistURL) as? [[NSObject: AnyObject]] {
 				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 			}
 		}

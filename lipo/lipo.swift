@@ -343,7 +343,7 @@ class Lipo {
 
 	/*
 	 * createFat() creates a fat output file from the thin files.
-	 * TODO: The FileHandle API doesn't support error handling, yet.
+	 * TODO: The FileHandle API doesn't support error handling, yet (see https://bugs.swift.org/browse/SR-2138).
 	 */
 	private func createFat(newsize: inout Int) -> Bool {
 		let temporaryFile = "\(fileName!).lipo"

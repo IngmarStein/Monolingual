@@ -41,9 +41,9 @@ class HelperTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-		createTestApp(name: "test", bundleIdentifier:"com.test.test")
-		createTestApp(name: "excluded", bundleIdentifier:"com.test.excluded")
-		createTestApp(name: "blacklisted", bundleIdentifier:"com.test.blacklisted")
+		createTestApp(name: "test", bundleIdentifier: "com.test.test")
+		createTestApp(name: "excluded", bundleIdentifier: "com.test.excluded")
+		createTestApp(name: "blacklisted", bundleIdentifier: "com.test.blacklisted")
 
 		let fileManager = FileManager.default
 		do {

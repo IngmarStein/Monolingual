@@ -62,11 +62,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	@IBAction func openWebsite(_: AnyObject) {
-		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual")!)
+		NSWorkspace.shared().open(URL(string: "https://ingmarstein.github.io/Monolingual")!)
 	}
 
 	@IBAction func donate(_: AnyObject) {
-		NSWorkspace.shared().open(URL(string:"https://ingmarstein.github.io/Monolingual/donate.html")!)
+		NSWorkspace.shared().open(URL(string: "https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
 }
