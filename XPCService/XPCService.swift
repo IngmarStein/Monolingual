@@ -37,16 +37,16 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			switch error {
 			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary, SMJError.unableToBless:
 				os_log_error(OS_LOG_DEFAULT, "Failed to bless helper. Error: \(error)")
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("Failed to install helper utility.", comment: "") as NSString ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
 			case SMJError.authorizationDenied:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("You entered an incorrect administrator password.", comment: "") as NSString ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
 			case SMJError.authorizationCanceled:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "") as NSString ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "") ]))
 			case SMJError.authorizationInteractionNotAllowed, SMJError.authorizationFailed:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("Failed to authorize as an administrator.", comment: "") as NSString ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to authorize as an administrator.", comment: "") ]))
 			}
 		} catch {
-			reply(NSError(domain: "XPCService", code: 0, userInfo: [ NSLocalizedDescriptionKey as NSString: NSLocalizedString("An unknown error occurred.", comment: "") as NSString ]))
+			reply(NSError(domain: "XPCService", code: 0, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("An unknown error occurred.", comment: "") ]))
 		}
 		reply(nil)
 	}

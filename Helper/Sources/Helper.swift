@@ -316,7 +316,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
 				} catch let error as NSError {
-					os_log_error(OS_LOG_DEFAULT, "Failed to set file attributes for '%@': %@", path as NSString, error)
+					os_log_error(OS_LOG_DEFAULT, "Failed to set file attributes for '%@': %@", path, error)
 				}
 
 				do {

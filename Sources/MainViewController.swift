@@ -145,11 +145,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	func processed(file: String, size: Int, appName: String?) {
 		if let progress = self.progress {
 			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject((count + 1) as NSNumber, forKey: .fileCompletedCountKey)
+			progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
 			progress.setUserInfoObject(URL(fileURLWithPath: file), forKey: .fileURLKey)
-			progress.setUserInfoObject(size as NSNumber, forKey: ProgressUserInfoKey("sizeDifference"))
+			progress.setUserInfoObject(size, forKey: ProgressUserInfoKey("sizeDifference"))
 			if let appName = appName {
-				progress.setUserInfoObject(appName as NSString, forKey: ProgressUserInfoKey("appName"))
+				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey("appName"))
 			}
 			progress.completedUnitCount += size
 		}
@@ -186,9 +186,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				}
 			}
 			if let app = appName, let lang = lang {
-				message = String(format: NSLocalizedString("Removing language %@ from %@…", comment: ""), lang as NSString, app as NSString)
+				message = String(format: NSLocalizedString("Removing language %@ from %@…", comment: ""), lang, app)
 			} else if let lang = lang {
-				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), lang as NSString)
+				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), lang)
 			} else {
 				message = String(format: NSLocalizedString("Removing %@…", comment: ""), file)
 			}
@@ -361,13 +361,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 			let alert = NSAlert()
 			alert.alertStyle = .informational
-			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount as NSString)
+			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount)
 			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
-			alert.messageText = String(format: NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount as NSString)
+			alert.messageText = String(format: NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount)
 			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 
@@ -528,10 +528,10 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			if let language = components[Locale.Key.languageCode.rawValue], let country = components[Locale.Key.countryCode.rawValue] {
 				folders.append("\(language)-\(country).lproj")
 				folders.append("\(language)_\(country).lproj")
-			} else if let displayName = systemLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier as NSString) {
+			} else if let displayName = systemLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
-			let displayName = currentLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier as NSString) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
+			let displayName = currentLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
 			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 		}.sorted { $0.displayName < $1.displayName }
 
@@ -589,7 +589,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpuType)
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpuType && hostInfo.cpu_subtype == arch.cpuSubtype {
-				self.currentArchitecture.stringValue = String(format: NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName as NSString)
+				self.currentArchitecture.stringValue = String(format: NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName)
 			}
 			return architecture
 		}

@@ -155,7 +155,7 @@ class Lipo {
 			if let arch = getArchFromFlag(flag) {
 				removeArchFlags.append(arch)
 			} else {
-				os_log_error(OS_LOG_DEFAULT, "unknown architecture specification flag: %@", flag as NSString)
+				os_log_error(OS_LOG_DEFAULT, "unknown architecture specification flag: %@", flag)
 				return nil
 			}
 		}
@@ -163,7 +163,7 @@ class Lipo {
 		var flagSet = Set<ArchFlag>()
 		for flag in removeArchFlags {
 			if flagSet.contains(flag) {
-				os_log_error(OS_LOG_DEFAULT, "-remove %@ specified multiple times", flag.name as NSString)
+				os_log_error(OS_LOG_DEFAULT, "-remove %@ specified multiple times", flag.name)
 			}
 			flagSet.insert(flag)
 		}
@@ -272,7 +272,7 @@ class Lipo {
 				fatHeader = fatHeaderFromFile(headerPointer.pointee)
 				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch.self) + sizeof(fat_header.self)
 				if big_size > size {
-					os_log_error(OS_LOG_DEFAULT, "truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName as NSString)
+					os_log_error(OS_LOG_DEFAULT, "truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName)
 					inputData = nil
 					return false
 				}
@@ -282,29 +282,29 @@ class Lipo {
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
 						os_log_error(OS_LOG_DEFAULT, "truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
-							fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName as NSString)
+							fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
 						return false
 					}
 					if fatArch.align > UInt32(maxSectionAlign) {
 						os_log_error(OS_LOG_DEFAULT, "align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
-							fatArch.align, fileName as NSString, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
+							fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
 						return false
 					}
 					if (fatArch.offset % (1 << fatArch.align)) != 0 {
 						os_log_error(OS_LOG_DEFAULT, "offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
-							fatArch.offset, fileName as NSString, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
+							fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
 						return false
 					}
 					if fatArchSet.contains(fatArch) {
 						os_log_error(OS_LOG_DEFAULT, "fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
-							fileName as NSString, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+							fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
 						return false
 					}
 					fatArchSet.insert(fatArch)
 				}
 
 				if fatArchs.isEmpty {
-					os_log_error(OS_LOG_DEFAULT, "fat file contains no architectures %@", fileName as NSString)
+					os_log_error(OS_LOG_DEFAULT, "fat file contains no architectures %@", fileName)
 					return false
 				} else {
 					// create a thin file struct for each arch in the fat file
@@ -362,7 +362,7 @@ class Lipo {
 
 			withUnsafePointer(&fatHeader) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_header.self), deallocator: .none))
-				//os_log_error(OS_LOG_DEFAULT, "can't write fat header to output file: %@", temporaryFile as NSString)
+				//os_log_error(OS_LOG_DEFAULT, "can't write fat header to output file: %@", temporaryFile)
 				//return false
 			}
 			let thinFilesEnumerator = thinFiles.enumerated()
@@ -385,7 +385,7 @@ class Lipo {
 				var fatArch = fatArchToFile(thinFile.fatArch)
 				withUnsafePointer(&fatArch) { (pointer) in
 					fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
-					//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile as NSString)
+					//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile)
 					//return false
 				}
 			}
@@ -399,7 +399,7 @@ class Lipo {
 			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
 			withUnsafePointer(&fatArch) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
-				//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile as NSString)
+				//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile)
 				//return false
 			}
 		}
@@ -412,18 +412,18 @@ class Lipo {
 			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
 			withUnsafePointer(&fatArch) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
-				//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile as NSString)
+				//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile)
 				//return false
 			}
 		}
 		for thinFile in thinFiles {
 			if nthinFiles != 1 {
 				fileHandle.seek(toFileOffset: UInt64(thinFile.fatArch.offset))
-				//os_log_error(OS_LOG_DEFAULT, "can't lseek in output file: %@", temporaryFile as NSString)
+				//os_log_error(OS_LOG_DEFAULT, "can't lseek in output file: %@", temporaryFile)
 				//return false
 			}
 			fileHandle.write(thinFile.data)
-			//os_log_error(OS_LOG_DEFAULT, "can't write to output file: %@", temporaryFile as NSString)
+			//os_log_error(OS_LOG_DEFAULT, "can't write to output file: %@", temporaryFile)
 			//return false
 		}
 		if nthinFiles != 1 {
@@ -439,7 +439,7 @@ class Lipo {
 		do {
 			try FileManager.default.replaceItem(at: inputURL as URL, withItemAt: temporaryURL as URL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error as NSError {
-			os_log_error(OS_LOG_DEFAULT, "can't move temporary file: '%@' to file '%@': %@", temporaryFile as NSString, fileName as NSString, error)
+			os_log_error(OS_LOG_DEFAULT, "can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
 		}
 
 		return true

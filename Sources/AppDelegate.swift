@@ -47,7 +47,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-		let dict: [NSObject: AnyObject] = [ "Path": filename as NSString, "Language": true, "Architectures": true ]
+		let dict: [NSObject: AnyObject] = [ "Path": filename, "Language": true, "Architectures": true ]
 
 		NotificationCenter.default.post(name: processApplicationNotification, object: self, userInfo: dict)
 
