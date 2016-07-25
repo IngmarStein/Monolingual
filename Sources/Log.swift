@@ -33,7 +33,17 @@ final class Log {
 		}
 	}
 
-	let logFileURL = URL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
+	lazy var logFileURL: URL = {
+		if #available(OSX 10.12, *) {
+			do {
+				return try FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/Monolingual.log")
+			} catch {
+				fatalError("Couldn't find log file location")
+			}
+		} else {
+			return URL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
+		}
+	}()
 	var logFile: NSOutputStream? = nil
 
 	func open() {
