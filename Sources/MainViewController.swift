@@ -25,7 +25,7 @@ struct ArchitectureInfo {
 	let cpuSubtype: cpu_subtype_t
 }
 
-// these defines are not (yet) visible to Swift
+// TODO: these defines are not (yet) visible to Swift
 // swiftlint:disable variable_name
 let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
@@ -158,7 +158,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
 		if keyPath == "completedUnitCount" {
 			if let progress = object as? Progress, let url = progress.userInfo[.fileURLKey] as? URL, let size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
-				processProgress(file: url, size:size, appName:progress.userInfo[ProgressUserInfoKey("appName")] as? String)
+				processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey("appName")] as? String)
 			}
 		}
 	}
@@ -243,7 +243,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		} as! HelperProtocol
 
-		helper.processRequest(arguments, progress:self) { exitCode in
+		helper.processRequest(arguments, progress: self) { exitCode in
 			os_log_info(OS_LOG_DEFAULT, "helper finished with exit code: \(exitCode)")
 			helper.exitWithCode(exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {

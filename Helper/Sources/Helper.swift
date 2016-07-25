@@ -120,7 +120,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 					if progress.isCancelled {
 						break
 					}
-					context.remove(URL(fileURLWithPath:file))
+					context.remove(URL(fileURLWithPath: file))
 				}
 			}
 
@@ -133,7 +133,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						if progress.isCancelled {
 							break
 						}
-						self.processDirectory(root, context:context)
+						self.processDirectory(root, context: context)
 					}
 				}
 			}
@@ -145,7 +145,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						if progress.isCancelled {
 							break
 						}
-						self.thinDirectory(root, context:context, lipo: lipo)
+						self.thinDirectory(root, context: context, lipo: lipo)
 					}
 				}
 			}
@@ -182,7 +182,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 		context.addCodeResourcesToBlacklist(url)
 
-		let dirEnumerator = context.fileManager.enumerator(at: url, includingPropertiesForKeys: prefetchedProperties, options:[], errorHandler:nil)
+		let dirEnumerator = context.fileManager.enumerator(at: url, includingPropertiesForKeys: prefetchedProperties, options: [], errorHandler: nil)
 		if let dirEnumerator = dirEnumerator {
 			for entry in dirEnumerator {
 				if let progress = context.progress, progress.isCancelled {
@@ -231,13 +231,13 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		var sizeDiff: Int = 0
 		if lipo.run(path: url.path!, sizeDiff: &sizeDiff) {
 			if sizeDiff > 0 {
-				context.reportProgress(url: url, size:sizeDiff)
+				context.reportProgress(url: url, size: sizeDiff)
 			}
 		}
 	}
 
 	func thinDirectory(_ url: URL, context: HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context:context, prefetchedProperties:[URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.isRegularFileKey.rawValue, URLResourceKey.isExecutableKey.rawValue, URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.isRegularFileKey.rawValue, URLResourceKey.isExecutableKey.rawValue, URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
 				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
@@ -245,15 +245,15 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						return
 					}
 
-					let data = try Data(contentsOf: theURL, options:([.alwaysMapped, .uncached]))
+					let data = try Data(contentsOf: theURL, options: [.alwaysMapped, .uncached])
 					if data.count >= sizeof(UInt32.self) {
 						data.withUnsafeBytes { (pointer: UnsafePointer<UInt32>) -> Void in
 							let magic = pointer.pointee
 							if magic == FAT_MAGIC || magic == FAT_CIGAM {
-								self.thinFile(url: theURL, context:context, lipo: lipo)
+								self.thinFile(url: theURL, context: context, lipo: lipo)
 							}
 							if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
-								self.stripFile(theURL, context:context)
+								self.stripFile(theURL, context: context)
 							}
 						}
 					}
@@ -325,7 +325,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 					if oldSize > newSize {
 						let sizeDiff = oldSize - newSize
-						context.reportProgress(url: url, size:sizeDiff)
+						context.reportProgress(url: url, size: sizeDiff)
 					}
 				} catch _ {
 				}

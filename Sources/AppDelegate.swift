@@ -57,7 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	//MARK: - Actions
 
 	@IBAction func documentationBundler(_ sender: NSMenuItem) {
-		let docURL = Bundle.main.urlForResource(sender.title, withExtension:nil)
+		let docURL = Bundle.main.urlForResource(sender.title, withExtension: nil)
 		NSWorkspace.shared().open(docURL!)
 	}
 

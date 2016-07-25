@@ -14,24 +14,11 @@ private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 // The maximum section alignment allowed to be specified, as a power of two
 private let maxSectionAlign = 15 // 2**15 or 0x8000
 
-// these defines are not (yet) visible to Swift
+// TODO: these defines are not (yet) visible to Swift
 // swiftlint:disable variable_name
 private let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 private let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
 private let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-
-private func CPU_SUBTYPE_INTEL(f: Int, m: Int) -> cpu_subtype_t { return cpu_subtype_t(f + (m << 4)) }
-
-private let CPU_SUBTYPE_I386_ALL =			CPU_SUBTYPE_INTEL(f: 3, m: 0)
-private let CPU_SUBTYPE_486 =				CPU_SUBTYPE_INTEL(f: 4, m: 0)
-private let CPU_SUBTYPE_486SX =				CPU_SUBTYPE_INTEL(f: 4, m: 8)	// 8 << 4 = 128
-private let CPU_SUBTYPE_586 =				CPU_SUBTYPE_INTEL(f: 5, m: 0)
-private let CPU_SUBTYPE_PENT =				CPU_SUBTYPE_INTEL(f: 5, m: 0)
-private let CPU_SUBTYPE_PENTPRO =			CPU_SUBTYPE_INTEL(f: 6, m: 1)
-private let CPU_SUBTYPE_PENTII_M3 =			CPU_SUBTYPE_INTEL(f: 6, m: 3)
-private let CPU_SUBTYPE_PENTII_M5 =			CPU_SUBTYPE_INTEL(f: 6, m: 5)
-private let CPU_SUBTYPE_PENTIUM_3 =			CPU_SUBTYPE_INTEL(f: 8, m: 0)
-private let CPU_SUBTYPE_PENTIUM_4 =			CPU_SUBTYPE_INTEL(f: 10, m: 0)
 // swiftlint:enable variable_name
 
 /*
@@ -64,72 +51,63 @@ public func == (lhs: fat_arch, rhs: fat_arch) -> Bool {
 
 // swiftlint:disable comma
 private let archFlags: [ArchFlag] = [
-	ArchFlag(name: "any",	    cputype: CPU_TYPE_ANY,	  cpusubtype: CPU_SUBTYPE_MULTIPLE),
-	ArchFlag(name: "little",	cputype: CPU_TYPE_ANY,	  cpusubtype: CPU_SUBTYPE_LITTLE_ENDIAN),
-	ArchFlag(name: "big",	    cputype: CPU_TYPE_ANY,	  cpusubtype: CPU_SUBTYPE_BIG_ENDIAN),
+	ArchFlag(name: "any",	     cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_MULTIPLE),
+	ArchFlag(name: "little",	 cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_LITTLE_ENDIAN),
+	ArchFlag(name: "big",	     cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_BIG_ENDIAN),
 
 	// 64-bit Mach-O architectures
 
 	// architecture families
-	ArchFlag(name: "ppc64",     cputype: CPU_TYPE_POWERPC64, cpusubtype: CPU_SUBTYPE_POWERPC_ALL),
-	ArchFlag(name: "x86_64",    cputype: CPU_TYPE_X86_64, cpusubtype: CPU_SUBTYPE_X86_64_ALL),
-	ArchFlag(name: "x86_64h",   cputype: CPU_TYPE_X86_64, cpusubtype: CPU_SUBTYPE_X86_64_H),
-	ArchFlag(name: "arm64",     cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_ALL),
+	ArchFlag(name: "ppc64",      cputype: CPU_TYPE_POWERPC64, cpusubtype: CPU_SUBTYPE_POWERPC_ALL),
+	ArchFlag(name: "x86_64",     cputype: CPU_TYPE_X86_64,    cpusubtype: CPU_SUBTYPE_X86_64_ALL),
+	ArchFlag(name: "x86_64h",    cputype: CPU_TYPE_X86_64,    cpusubtype: CPU_SUBTYPE_X86_64_H),
+	ArchFlag(name: "arm64",      cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_ALL),
 	/* specific architecture implementations */
-	ArchFlag(name: "ppc970-64", cputype: CPU_TYPE_POWERPC64, cpusubtype: CPU_SUBTYPE_POWERPC_970),
+	ArchFlag(name: "ppc970-64",  cputype: CPU_TYPE_POWERPC64, cpusubtype: CPU_SUBTYPE_POWERPC_970),
 
 	// 32-bit Mach-O architectures
 
 	// architecture families
-	ArchFlag(name: "ppc",      cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_ALL),
-	ArchFlag(name: "x86",      cputype: CPU_TYPE_X86,     cpusubtype: CPU_SUBTYPE_X86_ALL),
-	ArchFlag(name: "i386",     cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_I386_ALL),
-	ArchFlag(name: "m68k",     cputype: CPU_TYPE_MC680x0, cpusubtype: CPU_SUBTYPE_MC680x0_ALL),
-	ArchFlag(name: "hppa",     cputype: CPU_TYPE_HPPA,    cpusubtype: CPU_SUBTYPE_HPPA_ALL),
-	ArchFlag(name: "sparc",    cputype: CPU_TYPE_SPARC,   cpusubtype: CPU_SUBTYPE_SPARC_ALL),
-	ArchFlag(name: "m88k",     cputype: CPU_TYPE_MC88000, cpusubtype: CPU_SUBTYPE_MC88000_ALL),
-	ArchFlag(name: "i860",     cputype: CPU_TYPE_I860,    cpusubtype: CPU_SUBTYPE_I860_ALL),
-//	ArchFlag(name: "veo",      cputype: CPU_TYPE_VEO,     cpusubtype: CPU_SUBTYPE_VEO_ALL),
-	ArchFlag(name: "arm",      cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_ALL),
+	ArchFlag(name: "ppc",        cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_ALL),
+	ArchFlag(name: "x86",        cputype: CPU_TYPE_X86,       cpusubtype: CPU_SUBTYPE_X86_ALL),
+	ArchFlag(name: "i386",       cputype: CPU_TYPE_I386,      cpusubtype: CPU_SUBTYPE_X86_ALL),
+	ArchFlag(name: "m68k",       cputype: CPU_TYPE_MC680x0,   cpusubtype: CPU_SUBTYPE_MC680x0_ALL),
+	ArchFlag(name: "hppa",       cputype: CPU_TYPE_HPPA,      cpusubtype: CPU_SUBTYPE_HPPA_ALL),
+	ArchFlag(name: "sparc",      cputype: CPU_TYPE_SPARC,     cpusubtype: CPU_SUBTYPE_SPARC_ALL),
+	ArchFlag(name: "m88k",       cputype: CPU_TYPE_MC88000,   cpusubtype: CPU_SUBTYPE_MC88000_ALL),
+	ArchFlag(name: "i860",       cputype: CPU_TYPE_I860,      cpusubtype: CPU_SUBTYPE_I860_ALL),
+//	ArchFlag(name: "veo",        cputype: CPU_TYPE_VEO,       cpusubtype: CPU_SUBTYPE_VEO_ALL),
+	ArchFlag(name: "arm",        cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_ALL),
 	// specific architecture implementations
-	ArchFlag(name: "ppc601",   cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_601),
-	ArchFlag(name: "ppc603",   cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_603),
-	ArchFlag(name: "ppc603e",  cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_603e),
-	ArchFlag(name: "ppc603ev", cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_603ev),
-	ArchFlag(name: "ppc604",   cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_604),
-	ArchFlag(name: "ppc604e",  cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_604e),
-	ArchFlag(name: "ppc750",   cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_750),
-	ArchFlag(name: "ppc7400",  cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_7400),
-	ArchFlag(name: "ppc7450",  cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_7450),
-	ArchFlag(name: "ppc970",   cputype: CPU_TYPE_POWERPC, cpusubtype: CPU_SUBTYPE_POWERPC_970),
-	ArchFlag(name: "i486",     cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_486),
-	ArchFlag(name: "i486SX",   cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_486SX),
-	ArchFlag(name: "pentium",  cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_PENT), /* same as i586 */
-	ArchFlag(name: "i586",     cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_586),
-	ArchFlag(name: "pentpro",  cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_PENTPRO), /* same as i686 */
-	ArchFlag(name: "i686",     cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_PENTPRO),
-	ArchFlag(name: "pentIIm3", cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_PENTII_M3),
-	ArchFlag(name: "pentIIm5", cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_PENTII_M5),
-	ArchFlag(name: "pentium4", cputype: CPU_TYPE_I386,    cpusubtype: CPU_SUBTYPE_PENTIUM_4),
-	ArchFlag(name: "m68030",   cputype: CPU_TYPE_MC680x0, cpusubtype: CPU_SUBTYPE_MC68030_ONLY),
-	ArchFlag(name: "m68040",   cputype: CPU_TYPE_MC680x0, cpusubtype: CPU_SUBTYPE_MC68040),
-	ArchFlag(name: "hppa7100LC", cputype: CPU_TYPE_HPPA,  cpusubtype: CPU_SUBTYPE_HPPA_7100LC),
-//	ArchFlag(name: "veo1",     cputype: CPU_TYPE_VEO,     cpusubtype: CPU_SUBTYPE_VEO_1),
-//	ArchFlag(name: "veo2",     cputype: CPU_TYPE_VEO,     cpusubtype: CPU_SUBTYPE_VEO_2),
-//	ArchFlag(name: "veo3",     cputype: CPU_TYPE_VEO,     cpusubtype: CPU_SUBTYPE_VEO_3),
-//	ArchFlag(name: "veo4",     cputype: CPU_TYPE_VEO,     cpusubtype: CPU_SUBTYPE_VEO_4),
-	ArchFlag(name: "armv4t",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V4T),
-	ArchFlag(name: "armv5",    cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V5TEJ),
-	ArchFlag(name: "xscale",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_XSCALE),
-	ArchFlag(name: "armv6",    cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V6),
-	ArchFlag(name: "armv6m",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V6M),
-	ArchFlag(name: "armv7",    cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V7),
-	ArchFlag(name: "armv7f",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V7F),
-	ArchFlag(name: "armv7s",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V7S),
-	ArchFlag(name: "armv7k",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V7K),
-	ArchFlag(name: "armv7m",   cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V7M),
-	ArchFlag(name: "armv7em",  cputype: CPU_TYPE_ARM,     cpusubtype: CPU_SUBTYPE_ARM_V7EM),
-	ArchFlag(name: "arm64v8",  cputype: CPU_TYPE_ARM64,   cpusubtype: CPU_SUBTYPE_ARM64_V8)
+	ArchFlag(name: "ppc601",     cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_601),
+	ArchFlag(name: "ppc603",     cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_603),
+	ArchFlag(name: "ppc603e",    cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_603e),
+	ArchFlag(name: "ppc603ev",   cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_603ev),
+	ArchFlag(name: "ppc604",     cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_604),
+	ArchFlag(name: "ppc604e",    cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_604e),
+	ArchFlag(name: "ppc750",     cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_750),
+	ArchFlag(name: "ppc7400",    cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_7400),
+	ArchFlag(name: "ppc7450",    cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_7450),
+	ArchFlag(name: "ppc970",     cputype: CPU_TYPE_POWERPC,   cpusubtype: CPU_SUBTYPE_POWERPC_970),
+	ArchFlag(name: "m68030",     cputype: CPU_TYPE_MC680x0,   cpusubtype: CPU_SUBTYPE_MC68030_ONLY),
+	ArchFlag(name: "m68040",     cputype: CPU_TYPE_MC680x0,   cpusubtype: CPU_SUBTYPE_MC68040),
+	ArchFlag(name: "hppa7100LC", cputype: CPU_TYPE_HPPA,      cpusubtype: CPU_SUBTYPE_HPPA_7100LC),
+//	ArchFlag(name: "veo1",       cputype: CPU_TYPE_VEO,       cpusubtype: CPU_SUBTYPE_VEO_1),
+//	ArchFlag(name: "veo2",       cputype: CPU_TYPE_VEO,       cpusubtype: CPU_SUBTYPE_VEO_2),
+//	ArchFlag(name: "veo3",       cputype: CPU_TYPE_VEO,       cpusubtype: CPU_SUBTYPE_VEO_3),
+//	ArchFlag(name: "veo4",       cputype: CPU_TYPE_VEO,       cpusubtype: CPU_SUBTYPE_VEO_4),
+	ArchFlag(name: "armv4t",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V4T),
+	ArchFlag(name: "armv5",      cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V5TEJ),
+	ArchFlag(name: "xscale",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_XSCALE),
+	ArchFlag(name: "armv6",      cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V6),
+	ArchFlag(name: "armv6m",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V6M),
+	ArchFlag(name: "armv7",      cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7),
+	ArchFlag(name: "armv7f",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7F),
+	ArchFlag(name: "armv7s",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7S),
+	ArchFlag(name: "armv7k",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7K),
+	ArchFlag(name: "armv7m",     cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7M),
+	ArchFlag(name: "armv7em",    cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7EM),
+	ArchFlag(name: "arm64v8",    cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_V8)
 ]
 // swiftlint:enable comma
 
@@ -299,7 +277,7 @@ class Lipo {
 					return false
 				}
 				let fatArchsPointer = UnsafePointer<fat_arch>(addr + sizeof(fat_header.self))
-				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer, count:Int(fatHeader.nfat_arch))).map { self.fatArchFromFile($0) }
+				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer, count: Int(fatHeader.nfat_arch))).map { self.fatArchFromFile($0) }
 				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
