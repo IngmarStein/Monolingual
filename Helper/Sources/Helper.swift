@@ -260,7 +260,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				} else if let isApplication = resourceValues.isApplication, isApplication {
 					// don't thin universal frameworks contained in a single-architecture application
 					// see https://github.com/IngmarStein/Monolingual/issues/67
-					let bundle = Bundle(url: theURL as URL)
+					let bundle = Bundle(url: theURL)
 					if let bundle = bundle, let executableArchitectures = bundle.executableArchitectures, executableArchitectures.count == 1 {
 						if let sharedFrameworksURL = bundle.sharedFrameworksURL {
 							context.excludeDirectory(sharedFrameworksURL)
@@ -341,13 +341,13 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		let fileManager = FileManager.default
 
 		do {
-			try fileManager.createDirectory(at: protectedDirectory as URL, withIntermediateDirectories: false, attributes: nil)
+			try fileManager.createDirectory(at: protectedDirectory, withIntermediateDirectories: false, attributes: nil)
 		} catch {
 			return true
 		}
 
 		do {
-			try fileManager.removeItem(at: protectedDirectory as URL)
+			try fileManager.removeItem(at: protectedDirectory)
 		} catch let error as NSError {
 			os_log_error(OS_LOG_DEFAULT, "Failed to remove temporary file '%@': %@", protectedDirectory, error)
 		}

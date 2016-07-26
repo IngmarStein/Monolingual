@@ -29,9 +29,9 @@ class HelperTests: XCTestCase {
 			try fileManager.createDirectory(at: (appDir.appendingPathComponent("Contents/Resources/en.lproj")), withIntermediateDirectories: true, attributes: nil)
 			try fileManager.createDirectory(at: (appDir.appendingPathComponent("Contents/Resources/de.lproj")), withIntermediateDirectories: true, attributes: nil)
 			try fileManager.createDirectory(at: (appDir.appendingPathComponent("Contents/Resources/fr.lproj")), withIntermediateDirectories: true, attributes: nil)
-			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/en.lproj/Localizable.strings").path!), contents: localizableStringsData as Data, attributes: nil)
-			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/de.lproj/Localizable.strings").path!), contents: localizableStringsData as Data, attributes: nil)
-			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/fr.lproj/Localizable.strings").path!), contents: localizableStringsData as Data, attributes: nil)
+			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/en.lproj/Localizable.strings").path!), contents: localizableStringsData, attributes: nil)
+			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/de.lproj/Localizable.strings").path!), contents: localizableStringsData, attributes: nil)
+			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/fr.lproj/Localizable.strings").path!), contents: localizableStringsData, attributes: nil)
 			try infoPlist.write(to: (appDir.appendingPathComponent("Contents/Info.plist")), atomically: false)
 		} catch let error {
 			XCTFail("Could not create test app: \(error)")
@@ -45,11 +45,21 @@ class HelperTests: XCTestCase {
 		createTestApp(name: "excluded", bundleIdentifier: "com.test.excluded")
 		createTestApp(name: "blacklisted", bundleIdentifier: "com.test.blacklisted")
 
+		guard let testHello1 = try? testDir.appendingPathComponent("hello1") else { fatalError("Could not create URL") }
+		guard let testHello2 = try? testDir.appendingPathComponent("hello2") else { fatalError("Could not create URL") }
+		guard let testHello3 = try? testDir.appendingPathComponent("hello3") else { fatalError("Could not create URL") }
 		let fileManager = FileManager.default
 		do {
-			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello1"), to: testDir.appendingPathComponent("hello1"))
-			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello2"), to: testDir.appendingPathComponent("hello2"))
-			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello3"), to: testDir.appendingPathComponent("hello3"))
+			try fileManager.removeItem(at: testHello1)
+			try fileManager.removeItem(at: testHello2)
+			try fileManager.removeItem(at: testHello3)
+		} catch {
+			// ignore
+		}
+		do {
+			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello1"), to: testHello1)
+			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello2"), to: testHello2)
+			try fileManager.copyItem(at: utilDir.appendingPathComponent("hello3"), to: testHello3)
 		} catch let error {
 			XCTFail("Could not copy test data: \(error)")
 		}

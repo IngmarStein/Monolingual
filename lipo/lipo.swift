@@ -325,10 +325,20 @@ class Lipo {
 	 */
 	private func createFat(newsize: inout Int) -> Bool {
 		let temporaryFile = "\(fileName!).lipo"
+
+		// FIXME: FileHandle(forWritingAtPath:) is broken
+		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
+		if fd == -1 {
+			os_log_error(OS_LOG_DEFAULT, "can't create temporary output file: %@", temporaryFile as NSString)
+			return false
+		}
+		let fileHandle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+		/*
 		guard let fileHandle = FileHandle(forWritingAtPath: temporaryFile) else {
 			os_log_error(OS_LOG_DEFAULT, "can't create temporary output file: %@", temporaryFile);
 			return false
 		}
+		*/
 
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
@@ -437,7 +447,7 @@ class Lipo {
 		let temporaryURL = URL(fileURLWithPath: temporaryFile)
 		let inputURL = URL(fileURLWithPath: fileName)
 		do {
-			try FileManager.default.replaceItem(at: inputURL as URL, withItemAt: temporaryURL as URL, backupItemName: nil, options: [], resultingItemURL: nil)
+			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error as NSError {
 			os_log_error(OS_LOG_DEFAULT, "can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
 		}
