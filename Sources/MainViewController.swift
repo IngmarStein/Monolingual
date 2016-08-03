@@ -195,9 +195,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		DispatchQueue.main.async {
-			if let viewController = self.progressViewController, let path = file.path {
+			if let viewController = self.progressViewController {
 				viewController.text = message
-				viewController.file = path
+				viewController.file = file.path
 				NSApp.setWindowsNeedUpdate(true)
 			}
 		}
@@ -517,21 +517,21 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			return $0.replacingOccurrences(of: "-", with: "_")
 		} + ["en", currentLocale.identifier])
 
-		let availableLocalizations = Set<String>((Locale.availableLocaleIdentifiers)
+		let availableLocalizations = Set<String>((Locale.availableIdentifiers)
 			// add some known locales not contained in availableLocaleIdentifiers
 			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW" ])
 
-		let systemLocale = Locale(localeIdentifier: "en_US_POSIX")
+		let systemLocale = Locale(identifier: "en_US_POSIX")
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
-			let components = Locale.components(fromIdentifier: localeIdentifier)
-			if let language = components[Locale.Key.languageCode.rawValue], let country = components[Locale.Key.countryCode.rawValue] {
+			let locale = Locale(identifier: localeIdentifier)
+			if let language = locale.languageCode, let country = locale.regionCode {
 				folders.append("\(language)-\(country).lproj")
 				folders.append("\(language)_\(country).lproj")
-			} else if let displayName = systemLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier) {
+			} else if let displayName = systemLocale.localizedString(forIdentifier: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
-			let displayName = currentLocale.displayName(forKey: Locale.Key.identifier, value: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
+			let displayName = currentLocale.localizedString(forIdentifier: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
 			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 		}.sorted { $0.displayName < $1.displayName }
 
@@ -595,7 +595,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		// load blacklist from bundle
-		if let blacklistBundle = Bundle.main.urlForResource("blacklist", withExtension: "plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject: AnyObject]] {
+		if let blacklistBundle = Bundle.main.url(forResource: "blacklist", withExtension: "plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject: AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		// load remote blacklist asynchronously

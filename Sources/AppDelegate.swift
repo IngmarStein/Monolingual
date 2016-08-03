@@ -35,7 +35,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	func applicationDidFinishLaunching(_: Notification) {
 		let defaultDict: [String: AnyObject]  = [ "Roots": Root.defaults as AnyObject, "Trash": false, "Strip": false, "NSApplicationCrashOnExceptions": true ]
 
-		UserDefaults.standard.register(defaultDict)
+		UserDefaults.standard.register(defaults: defaultDict)
 
 		validateDefaults()
 
@@ -57,7 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	//MARK: - Actions
 
 	@IBAction func documentationBundler(_ sender: NSMenuItem) {
-		let docURL = Bundle.main.urlForResource(sender.title, withExtension: nil)
+		let docURL = Bundle.main.url(forResource: sender.title, withExtension: nil)
 		NSWorkspace.shared().open(docURL!)
 	}
 
