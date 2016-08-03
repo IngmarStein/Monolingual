@@ -164,7 +164,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func processProgress(file: URL, size: Int, appName: String?) {
-		log.message("\(file.path!): \(size)\n")
+		log.message("\(file.path): \(size)\n")
 
 		let message: String
 		if self.mode == .Architectures {
@@ -174,7 +174,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			var lang: String?
 
 			if self.mode == .Languages {
-				for pathComponent in file.pathComponents! {
+				for pathComponent in file.pathComponents {
 					if (pathComponent as NSString).pathExtension == "lproj" {
 						for language in self.languages {
 							if language.folders.contains(pathComponent) {
@@ -515,7 +515,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		// never check the user's preferred languages, English the the user's locale be default
 		let userLanguages = Set<String>((Locale.preferredLanguages).map {
 			return $0.replacingOccurrences(of: "-", with: "_")
-		} + ["en", currentLocale.localeIdentifier])
+		} + ["en", currentLocale.identifier])
 
 		let availableLocalizations = Set<String>((Locale.availableLocaleIdentifiers)
 			// add some known locales not contained in availableLocaleIdentifiers
@@ -524,7 +524,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		let systemLocale = Locale(localeIdentifier: "en_US_POSIX")
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
-			let components = Locale.components(fromLocaleIdentifier: localeIdentifier)
+			let components = Locale.components(fromIdentifier: localeIdentifier)
 			if let language = components[Locale.Key.languageCode.rawValue], let country = components[Locale.Key.countryCode.rawValue] {
 				folders.append("\(language)-\(country).lproj")
 				folders.append("\(language)_\(country).lproj")

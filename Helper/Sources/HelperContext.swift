@@ -14,7 +14,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	var remoteProgress: ProgressProtocol?
 	var progress: Progress?
 	private var fileBlacklist = Set<URL>()
-	var fileManager = FileManager()
+	let fileManager = FileManager()
 	let isRootless: Bool
 
 	init(_ request: HelperRequest, rootless: Bool) {
@@ -186,7 +186,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			}
 
 			if success {
-				if let dirEnumerator = self.fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey.rawValue, URLResourceKey.fileAllocatedSizeKey.rawValue], options: [], errorHandler: nil) {
+				if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey], options: [], errorHandler: nil) {
 					for entry in dirEnumerator {
 						let theURL = entry as! URL
 						do {

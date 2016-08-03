@@ -171,7 +171,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 	//MARK: -
 
-	private func iterateDirectory(_ url: URL, context: HelperContext, prefetchedProperties: [String], block: (URL, FileManager.DirectoryEnumerator) -> Void) {
+	private func iterateDirectory(_ url: URL, context: HelperContext, prefetchedProperties: [URLResourceKey], block: (URL, FileManager.DirectoryEnumerator) -> Void) {
 		if let progress = context.progress, progress.isCancelled {
 			return
 		}
@@ -210,7 +210,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func processDirectory(_ url: URL, context: HelperContext) {
-		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey.rawValue]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey]) { theURL, dirEnumerator in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
 
@@ -238,7 +238,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinDirectory(_ url: URL, context: HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.isRegularFileKey.rawValue, URLResourceKey.isExecutableKey.rawValue, URLResourceKey.isApplicationKey.rawValue]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey, URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey]) { theURL, dirEnumerator in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
 				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
