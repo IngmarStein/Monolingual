@@ -9,20 +9,10 @@
 import Cocoa
 import XCTest
 
-extension URL {
-	func forceAppendingPathComponent(_ pathComponent: String) -> URL {
-		do {
-			return try appendingPathComponent(pathComponent)
-		} catch {
-			fatalError("Failed to append path component \(pathComponent) to \(self)")
-		}
-	}
-}
-
 class HelperTests: XCTestCase {
 
 	private var testDir: URL {
-		return try! URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true).appendingPathComponent("testdata")
+		return URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true).appendingPathComponent("testdata")
 	}
 
 	private var utilDir: URL {
@@ -31,7 +21,7 @@ class HelperTests: XCTestCase {
 
 	private func createTestApp(name: String, bundleIdentifier: String) {
 		do {
-			let appDir = try testDir.appendingPathComponent("\(name).app")
+			let appDir = testDir.appendingPathComponent("\(name).app")
 			let localizableStringsData = Data(base64Encoded: "dGVzdA==", options: [])!
 			let infoPlist = [ "CFBundleIdentifier": bundleIdentifier ] as NSDictionary
 			let fileManager = FileManager.default
@@ -39,10 +29,10 @@ class HelperTests: XCTestCase {
 			try fileManager.createDirectory(at: (appDir.appendingPathComponent("Contents/Resources/en.lproj")), withIntermediateDirectories: true, attributes: nil)
 			try fileManager.createDirectory(at: (appDir.appendingPathComponent("Contents/Resources/de.lproj")), withIntermediateDirectories: true, attributes: nil)
 			try fileManager.createDirectory(at: (appDir.appendingPathComponent("Contents/Resources/fr.lproj")), withIntermediateDirectories: true, attributes: nil)
-			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/en.lproj/Localizable.strings").path!), contents: localizableStringsData, attributes: nil)
-			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/de.lproj/Localizable.strings").path!), contents: localizableStringsData, attributes: nil)
-			try fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/fr.lproj/Localizable.strings").path!), contents: localizableStringsData, attributes: nil)
-			try infoPlist.write(to: (appDir.appendingPathComponent("Contents/Info.plist")), atomically: false)
+			XCTAssert(fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/en.lproj/Localizable.strings").path), contents: localizableStringsData, attributes: nil))
+			XCTAssert(fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/de.lproj/Localizable.strings").path), contents: localizableStringsData, attributes: nil))
+			XCTAssert(fileManager.createFile(atPath: (appDir.appendingPathComponent("Contents/Resources/fr.lproj/Localizable.strings").path), contents: localizableStringsData, attributes: nil))
+			XCTAssert(infoPlist.write(to: (appDir.appendingPathComponent("Contents/Info.plist")), atomically: false))
 		} catch let error {
 			XCTFail("Could not create test app: \(error)")
 		}
@@ -55,9 +45,9 @@ class HelperTests: XCTestCase {
 		createTestApp(name: "excluded", bundleIdentifier: "com.test.excluded")
 		createTestApp(name: "blacklisted", bundleIdentifier: "com.test.blacklisted")
 
-		guard let testHello1 = try? testDir.appendingPathComponent("hello1") else { fatalError("Could not create URL") }
-		guard let testHello2 = try? testDir.appendingPathComponent("hello2") else { fatalError("Could not create URL") }
-		guard let testHello3 = try? testDir.appendingPathComponent("hello3") else { fatalError("Could not create URL") }
+		let testHello1 = testDir.appendingPathComponent("hello1")
+		let testHello2 = testDir.appendingPathComponent("hello2")
+		let testHello3 = testDir.appendingPathComponent("hello3")
 		let fileManager = FileManager.default
 		do {
 			try fileManager.removeItem(at: testHello1)
@@ -86,13 +76,13 @@ class HelperTests: XCTestCase {
 		}
     }
 
-    func testRemoveLocalizations() throws {
+    func testRemoveLocalizations() {
 		let request = HelperRequest()
 		request.dryRun = false
 		request.uid = getuid()
 		request.trash = false
-		request.includes = [ testDir.path! ]
-		request.excludes = try [ (testDir.appendingPathComponent("excluded.app").path!) ]
+		request.includes = [ testDir.path ]
+		request.excludes = [ (testDir.appendingPathComponent("excluded.app").path) ]
 		request.directories = [ "fr.lproj" ]
 		request.bundleBlacklist = [ "com.test.blacklisted" ]
 
@@ -104,15 +94,15 @@ class HelperTests: XCTestCase {
 
 			let fileManager = FileManager.default
 
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("test.app/Contents/Resources/en.lproj/Localizable.strings").path!)), "English localization should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("test.app/Contents/Resources/de.lproj/Localizable.strings").path!)), "German localization app should be untouched")
-			XCTAssert(!fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("test.app/Contents/Resources/fr.lproj/Localizable.strings").path!)), "French localization should have been removed")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("excluded.app/Contents/Resources/en.lproj/Localizable.strings").path!)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("excluded.app/Contents/Resources/de.lproj/Localizable.strings").path!)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("excluded.app/Contents/Resources/fr.lproj/Localizable.strings").path!)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("blacklisted.app/Contents/Resources/en.lproj/Localizable.strings").path!)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("blacklisted.app/Contents/Resources/de.lproj/Localizable.strings").path!)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("blacklisted.app/Contents/Resources/fr.lproj/Localizable.strings").path!)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("test.app/Contents/Resources/en.lproj/Localizable.strings").path)), "English localization should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("test.app/Contents/Resources/de.lproj/Localizable.strings").path)), "German localization app should be untouched")
+			XCTAssert(!fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("test.app/Contents/Resources/fr.lproj/Localizable.strings").path)), "French localization should have been removed")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("excluded.app/Contents/Resources/en.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("excluded.app/Contents/Resources/de.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("excluded.app/Contents/Resources/fr.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blacklisted.app/Contents/Resources/en.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blacklisted.app/Contents/Resources/de.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blacklisted.app/Contents/Resources/fr.lproj/Localizable.strings").path)), "excluded app should be untouched")
 
 			helperExpectation.fulfill()
 		}
@@ -126,7 +116,7 @@ class HelperTests: XCTestCase {
 
 	private func assertFileSize(path: URL, expectedSize: Int, message: String) {
 		do {
-			let attributes = try FileManager.default.attributesOfItem(atPath: path.path!)
+			let attributes = try FileManager.default.attributesOfItem(atPath: path.path)
 			let size = attributes[FileAttributeKey.size] as? Int
 			XCTAssertEqual(size, expectedSize, message)
 		} catch _ {
@@ -139,14 +129,14 @@ class HelperTests: XCTestCase {
 		request.dryRun = false
 		request.uid = getuid()
 		request.trash = false
-		request.includes = [ testDir.path! ]
-		request.excludes = [ (testDir.forceAppendingPathComponent("excluded.app").path!) ]
+		request.includes = [ testDir.path ]
+		request.excludes = [ (testDir.appendingPathComponent("excluded.app").path) ]
 		request.thin = [ "i386" ]
 		request.bundleBlacklist = [ "com.test.blacklisted" ]
 
-		let hello1Path = testDir.forceAppendingPathComponent("hello1")
-		let hello2Path = testDir.forceAppendingPathComponent("hello2")
-		let hello3Path = testDir.forceAppendingPathComponent("hello3")
+		let hello1Path = testDir.appendingPathComponent("hello1")
+		let hello2Path = testDir.appendingPathComponent("hello2")
+		let hello3Path = testDir.appendingPathComponent("hello3")
 		assertFileSize(path: hello1Path, expectedSize: 4312, message: "non-fat file size mismatch")
 		assertFileSize(path: hello2Path, expectedSize: 16600, message: "2-arch fat file size mismatch")
 		assertFileSize(path: hello3Path, expectedSize: 24792, message: "3-arch fat file size mismatch")
@@ -159,9 +149,9 @@ class HelperTests: XCTestCase {
 
 			let fileManager = FileManager.default
 
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("hello1").path!)), "non-fat file should be present")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("hello2").path!)), "2-arch fat file should be present")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.forceAppendingPathComponent("hello3").path!)), "3-arch fat file should be present")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("hello1").path)), "non-fat file should be present")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("hello2").path)), "2-arch fat file should be present")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("hello3").path)), "3-arch fat file should be present")
 
 			// should remain untouched
 			self.assertFileSize(path: hello1Path, expectedSize: 4312, message: "non-fat file size mismatch after lipo")

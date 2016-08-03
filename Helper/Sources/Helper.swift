@@ -25,7 +25,7 @@ func os_log_info(_ log: Any, _ format: String, _ arguments: CVarArg...) {
 
 extension URL {
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
-		return getxattr(self.path!, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
+		return getxattr(self.path, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
 	}
 
 	var isProtected: Bool {
@@ -42,7 +42,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	private var isRootless = true
 
 	var version: String {
-		return Bundle.main.objectForInfoDictionaryKey("CFBundleVersion") as! String
+		return Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
 	}
 
 	override init() {
@@ -215,7 +215,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
 
 				if let isDirectory = resourceValues.isDirectory, isDirectory {
-					if let lastComponent = theURL.lastPathComponent, let directories = context.request.directories {
+					let lastComponent = theURL.lastPathComponent
+					if let directories = context.request.directories {
 						if directories.contains(lastComponent) {
 							context.remove(theURL)
 							dirEnumerator.skipDescendents()
@@ -229,7 +230,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 	func thinFile(url: URL, context: HelperContext, lipo: Lipo) {
 		var sizeDiff: Int = 0
-		if lipo.run(path: url.path!, sizeDiff: &sizeDiff) {
+		if lipo.run(path: url.path, sizeDiff: &sizeDiff) {
 			if sizeDiff > 0 {
 				context.reportProgress(url: url, size: sizeDiff)
 			}
@@ -241,7 +242,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
 				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
-					if let pathExtension = theURL.pathExtension, pathExtension == "class" {
+					if theURL.pathExtension == "class" {
 						return
 					}
 
@@ -290,8 +291,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		// do not modify executables with code signatures
 		if !hasCodeSignature(url: url) {
 			do {
-				let attributes = try context.fileManager.attributesOfItem(atPath: url.path!)
-				let path = url.path!
+				let attributes = try context.fileManager.attributesOfItem(atPath: url.path)
+				let path = url.path
 				let oldSize: Int
 				do {
 					let resourceValues = try url.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])

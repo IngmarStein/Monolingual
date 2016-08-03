@@ -31,20 +31,19 @@ import Foundation
 	}
 
 	required init?(coder aDecoder: NSCoder) {
-		// https://devforums.apple.com/message/1124684
-		let stringArray = NSSet(array: [NSString.self, NSArray.self])
-		let stringSet = NSSet(array: [NSString.self, NSSet.self])
+		let stringArray: [AnyClass] = [NSString.self, NSArray.self]
+		let stringSet: [AnyClass] = [NSString.self, NSSet.self]
 
 		dryRun = aDecoder.decodeBool(forKey: "dryRun")
 		doStrip = aDecoder.decodeBool(forKey: "doStrip")
 		uid = uid_t(aDecoder.decodeInteger(forKey: "uid"))
 		trash = aDecoder.decodeBool(forKey: "trash")
-		includes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "includes") as? [String]
-		excludes = aDecoder.decodeObjectOfClasses(stringArray, forKey: "excludes") as? [String]
-		bundleBlacklist = aDecoder.decodeObjectOfClasses(stringSet, forKey: "bundleBlacklist") as? Set<String>
-		directories = aDecoder.decodeObjectOfClasses(stringSet, forKey: "directories") as? Set<String>
-		files = aDecoder.decodeObjectOfClasses(stringArray, forKey: "files") as? [String]
-		thin = aDecoder.decodeObjectOfClasses(stringArray, forKey: "thin") as? [String]
+		includes = aDecoder.decodeObject(of: stringArray, forKey: "includes") as? [String]
+		excludes = aDecoder.decodeObject(of: stringArray, forKey: "excludes") as? [String]
+		bundleBlacklist = aDecoder.decodeObject(of: stringSet, forKey: "bundleBlacklist") as? Set<String>
+		directories = aDecoder.decodeObject(of: stringSet, forKey: "directories") as? Set<String>
+		files = aDecoder.decodeObject(of: stringArray, forKey: "files") as? [String]
+		thin = aDecoder.decodeObject(of: stringArray, forKey: "thin") as? [String]
 
 		super.init()
 	}

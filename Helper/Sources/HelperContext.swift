@@ -27,7 +27,8 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func isExcluded(_ url: URL) -> Bool {
-		if let path = url.path, let excludes = request.excludes {
+		if let excludes = request.excludes {
+			let path = url.path
 			for exclude in excludes {
 				if path.hasPrefix(exclude) {
 					return true
@@ -39,9 +40,9 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	func excludeDirectory(_ url: URL) {
 		if request.excludes != nil {
-			request.excludes?.append(url.path!)
+			request.excludes?.append(url.path)
 		} else {
-			request.excludes = [url.path!]
+			request.excludes = [url.path]
 		}
 	}
 
@@ -61,11 +62,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if let valueDict = value as? [String: AnyObject], let optional = valueDict["optional"] as? Bool, optional {
 				continue
 			}
-			do {
-				try fileBlacklist.insert(baseURL.appendingPathComponent(key))
-			} catch {
-				// ignore
-			}
+			fileBlacklist.insert(baseURL.appendingPathComponent(key))
 		}
 	}
 
@@ -80,24 +77,21 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [NSObject: AnyObject] {
 				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject: AnyObject] {
 					let baseURL: URL
-					do {
-						let contentsDirectory = try url.appendingPathComponent("Contents", isDirectory: true)
-						if let path = contentsDirectory.path, fileManager.fileExists(atPath: path) {
-							baseURL = contentsDirectory
-						} else {
-							baseURL = url
-						}
-						if let files = resDir["files"] as? [String: AnyObject] {
-							addFileDictionaryToBlacklist(files, baseURL: baseURL)
-						}
 
-						// Version 2 Code Signature (introduced in Mavericks)
-						// https://developer.apple.com/library/mac/technotes/tn2206
-						if let files = resDir["files2"] as? [String: AnyObject] {
-							addFileDictionaryToBlacklist(files, baseURL: baseURL)
-						}
-					} catch {
-						// ignore
+					let contentsDirectory = url.appendingPathComponent("Contents", isDirectory: true)
+					if fileManager.fileExists(atPath: contentsDirectory.path) {
+						baseURL = contentsDirectory
+					} else {
+						baseURL = url
+					}
+					if let files = resDir["files"] as? [String: AnyObject] {
+						addFileDictionaryToBlacklist(files, baseURL: baseURL)
+					}
+
+					// Version 2 Code Signature (introduced in Mavericks)
+					// https://developer.apple.com/library/mac/technotes/tn2206
+					if let files = resDir["files2"] as? [String: AnyObject] {
+						addFileDictionaryToBlacklist(files, baseURL: baseURL)
 					}
 				}
 			}
@@ -105,14 +99,14 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	private func appNameForURL(_ url: URL) -> String? {
-		let pathComponents = url.pathComponents!
+		let pathComponents = url.pathComponents
 		for (i, pathComponent) in pathComponents.enumerated() {
 			if (pathComponent as NSString).pathExtension == "app" {
 				if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0...i])) {
 					if let bundle = Bundle(url: bundleURL) {
 						var displayName: String?
 						if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
-							let infoPlistStringsURL = bundle.urlForResource("InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+							let infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
 							let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
 							displayName = strings["CFBundleDisplayName"]
 						}
@@ -144,7 +138,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			progress.completedUnitCount += size
 		}
 		if let progress = remoteProgress {
-			progress.processed(file: url.path!, size: size, appName: appName)
+			progress.processed(file: url.path, size: size, appName: appName)
 		}
 	}
 
@@ -192,7 +186,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			}
 
 			if success {
-				if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey.rawValue, URLResourceKey.fileAllocatedSizeKey.rawValue], options: [], errorHandler: nil) {
+				if let dirEnumerator = self.fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey.rawValue, URLResourceKey.fileAllocatedSizeKey.rawValue], options: [], errorHandler: nil) {
 					for entry in dirEnumerator {
 						let theURL = entry as! URL
 						do {
@@ -205,7 +199,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					}
 				}
 			} else if let error = error {
-				os_log_error(OS_LOG_DEFAULT, "Error trashing '%@': %@", url.path!, error)
+				os_log_error(OS_LOG_DEFAULT, "Error trashing '%@': %@", url.path, error)
 			}
 		} else {
 			do {
@@ -216,7 +210,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
-						os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path!, error)
+						os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path, error)
 					}
 				}
 			}
@@ -245,8 +239,8 @@ final class HelperContext: NSObject, FileManagerDelegate {
 		return self.fileManager(fileManager, shouldProcessItemAtURL: url)
 	}
 
-	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: NSError, removingItemAt url: URL) -> Bool {
-		os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path!, error)
+	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, removingItemAt url: URL) -> Bool {
+		os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path, error)
 
 		return true
 	}
