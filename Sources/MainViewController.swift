@@ -65,8 +65,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if let application = self.processApplication {
 			return [ application ]
 		} else {
-			let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String : AnyObject]]
-			return pref?.map { Root(dictionary: $0) } ?? [Root]()
+			if let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String: AnyObject]] {
+				return pref.map { Root(dictionary: $0) }
+			} else {
+				return [Root]()
+			}
 		}
 	}
 
@@ -606,7 +609,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { notification in
-			self.processApplication = Root(dictionary: notification.userInfo!)
+			if let dictionary = notification.userInfo as? [String: AnyObject] {
+				self.processApplication = Root(dictionary: dictionary)
+			}
 		}
 	}
 
