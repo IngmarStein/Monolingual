@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os
 
 final class HelperContext: NSObject, FileManagerDelegate {
 
@@ -143,7 +144,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func remove(_ url: URL) {
-		var error: NSError? = nil
+		var error: Error? = nil
 		if request.trash {
 			if request.dryRun {
 				return
@@ -169,7 +170,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			do {
 				try fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 				success = true
-			} catch let error1 as NSError {
+			} catch let error1 {
 				error = error1
 				success = false
 			}
@@ -179,7 +180,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					// move the file to root's trash
 					try self.fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 					success = true
-				} catch let error1 as NSError {
+				} catch let error1 {
 					error = error1
 					success = false
 				}
@@ -199,18 +200,18 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					}
 				}
 			} else if let error = error {
-				os_log_error(OS_LOG_DEFAULT, "Error trashing '%@': %@", url.path, error)
+				os_log("Error trashing '%@': %@", type: .error, url.path, error)
 			}
 		} else {
 			do {
 				try self.fileManager.removeItem(at: url)
-			} catch let error1 as NSError {
+			} catch let error1 {
 				error = error1
-				if let error = error {
+				if let error = error as? NSError {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {
-						os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path, error)
+						os_log("Error removing '%@': %@", type: .error, url.path, error)
 					}
 				}
 			}
@@ -240,7 +241,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, removingItemAt url: URL) -> Bool {
-		os_log_error(OS_LOG_DEFAULT, "Error removing '%@': %@", url.path, error)
+		os_log("Error removing '%@': %@", type: .error, url.path, error)
 
 		return true
 	}

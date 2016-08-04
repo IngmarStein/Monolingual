@@ -8,6 +8,7 @@
 
 import Foundation
 import MachO.fat
+import os
 
 private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 
@@ -155,7 +156,7 @@ class Lipo {
 			if let arch = getArchFromFlag(flag) {
 				removeArchFlags.append(arch)
 			} else {
-				os_log_error(OS_LOG_DEFAULT, "unknown architecture specification flag: %@", flag)
+				os_log("unknown architecture specification flag: %@", type: .error, flag)
 				return nil
 			}
 		}
@@ -163,7 +164,7 @@ class Lipo {
 		var flagSet = Set<ArchFlag>()
 		for flag in removeArchFlags {
 			if flagSet.contains(flag) {
-				os_log_error(OS_LOG_DEFAULT, "-remove %@ specified multiple times", flag.name)
+				os_log("-remove %@ specified multiple times", type: .error, flag.name)
 			}
 			flagSet.insert(flag)
 		}
@@ -197,7 +198,7 @@ class Lipo {
 
 		// write output file
 		if thinFiles.isEmpty {
-			os_log_error(OS_LOG_DEFAULT, "-remove's specified would result in an empty fat file")
+			os_log("-remove's specified would result in an empty fat file", type: .error)
 			success = false
 		} else {
 			success = createFat(newsize: &newsize)
@@ -244,16 +245,16 @@ class Lipo {
 	private func processInputFile() -> Bool {
 		do {
 			try FileManager.default.attributesOfItem(atPath: fileName)
-		} catch let error as NSError {
-			os_log_error(OS_LOG_DEFAULT, "can't stat input file '%@': %@", fileName, error)
+		} catch let error {
+			os_log("can't stat input file '%@': %@", type: .error, fileName, error)
 			return false
 		}
 
 		let data: Data
 		do {
 			data = try Data(contentsOf: URL(fileURLWithPath: fileName), options: [.alwaysMapped, .uncached])
-		} catch let error as NSError {
-			os_log_error(OS_LOG_DEFAULT, "can't map input file '%@': %@", fileName, error)
+		} catch let error {
+			os_log("can't map input file '%@': %@", type: .error, fileName, error)
 			return false
 		}
 		inputData = data
@@ -272,7 +273,7 @@ class Lipo {
 				fatHeader = fatHeaderFromFile(headerPointer.pointee)
 				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch.self) + sizeof(fat_header.self)
 				if big_size > size {
-					os_log_error(OS_LOG_DEFAULT, "truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", fileName)
+					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
 					inputData = nil
 					return false
 				}
@@ -281,30 +282,30 @@ class Lipo {
 				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
-						os_log_error(OS_LOG_DEFAULT, "truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
-							fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
+						os_log("truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
+						       type: .error, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
 						return false
 					}
 					if fatArch.align > UInt32(maxSectionAlign) {
-						os_log_error(OS_LOG_DEFAULT, "align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
-							fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
+						os_log("align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
+						       type: .error, fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
 						return false
 					}
 					if (fatArch.offset % (1 << fatArch.align)) != 0 {
-						os_log_error(OS_LOG_DEFAULT, "offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
-							fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
+						os_log("offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
+						       type: .error, fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
 						return false
 					}
 					if fatArchSet.contains(fatArch) {
-						os_log_error(OS_LOG_DEFAULT, "fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
-							fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+						os_log("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
+						       type: .error, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
 						return false
 					}
 					fatArchSet.insert(fatArch)
 				}
 
 				if fatArchs.isEmpty {
-					os_log_error(OS_LOG_DEFAULT, "fat file contains no architectures %@", fileName)
+					os_log("fat file contains no architectures %@", type: .error, fileName)
 					return false
 				} else {
 					// create a thin file struct for each arch in the fat file
@@ -328,7 +329,7 @@ class Lipo {
 
 		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
-			os_log_error(OS_LOG_DEFAULT, "can't create temporary output file: %@", temporaryFile)
+			os_log("can't create temporary output file: %@", type: .error, temporaryFile)
 			return false
 		}
 		let fileHandle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
@@ -365,7 +366,7 @@ class Lipo {
 
 			withUnsafePointer(&fatHeader) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_header.self), deallocator: .none))
-				//os_log_error(OS_LOG_DEFAULT, "can't write fat header to output file: %@", temporaryFile)
+				//os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
 				//return false
 			}
 			let thinFilesEnumerator = thinFiles.enumerated()
@@ -388,7 +389,7 @@ class Lipo {
 				var fatArch = fatArchToFile(thinFile.fatArch)
 				withUnsafePointer(&fatArch) { (pointer) in
 					fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
-					//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile)
+					//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 					//return false
 				}
 			}
@@ -402,7 +403,7 @@ class Lipo {
 			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
 			withUnsafePointer(&fatArch) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
-				//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile)
+				//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 				//return false
 			}
 		}
@@ -415,18 +416,18 @@ class Lipo {
 			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
 			withUnsafePointer(&fatArch) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
-				//os_log_error(OS_LOG_DEFAULT, "can't write fat arch to output file: %@", temporaryFile)
+				//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 				//return false
 			}
 		}
 		for thinFile in thinFiles {
 			if nthinFiles != 1 {
 				fileHandle.seek(toFileOffset: UInt64(thinFile.fatArch.offset))
-				//os_log_error(OS_LOG_DEFAULT, "can't lseek in output file: %@", temporaryFile)
+				//os_log("can't lseek in output file: %@", type: .error, temporaryFile)
 				//return false
 			}
 			fileHandle.write(thinFile.data)
-			//os_log_error(OS_LOG_DEFAULT, "can't write to output file: %@", temporaryFile)
+			//os_log("can't write to output file: %@", type: .error, temporaryFile)
 			//return false
 		}
 		if nthinFiles != 1 {
@@ -441,8 +442,8 @@ class Lipo {
 		let inputURL = URL(fileURLWithPath: fileName)
 		do {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
-		} catch let error as NSError {
-			os_log_error(OS_LOG_DEFAULT, "can't move temporary file: '%@' to file '%@': %@", temporaryFile, fileName, error)
+		} catch let error {
+			os_log("can't move temporary file: '%@' to file '%@': %@", type: .error, temporaryFile, fileName, error)
 		}
 
 		return true

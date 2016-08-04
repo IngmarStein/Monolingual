@@ -9,19 +9,7 @@
 import Foundation
 import MachO.fat
 import MachO.loader
-
-// TODO: remove the following as soon as the new logging API is available for Swift
-// swiftlint:disable:next variable_name
-var OS_LOG_DEFAULT = 0
-func os_log_debug(_ log: Any, _ format: String, _ arguments: CVarArg...) {
-	NSLog("%@", String(format: format, arguments: arguments))
-}
-func os_log_error(_ log: Any, _ format: String, _ arguments: CVarArg...) {
-	NSLog("%@", String(format: format, arguments: arguments))
-}
-func os_log_info(_ log: Any, _ format: String, _ arguments: CVarArg...) {
-	NSLog("%@", String(format: format, arguments: arguments))
-}
+import os
 
 extension URL {
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
@@ -53,11 +41,11 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
-		os_log_debug(OS_LOG_DEFAULT, "isRootless=\(isRootless)")
+		os_log("isRootless=%@", type: .debug, isRootless ? "true" : "false")
 	}
 
 	func run() {
-		os_log_info(OS_LOG_DEFAULT, "MonolingualHelper started")
+		os_log("MonolingualHelper started", type: .info)
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
@@ -65,7 +53,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	@objc func timeout(_: Timer) {
-		os_log_info(OS_LOG_DEFAULT, "timeout while waiting for request")
+		os_log("timeout while waiting for request", type: .info)
 		exitWithCode(Int(EXIT_SUCCESS))
 	}
 
@@ -89,7 +77,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func exitWithCode(_ exitCode: Int) {
-		os_log_info(OS_LOG_DEFAULT, "exiting with exit status \(exitCode)")
+		os_log("exiting with exit status %d", type: .info, exitCode)
 		workerQueue.waitUntilAllOperationsAreFinished()
 		exit(Int32(exitCode))
 	}
@@ -99,13 +87,13 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 		let context = HelperContext(request, rootless: isRootless)
 
-		os_log_debug(OS_LOG_DEFAULT, "Received request: %@", request)
+		os_log("Received request: %@", type: .debug, request)
 
 		// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
 		let progress = Progress(totalUnitCount: -1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
-			os_log_info(OS_LOG_DEFAULT, "Stopping MonolingualHelper")
+			os_log("Stopping MonolingualHelper", type: .info)
 		}
 		context.progress = progress
 		context.remoteProgress = remoteProgress
@@ -305,7 +293,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				task.waitUntilExit()
 
 				if task.terminationStatus != EXIT_SUCCESS {
-					os_log_error(OS_LOG_DEFAULT, "/usr/bin/strip failed with exit status %d", task.terminationStatus)
+					os_log("/usr/bin/strip failed with exit status %d", type: .error, task.terminationStatus)
 				}
 
 				let newAttributes = [
@@ -316,8 +304,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
-				} catch let error as NSError {
-					os_log_error(OS_LOG_DEFAULT, "Failed to set file attributes for '%@': %@", path, error)
+				} catch let error {
+					os_log("Failed to set file attributes for '%@': %@", type: .error, path, error)
 				}
 
 				do {
@@ -330,8 +318,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 					}
 				} catch _ {
 				}
-			} catch let error as NSError {
-				os_log_error(OS_LOG_DEFAULT, "Failed to get file attributes for '%@': %@", url, error)
+			} catch let error {
+				os_log("Failed to get file attributes for '%@': %@", type: .error, url, error)
 			}
 		}
 	}
@@ -349,8 +337,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 		do {
 			try fileManager.removeItem(at: protectedDirectory)
-		} catch let error as NSError {
-			os_log_error(OS_LOG_DEFAULT, "Failed to remove temporary file '%@': %@", protectedDirectory, error)
+		} catch let error {
+			os_log("Failed to remove temporary file '%@': %@", type: .error, protectedDirectory, error)
 		}
 
 		return false
