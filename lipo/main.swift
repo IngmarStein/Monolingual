@@ -22,21 +22,21 @@ if arguments.count < 4 {
 private var inputFiles = [String]()
 private var architectures = [String]()
 
-private let args = arguments.generate()
+private var args = arguments.makeIterator()
 while let arg = args.next() {
 	if arg == "--arch" {
 		if let arch = args.next() {
-			architectures.append(arguments[i])
+			architectures.append(arch)
 		}
 	} else {
 		inputFiles.append(arg)
 	}
 }
 
-if let lipo = Lipo(archs: architectures) where !inputFiles.isEmpty && !architectures.isEmpty {
+if let lipo = Lipo(archs: architectures), !inputFiles.isEmpty && !architectures.isEmpty {
 	var sizeDiff = 0
 	for file in inputFiles {
-		if lipo.run(file, sizeDiff: &sizeDiff) {
+		if lipo.run(path: file, sizeDiff: &sizeDiff) {
 			print("\(file): saved \(sizeDiff) bytes")
 		} else {
 			print("\(file): lipo failed")

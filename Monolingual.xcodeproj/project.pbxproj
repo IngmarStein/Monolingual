@@ -634,6 +634,8 @@
 					};
 					95EB7AAB1AE777F90066369B = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = ADVP2P7SJK;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -1060,7 +1062,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.IngmarStein.Monolingual.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1098,7 +1099,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.IngmarStein.Monolingual.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1123,7 +1123,6 @@
 				PRODUCT_NAME = com.github.IngmarStein.Monolingual.Helper;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1147,7 +1146,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.Helper;
 				PRODUCT_NAME = com.github.IngmarStein.Monolingual.Helper;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1172,7 +1170,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual;
 				PRODUCT_NAME = Monolingual;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1197,7 +1194,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual;
 				PRODUCT_NAME = Monolingual;
-				SWIFT_VERSION = 3.0;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -1245,6 +1241,7 @@
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-objc-missing-property-synthesis",
@@ -1296,6 +1293,7 @@
 				SDKROOT = macosx;
 				SEPARATE_STRIP = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-objc-missing-property-synthesis",
@@ -1346,7 +1344,6 @@
 				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1385,7 +1382,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.XPCService;
 				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1405,6 +1401,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEVELOPMENT_TEAM = ADVP2P7SJK;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1442,6 +1440,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEVELOPMENT_TEAM = ADVP2P7SJK;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
