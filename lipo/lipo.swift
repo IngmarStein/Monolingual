@@ -266,7 +266,7 @@ class Lipo {
 			return false
 		}
 
-		return inputData.withUnsafeBytes { (addr: UnsafePointer<Void>) -> Bool in
+		return inputData.withUnsafeBytes { (addr: UnsafePointer<Int8>) -> Bool in
 			let magic = addr.withMemoryRebound(to: UInt32.self, capacity: 1) { (pointer) in
 				return pointer.pointee
 			}
