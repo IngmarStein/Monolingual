@@ -8,7 +8,7 @@
 
 import Foundation
 
-private let arguments = Process.arguments
+private let arguments = CommandLine.arguments
 
 private func usage() {
 	print("usage: lipo <executables> --arch <architecture>")

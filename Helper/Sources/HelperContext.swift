@@ -69,14 +69,14 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	func addCodeResourcesToBlacklist(_ url: URL) {
 		var codeRef: SecStaticCode?
-		let result = SecStaticCodeCreateWithPath(url, [], &codeRef)
+		let result = SecStaticCodeCreateWithPath(url as CFURL, [], &codeRef)
 		if result == errSecSuccess, let code = codeRef {
 			var codeInfoRef: CFDictionary?
 			// warning: this relies on kSecCSInternalInformation
 			let secCSInternalInformation = SecCSFlags(rawValue: 1)
 			let result2 = SecCodeCopySigningInformation(code, secCSInternalInformation, &codeInfoRef)
-			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [NSObject: AnyObject] {
-				if let resDir = codeInfo["ResourceDirectory"] as? [NSObject: AnyObject] {
+			if result2 == errSecSuccess, let codeInfo = codeInfoRef as? [String: AnyObject] {
+				if let resDir = codeInfo["ResourceDirectory"] as? [String: AnyObject] {
 					let baseURL: URL
 
 					let contentsDirectory = url.appendingPathComponent("Contents", isDirectory: true)
@@ -200,7 +200,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					}
 				}
 			} else if let error = error {
-				os_log("Error trashing '%@': %@", type: .error, url.path, error)
+				os_log("Error trashing '%@': %@", type: .error, url.path, error.localizedDescription)
 			}
 		} else {
 			do {
@@ -241,7 +241,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, removingItemAt url: URL) -> Bool {
-		os_log("Error removing '%@': %@", type: .error, url.path, error)
+		os_log("Error removing '%@': %@", type: .error, url.path, error.localizedDescription)
 
 		return true
 	}

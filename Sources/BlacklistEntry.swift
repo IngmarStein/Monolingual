@@ -13,7 +13,7 @@ struct BlacklistEntry {
 	let languages: Bool
 	let architectures: Bool
 
-	init(dictionary: [NSObject: AnyObject]) {
+	init(dictionary: [String: AnyObject]) {
 		self.bundle = dictionary["bundle"] as? String ?? ""
 		self.languages = dictionary["languages"]!.boolValue
 		self.architectures = dictionary["architectures"]!.boolValue

@@ -13,13 +13,13 @@ struct Root {
 	let languages: Bool
 	let architectures: Bool
 
-	static var defaults: [[String: NSObject]] {
-		let applications = [ "Path": "/Applications", "Languages": true, "Architectures": true ]
-		let localLibrary = [ "Path": "/Library", "Languages": true, "Architectures": true ]
+	static var defaults: [[String: Any]] {
+		let applications: [String: Any] = [ "Path": "/Applications", "Languages": true, "Architectures": true ]
+		let localLibrary: [String: Any] = [ "Path": "/Library", "Languages": true, "Architectures": true ]
 		return [ applications, localLibrary ]
 	}
 
-	init(dictionary: [String: AnyObject]) {
+	init(dictionary: [String: Any]) {
 		self.path = dictionary["Path"] as? String ?? ""
 		self.languages = dictionary["Languages"] as? Bool ?? false
 		self.architectures = dictionary["Architectures"] as? Bool ?? false

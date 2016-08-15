@@ -246,7 +246,7 @@ class Lipo {
 		do {
 			try FileManager.default.attributesOfItem(atPath: fileName)
 		} catch let error {
-			os_log("can't stat input file '%@': %@", type: .error, fileName, error)
+			os_log("can't stat input file '%@': %@", type: .error, fileName, error.localizedDescription)
 			return false
 		}
 
@@ -254,31 +254,37 @@ class Lipo {
 		do {
 			data = try Data(contentsOf: URL(fileURLWithPath: fileName), options: [.alwaysMapped, .uncached])
 		} catch let error {
-			os_log("can't map input file '%@': %@", type: .error, fileName, error)
+			os_log("can't map input file '%@': %@", type: .error, fileName, error.localizedDescription)
 			return false
 		}
 		inputData = data
 		let size = inputData.count
 
 		// check if this file is a fat file
-		if size < sizeof(fat_header.self) {
+		if size < MemoryLayout<fat_header>.size {
 			// not a fat file
 			return false
 		}
 
 		return inputData.withUnsafeBytes { (addr: UnsafePointer<Void>) -> Bool in
-			let magic = UnsafePointer<UInt32>(addr).pointee
+			let magic = addr.withMemoryRebound(to: UInt32.self, capacity: 1) { (pointer) in
+				return pointer.pointee
+			}
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
-				let headerPointer = UnsafePointer<fat_header>(addr)
-				fatHeader = fatHeaderFromFile(headerPointer.pointee)
-				let big_size = Int(fatHeader.nfat_arch) * sizeof(fat_arch.self) + sizeof(fat_header.self)
+				addr.withMemoryRebound(to: fat_header.self, capacity: 1) { (headerPointer) in
+					fatHeader = fatHeaderFromFile(headerPointer.pointee)
+				}
+				let big_size = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch>.size + MemoryLayout<fat_header>.size
 				if big_size > size {
 					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
 					inputData = nil
 					return false
 				}
-				let fatArchsPointer = UnsafePointer<fat_arch>(addr + sizeof(fat_header.self))
-				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer, count: Int(fatHeader.nfat_arch))).map { self.fatArchFromFile($0) }
+				let fatArchsPointer = addr + MemoryLayout<fat_header>.size
+				let fatArchsCount = Int(fatHeader.nfat_arch)
+				let fatArchs = fatArchsPointer.withMemoryRebound(to: fat_arch.self, capacity: fatArchsCount) { (pointer) in
+					return Array(UnsafeBufferPointer<fat_arch>(start: pointer, count: fatArchsCount)).map { self.fatArchFromFile($0) }
+				}
 				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
@@ -355,7 +361,7 @@ class Lipo {
 
 			// Fill in the fat header and the fat_arch's offsets.
 			var fatHeader = fatHeaderToFile(fat_header(magic: FAT_MAGIC, nfat_arch: UInt32(nthinFiles)))
-			var offset = UInt32(sizeof(fat_header.self) + nthinFiles * sizeof(fat_arch.self))
+			var offset = UInt32(MemoryLayout<fat_header>.size + nthinFiles * MemoryLayout<fat_arch>.size)
 			thinFiles = thinFiles.map { thinFile in
 				offset = rnd(v: offset, r: 1 << thinFile.fatArch.align)
 				let fatArch = thinFile.fatArch
@@ -364,8 +370,8 @@ class Lipo {
 				return result
 			}
 
-			withUnsafePointer(&fatHeader) { (pointer) in
-				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_header.self), deallocator: .none))
+			withUnsafePointer(to: &fatHeader) { (pointer) in
+				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none))
 				//os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
 				//return false
 			}
@@ -387,8 +393,8 @@ class Lipo {
 				}
 
 				var fatArch = fatArchToFile(thinFile.fatArch)
-				withUnsafePointer(&fatArch) { (pointer) in
-					fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
+				withUnsafePointer(to: &fatArch) { (pointer) in
+					fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
 					//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 					//return false
 				}
@@ -401,8 +407,8 @@ class Lipo {
 		 */
 		if let arm64FatArch = arm64FatArch {
 			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
-			withUnsafePointer(&fatArch) { (pointer) in
-				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
+			withUnsafePointer(to: &fatArch) { (pointer) in
+				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
 				//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 				//return false
 			}
@@ -414,8 +420,8 @@ class Lipo {
 		 */
 		if let x8664hFatArch = x8664hFatArch {
 			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
-			withUnsafePointer(&fatArch) { (pointer) in
-				fileHandle.write(Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(pointer), count: sizeof(fat_arch.self), deallocator: .none))
+			withUnsafePointer(to: &fatArch) { (pointer) in
+				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
 				//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 				//return false
 			}
@@ -443,7 +449,7 @@ class Lipo {
 		do {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error {
-			os_log("can't move temporary file: '%@' to file '%@': %@", type: .error, temporaryFile, fileName, error)
+			os_log("can't move temporary file: '%@' to file '%@': %@", type: .error, temporaryFile, fileName, error.localizedDescription)
 		}
 
 		return true

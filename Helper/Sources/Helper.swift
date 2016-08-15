@@ -82,7 +82,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		exit(Int32(exitCode))
 	}
 
-	func processRequest(_ request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: (Int) -> Void) {
+	func processRequest(_ request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) {
 		timer?.invalidate()
 
 		let context = HelperContext(request, rootless: isRootless)
@@ -235,7 +235,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 					}
 
 					let data = try Data(contentsOf: theURL, options: [.alwaysMapped, .uncached])
-					if data.count >= sizeof(UInt32.self) {
+					if data.count >= MemoryLayout<UInt32>.size {
 						data.withUnsafeBytes { (pointer: UnsafePointer<UInt32>) -> Void in
 							let magic = pointer.pointee
 							if magic == FAT_MAGIC || magic == FAT_CIGAM {
@@ -266,7 +266,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 	func hasCodeSignature(url: URL) -> Bool {
 		var codeRef: SecStaticCode?
-		let result = SecStaticCodeCreateWithPath(url, [], &codeRef)
+		let result = SecStaticCodeCreateWithPath(url as CFURL, [], &codeRef)
 		if result == errSecSuccess, let codeRef = codeRef {
 			var requirement: SecRequirement?
 			let result2 = SecCodeCopyDesignatedRequirement(codeRef, [], &requirement)
@@ -289,11 +289,11 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 					return
 				}
 
-				let task = Task.launchedTask(withLaunchPath: "/usr/bin/strip", arguments: ["-u", "-x", "-S", "-", path])
-				task.waitUntilExit()
+				let process = Process.launchedProcess(launchPath: "/usr/bin/strip", arguments: ["-u", "-x", "-S", "-", path])
+				process.waitUntilExit()
 
-				if task.terminationStatus != EXIT_SUCCESS {
-					os_log("/usr/bin/strip failed with exit status %d", type: .error, task.terminationStatus)
+				if process.terminationStatus != EXIT_SUCCESS {
+					os_log("/usr/bin/strip failed with exit status %d", type: .error, process.terminationStatus)
 				}
 
 				let newAttributes = [
@@ -305,7 +305,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
 				} catch let error {
-					os_log("Failed to set file attributes for '%@': %@", type: .error, path, error)
+					os_log("Failed to set file attributes for '%@': %@", type: .error, path, error.localizedDescription)
 				}
 
 				do {
@@ -319,7 +319,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				} catch _ {
 				}
 			} catch let error {
-				os_log("Failed to get file attributes for '%@': %@", type: .error, url, error)
+				os_log("Failed to get file attributes for '%@': %@", type: .error, url.absoluteString, error.localizedDescription)
 			}
 		}
 	}
@@ -338,7 +338,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		do {
 			try fileManager.removeItem(at: protectedDirectory)
 		} catch let error {
-			os_log("Failed to remove temporary file '%@': %@", type: .error, protectedDirectory, error)
+			os_log("Failed to remove temporary file '%@': %@", type: .error, protectedDirectory.absoluteString, error.localizedDescription)
 		}
 
 		return false

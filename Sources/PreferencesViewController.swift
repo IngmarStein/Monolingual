@@ -22,8 +22,8 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
 	@IBAction func togglePreference(_ sender: AnyObject) {
 		let selectionIndex = roots.selectionIndex
-		let dummy = []
-		roots.add(dummy)
+		let dummy = [String: Any]()
+		roots.addObject(dummy)
 		roots.remove(dummy)
 		roots.setSelectionIndex(selectionIndex)
 		tableView.window?.makeFirstResponder(tableView)
@@ -40,7 +40,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 
 			oPanel.begin { result in
 				if NSModalResponseOK == result {
-					self.roots.add(oPanel.urls.map { [ "Path": $0.path, "Languages": true, "Architectures": true ] })
+					self.roots.addObject(oPanel.urls.map { [ "Path": $0.path, "Languages": true, "Architectures": true ] })
 				}
 			}
 		} else if sender.selectedSegment == 1 {
@@ -53,7 +53,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 
 	@IBAction func restoreDefaults(_ sender: NSButton) {
 		roots.content = nil
-		roots.add(Root.defaults)
+		roots.add(contentsOf: Root.defaults)
 	}
 
 }

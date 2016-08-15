@@ -159,7 +159,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
 		if keyPath == "completedUnitCount" {
 			if let progress = object as? Progress, let url = progress.userInfo[.fileURLKey] as? URL, let size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
 				processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey("appName")] as? String)
@@ -194,7 +194,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			} else if let lang = lang {
 				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), lang)
 			} else {
-				message = String(format: NSLocalizedString("Removing %@…", comment: ""), file)
+				message = String(format: NSLocalizedString("Removing %@…", comment: ""), file.absoluteString)
 			}
 		}
 
@@ -207,9 +207,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	func installHelper(reply: (Bool) -> Void) {
+	func installHelper(reply: @escaping (Bool) -> Void) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
-			os_log("XPCService error: %@", type: .error, error)
+			os_log("XPCService error: %@", type: .error, error.localizedDescription)
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
@@ -241,7 +241,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		//arguments.dryRun = true
 
 		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
-			os_log("Error communicating with helper: %@", type: .error, error)
+			os_log("Error communicating with helper: %@", type: .error, error.localizedDescription)
 			DispatchQueue.main.async {
 				self.finishProcessing()
 			}
@@ -278,7 +278,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
-			os_log("XPCService error: %@", type: .error, error)
+			os_log("XPCService error: %@", type: .error, error.localizedDescription)
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
@@ -305,7 +305,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 					if let connection = self.helperConnection {
 						let helper = connection.remoteObjectProxyWithErrorHandler() { error in
-							os_log("Error connecting to helper: %@", type: .error, error)
+							os_log("Error connecting to helper: %@", type: .error, error.localizedDescription)
 						} as! HelperProtocol
 
 						helper.getVersionWithReply() { installedVersion in
@@ -555,19 +555,20 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		]
 		// swiftlint:enable comma
 
-		var infoCount = mach_msg_type_number_t(sizeof(host_basic_info_data_t.self) / sizeof(integer_t.self)) // HOST_BASIC_INFO_COUNT
+		var infoCount = mach_msg_type_number_t(MemoryLayout<host_basic_info_data_t>.size / MemoryLayout<host_info_t>.size) // HOST_BASIC_INFO_COUNT
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
 		let my_mach_host_self = mach_host_self()
-		let ret = withUnsafeMutablePointer(&hostInfo) {
-			(pointer: UnsafeMutablePointer<host_basic_info_data_t>) in
-			host_info(my_mach_host_self, HOST_BASIC_INFO, UnsafeMutablePointer<integer_t>(pointer), &infoCount)
+		let ret = withUnsafeMutablePointer(to: &hostInfo) { (pointer: UnsafeMutablePointer<host_basic_info_data_t>) in
+			pointer.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) { (pointer) in
+				host_info(my_mach_host_self, HOST_BASIC_INFO, pointer, &infoCount)
+			}
 		}
 		mach_port_deallocate(mach_task_self(), my_mach_host_self)
 
 		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
 			var x86_64: Int = 0
-			var x86_64_size = Int(sizeof(Int.self))
+			var x86_64_size = Int(MemoryLayout<Int>.size)
 			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
 			if ret == 0 {
 				if x86_64 != 0 {
@@ -599,18 +600,19 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		// load blacklist from bundle
-		if let blacklistBundle = Bundle.main.url(forResource: "blacklist", withExtension: "plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[NSObject: AnyObject]] {
+		if let blacklistBundle = Bundle.main.url(forResource: "blacklist", withExtension: "plist"), let entries = NSArray(contentsOf: blacklistBundle) as? [[String: AnyObject]] {
 			self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 		}
 		// load remote blacklist asynchronously
 		DispatchQueue.main.async {
-			if let blacklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blacklist.plist"), let entries = NSArray(contentsOf: blacklistURL) as? [[NSObject: AnyObject]] {
+			if let blacklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blacklist.plist"), let entries = NSArray(contentsOf: blacklistURL) as? [[String: AnyObject]] {
 				self.blacklist = entries.map { BlacklistEntry(dictionary: $0) }
 			}
 		}
 
 		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { notification in
-			if let dictionary = notification.userInfo as? [String: AnyObject] {
+			// TODO: remove the intermediary cast
+			if let dictionary = notification.userInfo as Any as? [String: Any] {
 				self.processApplication = Root(dictionary: dictionary)
 			}
 		}

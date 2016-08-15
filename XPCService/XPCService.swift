@@ -24,7 +24,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		} catch let error as SMJError {
 			switch error {
 			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary, SMJError.unableToBless:
-				os_log("Failed to bless helper. Error: %@", type: .error, error)
+				os_log("Failed to bless helper. Error: %@", type: .error, error.localizedDescription)
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
 			case SMJError.authorizationDenied:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
@@ -39,7 +39,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		reply(nil)
 	}
 
-	func connect(withReply reply: (NSXPCListenerEndpoint?) -> Void) {
+	func connect(withReply reply: @escaping (NSXPCListenerEndpoint?) -> Void) {
 		if helperToolConnection == nil {
 			let connection = NSXPCConnection(machServiceName: "com.github.IngmarStein.Monolingual.Helper", options: .privileged)
 			connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
@@ -51,7 +51,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		}
 
 		let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler { error in
-			os_log("XPCService failed to connect to helper: %@", type: .error, error)
+			os_log("XPCService failed to connect to helper: %@", type: .error, error.localizedDescription)
 			reply(nil)
 		} as? HelperProtocol
 		helper?.connectWithEndpointReply { endpoint -> Void in
