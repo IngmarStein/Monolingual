@@ -16,7 +16,7 @@ class HelperTests: XCTestCase {
 	}
 
 	private var utilDir: URL {
-		return Bundle(for: self.dynamicType).resourceURL!
+		return Bundle(for: type(of: self)).resourceURL!
 	}
 
 	private func createTestApp(name: String, bundleIdentifier: String) {
