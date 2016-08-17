@@ -9,12 +9,12 @@ install:
 - bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}
 before_script:
 - "./scripts/add-key.sh"
-- "./scripts/install-swift.sh"
+#- "./scripts/install-swift.sh"
 script:
 - fastlane test
 after_script:
 - "./scripts/remove-key.sh"
 env:
   global:
-    - TOOLCHAINS=swift
+#    - TOOLCHAINS=swift
     - secure: Lkkus1zyvCKmJMsl0LeeD/QXiWXv8X/HEVfRGY4ErfcMs8sHyfQujlenZb9+xGUwKwI1Ea0CHVzA0h1fPYMF2L0x3nq43qnAZobTnEC815Um2xuLT/tqjzsp2gNoaIuirkR28B9GJ9PDhx4vNO5bIgaLxgnD/BHVA0csHnh3F3o=
