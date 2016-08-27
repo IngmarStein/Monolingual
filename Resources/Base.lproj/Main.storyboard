@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11129.15" systemVersion="15G19a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11198.2" systemVersion="16A304a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11129.15"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11198.2"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
@@ -131,7 +131,7 @@
                         <outlet property="delegate" destination="GCX-5J-ET4" id="Tm4-3c-YYn"/>
                     </connections>
                 </application>
-                <customObject id="75d-2z-CgC" userLabel="SUUpdater" customClass="SUUpdater"/>
+                <customObject id="75d-2z-CgC" userLabel="SUUpdater" customClass="SPUStandardUpdaterController"/>
                 <customObject id="GCX-5J-ET4" customClass="AppDelegate" customModule="Monolingual" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -285,7 +285,6 @@
                                                                 </connections>
                                                             </tableView>
                                                         </subviews>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </clipView>
                                                     <constraints>
                                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="EzR-XE-BR7"/>
@@ -349,7 +348,7 @@
                                                     <rect key="frame" x="17" y="58" width="352" height="281"/>
                                                     <clipView key="contentView" id="SKk-Kv-SfJ">
                                                         <rect key="frame" x="1" y="0.0" width="350" height="280"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <autoresizingMask key="autoresizingMask"/>
                                                         <subviews>
                                                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="NlO-4R-8fn" viewBased="YES" id="oIA-xq-q0B" customClass="ISTableView" customModule="Monolingual" customModuleProvider="target">
                                                                 <rect key="frame" x="0.0" y="0.0" width="350" height="257"/>
@@ -449,7 +448,6 @@
                                                                 </connections>
                                                             </tableView>
                                                         </subviews>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </clipView>
                                                     <constraints>
                                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="kdi-3g-50L"/>
@@ -740,7 +738,6 @@
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
-                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
                                             <constraints>
                                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="ib0-dL-oGb"/>
@@ -800,8 +797,6 @@
                                     <constraint firstAttribute="trailing" secondItem="tBG-2t-RdI" secondAttribute="trailing" constant="19" id="ZyL-iN-m5f"/>
                                     <constraint firstItem="tBG-2t-RdI" firstAttribute="leading" secondItem="55G-Fd-xJZ" secondAttribute="leading" constant="19" id="oga-4M-VpF"/>
                                 </constraints>
-                                <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </box>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="EUm-lj-8tR">
                                 <rect key="frame" x="18" y="18" width="414" height="18"/>

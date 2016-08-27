@@ -9,10 +9,14 @@
 #ifndef SUAPPCASTITEM_H
 #define SUAPPCASTITEM_H
 
+#if __has_feature(modules)
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
 #import "SUExport.h"
 
-SU_EXPORT @interface SUAppcastItem : NSObject
+SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
 @property (copy, readonly) NSString *title;
 @property (copy, readonly) NSString *dateString;
 @property (copy, readonly) NSString *itemDescription;
@@ -21,10 +25,12 @@ SU_EXPORT @interface SUAppcastItem : NSObject
 @property (copy, readonly) NSString *minimumSystemVersion;
 @property (copy, readonly) NSString *maximumSystemVersion;
 @property (strong, readonly) NSURL *fileURL;
+@property (nonatomic, readonly) NSUInteger contentLength;
 @property (copy, readonly) NSString *versionString;
 @property (copy, readonly) NSString *displayVersionString;
 @property (copy, readonly) NSDictionary *deltaUpdates;
 @property (strong, readonly) NSURL *infoURL;
+@property (nonatomic, copy, readonly) NSString *installationType;
 
 // Initializes with data from a dictionary provided by the RSS class.
 - (instancetype)initWithDictionary:(NSDictionary *)dict;
