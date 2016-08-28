@@ -5,6 +5,8 @@ disabled_rules:
   - file_length
   - cyclomatic_complexity
   - function_parameter_count
+opt_in_rules:
+  - vertical_whitespace
 variable_name:
   min_length: 1
   max_length: 50
