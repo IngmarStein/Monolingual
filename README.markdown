@@ -18,6 +18,8 @@ Monolingual uses CocoaPods to manage its dependencies. Currently, the following 
 
 - [SMJobKit](https://github.com/IngmarStein/SMJobKit)
 - [Sparkle](https://github.com/sparkle-project/Sparkle)
+- [Fabric](https://cocoapods.org/pods/Fabric)
+- [Crashlytics](https://cocoapods.org/pods/Crashlytics)
 
 ## Contributors
 
@@ -47,6 +49,10 @@ Icon by Matt Davey
 ## License
 
 GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
+
+## Developers
+
+Monolingual is written in Swift 3.0 and requires Xcode 8.0 or above.
 
 ## Status
 
