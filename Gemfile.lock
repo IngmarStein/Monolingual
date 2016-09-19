@@ -154,7 +154,7 @@ GEM
     hurley (0.2)
     i18n (0.7.0)
     json (1.8.3)
-    jwt (1.5.4)
+    jwt (1.5.6)
     krausefx-shenzhen (0.14.10)
       commander (>= 4.3, < 5.0)
       dotenv (>= 0.7)
@@ -220,10 +220,10 @@ GEM
     screengrab (0.5.2)
       fastlane_core (>= 0.50.3, < 1.0.0)
     security (0.1.3)
-    sigh (1.10.2)
-      fastlane_core (>= 0.36.1, < 1.0.0)
+    sigh (1.10.4)
+      fastlane_core (>= 0.52.0, < 1.0.0)
       plist (~> 3.1)
-      spaceship (>= 0.29.1, < 1.0.0)
+      spaceship (>= 0.32.4, < 1.0.0)
     signet (0.7.3)
       addressable (~> 2.3)
       faraday (~> 0.9)
@@ -235,7 +235,7 @@ GEM
       fastlane_core (>= 0.50.3, < 1.0.0)
       plist (~> 3.1.0)
       xcpretty (>= 0.2.1)
-    spaceship (0.32.1)
+    spaceship (0.32.4)
       colored
       credentials_manager (>= 0.16.0)
       faraday (~> 0.9)
@@ -258,7 +258,7 @@ GEM
       unf_ext
     unf_ext (0.0.7.2)
     word_wrap (1.0.0)
-    xcode-install (2.0.5)
+    xcode-install (2.0.6)
       claide (>= 0.9.1, < 1.1.0)
       spaceship (>= 0.25.1, < 1.0.0)
     xcodeproj (1.3.1)
@@ -274,7 +274,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods (~> 1.1.0.beta.2)
+  cocoapods (~> 1.1.0.rc.2)
   fastlane (~> 1.103.0)
 
 BUNDLED WITH
