@@ -26,12 +26,14 @@ struct ArchitectureInfo {
 	let cpuSubtype: cpu_subtype_t
 }
 
-// TODO: these defines are not (yet) visible to Swift
+#if swift(>=3.1)
+#else
 // swiftlint:disable variable_name
 let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
 let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
 // swiftlint:enable variable_name
+#endif
 
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_

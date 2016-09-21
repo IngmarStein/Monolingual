@@ -15,12 +15,14 @@ private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 // The maximum section alignment allowed to be specified, as a power of two
 private let maxSectionAlign = 15 // 2**15 or 0x8000
 
-// TODO: these defines are not (yet) visible to Swift
+#if swift(>=3.1)
+#else
 // swiftlint:disable variable_name
 private let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 private let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
 private let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
 // swiftlint:enable variable_name
+#endif
 
 /*
  * The structure describing an architecture flag with the string of the flag
