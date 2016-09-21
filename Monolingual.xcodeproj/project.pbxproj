@@ -45,6 +45,10 @@
 		959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEE11972F29B00A433C0 /* MainViewController.swift */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
+		95A393B01D93243F00C43430 /* org.sparkle-project.Downloader.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AC1D93243600C43430 /* org.sparkle-project.Downloader.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		95A393B11D93243F00C43430 /* org.sparkle-project.InstallerConnection.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		95A393B21D93243F00C43430 /* org.sparkle-project.InstallerLauncher.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		95A393B31D93243F00C43430 /* org.sparkle-project.InstallerStatus.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
@@ -104,6 +108,10 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
 			dstSubfolderSpec = 16;
 			files = (
+				95A393B01D93243F00C43430 /* org.sparkle-project.Downloader.xpc in Embed XPC Services */,
+				95A393B11D93243F00C43430 /* org.sparkle-project.InstallerConnection.xpc in Embed XPC Services */,
+				95A393B21D93243F00C43430 /* org.sparkle-project.InstallerLauncher.xpc in Embed XPC Services */,
+				95A393B31D93243F00C43430 /* org.sparkle-project.InstallerStatus.xpc in Embed XPC Services */,
 				95E236E61AD526DF00076008 /* Monolingual.xpc in Embed XPC Services */,
 			);
 			name = "Embed XPC Services";
@@ -186,6 +194,10 @@
 		959CEEE11972F29B00A433C0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = MainViewController.swift; path = Sources/MainViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		95A393AC1D93243600C43430 /* org.sparkle-project.Downloader.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.Downloader.xpc"; sourceTree = "<group>"; };
+		95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerConnection.xpc"; sourceTree = "<group>"; };
+		95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerLauncher.xpc"; sourceTree = "<group>"; };
+		95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerStatus.xpc"; sourceTree = "<group>"; };
 		95A74F39197410EF005D3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Resources/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = Resources/el.lproj/Credits.html; sourceTree = "<group>"; };
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -318,6 +330,7 @@
 				9552639D1AE67351001AD4F3 /* Helper Tests */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				95A393931D9323C900C43430 /* Sparkle */,
 				95E236DB1AD526DF00076008 /* XPCService */,
 				B39CEEB6DCF93FBD69E89E7E /* Pods */,
 			);
@@ -442,6 +455,17 @@
 			name = CommandLine;
 			sourceTree = "<group>";
 		};
+		95A393931D9323C900C43430 /* Sparkle */ = {
+			isa = PBXGroup;
+			children = (
+				95A393AC1D93243600C43430 /* org.sparkle-project.Downloader.xpc */,
+				95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */,
+				95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */,
+				95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */,
+			);
+			name = Sparkle;
+			sourceTree = "<group>";
+		};
 		95CA053B1B936817000ABDCE /* Test Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -534,8 +558,8 @@
 				95A1303E0608F92F00D8E30C /* Frameworks */,
 				95337A221B09EB4200303823 /* Copy Frameworks */,
 				95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */,
-				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
+				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */,
 				950183451AF4FC26007F74C3 /* Fabric */,
 				8081F625CF6A0B5E1DA7C2BF /* [CP] Embed Pods Frameworks */,
 				4A2909F1281673578E8D708C /* [CP] Copy Pods Resources */,
@@ -830,7 +854,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\nXPCSERVICES=`find \"${FRAMEWORK}/XPCServices\" -type d -depth 1`\nRESULT=$?\nif [[ $RESULT == 0 ]] ; then\n  for XPCSERVICE in $XPCSERVICES; do\n    `codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\n  done\nfi\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
+			shellScript = "#!/bin/sh\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\" | sed -e \"s/\\(.*\\)/\\1\\/Versions\\/A\\//\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\n# Loop through all XPC services\nXPCSERVICES=`find \"${XPCSERVICES_DIR}\" -type d -name \"*.xpc\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${XPCSERVICES}\"\n\nfor XPCSERVICE in $XPCSERVICES; do\necho \"Signing '${XPCSERVICE}'\"\n`codesign -f --deep -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
 		};
 		C85E63067E59241F3FA0F225 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

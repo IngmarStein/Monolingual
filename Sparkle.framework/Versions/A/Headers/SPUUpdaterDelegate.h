@@ -6,7 +6,12 @@
 //  Copyright © 2016 Sparkle Project. All rights reserved.
 //
 
+#if __has_feature(modules)
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
+
 #import "SUExport.h"
 
 @protocol SUVersionComparison;
@@ -33,6 +38,12 @@ SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
 // -----------------------------------------------------------------------------
 //	SPUUpdater Delegate:
 // -----------------------------------------------------------------------------
+
+typedef NS_ENUM(NSInteger, SPUUpdateCheck)
+{
+    SPUUpdateCheckUserInitiated = 0,
+    SPUUpdateCheckBackgroundScheduled = 1
+};
 
 /*!
  Provides methods to control the behavior of an SPUUpdater object.
@@ -64,6 +75,7 @@ SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
  Returns whether to allow Sparkle to pop up.
  
  For example, this may be used to prevent Sparkle from interrupting a setup assistant.
+ Alternatively, you may want to consider starting the updater after eg: the setup assistant finishes
  
  \param updater The updater instance.
  */
@@ -79,12 +91,14 @@ SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
  
  \return An array of dictionaries with keys: "key", "value", "displayKey", "displayValue", the latter two being specifically for display to the user.
  */
-- (NSArray *)feedParametersForUpdater:(SPUUpdater *)updater sendingSystemProfile:(BOOL)sendingProfile;
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)feedParametersForUpdater:(SPUUpdater *)updater sendingSystemProfile:(BOOL)sendingProfile;
 
 /*!
  Returns a custom appcast URL.
  
  Override this to dynamically specify the entire URL.
+ Alternatively you may want to consider adding a feed parameter using -feedParametersForUpdater:sendingSystemProfile:
+ and having the server which appcast to serve.
  
  \param updater The updater instance.
  */
@@ -232,11 +246,9 @@ SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
 - (nullable id<SUVersionComparison>)versionComparatorForUpdater:(SPUUpdater *)updater;
 
 /*!
- Returns whether or not the updater should allow interaction from the installer for scheduled checks
+ Returns whether or not the updater should allow interaction from the installer
  
  Use this to override the default behavior which is to allow interaction with the installer.
- 
- This method applies to updates started in the background
  
  If interaction is allowed, then an authorization prompt may show up to the user if they do
  not curently have sufficient privileges to perform the installation of the new update.
@@ -248,28 +260,9 @@ SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
  Note this has no effect if the update has already been downloaded in the background silently and ready to be resumed.
  
  \param updater The updater instance.
+ \param updateCheck The type of update check being performed.
  */
-- (BOOL)updaterShouldAllowInstallerInteractionForScheduledChecks:(SPUUpdater *)updater;
-
-/*!
- Returns whether or not the updater should allow interaction from the installer for user initiated checks
- 
- Use this to override the default behavior which is to allow interaction with the installer.
- 
- This method applies to updates started from -[SPUUpdater checkForUpdates]
- 
- If interaction is allowed, then an authorization prompt may show up to the user if they do
- not curently have sufficient privileges to perform the installation of the new update.
- The installer may also show UI and progress when interaction is allowed.
- 
- On the other hand, if interaction is not allowed, then an installation may fail if the user does not
- have sufficient privileges to perform the installation. In this case, the feed and update may not even be downloaded.
- 
- Note this has no effect if the update has already been downloaded in the background silently and ready to be resumed.
- 
- \param updater The updater instance.
- */
-- (BOOL)updaterShouldAllowInstallerInteractionForInitiatedChecks:(SPUUpdater *)updater;
+- (BOOL)updater:(SPUUpdater *)updater shouldAllowInstallerInteractionForUpdateCheck:(SPUUpdateCheck)updateCheck;
 
 /*!
  Returns the decryption password (if any) which is used to extract the update archive DMG.
