@@ -29,15 +29,19 @@ struct ArchitectureInfo {
 #if swift(>=3.1)
 #else
 // swiftlint:disable variable_name
+// tailor:off
 let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
 let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+// tailor:on
 // swiftlint:enable variable_name
 #endif
 
+// tailor:off
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
+// tailor:on
 
 final class MainViewController: NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
 
@@ -113,15 +117,15 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		log.message("\nModified files:\n")
 
-		let num_archs = archs.count
-		if num_archs == self.architectures.count {
+		let numArchs = archs.count
+		if numArchs == self.architectures.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Removing all architectures will make macOS inoperable. Please keep at least one architecture and try again.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
-			//NSLocalizedString("Cannot remove all architectures", "")
+			// NSLocalizedString("Cannot remove all architectures", "")
 			log.close()
-		} else if num_archs > 0 {
+		} else if numArchs > 0 {
 			// start things off if we have something to remove!
 			let roots = self.roots
 
@@ -210,7 +214,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	func installHelper(reply: @escaping (Bool) -> Void) {
-		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
+		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
 			os_log("XPCService error: %@", type: .error, error.localizedDescription)
 		} as? XPCServiceProtocol
 
@@ -240,9 +244,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .new, context: nil)
 
 		// DEBUG
-		//arguments.dryRun = true
+		// arguments.dryRun = true
 
-		let helper = helperConnection!.remoteObjectProxyWithErrorHandler() { error in
+		let helper = helperConnection!.remoteObjectProxyWithErrorHandler { error in
 			os_log("Error communicating with helper: %@", type: .error, error.localizedDescription)
 			DispatchQueue.main.async {
 				self.finishProcessing()
@@ -279,12 +283,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
-		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler() { error -> Void in
+		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
 			os_log("XPCService error: %@", type: .error, error.localizedDescription)
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
-			xpcService.connect() { endpoint -> Void in
+			xpcService.connect { endpoint -> Void in
 				if let endpoint = endpoint {
 					var performInstallation = false
 					let connection = NSXPCConnection(listenerEndpoint: endpoint)
@@ -295,7 +299,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 						os_log("XPC connection to helper invalidated.", type: .error)
 						self.helperConnection = nil
 						if performInstallation {
-							self.installHelper() { success in
+							self.installHelper { success in
 								if success {
 									self.checkAndRunHelper(arguments: arguments)
 								}
@@ -306,12 +310,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					self.helperConnection = connection
 
 					if let connection = self.helperConnection {
-						let helper = connection.remoteObjectProxyWithErrorHandler() { error in
+						let helper = connection.remoteObjectProxyWithErrorHandler { error in
 							os_log("Error connecting to helper: %@", type: .error, error.localizedDescription)
 						} as! HelperProtocol
 
-						helper.getVersionWithReply() { installedVersion in
-							xpcService.bundledHelperVersion() { bundledVersion in
+						helper.getVersionWithReply { installedVersion in
+							xpcService.bundledHelperVersion { bundledVersion in
 								if installedVersion == bundledVersion {
 									// helper is current
 									DispatchQueue.main.async {
@@ -321,7 +325,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 									// helper is different version
 									performInstallation = true
 									// this triggers rdar://23143866 (duplicate of rdar://19601397)
-									//helper.uninstall()
+									// helper.uninstall()
 									helper.exitWithCode(Int(EXIT_SUCCESS))
 									connection.invalidate()
 								}
@@ -330,7 +334,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					}
 				} else {
 					os_log("Failed to get XPC endpoint.", type: .error)
-					self.installHelper() { success in
+					self.installHelper { success in
 						if success {
 							self.checkAndRunHelper(arguments: arguments)
 						}
@@ -368,13 +372,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = String(format: NSLocalizedString("You cancelled the removal. Some files were erased, some were not. Space saved: %@.", comment: ""), byteCount)
-			//alert.informativeText = NSLocalizedString("Removal cancelled", "")
+			// alert.informativeText = NSLocalizedString("Removal cancelled", "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = String(format: NSLocalizedString("Files removed. Space saved: %@.", comment: ""), byteCount)
-			//alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
+			// alert.informativeText = NSBeginAlertSheet(NSLocalizedString("Removal completed", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 
 			let notification = NSUserNotification()
@@ -416,7 +420,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "")
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
-			//NSLocalizedString("Nothing done", comment: "")
+			// NSLocalizedString("Nothing done", comment: "")
 		}
 
 		return languageEnabled
@@ -542,6 +546,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}.sorted { $0.displayName < $1.displayName }
 
 		// swiftlint:disable comma
+		// tailor:off
 		let archs = [
 			ArchitectureInfo(name: "arm",       displayName: "ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
 			ArchitectureInfo(name: "ppc",       displayName: "PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
@@ -555,17 +560,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			ArchitectureInfo(name: "x86_64",    displayName: "Intel 64-bit",           cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
 			ArchitectureInfo(name: "x86_64h",   displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_H)
 		]
+		// tailor:on
 		// swiftlint:enable comma
 
 		var infoCount = mach_msg_type_number_t(MemoryLayout<host_basic_info_data_t>.size / MemoryLayout<host_info_t>.size) // HOST_BASIC_INFO_COUNT
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
-		let my_mach_host_self = mach_host_self()
+		let myMachHostSelf = mach_host_self()
 		let ret = withUnsafeMutablePointer(to: &hostInfo) { (pointer: UnsafeMutablePointer<host_basic_info_data_t>) in
 			pointer.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) { (pointer) in
-				host_info(my_mach_host_self, HOST_BASIC_INFO, pointer, &infoCount)
+				host_info(myMachHostSelf, HOST_BASIC_INFO, pointer, &infoCount)
 			}
 		}
-		mach_port_deallocate(mach_task_self(), my_mach_host_self)
+		mach_port_deallocate(mach_task_self(), myMachHostSelf)
 
 		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
@@ -593,7 +599,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment: "")
 
 		self.architectures = archs.map { arch in
-			let enabled = (ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpuType)
+			let enabled = ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpuType
 			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpuType && hostInfo.cpu_subtype == arch.cpuSubtype {
 				self.currentArchitecture.stringValue = String(format: NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName)

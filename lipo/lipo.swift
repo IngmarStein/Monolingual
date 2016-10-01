@@ -18,9 +18,11 @@ private let maxSectionAlign = 15 // 2**15 or 0x8000
 #if swift(>=3.1)
 #else
 // swiftlint:disable variable_name
+// tailor:off
 private let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
 private let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
 private let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+// tailor:on
 // swiftlint:enable variable_name
 #endif
 
@@ -53,6 +55,7 @@ public func == (lhs: fat_arch, rhs: fat_arch) -> Bool {
 }
 
 // swiftlint:disable comma
+// tailor:off
 private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "any",	     cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_MULTIPLE),
 	ArchFlag(name: "little",	 cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_LITTLE_ENDIAN),
@@ -112,6 +115,7 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "armv7em",    cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7EM),
 	ArchFlag(name: "arm64v8",    cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_V8)
 ]
+// tailor:on
 // swiftlint:enable comma
 
 private func getArchFromFlag(_ name: String) -> ArchFlag? {
@@ -276,8 +280,8 @@ class Lipo {
 				addr.withMemoryRebound(to: fat_header.self, capacity: 1) { (headerPointer) in
 					fatHeader = fatHeaderFromFile(headerPointer.pointee)
 				}
-				let big_size = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch>.size + MemoryLayout<fat_header>.size
-				if big_size > size {
+				let bigSize = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch>.size + MemoryLayout<fat_header>.size
+				if bigSize > size {
 					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
 					inputData = nil
 					return false
@@ -374,8 +378,8 @@ class Lipo {
 
 			withUnsafePointer(to: &fatHeader) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none))
-				//os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
-				//return false
+				// os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
+				// return false
 			}
 			let thinFilesEnumerator = thinFiles.enumerated()
 			for (i, thinFile) in thinFilesEnumerator {
@@ -397,8 +401,8 @@ class Lipo {
 				var fatArch = fatArchToFile(thinFile.fatArch)
 				withUnsafePointer(to: &fatArch) { (pointer) in
 					fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
-					//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-					//return false
+					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+					// return false
 				}
 			}
 		}
@@ -411,8 +415,8 @@ class Lipo {
 			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
 			withUnsafePointer(to: &fatArch) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
-				//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-				//return false
+				// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+				// return false
 			}
 		}
 
@@ -424,19 +428,19 @@ class Lipo {
 			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
 			withUnsafePointer(to: &fatArch) { (pointer) in
 				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
-				//os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-				//return false
+				// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+				// return false
 			}
 		}
 		for thinFile in thinFiles {
 			if nthinFiles != 1 {
 				fileHandle.seek(toFileOffset: UInt64(thinFile.fatArch.offset))
-				//os_log("can't lseek in output file: %@", type: .error, temporaryFile)
-				//return false
+				// os_log("can't lseek in output file: %@", type: .error, temporaryFile)
+				// return false
 			}
 			fileHandle.write(thinFile.data)
-			//os_log("can't write to output file: %@", type: .error, temporaryFile)
-			//return false
+			// os_log("can't write to output file: %@", type: .error, temporaryFile)
+			// return false
 		}
 		if nthinFiles != 1 {
 			newsize = Int(thinFiles.last!.fatArch.offset + thinFiles.last!.fatArch.size)
@@ -486,4 +490,5 @@ class Lipo {
 		}
 		return nil
 	}
+
 }

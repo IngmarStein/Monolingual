@@ -12,6 +12,7 @@ import MachO.loader
 import os
 
 extension URL {
+
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
 		return getxattr(self.path, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
 	}
@@ -19,6 +20,7 @@ extension URL {
 	var isProtected: Bool {
 		return hasExtendedAttribute("com.apple.rootless")
 	}
+
 }
 
 final class Helper: NSObject, NSXPCListenerDelegate {
@@ -67,8 +69,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 	// see https://devforums.apple.com/message/1004420#1004420
 	func uninstall() {
-		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
-		//NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
+		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
+		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
 			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
 			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
@@ -142,7 +144,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	//MARK: - NSXPCListenerDelegate
+	// MARK: - NSXPCListenerDelegate
 
 	func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
@@ -157,7 +159,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		return true
 	}
 
-	//MARK: -
+	// MARK: -
 
 	private func iterateDirectory(_ url: URL, context: HelperContext, prefetchedProperties: [URLResourceKey], block: (URL, FileManager.DirectoryEnumerator) -> Void) {
 		if let progress = context.progress, progress.isCancelled {
@@ -343,4 +345,5 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 		return false
 	}
+
 }

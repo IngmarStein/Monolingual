@@ -14,6 +14,7 @@ let processApplicationNotification = NSNotification.Name(rawValue: "ProcessAppli
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
+
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {
 		let defaults = UserDefaults.standard
@@ -54,7 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		return true
 	}
 
-	//MARK: - Actions
+	// MARK: - Actions
 
 	@IBAction func documentationBundler(_ sender: NSMenuItem) {
 		let docURL = Bundle.main.url(forResource: sender.title, withExtension: nil)
