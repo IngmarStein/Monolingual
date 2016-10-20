@@ -522,10 +522,10 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	override func viewDidLoad() {
 		let currentLocale = Locale.current
 
-		// never check the user's preferred languages, English the the user's locale be default
-		let userLanguages = Set<String>((Locale.preferredLanguages).map {
+		// never check the user's preferred languages, English and the user's locale be default
+		let userLanguages = Set<String>(Locale.preferredLanguages.map {
 			return $0.replacingOccurrences(of: "-", with: "_")
-		} + ["en", currentLocale.identifier])
+		} + ["en", currentLocale.identifier, currentLocale.languageCode ?? ""])
 
 		let availableLocalizations = Set<String>((Locale.availableIdentifiers)
 			// add some known locales not contained in availableLocaleIdentifiers
