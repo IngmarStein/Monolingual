@@ -9,7 +9,7 @@
 3. make release
 4. Update index.html
 5. Update changelog.html
-6. Update appcast.xml
+6. Update _data/versions.yml
 7. Tag release (git tag -s vX.Y.Z -m 'X.Y.Z')
 8. Push tags (git push --tags)
 9. Create release on GitHub (https://github.com/IngmarStein/Monolingual/releases)
