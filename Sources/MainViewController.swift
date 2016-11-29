@@ -522,9 +522,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	override func viewDidLoad() {
 		let currentLocale = Locale.current
 
-		// never check the user's preferred languages, English and the user's locale be default
-		let userLanguages = Set<String>(Locale.preferredLanguages.map {
-			return $0.replacingOccurrences(of: "-", with: "_")
+		// never check the user's preferred languages, English and the user's locale by default
+		let userLanguages = Set<String>(Locale.preferredLanguages.flatMap { language -> [String] in
+			let components = language.components(separatedBy: "-")
+			if components.count == 1 {
+				return [ components[0] ]
+			} else {
+				return [ components[0], components.joined(separator: "_") ]
+			}
 		} + ["en", currentLocale.identifier, currentLocale.languageCode ?? ""])
 
 		let availableLocalizations = Set<String>((Locale.availableIdentifiers)
