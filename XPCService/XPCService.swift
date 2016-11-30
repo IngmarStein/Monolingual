@@ -23,8 +23,10 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			try MonolingualHelperClient.installWithPrompt(prompt: nil)
 		} catch let error as SMJError {
 			switch error {
-			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary, SMJError.unableToBless:
-				os_log("Failed to bless helper. Error: %@", type: .error, error.localizedDescription)
+			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary:
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
+			case SMJError.unableToBless(let blessError):
+				os_log("Failed to bless helper. Error: %@", type: .error, blessError.localizedDescription)
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
 			case SMJError.authorizationDenied:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
