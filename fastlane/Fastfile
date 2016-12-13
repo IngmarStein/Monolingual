@@ -22,9 +22,8 @@ platform :mac do
     scan(scheme: "Monolingual")
   end
 
-  desc "Submit a new Beta Build to Apple TestFlight"
-  desc "This will also make sure the profile is up to date"
-  lane :debug do
+  desc "Build a new beta version with debug information"
+  lane :beta do
     # match(type: "appstore") # more information: https://codesigning.guide
     gym(configuration: "Debug")
     #pilot
