@@ -17,3 +17,7 @@ security set-keychain-settings -t 3600 -l ~/Library/Keychains/mac-build.keychain
 security import ./scripts/certs/apple.cer -k ~/Library/Keychains/mac-build.keychain -T /usr/bin/codesign
 security import ./scripts/certs/dist.cer -k ~/Library/Keychains/mac-build.keychain -T /usr/bin/codesign
 security import ./scripts/certs/dist.p12 -k ~/Library/Keychains/mac-build.keychain -P $KEY_PASSWORD -T /usr/bin/codesign
+
+# Required since macOS Sierra (see https://openradar.appspot.com/28524119)
+security set-key-partition-list -S "apple-tool:,apple:" -k travis ~/Library/Keychains/mac-build.keychain
+

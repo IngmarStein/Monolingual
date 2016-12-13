@@ -11,13 +11,11 @@ sudo gem install fastlane
 fastlane mac test
 ```
 Runs all the tests
-### mac debug
+### mac beta
 ```
-fastlane mac debug
+fastlane mac beta
 ```
-Submit a new Beta Build to Apple TestFlight
-
-This will also make sure the profile is up to date
+Build a new beta version with debug information
 ### mac release
 ```
 fastlane mac release
