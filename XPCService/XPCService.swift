@@ -31,7 +31,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			case SMJError.authorizationDenied:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
 			case SMJError.authorizationCanceled:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Monolingual is stopping without making any changes. Your OS has not been modified.", comment: "") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Monolingual is stopping without making any changes.", comment: "") ]))
 			case SMJError.authorizationInteractionNotAllowed, SMJError.authorizationFailed:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to authorize as an administrator.", comment: "") ]))
 			}
