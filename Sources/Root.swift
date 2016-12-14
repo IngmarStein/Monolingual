@@ -19,7 +19,7 @@ struct Root {
 		return [ applications, localLibrary ]
 	}
 
-	init(dictionary: [String: Any]) {
+	init(dictionary: [AnyHashable: Any]) {
 		self.path = dictionary["Path"] as? String ?? ""
 		self.languages = dictionary["Languages"] as? Bool ?? false
 		self.architectures = dictionary["Architectures"] as? Bool ?? false

@@ -624,8 +624,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { notification in
-			// TODO: remove the intermediary cast
-			if let dictionary = notification.userInfo as Any as? [String: Any] {
+			if let dictionary = notification.userInfo {
 				self.processApplication = Root(dictionary: dictionary)
 			}
 		}
