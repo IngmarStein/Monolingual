@@ -1,11 +1,11 @@
 - version: 1.7.4
   release: 2016-12-14
   changes:
-	- >
-	  Made the "remove architectures" functionality safer by not removing architectures from frameworks needed by non-universal applications (https://github.com/IngmarStein/Monolingual/issues/67).
-	- >
-	  If System Integrity Protection (SIP, aka "rootless") is disabled, Monolingual will again remove system files (https://github.com/IngmarStein/Monolingual/issues/74).
-	- Some small UI tweaks.
+    - >
+      Made the "remove architectures" functionality safer by not removing architectures from frameworks needed by non-universal applications (https://github.com/IngmarStein/Monolingual/issues/67).
+    - >
+      If System Integrity Protection (SIP, aka "rootless") is disabled, Monolingual will again remove system files (https://github.com/IngmarStein/Monolingual/issues/74).
+    - Some small UI tweaks.
   sparkle:
     md5: 87884f6b2c4c7311b6783ef5d8e4a12e
     dsa: MC4CFQC/vEzZQdUijZHqIuBJc2sQQZNBQAIVAMlJv6nWf2OhMdoV3jhORP3AWsnz
