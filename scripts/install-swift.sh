@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ev
-SWIFT_SNAPSHOT="swift-3.0-PREVIEW-6"
+SWIFT_SNAPSHOT="swift-3.0.2-RELEASE"
 
 echo "Installing ${SWIFT_SNAPSHOT}..."
 if [ ! -f "${SWIFT_SNAPSHOT}-osx.pkg" ]; then

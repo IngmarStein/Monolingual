@@ -59,11 +59,11 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		exitWithCode(Int(EXIT_SUCCESS))
 	}
 
-	func connectWithEndpointReply(reply: (NSXPCListenerEndpoint) -> Void) {
+	func connectWithEndpointReply(_ reply: (NSXPCListenerEndpoint) -> Void) {
 		reply(listener.endpoint)
 	}
 
-	func getVersionWithReply(reply: (String) -> Void) {
+	func getVersionWithReply(_ reply: (String) -> Void) {
 		reply(version)
 	}
 
