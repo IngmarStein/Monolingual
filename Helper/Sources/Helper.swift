@@ -228,7 +228,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinDirectory(_ url: URL, context: HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey, URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey, URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey]) { theURL, _ in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
 				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
