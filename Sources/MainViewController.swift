@@ -543,9 +543,15 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let locale = Locale(identifier: localeIdentifier)
-			if let language = locale.languageCode, let country = locale.regionCode {
-				folders.append("\(language)-\(country).lproj")
-				folders.append("\(language)_\(country).lproj")
+			if let language = locale.languageCode, let region = locale.regionCode {
+				if let variantCode = locale.variantCode {
+					// e.g. en_US_POSIX
+					folders.append("\(language)-\(region)_\(variantCode).lproj")
+					folders.append("\(language)_\(region)_\(variantCode).lproj")
+				} else {
+					folders.append("\(language)-\(region).lproj")
+					folders.append("\(language)_\(region).lproj")
+				}
 			} else if let displayName = systemLocale.localizedString(forIdentifier: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
