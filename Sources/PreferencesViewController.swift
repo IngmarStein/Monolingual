@@ -3,7 +3,7 @@
 //  Monolingual
 //
 //  Created by Ingmar Stein on Mon Apr 19 2004.
-//  Copyright (c) 2004-2016 Ingmar Stein. All rights reserved.
+//  Copyright (c) 2004-2017 Ingmar Stein. All rights reserved.
 //
 
 import Cocoa
