@@ -10,9 +10,9 @@
 #define SUUPDATER_H
 
 #if __has_feature(modules)
-@import Foundation;
+@import Cocoa;
 #else
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 #endif
 #import "SUExport.h"
 #import "SUVersionComparisonProtocol.h"
@@ -148,7 +148,7 @@ SU_EXPORT @interface SUUpdater : NSObject
 /*!
  The bundle this class (SUUpdater) is loaded into.
  */
-@property (strong, readonly) NSBundle *sparkleBundle;
+@property (nonatomic, readonly) NSBundle *sparkleBundle;
 
 /*!
  The user agent used when checking for updates.
@@ -201,21 +201,5 @@ SU_EXPORT @interface SUUpdater : NSObject
 @property (nonatomic, readonly) BOOL updateInProgress;
 
 @end
-
-// -----------------------------------------------------------------------------
-// SUUpdater Notifications for events that might be interesting to more than just the delegate
-// The updater will be the notification object
-// -----------------------------------------------------------------------------
-SU_EXPORT extern NSString *const SUUpdaterDidFinishLoadingAppCastNotification;
-SU_EXPORT extern NSString *const SUUpdaterDidFindValidUpdateNotification;
-SU_EXPORT extern NSString *const SUUpdaterDidNotFindUpdateNotification;
-SU_EXPORT extern NSString *const SUUpdaterWillRestartNotification;
-#define SUUpdaterWillRelaunchApplicationNotification SUUpdaterWillRestartNotification;
-#define SUUpdaterWillInstallUpdateNotification SUUpdaterWillRestartNotification;
-
-// Key for the SUAppcastItem object in the SUUpdaterDidFindValidUpdateNotification userInfo
-SU_EXPORT extern NSString *const SUUpdaterAppcastItemNotificationKey;
-// Key for the SUAppcast object in the SUUpdaterDidFinishLoadingAppCastNotification userInfo
-SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
 
 #endif

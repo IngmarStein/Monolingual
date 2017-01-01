@@ -17,7 +17,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SPUUpdatePermissionRequest, SPUUpdatePermissionResponse, SUAppcastItem, SPUDownloadData;
+@class SPUUpdatePermissionRequest, SUUpdatePermissionResponse, SUAppcastItem, SPUDownloadData;
 
 /*!
  The API in Sparkle for controlling the user interaction.
@@ -58,7 +58,7 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
  *
  * This can be called from any thread
  */
-- (void)showUpdatePermissionRequest:(SPUUpdatePermissionRequest *)request reply:(void (^)(SPUUpdatePermissionResponse *))reply;
+- (void)showUpdatePermissionRequest:(SPUUpdatePermissionRequest *)request reply:(void (^)(SUUpdatePermissionResponse *))reply;
 
 /*!
  * Show the user initating an update check
@@ -198,11 +198,13 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
 /*!
  * Show the user the content length of the new update that will be downloaded
  *
- * @param expectedContentLength The expected content length of the new update being downloaded. This will be greater than 0.
+ * @param expectedContentLength The expected content length of the new update being downloaded.
+ * An implementor should be able to handle if this value is invalid (more or less than actual content length downloaded).
+ * Additionally, this method may be called more than once for the same download in rare scenarios.
  *
  * This can be called from any thread
  */
-- (void)showDownloadDidReceiveExpectedContentLength:(NSUInteger)expectedContentLength;
+- (void)showDownloadDidReceiveExpectedContentLength:(uint64_t)expectedContentLength;
 
 /*!
  * Show the user that the update download received more data
@@ -212,7 +214,7 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
  *
  * This can be called from any thread
  */
-- (void)showDownloadDidReceiveDataOfLength:(NSUInteger)length;
+- (void)showDownloadDidReceiveDataOfLength:(uint64_t)length;
 
 /*!
  * Show the user that the update finished downloading and started extracting
