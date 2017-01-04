@@ -8,8 +8,6 @@ RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_ZIPFILE)
 SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
 CODESIGN_IDENTITY='Developer ID Application: Ingmar Stein (ADVP2P7SJK)'
-#ARCHIVE_NAME=$(RELEASE_NAME).xcarchive
-#ARCHIVE=$(BUILD_DIR)/$(ARCHIVE_NAME)
 
 .PHONY: all release development deployment archive clean
 
@@ -32,7 +30,7 @@ release: clean deployment
 	# Check app against Gatekeeper system policies
 	spctl -vv --assess --type execute $(BUILD_DIR)/Monolingual.app
 	mkdir -p $(RELEASE_DIR)/build
-	#cp -R $(ARCHIVE) $(RELEASE_DIR)
+	cp -R $(BUILD_DIR)/Monolingual.app.dSYM.zip $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
