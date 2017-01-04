@@ -241,7 +241,8 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, removingItemAt url: URL) -> Bool {
-		os_log("Error removing '%@': %@", type: .error, url.path, error.localizedDescription)
+		// https://github.com/IngmarStein/Monolingual/issues/102
+		// os_log("Error removing '%@': %@", type: .error, url.path, error as NSError)
 
 		return true
 	}
