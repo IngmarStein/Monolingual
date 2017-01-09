@@ -58,6 +58,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private var processApplicationObserver: NSObjectProtocol?
 	private var helperConnection: NSXPCConnection?
 	private var progress: Progress?
+	private var progressResetTimer: Timer?
 
 	private let sipProtectedLocations = [ "/System", "/bin" ]
 
@@ -211,6 +212,15 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				viewController.file = file.path
 				NSApp.setWindowsNeedUpdate(true)
 			}
+
+			self.progressResetTimer?.invalidate()
+			self.progressResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { (timer) in
+				if let viewController = self.progressViewController {
+					viewController.text = NSLocalizedString("Removing...", comment: "")
+					viewController.file = ""
+					NSApp.setWindowsNeedUpdate(true)
+				}
+			}
 		}
 	}
 
@@ -355,8 +365,10 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			return
 		}
 
-		self.processApplication = nil
-		self.progressViewController?.dismiss(self)
+		processApplication = nil
+		progressViewController?.dismiss(self)
+		progressResetTimer?.invalidate()
+		progressResetTimer = nil
 
 		let progress = self.progress!
 		let byteCount = ByteCountFormatter.string(fromByteCount: max(progress.completedUnitCount, 0), countStyle: .file)
