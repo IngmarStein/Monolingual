@@ -136,7 +136,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if let appName = appName {
 				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey("appName"))
 			}
-			progress.completedUnitCount += size
+			progress.completedUnitCount += Int64(size)
 		}
 		if let progress = remoteProgress {
 			progress.processed(file: url.path, size: size, appName: appName)
@@ -207,7 +207,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 				try self.fileManager.removeItem(at: url)
 			} catch let error1 {
 				error = error1
-				if let error = error as? NSError {
+				if let error = error as NSError? {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
 					} else {

@@ -163,7 +163,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			if let appName = appName {
 				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey("appName"))
 			}
-			progress.completedUnitCount += size
+			progress.completedUnitCount += Int64(size)
 		}
 	}
 
