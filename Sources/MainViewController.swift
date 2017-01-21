@@ -214,7 +214,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 
 			self.progressResetTimer?.invalidate()
-			self.progressResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { (timer) in
+			self.progressResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
 				if let viewController = self.progressViewController {
 					viewController.text = NSLocalizedString("Removing...", comment: "")
 					viewController.file = ""
