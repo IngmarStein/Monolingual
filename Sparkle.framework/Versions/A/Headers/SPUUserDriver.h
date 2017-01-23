@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
  
  An implementor of this protocol should act defensively. For example, it may be possible for an action that says to
  invalidate or dismiss something to be called multiple times in succession, and the implementor may choose to ignore further requests.
+ 
+ Note: Once upon a time, when first developing the user driver API, I had the user driver exist in a separate process from the rest of the framework.
+ If you're familiar with how the higher level XPC APIs work, this explains why some of the decisions above were made
+ (reply block executed on any thread, reply block replied only once, single reply block, void return types, idleness, no optional methods, ...)
+ This is somewhat of an artifact (maybe?) now, but I think most of these set of restrictions still enforces a well designed API.
  */
 SU_EXPORT @protocol SPUUserDriver <NSObject>
 
@@ -84,9 +89,9 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
 - (void)dismissUserInitiatedUpdateCheck;
 
 /*!
- * Show the user a new update is found and can be downloaded & installed
+ * Show the user a new update is found and can be downloaded and installed
  *
- * Let the user know a new downloadable update is found and ask them what they want to do.
+ * Let the user know a new update is found and ask them what they want to do.
  *
  * @param appcastItem The Appcast Item containing information that reflects the new update
  *
@@ -131,6 +136,27 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
  * This can be called from any thread
  */
 - (void)showResumableUpdateFoundWithAppcastItem:(SUAppcastItem *)appcastItem userInitiated:(BOOL)userInitiated reply:(void (^)(SPUInstallUpdateStatus))reply;
+
+/*!
+ * Show the user a new informational only update has been found
+ *
+ * Let the user know a new informational update is found and ask them what they want to do.
+ *
+ * @param appcastItem The Appcast Item containing information that reflects the new update.
+ * The infoURL property for the appcastItem may be of interest.
+ *
+ * @param userInitiated A flag indicating whether or not a user initiated this update check
+ *
+ * @param reply
+ * A reply of SPUDismissInformationalNoticeChoice dismisses this notice.
+ * An implementor may decide to invoke another action before dismissing the notice.
+ *
+ * A reply of SPUSkipThisInformationalVersionChoice skips this particular version and won't bother the user again,
+ * unless they initiate an update check themselves.
+ *
+ * This can be called from any thread
+ */
+- (void)showInformationalUpdateFoundWithAppcastItem:(SUAppcastItem *)appcastItem userInitiated:(BOOL)userInitiated reply:(void (^)(SPUInformationalUpdateAlertChoice))reply;
 
 /*!
  * Show the user the release notes for the new update
