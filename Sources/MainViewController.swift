@@ -248,7 +248,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	private func runHelper(arguments: HelperRequest) {
+	private func runHelper(_ helper: HelperProtocol, arguments: HelperRequest) {
 		ProcessInfo.processInfo.disableSuddenTermination()
 
 		let progress = Progress(totalUnitCount: -1)
@@ -257,13 +257,6 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		// DEBUG
 		// arguments.dryRun = true
-
-		let helper = helperConnection!.remoteObjectProxyWithErrorHandler { error in
-			os_log("Error communicating with helper: %@", type: .error, error.localizedDescription)
-			DispatchQueue.main.async {
-				self.finishProcessing()
-			}
-		} as! HelperProtocol
 
 		helper.processRequest(arguments, progress: self) { exitCode in
 			os_log("helper finished with exit code: %d", type: .info, exitCode)
@@ -322,16 +315,19 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					self.helperConnection = connection
 
 					if let connection = self.helperConnection {
-						let helper = connection.remoteObjectProxyWithErrorHandler { error in
+						guard let helper = connection.remoteObjectProxyWithErrorHandler({ error in
 							os_log("Error connecting to helper: %@", type: .error, error.localizedDescription)
-						} as! HelperProtocol
+						}) as? HelperProtocol else {
+							os_log("Helper does not conform to HelperProtocol")
+							return
+						}
 
 						helper.getVersionWithReply { installedVersion in
 							xpcService.bundledHelperVersion { bundledVersion in
 								if installedVersion == bundledVersion {
 									// helper is current
 									DispatchQueue.main.async {
-										self.runHelper(arguments: arguments)
+										self.runHelper(helper, arguments: arguments)
 									}
 								} else {
 									// helper is different version

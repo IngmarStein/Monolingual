@@ -178,7 +178,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				if let progress = context.progress, progress.isCancelled {
 					return
 				}
-				let theURL = entry as! URL
+				guard let theURL = entry as? URL else { continue }
 
 				do {
 					let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])

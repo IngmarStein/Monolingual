@@ -27,7 +27,7 @@ final class Log {
 	lazy var logFileURL: URL = {
 		return URL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
 	}()
-	var logFile: OutputStream? = nil
+	var logFile: OutputStream?
 
 	func open() {
 		logFile = OutputStream(url: logFileURL, append: true)

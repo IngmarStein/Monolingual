@@ -157,7 +157,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			// check if any file in below url has been blacklisted
 			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: nil, options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
-					let theURL = entry as! URL
+					guard let theURL = entry as? URL else { continue }
 					if isFileBlacklisted(theURL) {
 						return
 					}
@@ -189,7 +189,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if success {
 				if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey], options: [], errorHandler: nil) {
 					for entry in dirEnumerator {
-						let theURL = entry as! URL
+						guard let theURL = entry as? URL else { continue }
 						do {
 							let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
 							if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
