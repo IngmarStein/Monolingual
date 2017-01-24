@@ -240,10 +240,11 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 					if data.count >= MemoryLayout<UInt32>.size {
 						data.withUnsafeBytes { (pointer: UnsafePointer<UInt32>) -> Void in
 							let magic = pointer.pointee
-							if magic == FAT_MAGIC || magic == FAT_CIGAM {
+							let isFatMagic = magic == FAT_MAGIC || magic == FAT_CIGAM || magic == FAT_MAGIC_64 || magic == FAT_CIGAM_64
+							if isFatMagic {
 								self.thinFile(url: theURL, context: context, lipo: lipo)
 							}
-							if context.request.doStrip && (magic == FAT_MAGIC || magic == FAT_CIGAM || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
+							if context.request.doStrip && (isFatMagic || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
 								self.stripFile(theURL, context: context)
 							}
 						}

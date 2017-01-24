@@ -46,11 +46,21 @@ extension fat_arch: Hashable {
 	}
 }
 
+extension fat_arch_64: Hashable {
+	public var hashValue: Int {
+		return cputype.hashValue ^ cpusubtype.hashValue
+	}
+}
+
 private func == (lhs: ArchFlag, rhs: ArchFlag) -> Bool {
 	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
 public func == (lhs: fat_arch, rhs: fat_arch) -> Bool {
+	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
+}
+
+public func == (lhs: fat_arch_64, rhs: fat_arch_64) -> Bool {
 	return lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
@@ -130,7 +140,7 @@ private func getArchFromFlag(_ name: String) -> ArchFlag? {
 /*
  * rnd() rounds v to a multiple of r.
  */
-private func rnd(v: UInt32, r: UInt32) -> UInt32 {
+private func rnd<T: Integer>(v: T, r: T) -> T {
 	let r2 = r - 1
 	let v2 = v + r2
 	return v2 & (~r2)
@@ -144,7 +154,11 @@ class Lipo {
 	// Thin files from the input file to operate on
 	private struct ThinFile {
 		var data: Data
-		var fatArch: fat_arch
+		var cputype: cpu_type_t
+		var cpusubtype: cpu_subtype_t
+		var offset: UInt64
+		var size: UInt64
+		var align: UInt32
 	}
 
 	private var fileName: String!
@@ -152,9 +166,11 @@ class Lipo {
 	private var fatHeader: fat_header!
 	private var thinFiles: [ThinFile]!
 	private var removeArchFlags: [ArchFlag]!
+	private var fat64Flag: Bool
 
 	init?(archs: [String]) {
 
+		fat64Flag = false
 		removeArchFlags = []
 		removeArchFlags.reserveCapacity(archs.count)
 
@@ -185,6 +201,7 @@ class Lipo {
 		inputData = nil
 		fatHeader = nil
 		thinFiles = nil
+		fat64Flag = false
 
 		// Determine the types of the input files.
 		if !processInputFile() {
@@ -195,7 +212,7 @@ class Lipo {
 		// remove those thin files
 		thinFiles = thinFiles.filter { thinFile in
 			for flag in self.removeArchFlags {
-				if flag.cputype == thinFile.fatArch.cputype && cpuSubtypeWithMask(flag.cpusubtype) == cpuSubtypeWithMask(thinFile.fatArch.cpusubtype) {
+				if flag.cputype == thinFile.cputype && cpuSubtypeWithMask(flag.cpusubtype) == cpuSubtypeWithMask(thinFile.cpusubtype) {
 					return false
 				}
 			}
@@ -235,6 +252,16 @@ class Lipo {
 			align: UInt32(bigEndian: fatArch.align))
 	}
 
+	private func fatArch64FromFile(_ fatArch: fat_arch_64) -> fat_arch_64 {
+		return fat_arch_64(
+			cputype: cpu_type_t(bigEndian: fatArch.cputype),
+			cpusubtype: cpu_subtype_t(bigEndian: fatArch.cpusubtype),
+			offset: UInt64(bigEndian: fatArch.offset),
+			size: UInt64(bigEndian: fatArch.size),
+			align: UInt32(bigEndian: fatArch.align),
+			reserved: UInt32(bigEndian: fatArch.reserved))
+	}
+
 	private func fatArchToFile(_ fatArch: fat_arch) -> fat_arch {
 		return fat_arch(
 			cputype: fatArch.cputype.bigEndian,
@@ -242,6 +269,16 @@ class Lipo {
 			offset: fatArch.offset.bigEndian,
 			size: fatArch.size.bigEndian,
 			align: fatArch.align.bigEndian)
+	}
+
+	private func fatArch64ToFile(_ fatArch: fat_arch_64) -> fat_arch_64 {
+		return fat_arch_64(
+			cputype: fatArch.cputype.bigEndian,
+			cpusubtype: fatArch.cpusubtype.bigEndian,
+			offset: fatArch.offset.bigEndian,
+			size: fatArch.size.bigEndian,
+			align: fatArch.align.bigEndian,
+			reserved: fatArch.reserved.bigEndian)
 	}
 
 	/*
@@ -277,6 +314,7 @@ class Lipo {
 				return pointer.pointee
 			}
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
+				// this file is a 32-bit fat file
 				addr.withMemoryRebound(to: fat_header.self, capacity: 1) { (headerPointer) in
 					fatHeader = fatHeaderFromFile(headerPointer.pointee)
 				}
@@ -323,7 +361,60 @@ class Lipo {
 					// create a thin file struct for each arch in the fat file
 					thinFiles = fatArchs.map { fatArch in
 						let data = self.inputData.subdata(in: Int(fatArch.offset)..<Int(fatArch.offset + fatArch.size))
-						return ThinFile(data: data, fatArch: fatArch)
+						return ThinFile(data: data, cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: UInt64(fatArch.offset), size: UInt64(fatArch.size), align: fatArch.align)
+					}
+				}
+				return true
+			} else if magic == FAT_MAGIC_64 || magic == FAT_CIGAM_64 {
+				// this file is a 64-bit fat file
+				fat64Flag = true
+				addr.withMemoryRebound(to: fat_header.self, capacity: 1) { (headerPointer) in
+					fatHeader = fatHeaderFromFile(headerPointer.pointee)
+				}
+				let bigSize = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch_64>.size + MemoryLayout<fat_header>.size
+				if bigSize > size {
+					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
+					inputData = nil
+					return false
+				}
+				let fatArchsPointer = addr + MemoryLayout<fat_header>.size
+				let fatArchsCount = Int(fatHeader.nfat_arch)
+				let fatArchs = fatArchsPointer.withMemoryRebound(to: fat_arch_64.self, capacity: fatArchsCount) { (pointer) in
+					return Array(UnsafeBufferPointer<fat_arch_64>(start: pointer, count: fatArchsCount)).map { self.fatArch64FromFile($0) }
+				}
+				var fatArchSet = Set<fat_arch_64>()
+				for fatArch in fatArchs {
+					if Int(fatArch.offset + fatArch.size) > size {
+						os_log("truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
+						       type: .error, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
+						return false
+					}
+					if fatArch.align > UInt32(maxSectionAlign) {
+						os_log("align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
+						       type: .error, fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
+						return false
+					}
+					if (fatArch.offset % UInt64((1 << fatArch.align))) != 0 {
+						os_log("offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
+						       type: .error, fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
+						return false
+					}
+					if fatArchSet.contains(fatArch) {
+						os_log("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
+						       type: .error, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+						return false
+					}
+					fatArchSet.insert(fatArch)
+				}
+
+				if fatArchs.isEmpty {
+					os_log("fat file contains no architectures %@", type: .error, fileName)
+					return false
+				} else {
+					// create a thin file struct for each arch in the fat file
+					thinFiles = fatArchs.map { fatArch in
+						let data = self.inputData.subdata(in: Int(fatArch.offset)..<Int(fatArch.offset + fatArch.size))
+						return ThinFile(data: data, cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: fatArch.offset, size: fatArch.size, align: fatArch.align)
 					}
 				}
 				return true
@@ -349,35 +440,42 @@ class Lipo {
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
 			thinFiles.sort { (thin1: ThinFile, thin2: ThinFile) in
-				return thin1.fatArch.align < thin2.fatArch.align
+				return thin1.align < thin2.align
 			}
 		}
 
-		var arm64FatArch: Int?
-		var x8664hFatArch: Int?
+		var arm64Arch: Int?
+		var x8664hArch: Int?
 
 		// Create a fat file only if there is more than one thin file on the list.
 		let nthinFiles = thinFiles.count
 		if nthinFiles > 1 {
 			// We will order the ARM64 slice last.
-			arm64FatArch = getArm64FatArch()
+			arm64Arch = getArm64Arch()
 
 			// We will order the x86_64h slice last too.
-			x8664hFatArch = getX8664hFatArch()
+			x8664hArch = getX8664hArch()
 
 			// Fill in the fat header and the fat_arch's offsets.
-			var fatHeader = fatHeaderToFile(fat_header(magic: FAT_MAGIC, nfat_arch: UInt32(nthinFiles)))
-			var offset = UInt32(MemoryLayout<fat_header>.size + nthinFiles * MemoryLayout<fat_arch>.size)
+			let magic = fat64Flag ? FAT_MAGIC : FAT_MAGIC_64
+			var fatHeader = fatHeaderToFile(fat_header(magic: magic, nfat_arch: UInt32(nthinFiles)))
+			var offset = UInt64(MemoryLayout<fat_header>.size)
+			if fat64Flag {
+				offset += UInt64(nthinFiles * MemoryLayout<fat_arch_64>.size)
+			} else {
+				offset += UInt64(nthinFiles * MemoryLayout<fat_arch>.size)
+			}
 			thinFiles = thinFiles.map { thinFile in
-				offset = rnd(v: offset, r: 1 << thinFile.fatArch.align)
-				let fatArch = thinFile.fatArch
-				let result = ThinFile(data: thinFile.data, fatArch: fat_arch(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: offset, size: fatArch.size, align: fatArch.align))
-				offset += thinFile.fatArch.size
+				offset = rnd(v: offset, r: UInt64(1 << thinFile.align))
+				let result = ThinFile(data: thinFile.data, cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt64(offset), size: thinFile.size, align: thinFile.align)
+				offset += thinFile.size
 				return result
 			}
 
 			withUnsafePointer(to: &fatHeader) { (pointer) in
-				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none))
+				let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none)
+				fileHandle.write(data)
+				newsize += data.count
 				// os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
 				// return false
 			}
@@ -387,22 +485,35 @@ class Lipo {
 				 * If we are ordering the ARM64 slice last of the fat_arch
 				 * structs, so skip it in this loop.
 				 */
-				if i == arm64FatArch {
+				if i == arm64Arch {
 					continue
 				}
 				/*
 				 * If we are ordering the x86_64h slice last too of the fat_arch
 				 * structs, so skip it in this loop.
 				 */
-				if i == x8664hFatArch {
+				if i == x8664hArch {
 					continue
 				}
 
-				var fatArch = fatArchToFile(thinFile.fatArch)
-				withUnsafePointer(to: &fatArch) { (pointer) in
-					fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
-					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-					// return false
+				if fat64Flag {
+					var fatArch = fatArch64ToFile(fat_arch_64(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: thinFile.offset, size: thinFile.size, align: thinFile.align, reserved: 0))
+					withUnsafePointer(to: &fatArch) { (pointer) in
+						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
+						fileHandle.write(data)
+						newsize += data.count
+						// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+						// return false
+					}
+				} else {
+					var fatArch = fatArchToFile(fat_arch(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt32(thinFile.offset), size: UInt32(thinFile.size), align: thinFile.align))
+					withUnsafePointer(to: &fatArch) { (pointer) in
+						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
+						fileHandle.write(data)
+						newsize += data.count
+						// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+						// return false
+					}
 				}
 			}
 		}
@@ -411,12 +522,26 @@ class Lipo {
 		 * We are ordering the ARM64 slice so it gets written last of the
 		 * fat_arch structs, so write it out here as it was skipped above.
 		 */
-		if let arm64FatArch = arm64FatArch {
-			var fatArch = fatArchToFile(thinFiles[arm64FatArch].fatArch)
-			withUnsafePointer(to: &fatArch) { (pointer) in
-				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
-				// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-				// return false
+		if let arm64Arch = arm64Arch {
+			let thinFile = thinFiles[arm64Arch]
+			if fat64Flag {
+				var fatArch = fatArch64ToFile(fat_arch_64(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: thinFile.offset, size: thinFile.size, align: thinFile.align, reserved: 0))
+				withUnsafePointer(to: &fatArch) { (pointer) in
+					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
+					fileHandle.write(data)
+					newsize += data.count
+					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+					// return false
+				}
+			} else {
+				var fatArch = fatArchToFile(fat_arch(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt32(thinFile.offset), size: UInt32(thinFile.size), align: thinFile.align))
+				withUnsafePointer(to: &fatArch) { (pointer) in
+					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
+					fileHandle.write(data)
+					newsize += data.count
+					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+					// return false
+				}
 			}
 		}
 
@@ -424,28 +549,37 @@ class Lipo {
 		 * We are ordering the x86_64h slice so it gets written last too of the
 		 * fat arch structs, so write it out here as it was skipped above.
 		 */
-		if let x8664hFatArch = x8664hFatArch {
-			var fatArch = fatArchToFile(thinFiles[x8664hFatArch].fatArch)
-			withUnsafePointer(to: &fatArch) { (pointer) in
-				fileHandle.write(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none))
-				// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-				// return false
+		if let x8664hArch = x8664hArch {
+			let thinFile = thinFiles[x8664hArch]
+			if fat64Flag {
+				var fatArch = fatArch64ToFile(fat_arch_64(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: thinFile.offset, size: thinFile.size, align: thinFile.align, reserved: 0))
+				withUnsafePointer(to: &fatArch) { (pointer) in
+					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
+					fileHandle.write(data)
+					newsize += data.count
+					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+					// return false
+				}
+			} else {
+				var fatArch = fatArchToFile(fat_arch(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt32(thinFile.offset), size: UInt32(thinFile.size), align: thinFile.align))
+				withUnsafePointer(to: &fatArch) { (pointer) in
+					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
+					fileHandle.write(data)
+					newsize += data.count
+					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
+					// return false
+				}
 			}
 		}
 		for thinFile in thinFiles {
 			if nthinFiles != 1 {
-				fileHandle.seek(toFileOffset: UInt64(thinFile.fatArch.offset))
+				fileHandle.seek(toFileOffset: thinFile.offset)
 				// os_log("can't lseek in output file: %@", type: .error, temporaryFile)
 				// return false
 			}
 			fileHandle.write(thinFile.data)
 			// os_log("can't write to output file: %@", type: .error, temporaryFile)
 			// return false
-		}
-		if nthinFiles != 1 {
-			newsize = Int(thinFiles.last!.fatArch.offset + thinFiles.last!.fatArch.size)
-		} else {
-			newsize = Int(thinFiles.first!.fatArch.size)
 		}
 
 		fileHandle.closeFile()
@@ -462,14 +596,14 @@ class Lipo {
 	}
 
 	/*
-	 * getArm64FatArch() will return a pointer to the fat_arch struct for the
+	 * getArm64Arch() will return a pointer to the fat_arch struct for the
 	 * 64-bit arm slice in the thin_files[i] if it is present.  Else it returns
 	 * NULL.
 	 */
-	private func getArm64FatArch() -> Int? {
+	private func getArm64Arch() -> Int? {
 		// Look for a 64-bit arm slice.
 		for (i, thinFile) in thinFiles.enumerated() {
-			if thinFile.fatArch.cputype == CPU_TYPE_ARM64 {
+			if thinFile.cputype == CPU_TYPE_ARM64 {
 				return i
 			}
 		}
@@ -477,14 +611,14 @@ class Lipo {
 	}
 
 	/*
-	 * getX8664hFatArch() will return a pointer to the fat_arch struct for the
+	 * getX8664hArch() will return a pointer to the fat_arch struct for the
 	 * x86_64h slice in the thin_files[i] if it is present.  Else it returns
 	 * NULL.
 	 */
-	private func getX8664hFatArch() -> Int? {
+	private func getX8664hArch() -> Int? {
 		// Look for a x86_64h slice.
 		for (i, thinFile) in thinFiles.enumerated() {
-			if thinFile.fatArch.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.fatArch.cpusubtype) == CPU_SUBTYPE_X86_64_H {
+			if thinFile.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.cpusubtype) == CPU_SUBTYPE_X86_64_H {
 				return i
 			}
 		}
