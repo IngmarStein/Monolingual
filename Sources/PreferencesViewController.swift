@@ -24,7 +24,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 		let selectionIndex = roots.selectionIndex
 		let dummy = [String: Any]()
 		roots.addObject(dummy)
-		roots.remove(dummy)
+		roots.removeObject(dummy)
 		roots.setSelectionIndex(selectionIndex)
 		tableView.window?.makeFirstResponder(tableView)
 	}
