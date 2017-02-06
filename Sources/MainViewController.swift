@@ -168,7 +168,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-		if keyPath == "completedUnitCount" {
+		if keyPath == #keyPath(Progress.completedUnitCount) {
 			if let progress = object as? Progress, let url = progress.userInfo[.fileURLKey] as? URL, let size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
 				processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey("appName")] as? String)
 			}
@@ -253,7 +253,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let progress = Progress(totalUnitCount: -1)
 		progress.becomeCurrent(withPendingUnitCount: -1)
-		progress.addObserver(self, forKeyPath: "completedUnitCount", options: .new, context: nil)
+		progress.addObserver(self, forKeyPath: #keyPath(Progress.completedUnitCount), options: .new, context: nil)
 
 		// DEBUG
 		// arguments.dryRun = true
