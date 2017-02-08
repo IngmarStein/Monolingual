@@ -24,6 +24,18 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 		super.init()
 
+		// exclude the user's trash directory
+		seteuid(request.uid)
+		for trashURL in fileManager.urls(for: .trashDirectory, in: [.userDomainMask]) {
+			excludeDirectory(trashURL)
+		}
+
+		// exclude root's trash directory
+		seteuid(0)
+		for trashURL in fileManager.urls(for: .trashDirectory, in: [.userDomainMask]) {
+			excludeDirectory(trashURL)
+		}
+
 		fileManager.delegate = self
 	}
 
@@ -193,7 +205,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 						do {
 							let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
 							if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
-								reportProgress(url: theURL, size: size)
+								reportProgress(url: url, size: size)
 							}
 						} catch _ {
 						}
