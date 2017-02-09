@@ -16,11 +16,7 @@ final class Log {
 		if let pw = getpwuid(getuid()) {
 			return String(cString: pw.pointee.pw_dir)
 		} else {
-			if #available(OSX 10.12, *) {
-				return FileManager.default.homeDirectoryForCurrentUser.path
-			} else {
-				return NSHomeDirectory()
-			}
+			return FileManager.default.homeDirectoryForCurrentUser.path
 		}
 	}
 
