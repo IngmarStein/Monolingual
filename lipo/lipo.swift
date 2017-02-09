@@ -457,7 +457,7 @@ class Lipo {
 			x8664hArch = getX8664hArch()
 
 			// Fill in the fat header and the fat_arch's offsets.
-			let magic = fat64Flag ? FAT_MAGIC : FAT_MAGIC_64
+			let magic = fat64Flag ? FAT_MAGIC_64 : FAT_MAGIC
 			var fatHeader = fatHeaderToFile(fat_header(magic: magic, nfat_arch: UInt32(nthinFiles)))
 			var offset = UInt64(MemoryLayout<fat_header>.size)
 			if fat64Flag {
