@@ -199,6 +199,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			}
 
 			if success {
+				reportProgress(url: url, size: 0)
 				if let dstURL = dstURL as URL?, let dirEnumerator = fileManager.enumerator(at: dstURL, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey], options: [], errorHandler: nil) {
 					for entry in dirEnumerator {
 						guard let theURL = entry as? URL else { continue }
