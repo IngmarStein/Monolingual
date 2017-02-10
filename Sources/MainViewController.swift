@@ -236,7 +236,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 						let alert = NSAlert()
 						alert.alertStyle = .critical
 						alert.messageText = error.localizedDescription
-						alert.informativeText = error.localizedRecoverySuggestion ?? ""
+						alert.informativeText = error.localizedRecoverySuggestion ?? error.localizedFailureReason ?? " "
 						alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 						log.close()
 					}
@@ -336,6 +336,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 									// helper.uninstall()
 									helper.exitWithCode(Int(EXIT_SUCCESS))
 									connection.invalidate()
+									xpcService.disconnect()
 								}
 							}
 						}

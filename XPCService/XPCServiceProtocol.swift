@@ -13,4 +13,5 @@ import XPC
 	func bundledHelperVersion(reply: (String) -> Void)
 	func installHelperTool(withReply: (NSError?) -> Void)
 	func connect(withReply: @escaping (NSXPCListenerEndpoint?) -> Void)
+	func disconnect()
 }

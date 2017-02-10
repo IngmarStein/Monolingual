@@ -61,4 +61,8 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		}
 	}
 
+	func disconnect() {
+		helperToolConnection = nil
+	}
+
 }
