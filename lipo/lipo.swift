@@ -590,6 +590,8 @@ class Lipo {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error {
 			os_log("can't move temporary file: '%@' to file '%@': %@", type: .error, temporaryFile, fileName, error.localizedDescription)
+			try? FileManager.default.removeItem(at: temporaryURL)
+			return false
 		}
 
 		return true
