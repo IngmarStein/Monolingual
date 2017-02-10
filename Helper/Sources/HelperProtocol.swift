@@ -18,6 +18,9 @@ import Foundation
 
 }
 
+// This is a callback from the helper to the main app to report process
+// Ideally, this would be unnecessary with remote Progress observation, but this
+// seems to be broken in our setting (app <-> XPC <-> helper)
 @objc protocol ProgressProtocol {
 
 	func processed(file: String, size: Int, appName: String?)

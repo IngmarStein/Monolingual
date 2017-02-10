@@ -164,6 +164,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey("appName"))
 			}
 			progress.completedUnitCount += Int64(size)
+
+			// show the file progress even if it has zero bytes
+			if size == 0 {
+				progress.willChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+				progress.didChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+			}
 		}
 	}
 

@@ -166,12 +166,22 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
-			// check if any file in below url has been blacklisted
-			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: nil, options: [], errorHandler: nil) {
+			var fileSize: [URL: Int] = [:]
+
+			// check if any file below `url` has been blacklisted and record sizes
+			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey], options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
 					guard let theURL = entry as? URL else { continue }
 					if isFileBlacklisted(theURL) {
 						return
+					}
+
+					do {
+						let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+						if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
+							fileSize[theURL] = size
+						}
+					} catch _ {
 					}
 				}
 			}
@@ -199,18 +209,8 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			}
 
 			if success {
-				reportProgress(url: url, size: 0)
-				if let dstURL = dstURL as URL?, let dirEnumerator = fileManager.enumerator(at: dstURL, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey], options: [], errorHandler: nil) {
-					for entry in dirEnumerator {
-						guard let theURL = entry as? URL else { continue }
-						do {
-							let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
-							if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
-								reportProgress(url: url, size: size)
-							}
-						} catch _ {
-						}
-					}
+				for (url, size) in fileSize {
+					reportProgress(url: url, size: size)
 				}
 			} else if let error = error {
 				os_log("Error trashing '%@': %@", type: .error, url.path, error.localizedDescription)
