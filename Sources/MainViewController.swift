@@ -505,7 +505,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			folders.insert("designable.nib")
 		}
 
-		log.message("\nDeleted files: \n")
+		if UserDefaults.standard.bool(forKey: "Trash") {
+			log.message("\nTrashed files: \n")
+		} else {
+			log.message("\nDeleted files: \n")
+		}
+
 		if rCount == self.languages.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
