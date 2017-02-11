@@ -14,7 +14,7 @@
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
 		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
 		95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; };
-		95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		95355AD31AD7F31200872850 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD21AD7F31200872850 /* main.swift */; };
 		95355AD51AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
 		95355AD61AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
@@ -45,7 +45,6 @@
 		959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEE11972F29B00A433C0 /* MainViewController.swift */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
-		95A393B01D93243F00C43430 /* org.sparkle-project.Downloader.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AC1D93243600C43430 /* org.sparkle-project.Downloader.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		95A393B11D93243F00C43430 /* org.sparkle-project.InstallerConnection.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		95A393B21D93243F00C43430 /* org.sparkle-project.InstallerLauncher.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		95A393B31D93243F00C43430 /* org.sparkle-project.InstallerStatus.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -108,7 +107,6 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
 			dstSubfolderSpec = 16;
 			files = (
-				95A393B01D93243F00C43430 /* org.sparkle-project.Downloader.xpc in Embed XPC Services */,
 				95A393B11D93243F00C43430 /* org.sparkle-project.InstallerConnection.xpc in Embed XPC Services */,
 				95A393B21D93243F00C43430 /* org.sparkle-project.InstallerLauncher.xpc in Embed XPC Services */,
 				95A393B31D93243F00C43430 /* org.sparkle-project.InstallerStatus.xpc in Embed XPC Services */,
@@ -194,7 +192,6 @@
 		959CEEE11972F29B00A433C0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = MainViewController.swift; path = Sources/MainViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		95A393AC1D93243600C43430 /* org.sparkle-project.Downloader.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.Downloader.xpc"; sourceTree = "<group>"; };
 		95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerConnection.xpc"; sourceTree = "<group>"; };
 		95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerLauncher.xpc"; sourceTree = "<group>"; };
 		95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerStatus.xpc"; sourceTree = "<group>"; };
@@ -458,7 +455,6 @@
 		95A393931D9323C900C43430 /* Sparkle */ = {
 			isa = PBXGroup;
 			children = (
-				95A393AC1D93243600C43430 /* org.sparkle-project.Downloader.xpc */,
 				95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */,
 				95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */,
 				95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */,
@@ -557,9 +553,8 @@
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
 				95337A221B09EB4200303823 /* Copy Frameworks */,
-				95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
-				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */,
+				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */,
 				950183451AF4FC26007F74C3 /* Fabric */,
 				8081F625CF6A0B5E1DA7C2BF /* [CP] Embed Pods Frameworks */,
 				4A2909F1281673578E8D708C /* [CP] Copy Pods Resources */,
@@ -636,7 +631,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -817,28 +812,14 @@
 			shellPath = /bin/sh;
 			shellScript = "if [ \"Release\" = \"${CONFIGURATION}\" ]; then\n    ./Pods/Fabric/run 9367389c9ba1c46bb506967bf78235d24bdefc65 7a6a19ca726915f847582d51190afcf756d57e1d299d9fca036cfb517345ea9c\nfi";
 		};
-		95A501FC113F8933008EE4DB /* Strip Embedded Frameworks */ = {
+		95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Strip Embedded Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\" ]; then\n    echo \"*** stripping header files from frameworks ***\"\n    find \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\" -type file -name \"*.h\" -delete\nfi\necho \"*** removing .DS_Store files ***\"\nfind \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type file -name \".DS_Store\" -delete 2>&1 > /dev/null\necho \"*** stripping IB files from NIBs ***\"\nfind \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type file \\( -name \"classes.nib\" -or -name \"info.nib\" -or -name \"data.dependency\" \\) -delete 2>&1 > /dev/null\nexit 0";
-		};
-		95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Codesign Embedded Frameworks";
+			name = "Codesign Embedded Frameworks and XPC Services";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
