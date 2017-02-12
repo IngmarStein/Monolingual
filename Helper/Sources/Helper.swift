@@ -74,7 +74,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		do {
 			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
 			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
-		} catch _ {
+		} catch {
 		}
 	}
 
@@ -181,7 +181,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				guard let theURL = entry as? URL else { continue }
 
 				do {
-					let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
+					let resourceValues = try theURL.resourceValues(forKeys: [.isDirectoryKey])
 
 					if let isDirectory = resourceValues.isDirectory, isDirectory {
 						if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || (isRootless && theURL.isProtected) {
@@ -190,7 +190,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						}
 						context.addCodeResourcesToBlacklist(theURL)
 					}
-				} catch _ {
+				} catch {
 					// ignore
 				}
 
@@ -200,9 +200,9 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func processDirectory(_ url: URL, context: HelperContext) {
-		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey]) { theURL, dirEnumerator in
 			do {
-				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
+				let resourceValues = try theURL.resourceValues(forKeys: [.isDirectoryKey])
 
 				if let isDirectory = resourceValues.isDirectory, isDirectory {
 					let lastComponent = theURL.lastPathComponent
@@ -213,7 +213,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						}
 					}
 				}
-			} catch _ {
+			} catch {
 			}
 		}
 	}
@@ -228,9 +228,9 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func thinDirectory(_ url: URL, context: HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context: context, prefetchedProperties: [URLResourceKey.isDirectoryKey, URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey]) { theURL, _ in
+		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey, .isRegularFileKey, .isExecutableKey, .isApplicationKey]) { theURL, _ in
 			do {
-				let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.isRegularFileKey, URLResourceKey.isExecutableKey, URLResourceKey.isApplicationKey])
+				let resourceValues = try theURL.resourceValues(forKeys: [.isRegularFileKey, .isExecutableKey, .isApplicationKey])
 				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
 					if theURL.pathExtension == "class" {
 						return
@@ -262,7 +262,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 						}
 					}
 				}
-			} catch _ {
+			} catch {
 			}
 		}
 	}
@@ -286,9 +286,9 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				let path = url.path
 				let oldSize: Int
 				do {
-					let resourceValues = try url.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+					let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
 					oldSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
-				} catch _ {
+				} catch {
 					return
 				}
 
@@ -312,14 +312,14 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 				}
 
 				do {
-					let resourceValues = try url.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+					let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
 					let newSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
 
 					if oldSize > newSize {
 						let sizeDiff = oldSize - newSize
 						context.reportProgress(url: url, size: sizeDiff)
 					}
-				} catch _ {
+				} catch {
 				}
 			} catch let error {
 				os_log("Failed to get file attributes for '%@': %@", type: .error, url.absoluteString, error.localizedDescription)

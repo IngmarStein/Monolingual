@@ -71,7 +71,7 @@ class HelperTests: XCTestCase {
 		let fileManager = FileManager.default
 		do {
 			try fileManager.removeItem(atPath: "testdata")
-		} catch _ {
+		} catch {
 			// ignore
 		}
     }
@@ -119,7 +119,7 @@ class HelperTests: XCTestCase {
 			let attributes = try FileManager.default.attributesOfItem(atPath: path.path)
 			let size = attributes[FileAttributeKey.size] as? Int
 			XCTAssertEqual(size, expectedSize, message)
-		} catch _ {
+		} catch {
 			XCTFail("Could not file size of '\(path)'")
 		}
 	}

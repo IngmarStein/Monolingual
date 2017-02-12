@@ -169,7 +169,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			var fileSize: [URL: Int] = [:]
 
 			// check if any file below `url` has been blacklisted and record sizes
-			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey], options: [], errorHandler: nil) {
+			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey], options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
 					guard let theURL = entry as? URL else { continue }
 					if isFileBlacklisted(theURL) {
@@ -177,13 +177,33 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					}
 
 					do {
-						let resourceValues = try theURL.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+						let resourceValues = try theURL.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey])
 						if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
 							fileSize[theURL] = size
 						}
-					} catch _ {
+
+						// change owner so that it can be moved to the user's trash
+						// see https://github.com/IngmarStein/Monolingual/issues/110
+						let attributes: [FileAttributeKey: Any]
+						if let isDirectory = resourceValues.isDirectory, isDirectory {
+							attributes = [.ownerAccountID: request.uid, .posixPermissions: S_IRWXU]
+						} else {
+							attributes = [.ownerAccountID: request.uid]
+						}
+						try fileManager.setAttributes(attributes, ofItemAtPath: theURL.path)
+					} catch {
 					}
 				}
+			}
+
+			let parent = url.deletingLastPathComponent()
+			let parentAttributes = try? fileManager.attributesOfItem(atPath: parent.path)
+
+			do {
+				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: url.path)
+				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: parent.path)
+			} catch let error {
+				os_log("Failed to set owner: %@", error.localizedDescription)
 			}
 
 			// try to move the file to the user's trash
@@ -194,6 +214,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 				success = true
 			} catch let error1 {
 				error = error1
+				os_log("Could not move %@ to trash: %@", url.absoluteString, error!.localizedDescription)
 				success = false
 			}
 			seteuid(0)
@@ -206,6 +227,10 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					error = error1
 					success = false
 				}
+			}
+
+			if let parentAttributes = parentAttributes {
+				try? fileManager.setAttributes(parentAttributes, ofItemAtPath: parent.path)
 			}
 
 			if success {
@@ -238,11 +263,11 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 		// TODO: it is wrong to report process here, deletion might fail
 		do {
-			let resourceValues = try url.resourceValues(forKeys: [URLResourceKey.totalFileAllocatedSizeKey, URLResourceKey.fileAllocatedSizeKey])
+			let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
 			if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
 				reportProgress(url: url, size: size)
 			}
-		} catch _ {
+		} catch {
 		}
 		return true
 	}
