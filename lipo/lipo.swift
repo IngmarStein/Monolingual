@@ -15,17 +15,6 @@ private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 // The maximum section alignment allowed to be specified, as a power of two
 private let maxSectionAlign = 15 // 2**15 or 0x8000
 
-#if swift(>=3.1)
-#else
-// swiftlint:disable variable_name
-// tailor:off
-private let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
-private let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
-private let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-// tailor:on
-// swiftlint:enable variable_name
-#endif
-
 /*
  * The structure describing an architecture flag with the string of the flag
  * name, and the cputype and cpusubtype.
@@ -129,10 +118,8 @@ private let archFlags: [ArchFlag] = [
 // swiftlint:enable comma
 
 private func getArchFromFlag(_ name: String) -> ArchFlag? {
-	for flag in archFlags {
-		if flag.name == name {
-			return flag
-		}
+	for flag in archFlags where flag.name == name {
+		return flag
 	}
 	return nil
 }
@@ -604,10 +591,8 @@ class Lipo {
 	 */
 	private func getArm64Arch() -> Int? {
 		// Look for a 64-bit arm slice.
-		for (i, thinFile) in thinFiles.enumerated() {
-			if thinFile.cputype == CPU_TYPE_ARM64 {
-				return i
-			}
+		for (i, thinFile) in thinFiles.enumerated() where thinFile.cputype == CPU_TYPE_ARM64 {
+			return i
 		}
 		return nil
 	}
@@ -619,10 +604,8 @@ class Lipo {
 	 */
 	private func getX8664hArch() -> Int? {
 		// Look for a x86_64h slice.
-		for (i, thinFile) in thinFiles.enumerated() {
-			if thinFile.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.cpusubtype) == CPU_SUBTYPE_X86_64_H {
-				return i
-			}
+		for (i, thinFile) in thinFiles.enumerated() where thinFile.cputype == CPU_TYPE_X86_64 && cpuSubtypeWithMask(thinFile.cpusubtype) == CPU_SUBTYPE_X86_64_H {
+			return i
 		}
 		return nil
 	}

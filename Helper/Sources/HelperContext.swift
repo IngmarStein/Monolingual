@@ -113,27 +113,25 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	private func appNameForURL(_ url: URL) -> String? {
 		let pathComponents = url.pathComponents
-		for (i, pathComponent) in pathComponents.enumerated() {
-			if (pathComponent as NSString).pathExtension == "app" {
-				if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0...i])) {
-					if let bundle = Bundle(url: bundleURL) {
-						var displayName: String?
-						if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
-							let infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-							let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
-							displayName = strings["CFBundleDisplayName"]
-						}
-						if displayName == nil {
-							// seems not to be localized?!?
-							displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
-						}
-						if let displayName = displayName {
-							return displayName
-						}
+		for (i, pathComponent) in pathComponents.enumerated() where (pathComponent as NSString).pathExtension == "app" {
+			if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0...i])) {
+				if let bundle = Bundle(url: bundleURL) {
+					var displayName: String?
+					if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
+						let infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+						let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
+						displayName = strings["CFBundleDisplayName"]
+					}
+					if displayName == nil {
+						// seems not to be localized?!?
+						displayName = bundle.localizedInfoDictionary?["CFBundleDisplayName"] as? String
+					}
+					if let displayName = displayName {
+						return displayName
 					}
 				}
-				return pathComponent.substring(to: pathComponent.index(pathComponent.endIndex, offsetBy: -4))
 			}
+			return pathComponent.substring(to: pathComponent.index(pathComponent.endIndex, offsetBy: -4))
 		}
 		return nil
 	}

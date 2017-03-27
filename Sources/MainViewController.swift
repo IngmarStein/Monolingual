@@ -15,8 +15,8 @@ import Cocoa
 import os
 
 enum MonolingualMode: Int {
-	case Languages = 0
-	case Architectures
+	case languages = 0
+	case architectures
 }
 
 struct ArchitectureInfo {
@@ -25,17 +25,6 @@ struct ArchitectureInfo {
 	let cpuType: cpu_type_t
 	let cpuSubtype: cpu_subtype_t
 }
-
-#if swift(>=3.1)
-#else
-// swiftlint:disable variable_name
-// tailor:off
-let CPU_TYPE_X86_64: cpu_type_t				    = CPU_TYPE_X86 | CPU_ARCH_ABI64
-let CPU_TYPE_ARM64: cpu_type_t					= CPU_TYPE_ARM | CPU_ARCH_ABI64
-let CPU_TYPE_POWERPC64: cpu_type_t				= CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-// tailor:on
-// swiftlint:enable variable_name
-#endif
 
 // tailor:off
 func mach_task_self() -> mach_port_t {
@@ -53,7 +42,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	dynamic var languages: [LanguageSetting]!
 	dynamic var architectures: [ArchitectureSetting]!
 
-	private var mode: MonolingualMode = .Languages
+	private var mode: MonolingualMode = .languages
 	private var processApplication: Root?
 	private var processApplicationObserver: NSObjectProtocol?
 	private var helperConnection: NSXPCConnection?
@@ -105,7 +94,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	@IBAction func removeArchitectures(_ sender: AnyObject) {
-		self.mode = .Architectures
+		self.mode = .architectures
 
 		log.open()
 
@@ -185,20 +174,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		log.message("\(file.path): \(size)\n")
 
 		let message: String
-		if self.mode == .Architectures {
+		if self.mode == .architectures {
 			message = NSLocalizedString("Removing architecture from universal binary", comment: "")
 		} else {
 			// parse file name
 			var lang: String?
 
-			if self.mode == .Languages {
-				for pathComponent in file.pathComponents {
-					if (pathComponent as NSString).pathExtension == "lproj" {
-						for language in self.languages {
-							if language.folders.contains(pathComponent) {
-								lang = language.displayName
-								break
-							}
+			if self.mode == .languages {
+				for pathComponent in file.pathComponents where (pathComponent as NSString).pathExtension == "lproj" {
+					for language in self.languages {
+						if language.folders.contains(pathComponent) {
+							lang = language.displayName
+							break
 						}
 					}
 				}
@@ -425,11 +412,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private func checkRoots() -> Bool {
 		var languageEnabled = false
 		let roots = self.roots
-		for root in roots {
-			if root.languages {
-				languageEnabled = true
-				break
-			}
+		for root in roots where root.languages {
+			languageEnabled = true
+			break
 		}
 
 		if !languageEnabled {
@@ -445,11 +430,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	private func checkLanguages() -> Bool {
 		var englishChecked = false
-		for language in self.languages {
-			if language.enabled && language.folders[0] == "en.lproj" {
-				englishChecked = true
-				break
-			}
+		for language in self.languages where language.enabled && language.folders[0] == "en.lproj" {
+			englishChecked = true
+			break
 		}
 
 		if englishChecked {
@@ -472,7 +455,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func doRemoveLanguages() {
-		self.mode = .Languages
+		self.mode = .languages
 
 		log.open()
 		let now = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .short)
@@ -496,16 +479,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		var rCount = 0
 		var folders = Set<String>()
-		for language in self.languages {
-			if language.enabled {
-				for path in language.folders {
-					folders.insert(path)
-					if rCount != 0 {
-						log.message(" ")
-					}
-					log.message(path)
-					rCount += 1
+		for language in self.languages where language.enabled {
+			for path in language.folders {
+				folders.insert(path)
+				if rCount != 0 {
+					log.message(" ")
 				}
+				log.message(path)
+				rCount += 1
 			}
 		}
 		if UserDefaults.standard.bool(forKey: "NIB") {
