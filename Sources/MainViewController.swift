@@ -351,17 +351,15 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func progressDidEnd(completed: Bool) {
-		if self.progress == nil {
-			return
-		}
+		guard let progress = self.progress else { return }
 
 		processApplication = nil
 		progressViewController?.dismiss(self)
 		progressResetTimer?.invalidate()
 		progressResetTimer = nil
 
-		let progress = self.progress!
 		let byteCount = ByteCountFormatter.string(fromByteCount: max(progress.completedUnitCount, 0), countStyle: .file)
+		progress.removeObserver(self, forKeyPath: #keyPath(Progress.completedUnitCount))
 		self.progress = nil
 
 		if !completed {
