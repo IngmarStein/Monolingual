@@ -3,13 +3,13 @@
 		<div id="sidebar">
 			<h3>Download</h3>
 			<p id="download">
-				<a class="download" href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}">
+				<a class="download" href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}" download="Monolingual-{{ site.data.versions.first.version }}.dmg">
 					<picture>
 						<img src="images/Monolingual_64.png" width="64" height="64" srcset="images/Monolingual_64.png, images/Monolingual_128.png 2x" alt="Download Monolingual">
 					</picture>
 				</a>
 				<br />
-				<a href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}">Version {{ site.data.versions.first.version }}</a>
+				<a href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}" download="Monolingual-{{ site.data.versions.first.version }}.dmg">Version {{ site.data.versions.first.version }}</a>
 			</p>
 
 			<h3>Links</h3>
