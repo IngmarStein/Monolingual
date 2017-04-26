@@ -547,10 +547,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					// e.g. en_US_POSIX
 					folders.append("\(language)-\(region)_\(variantCode).lproj")
 					folders.append("\(language)_\(region)_\(variantCode).lproj")
+				} else if let script = locale.scriptCode {
+					// e.g. zh_Hans_SG
+					folders.append("\(language)-\(script)-\(region).lproj")
+					folders.append("\(language)_\(script)_\(region).lproj")
 				} else {
 					folders.append("\(language)-\(region).lproj")
 					folders.append("\(language)_\(region).lproj")
 				}
+			} else if let language = locale.languageCode, let script = locale.scriptCode {
+				// e.g. zh_Hans
+				folders.append("\(language)-\(script).lproj")
+				folders.append("\(language)_\(script).lproj")
 			} else if let displayName = systemLocale.localizedString(forIdentifier: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
