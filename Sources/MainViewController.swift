@@ -98,12 +98,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		log.open()
 
-		let now = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .short)
-		log.message("Monolingual started at \(now)\nRemoving architectures: ")
+		let version = (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "vUNKNOWN"
+		log.message("Monolingual \(version) started\n")
+		log.message("Removing architectures:")
 
 		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
 		for arch in archs {
-			log.message(" \(arch)")
+			log.message(" \(arch)", timestamp: false)
 		}
 
 		log.message("\nModified files:\n")
@@ -456,8 +457,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.mode = .languages
 
 		log.open()
-		let now = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .short)
-		log.message("Monolingual started at \(now)\nRemoving languages: ")
+		let version = (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "vUNKNOWN"
+		log.message("Monolingual \(version) started\n")
+		log.message("Removing languages:")
 
 		let roots = self.roots
 
@@ -480,10 +482,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		for language in self.languages where language.enabled {
 			for path in language.folders {
 				folders.insert(path)
-				if rCount != 0 {
-					log.message(" ")
-				}
-				log.message(path)
+				log.message(" \(path)", timestamp: false)
 				rCount += 1
 			}
 		}
@@ -491,10 +490,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			folders.insert("designable.nib")
 		}
 
+		log.message("\n", timestamp: false)
 		if UserDefaults.standard.bool(forKey: "Trash") {
-			log.message("\nTrashed files: \n")
+			log.message("Trashed files:\n")
 		} else {
-			log.message("\nDeleted files: \n")
+			log.message("Deleted files:\n")
 		}
 
 		if rCount == self.languages.count {

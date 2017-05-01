@@ -32,7 +32,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	private var isRootless = true
 
 	var version: String {
-		return Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+		return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
 	}
 
 	override init() {
@@ -47,7 +47,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 	}
 
 	func run() {
-		os_log("MonolingualHelper started", type: .info)
+		os_log("MonolingualHelper %@ started", type: .info, version)
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)

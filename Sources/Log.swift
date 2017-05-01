@@ -25,13 +25,16 @@ final class Log {
 	}()
 	var logFile: OutputStream?
 
+	let dateFormatter = ISO8601DateFormatter()
+
 	func open() {
 		logFile = OutputStream(url: logFileURL, append: true)
 		logFile?.open()
 	}
 
-	func message(_ message: String) {
-		let data = [UInt8](message.utf8)
+	func message(_ message: String, timestamp: Bool = true) {
+		let entry = timestamp ? "\(dateFormatter.string(from: Date())) \(message)" : message
+		let data = [UInt8](entry.utf8)
 		logFile?.write(data, maxLength: data.count)
 	}
 
