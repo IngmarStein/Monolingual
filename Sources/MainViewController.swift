@@ -39,8 +39,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private var progressViewController: ProgressViewController?
 
 	private var blacklist: [BlacklistEntry]?
-	dynamic var languages: [LanguageSetting]!
-	dynamic var architectures: [ArchitectureSetting]!
+	@objc dynamic var languages: [LanguageSetting]!
+	@objc dynamic var architectures: [ArchitectureSetting]!
 
 	private var mode: MonolingualMode = .languages
 	private var processApplication: Root?

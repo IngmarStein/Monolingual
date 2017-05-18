@@ -127,11 +127,19 @@ private func getArchFromFlag(_ name: String) -> ArchFlag? {
 /*
  * rnd() rounds v to a multiple of r.
  */
+#if swift(>=4.0)
+private func rnd<T: BinaryInteger>(v: T, r: T) -> T {
+	let r2 = r - 1
+	let v2 = v + r2
+	return v2 & (~r2)
+}
+#else
 private func rnd<T: Integer>(v: T, r: T) -> T {
 	let r2 = r - 1
 	let v2 = v + r2
 	return v2 & (~r2)
 }
+#endif
 
 private func cpuSubtypeWithMask(_ subtype: cpu_subtype_t) -> cpu_subtype_t {
 	return subtype & cpuSubtypeMask

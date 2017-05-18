@@ -84,7 +84,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		exit(Int32(exitCode))
 	}
 
-	func processRequest(_ request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) {
+	@objc func processRequest(_ request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) {
 		timer?.invalidate()
 
 		let context = HelperContext(request, rootless: isRootless)
