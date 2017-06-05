@@ -39,7 +39,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 			oPanel.treatsFilePackagesAsDirectories = true
 
 			oPanel.begin { result in
-				if NSModalResponseOK == result {
+				if NSApplication.ModalResponse.OK == result {
 					self.roots.add(contentsOf: oPanel.urls.map { [ "Path": $0.path, "Languages": true, "Architectures": true ] })
 				}
 			}

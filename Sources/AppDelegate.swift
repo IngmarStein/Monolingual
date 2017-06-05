@@ -59,15 +59,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 	@IBAction func documentationBundler(_ sender: NSMenuItem) {
 		let docURL = Bundle.main.url(forResource: sender.title, withExtension: nil)
-		NSWorkspace.shared().open(docURL!)
+		NSWorkspace.shared.open(docURL!)
 	}
 
 	@IBAction func openWebsite(_: AnyObject) {
-		NSWorkspace.shared().open(URL(string: "https://ingmarstein.github.io/Monolingual")!)
+		NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual")!)
 	}
 
 	@IBAction func donate(_: AnyObject) {
-		NSWorkspace.shared().open(URL(string: "https://ingmarstein.github.io/Monolingual/donate.html")!)
+		NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
 
 }

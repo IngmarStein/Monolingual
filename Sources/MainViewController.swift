@@ -14,6 +14,9 @@
 import Cocoa
 import os
 
+private let CPU_TYPE_POWERPC64 = CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+private let CPU_TYPE_X86_64    = CPU_TYPE_X86 | CPU_ARCH_ABI64
+
 enum MonolingualMode: Int {
 	case languages = 0
 	case architectures
@@ -87,7 +90,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages?", comment: "")
 		alert.informativeText = NSLocalizedString("You will not be able to restore them without reinstalling macOS.", comment: "")
 		alert.beginSheetModal(for: self.view.window!) { responseCode in
-			if NSAlertSecondButtonReturn == responseCode {
+			if NSApplication.ModalResponse.alertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
 			}
 		}
@@ -266,8 +269,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		self.progress = progress
 
 		if self.progressViewController == nil {
-			let storyboard = NSStoryboard(name: "Main", bundle: nil)
-			self.progressViewController = storyboard.instantiateController(withIdentifier: "ProgressViewController") as? ProgressViewController
+			let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+			self.progressViewController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "ProgressViewController")) as? ProgressViewController
 		}
 		self.progressViewController?.delegate = self
 		if self.progressViewController!.presenting == nil {
@@ -444,7 +447,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			alert.informativeText = NSLocalizedString("Are you sure you want to do that?", comment: "")
 
 			alert.beginSheetModal(for: self.view.window!) { response in
-				if response == NSAlertSecondButtonReturn {
+				if response == NSApplication.ModalResponse.alertSecondButtonReturn {
 					self.doRemoveLanguages()
 				}
 			}
