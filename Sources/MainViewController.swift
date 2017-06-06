@@ -14,9 +14,6 @@
 import Cocoa
 import os
 
-private let CPU_TYPE_POWERPC64 = CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-private let CPU_TYPE_X86_64    = CPU_TYPE_X86 | CPU_ARCH_ABI64
-
 enum MonolingualMode: Int {
 	case languages = 0
 	case architectures
