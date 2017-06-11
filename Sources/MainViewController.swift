@@ -48,6 +48,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private var helperConnection: NSXPCConnection?
 	private var progress: Progress?
 	private var progressResetTimer: Timer?
+	private var progressObserverToken: NSKeyValueObservation?
 
 	private let sipProtectedLocations = [ "/System", "/bin" ]
 
@@ -163,14 +164,6 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-		if keyPath == #keyPath(Progress.completedUnitCount) {
-			if let progress = object as? Progress, let url = progress.userInfo[.fileURLKey] as? URL, let size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
-				processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey("appName")] as? String)
-			}
-		}
-	}
-
 	private func processProgress(file: URL, size: Int, appName: String?) {
 		log.message("\(file.path): \(size)\n")
 
@@ -247,7 +240,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let progress = Progress(totalUnitCount: -1)
 		progress.becomeCurrent(withPendingUnitCount: -1)
-		progress.addObserver(self, forKeyPath: #keyPath(Progress.completedUnitCount), options: .new, context: nil)
+		progressObserverToken = progress.observe(\.completedUnitCount) { (progress, change) in
+			if let url = progress.userInfo[.fileURLKey] as? URL, let size = progress.userInfo[ProgressUserInfoKey("sizeDifference")] as? Int {
+				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey("appName")] as? String)
+			}
+		}
 
 		// DEBUG
 		// arguments.dryRun = true
@@ -360,7 +357,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		progressResetTimer = nil
 
 		let byteCount = ByteCountFormatter.string(fromByteCount: max(progress.completedUnitCount, 0), countStyle: .file)
-		progress.removeObserver(self, forKeyPath: #keyPath(Progress.completedUnitCount))
+		progressObserverToken?.invalidate()
 		self.progress = nil
 
 		if !completed {
