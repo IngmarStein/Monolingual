@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11198.2" systemVersion="16A304a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13122.17" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11198.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13122.17"/>
         <capability name="box content view" minToolsVersion="7.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -224,13 +224,6 @@
                                                                                 </constraints>
                                                                             </tableCellView>
                                                                         </prototypeCellViews>
-                                                                        <connections>
-                                                                            <binding destination="iQT-Fj-d72" name="value" keyPath="arrangedObjects.enabled" id="pDN-PX-cK2">
-                                                                                <dictionary key="options">
-                                                                                    <bool key="NSConditionallySetsEnabled" value="NO"/>
-                                                                                </dictionary>
-                                                                            </binding>
-                                                                        </connections>
                                                                     </tableColumn>
                                                                     <tableColumn identifier="Name" editable="NO" width="279.01416015625" minWidth="59.51416015625" maxWidth="1000" id="XXG-zZ-uSC">
                                                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Language">
@@ -269,13 +262,6 @@
                                                                                 </constraints>
                                                                             </tableCellView>
                                                                         </prototypeCellViews>
-                                                                        <connections>
-                                                                            <binding destination="iQT-Fj-d72" name="value" keyPath="arrangedObjects.displayName" id="dHb-rS-5DJ">
-                                                                                <dictionary key="options">
-                                                                                    <bool key="NSConditionallySetsEditable" value="YES"/>
-                                                                                </dictionary>
-                                                                            </binding>
-                                                                        </connections>
                                                                     </tableColumn>
                                                                 </tableColumns>
                                                                 <connections>
@@ -432,13 +418,6 @@
                                                                                 </connections>
                                                                             </tableCellView>
                                                                         </prototypeCellViews>
-                                                                        <connections>
-                                                                            <binding destination="qgA-ij-Tg9" name="value" keyPath="arrangedObjects.displayName" id="9Sm-Ai-ORn">
-                                                                                <dictionary key="options">
-                                                                                    <bool key="NSConditionallySetsEditable" value="YES"/>
-                                                                                </dictionary>
-                                                                            </binding>
-                                                                        </connections>
                                                                     </tableColumn>
                                                                 </tableColumns>
                                                                 <connections>
@@ -644,7 +623,7 @@
                                                                                 </buttonCell>
                                                                                 <connections>
                                                                                     <action selector="togglePreference:" target="ZgY-e8-I9G" id="JIv-PU-YCs"/>
-                                                                                    <binding destination="wZm-eP-xef" name="value" keyPath="objectValue.Languages" id="tSy-aM-y1b"/>
+                                                                                    <binding destination="wZm-eP-xef" name="value" keyPath="objectValue.Languages" id="poo-Tn-izO"/>
                                                                                 </connections>
                                                                             </button>
                                                                         </subviews>
@@ -680,7 +659,7 @@
                                                                                 </buttonCell>
                                                                                 <connections>
                                                                                     <action selector="togglePreference:" target="ZgY-e8-I9G" id="Fjj-w5-EGD"/>
-                                                                                    <binding destination="rsx-mP-b9k" name="value" keyPath="objectValue.Architectures" id="CTu-Qp-Zdl"/>
+                                                                                    <binding destination="rsx-mP-b9k" name="value" keyPath="objectValue.Architectures" id="Ccd-0d-YqQ"/>
                                                                                 </connections>
                                                                             </button>
                                                                         </subviews>
@@ -717,7 +696,7 @@
                                                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                                 </textFieldCell>
                                                                                 <connections>
-                                                                                    <binding destination="a8l-8R-7ag" name="value" keyPath="objectValue.Path" id="fgf-lP-OGc"/>
+                                                                                    <binding destination="a8l-8R-7ag" name="value" keyPath="objectValue.Path" id="XQs-TK-HnX"/>
                                                                                 </connections>
                                                                             </textField>
                                                                         </subviews>
@@ -756,7 +735,7 @@
                                             </tableHeaderView>
                                         </scrollView>
                                         <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fbf-bv-ZvL">
-                                            <rect key="frame" x="18" y="8" width="53" height="24"/>
+                                            <rect key="frame" x="18" y="8" width="52" height="24"/>
                                             <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="momentary" id="hCz-Dk-15A">
                                                 <font key="font" metaFont="system"/>
                                                 <segments>
@@ -839,7 +818,7 @@
                         <string>Architectures</string>
                     </declaredKeys>
                     <connections>
-                        <binding destination="4nR-6U-bWS" name="contentArray" keyPath="values.Roots" id="h5M-HN-vac">
+                        <binding destination="4nR-6U-bWS" name="contentArray" keyPath="values.Roots" id="8wE-Ve-O68">
                             <dictionary key="options">
                                 <bool key="NSHandlesContentAsCompoundValue" value="YES"/>
                             </dictionary>
