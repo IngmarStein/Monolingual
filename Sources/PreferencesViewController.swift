@@ -20,6 +20,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 
 	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
+	// see rdar://32840640
 	@IBAction func togglePreference(_ sender: AnyObject) {
 		let selectionIndex = roots.selectionIndex
 		let dummy = [String: Any]()
