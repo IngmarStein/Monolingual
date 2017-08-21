@@ -81,6 +81,8 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	func addCodeResourcesToBlacklist(_ url: URL) {
 		var codeRef: SecStaticCode?
+		// This call might print "MacOS error: -67028" to the console (harmless, but annoying)
+		// See rdar://33203786
 		let result = SecStaticCodeCreateWithPath(url as CFURL, [], &codeRef)
 		if result == errSecSuccess, let code = codeRef {
 			var codeInfoRef: CFDictionary?
