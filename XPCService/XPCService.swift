@@ -52,11 +52,14 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			helperToolConnection = connection
 		}
 
-		let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler { error in
+		guard let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler({ error in
 			os_log("XPCService failed to connect to helper: %@", type: .error, error.localizedDescription)
 			reply(nil)
-		} as? HelperProtocol
-		helper?.connectWithEndpointReply { endpoint -> Void in
+		}) as? HelperProtocol else {
+			reply(nil)
+			return
+		}
+		helper.connect { endpoint -> Void in
 			reply(endpoint)
 		}
 	}
