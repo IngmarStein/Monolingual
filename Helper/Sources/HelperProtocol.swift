@@ -8,21 +8,17 @@
 
 import Foundation
 
-@objc protocol HelperProtocol {
-
-	func connectWithEndpointReply(_ reply: (NSXPCListenerEndpoint) -> Void)
-	func getVersionWithReply(_ reply: (String) -> Void)
-	func uninstall()
-	func exitWithCode(_ exitCode: Int)
-	func processRequest(_ request: HelperRequest, progress: ProgressProtocol?, reply: (Int) -> Void)
-
+extension ProgressUserInfoKey {
+	public static let appName = ProgressUserInfoKey("MonolingualAppName")
+	public static let sizeDifference = ProgressUserInfoKey("MonolingualSizeDifference")
 }
 
-// This is a callback from the helper to the main app to report process
-// Ideally, this would be unnecessary with remote Progress observation, but this
-// seems to be broken in our setting (app <-> XPC <-> helper)
-@objc protocol ProgressProtocol {
+@objc protocol HelperProtocol {
 
-	func processed(file: String, size: Int, appName: String?)
+	func connect(_ reply: (NSXPCListenerEndpoint) -> Void)
+	func getVersion(_ reply: (String) -> Void)
+	func uninstall()
+	func exit(code: Int)
+	@discardableResult func process(request: HelperRequest, reply: @escaping (Int) -> Void) -> Progress
 
 }

@@ -12,7 +12,6 @@ import os
 final class HelperContext: NSObject, FileManagerDelegate {
 
 	var request: HelperRequest
-	var remoteProgress: ProgressProtocol?
 	var progress: Progress?
 	private var fileBlacklist = Set<URL>()
 	let fileManager = FileManager()
@@ -140,18 +139,20 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	func reportProgress(url: URL, size: Int) {
 		let appName = appNameForURL(url)
-		if let progress = progress {
-			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
-			progress.setUserInfoObject(url, forKey: .fileURLKey)
-			progress.setUserInfoObject(size, forKey: ProgressUserInfoKey("sizeDifference"))
-			if let appName = appName {
-				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey("appName"))
-			}
-			progress.completedUnitCount += Int64(size)
+
+		guard let progress = self.progress else { return }
+		progress.fileCompletedCount = (progress.fileCompletedCount ?? 0) + 1
+		progress.fileURL = url
+		progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
+		if let appName = appName {
+			progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
 		}
-		if let progress = remoteProgress {
-			progress.processed(file: url.path, size: size, appName: appName)
+		progress.completedUnitCount += Int64(size)
+
+		// show the file progress even if it has zero bytes
+		if size == 0 {
+			progress.willChangeValue(for: \.completedUnitCount)
+			progress.didChangeValue(for: \.completedUnitCount)
 		}
 	}
 

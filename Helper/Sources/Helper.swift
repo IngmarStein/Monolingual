@@ -23,7 +23,7 @@ extension URL {
 
 }
 
-final class Helper: NSObject, NSXPCListenerDelegate {
+final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 	private var listener: NSXPCListener
 	private var timer: Timer?
@@ -56,19 +56,19 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 	@objc func timeout(_: Timer) {
 		os_log("timeout while waiting for request", type: .info)
-		exitWithCode(Int(EXIT_SUCCESS))
+		exit(code: Int(EXIT_SUCCESS))
 	}
 
-	func connectWithEndpointReply(_ reply: (NSXPCListenerEndpoint) -> Void) {
+	@objc func connect(_ reply: (NSXPCListenerEndpoint) -> Void) {
 		reply(listener.endpoint)
 	}
 
-	func getVersionWithReply(_ reply: (String) -> Void) {
+	@objc func getVersion(_ reply: (String) -> Void) {
 		reply(version)
 	}
 
 	// see https://devforums.apple.com/message/1004420#1004420
-	func uninstall() {
+	@objc func uninstall() {
 		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
 		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
@@ -78,27 +78,28 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		}
 	}
 
-	func exitWithCode(_ exitCode: Int) {
-		os_log("exiting with exit status %d", type: .info, exitCode)
+	@objc func exit(code: Int) {
+		os_log("exiting with exit status %d", type: .info, code)
 		workerQueue.waitUntilAllOperationsAreFinished()
-		exit(Int32(exitCode))
+		Darwin.exit(Int32(code))
 	}
 
-	@objc func processRequest(_ request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) {
+	@discardableResult @objc func process(request: HelperRequest, reply: @escaping (Int) -> Void) -> Progress {
 		timer?.invalidate()
 
 		let context = HelperContext(request, rootless: isRootless)
 
 		os_log("Received request: %@", type: .debug, request)
 
-		// https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/#10_10NSXPC
-		let progress = Progress(totalUnitCount: -1)
+		// https://developer.apple.com/library/content/releasenotes/Foundation/RN-Foundation-v10.10/index.html#10_10NSXPC
+		// Progress must not be indeterminate - otherwise no KVO notifications are fired
+		// see rdar://33140109
+		let progress = Progress(totalUnitCount: 1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
 			os_log("Stopping MonolingualHelper", type: .info)
 		}
 		context.progress = progress
-		context.remoteProgress = remoteProgress
 
 		// check if /usr/bin/strip is present
 		request.doStrip = request.doStrip && context.fileManager.fileExists(atPath: "/usr/bin/strip")
@@ -142,6 +143,8 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 
 			reply(progress.isCancelled ? Int(EXIT_FAILURE) : Int(EXIT_SUCCESS))
 		}
+
+		return progress
 	}
 
 	// MARK: - NSXPCListenerDelegate
@@ -150,8 +153,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)
-		interface.setClasses(classes, for: #selector(Helper.processRequest(_:progress:reply:)), argumentIndex: 0, ofReply: false)
-		interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(Helper.processRequest(_:progress:reply:)), argumentIndex: 1, ofReply: false)
+		interface.setClasses(classes, for: #selector(Helper.process(request:reply:)), argumentIndex: 0, ofReply: false)
 		newConnection.exportedInterface = interface
 		newConnection.exportedObject = self
 		newConnection.resume()
@@ -292,7 +294,7 @@ final class Helper: NSObject, NSXPCListenerDelegate {
 					return
 				}
 
-				let process = Process.launchedProcess(launchPath: "/usr/bin/strip", arguments: ["-u", "-x", "-S", "-", path])
+				let process = try Process.run(URL(fileURLWithPath: "/usr/bin/strip", isDirectory: false), arguments: ["-u", "-x", "-S", "-", path])
 				process.waitUntilExit()
 
 				if process.terminationStatus != EXIT_SUCCESS {
