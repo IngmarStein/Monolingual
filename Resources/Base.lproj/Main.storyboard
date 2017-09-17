@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13122.17" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13122.17"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -151,6 +151,9 @@
                             <rect key="frame" x="0.0" y="0.0" width="432" height="429"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </view>
+                        <connections>
+                            <outlet property="delegate" destination="B8D-0N-5wS" id="z1H-Yf-AAl"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="XfG-lQ-9wD" kind="relationship" relationship="window.shadowedContentViewController" id="cq2-FE-JQM"/>
@@ -543,6 +546,9 @@
                             <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </view>
+                        <connections>
+                            <outlet property="delegate" destination="txC-8A-e5w" id="bLG-RZ-jgH"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="ZgY-e8-I9G" kind="relationship" relationship="window.shadowedContentViewController" id="yy5-WB-ta1"/>

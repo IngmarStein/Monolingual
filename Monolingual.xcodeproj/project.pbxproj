@@ -1358,6 +1358,7 @@
 				INFOPLIST_FILE = XPCService/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @loader_path/../../../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.XPCService;
+				PRODUCT_MODULE_NAME = XPCService;
 				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1395,6 +1396,7 @@
 				INFOPLIST_FILE = XPCService/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @loader_path/../../../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.XPCService;
+				PRODUCT_MODULE_NAME = XPCService;
 				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
 			};
