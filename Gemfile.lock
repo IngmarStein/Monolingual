@@ -64,7 +64,7 @@ GEM
     faraday_middleware (0.12.2)
       faraday (>= 0.7.4, < 1.0)
     fastimage (2.1.0)
-    fastlane (2.62.1)
+    fastlane (2.64.1)
       CFPropertyList (>= 2.3, < 3.0.0)
       addressable (>= 2.3, < 3.0.0)
       babosa (>= 1.0.2, < 2.0.0)
@@ -94,7 +94,7 @@ GEM
       terminal-table (>= 1.4.5, < 2.0.0)
       tty-screen (~> 0.5.0)
       word_wrap (~> 1.0.0)
-      xcodeproj (>= 1.5.0, < 2.0.0)
+      xcodeproj (>= 1.5.2, < 2.0.0)
       xcpretty (>= 0.2.4, < 1.0.0)
       xcpretty-travis-formatter (>= 0.0.3)
     fourflusher (2.0.1)
@@ -107,7 +107,7 @@ GEM
       mime-types (~> 3.0)
       representable (~> 3.0)
       retriable (>= 2.0, < 4.0)
-    googleauth (0.6.1)
+    googleauth (0.6.2)
       faraday (~> 0.12)
       jwt (>= 1.4, < 3.0)
       logging (~> 2.0)
@@ -119,7 +119,7 @@ GEM
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     httpclient (2.8.3)
-    i18n (0.9.0)
+    i18n (0.9.1)
       concurrent-ruby (~> 1.0)
     json (2.1.0)
     jwt (2.1.0)
@@ -133,7 +133,7 @@ GEM
     mime-types-data (3.2016.0521)
     mini_magick (4.5.1)
     minitest (5.10.3)
-    molinillo (0.6.3)
+    molinillo (0.6.4)
     multi_json (1.12.2)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
@@ -189,4 +189,4 @@ DEPENDENCIES
   fastlane (~> 2.0)
 
 BUNDLED WITH
-   1.15.4
+   1.16.0
