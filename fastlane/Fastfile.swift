@@ -22,11 +22,11 @@ class Fastfile: LaneFile {
 
 	func betaLane() {
 		desc("Build a new beta version with debug information")
-		buildApp(workspace: "Monolingual.xcworkspace", scheme: "Monolingual", configuration: "Debug")
+		buildApp(workspace: "Monolingual.xcworkspace", scheme: "Monolingual", configuration: "Debug", outputDirectory: "./build")
 	}
 
 	func releaseLane() {
 		desc("Build a new release version")
-		buildApp(workspace: "Monolingual.xcworkspace", scheme: "Monolingual", clean: true, configuration: "Release")
+		buildApp(workspace: "Monolingual.xcworkspace", scheme: "Monolingual", clean: true, configuration: "Release", outputDirectory: "./build")
 	}
 }
