@@ -1,3 +1,15 @@
+- version: 1.8.0
+  release: 2018-03-12
+  changes:
+    - Now requires macOS 10.13 (High Sierra)
+    - Handle locales with script codes (#117)
+    - Improved log (#118)
+  sparkle:
+    md5: f7384cc9032917bc5a783aa53767ac82
+    dsa: MC0CFHoAQzWCFwK+Md8EgKW9z1U/73WpAhUAxJKBZvWH9CVqQEMh2RnQnEbSN2w=
+    filesize: 9348294
+  minimum: '10.13'
+
 - version: 1.7.8
   release: 2017-04-25
   changes:
