@@ -147,6 +147,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 		if let appName = appName {
 			progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
 		}
+		progress.totalUnitCount += Int64(size)
 		progress.completedUnitCount += Int64(size)
 
 		// show the file progress even if it has zero bytes
