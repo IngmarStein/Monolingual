@@ -316,7 +316,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* Monolingual */ = {
+		29B97314FDCFA39411CA2CEA = {
 			isa = PBXGroup;
 			children = (
 				080E96DDFE201D6D7F000001 /* Sources */,
@@ -556,8 +556,6 @@
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
 				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */,
 				950183451AF4FC26007F74C3 /* Fabric */,
-				8081F625CF6A0B5E1DA7C2BF /* [CP] Embed Pods Frameworks */,
-				4A2909F1281673578E8D708C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -594,7 +592,6 @@
 				95E236D71AD526DF00076008 /* Frameworks */,
 				95E236D81AD526DF00076008 /* Resources */,
 				95E236F51AD5331300076008 /* CopyFiles */,
-				C85E63067E59241F3FA0F225 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -682,7 +679,7 @@
 				ko,
 				ru,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
+			mainGroup = 29B97314FDCFA39411CA2CEA;
 			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -756,21 +753,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4A2909F1281673578E8D708C /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Monolingual/Pods-Monolingual-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		4B6992436AF109B55DF552C7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -787,24 +769,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8081F625CF6A0B5E1DA7C2BF /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Monolingual/Pods-Monolingual-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SMJobKit/SMJobKit.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SMJobKit.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Monolingual/Pods-Monolingual-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		950183451AF4FC26007F74C3 /* Fabric */ = {
@@ -834,21 +798,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\n# Loop through all XPC services\nXPCSERVICES=`find \"${XPCSERVICES_DIR}\" -type d -name \"*.xpc\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${XPCSERVICES}\"\n\nfor XPCSERVICE in $XPCSERVICES; do\necho \"Signing '${XPCSERVICE}'\"\n`codesign -f --deep -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
-		};
-		C85E63067E59241F3FA0F225 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-XPCService/Pods-XPCService-resources.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 

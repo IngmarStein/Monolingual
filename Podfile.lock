@@ -1,19 +1,25 @@
 PODS:
-  - Crashlytics (3.9.3):
-    - Fabric (~> 1.7.2)
-  - Fabric (1.7.2)
-  - SMJobKit (0.0.17)
+  - Crashlytics (3.10.1):
+    - Fabric (~> 1.7.5)
+  - Fabric (1.7.6)
+  - SMJobKit (0.0.18)
 
 DEPENDENCIES:
-  - Crashlytics (~> 3.9.3)
+  - Crashlytics (~> 3.10.1)
   - Fabric (~> 1.7.2)
-  - SMJobKit (~> 0.0.17)
+  - SMJobKit (~> 0.0.18)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Crashlytics
+    - Fabric
+    - SMJobKit
 
 SPEC CHECKSUMS:
-  Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
-  Fabric: 9cd6a848efcf1b8b07497e0b6a2e7d336353ba15
-  SMJobKit: 513975580e198a79098dc7a407df7941e35f95c3
+  Crashlytics: aee1a064cbbf99b32efa3f056a5f458d846bc8ff
+  Fabric: f8d42c893bb187326a7968b62abe55c36a987a46
+  SMJobKit: e5165301e2607428dbfb0b2096722e9bf3eb1a4e
 
-PODFILE CHECKSUM: 8b1fcd10af0b8b63ebb447d7ffa467170553cbc3
+PODFILE CHECKSUM: b2a37d5e8f335a51185a09fcba6edbeec524a2e6
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0.beta.1
