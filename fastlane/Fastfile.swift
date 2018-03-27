@@ -13,6 +13,7 @@ class Fastfile: LaneFile {
 
 	func beforeAll() {
 		cocoapods(repoUpdate: true)
+		swiftlint(mode: "lint", configFile: ".swiftlint.yml", strict: false, ignoreExitStatus: false, quiet: false)
 	}
 
 	func testLane() {
