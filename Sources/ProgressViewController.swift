@@ -5,7 +5,7 @@
 
 import Cocoa
 
-protocol ProgressViewControllerDelegate: class {
+protocol ProgressViewControllerDelegate: AnyObject {
 	func progressViewControllerDidCancel(_ progressViewController: ProgressViewController)
 }
 
