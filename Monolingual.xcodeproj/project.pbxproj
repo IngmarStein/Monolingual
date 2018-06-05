@@ -633,22 +633,22 @@
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
 						CreatedOnToolsVersion = 6.3;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 					};
 					95A130250608F92F00D8E30C = {
 						DevelopmentTeam = ADVP2P7SJK;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Manual;
 					};
 					95C3C95F0610144300D417BC = {
 						DevelopmentTeam = ADVP2P7SJK;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Manual;
 					};
 					95E236D91AD526DF00076008 = {
 						CreatedOnToolsVersion = 6.3;
 						DevelopmentTeam = ADVP2P7SJK;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Manual;
 					};
 					95EB7AAB1AE777F90066369B = {
@@ -1019,6 +1019,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -1059,6 +1060,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.IngmarStein.Monolingual.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
@@ -1091,6 +1093,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -1121,6 +1124,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.Helper;
 				PRODUCT_NAME = com.github.IngmarStein.Monolingual.Helper;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
@@ -1151,6 +1155,7 @@
 				PRODUCT_NAME = Monolingual;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1180,6 +1185,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual;
 				PRODUCT_NAME = Monolingual;
+				SWIFT_VERSION = 4.2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -1351,6 +1357,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -1394,6 +1401,7 @@
 				PRODUCT_MODULE_NAME = XPCService;
 				PRODUCT_NAME = Monolingual;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};

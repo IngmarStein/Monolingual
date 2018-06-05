@@ -241,12 +241,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		if self.progressViewController == nil {
-			let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-			self.progressViewController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "ProgressViewController")) as? ProgressViewController
+			let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
+			self.progressViewController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("ProgressViewController")) as? ProgressViewController
 		}
 		self.progressViewController?.delegate = self
-		if self.progressViewController!.presenting == nil {
-			presentViewControllerAsSheet(self.progressViewController!)
+		if self.progressViewController!.presentingViewController == nil {
+			presentAsSheet(self.progressViewController!)
 		}
 
 		let notification = NSUserNotification()

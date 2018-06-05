@@ -460,7 +460,7 @@ class Lipo {
 			} else {
 				offset += UInt64(nthinFiles * MemoryLayout<fat_arch>.size)
 			}
-			thinFiles = thinFiles.map { thinFile in
+			thinFiles = thinFiles.map { (thinFile: ThinFile) in
 				offset = rnd(v: offset, r: UInt64(1 << thinFile.align))
 				let result = ThinFile(data: thinFile.data, cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt64(offset), size: thinFile.size, align: thinFile.align)
 				offset += thinFile.size
