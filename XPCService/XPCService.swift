@@ -9,7 +9,7 @@
 import Foundation
 import SMJobKit
 import XPC
-import os
+import os.log
 
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?

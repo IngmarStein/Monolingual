@@ -8,7 +8,7 @@
 
 import Foundation
 import MachO.fat
-import os
+import os.log
 
 private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 

@@ -9,7 +9,7 @@
 import Foundation
 import MachO.fat
 import MachO.loader
-import os
+import os.log
 
 extension URL {
 

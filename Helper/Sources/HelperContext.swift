@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import os
+import os.log
 
 final class HelperContext: NSObject, FileManagerDelegate {
 

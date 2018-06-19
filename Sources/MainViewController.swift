@@ -12,7 +12,7 @@
 //
 
 import Cocoa
-import os
+import os.log
 
 enum MonolingualMode: Int {
 	case languages = 0
