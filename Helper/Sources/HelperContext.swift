@@ -158,13 +158,13 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func remove(_ url: URL) {
-		var error: Error? = nil
+		var error: Error?
 		if request.trash {
 			if request.dryRun {
 				return
 			}
 
-			var dstURL: NSURL? = nil
+			var dstURL: NSURL?
 
 			// trashItemAtURL does not call any delegate methods (radar 20481813)
 
