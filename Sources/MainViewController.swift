@@ -604,9 +604,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let decoder = PropertyListDecoder()
 
-		// load blacklist from bundle
-		if let blacklistURL = Bundle.main.url(forResource: "blacklist", withExtension: "plist"), let data = try? Data(contentsOf: blacklistURL) {
-			self.blacklist = try? decoder.decode([BlacklistEntry].self, from: data)
+		// load blacklist from asset catalog
+		if let blacklist = NSDataAsset(name: "blacklist") {
+			self.blacklist = try? decoder.decode([BlacklistEntry].self, from: blacklist.data)
 		}
 		// load remote blacklist asynchronously
 		DispatchQueue.main.async {
