@@ -570,11 +570,11 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		if hostInfo.cpu_type == CPU_TYPE_X86 {
 			// fix host_info
-			var x86_64: Int = 0
-			var x86_64_size = Int(MemoryLayout<Int>.size)
-			let ret = sysctlbyname("hw.optional.x86_64", &x86_64, &x86_64_size, nil, 0)
+			var x8664: Int = 0
+			var x8664Size = Int(MemoryLayout<Int>.size)
+			let ret = sysctlbyname("hw.optional.x86_64", &x8664, &x8664Size, nil, 0)
 			if ret == 0 {
-				if x86_64 != 0 {
+				if x8664 != 0 {
 					hostInfo = host_basic_info_data_t(
 						max_cpus: hostInfo.max_cpus,
 						avail_cpus: hostInfo.avail_cpus,
