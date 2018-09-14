@@ -7,5 +7,5 @@ pool:
   vmImage: 'macOS 10.13'
 
 steps:
-- script: bundle exec fastlane test
+- script: fastlane test
   displayName: 'Build and test with fastlane'
