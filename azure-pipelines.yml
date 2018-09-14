@@ -7,9 +7,5 @@ pool:
   vmImage: 'macOS 10.13'
 
 steps:
-- task: Xcode@5
-  inputs:
-    scheme: ''
-    sdk: 'macosx10.14'
-    configuration: 'Release'
-    xcodeVersion: 'default' # Options: 8, 9, default, specifyPath
+- script: fastlane test
+  displayName: 'build and test with fastlane'
