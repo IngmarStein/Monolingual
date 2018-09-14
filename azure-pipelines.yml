@@ -7,5 +7,11 @@ pool:
   vmImage: 'macOS 10.13'
 
 steps:
+- script: bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}
+  displayName: 'Install gems'
+- script: "./scripts/add-key.sh"
+  displayName: 'Add key'
 - script: fastlane test
   displayName: 'Build and test with fastlane'
+- script: "./scripts/remove-key.sh"
+  displayName: 'Remove key'
