@@ -11,7 +11,7 @@ before_script:
 - "./scripts/add-key.sh"
 #- "./scripts/install-swift.sh"
 script:
-- fastlane test
+- bundle exec fastlane test
 after_script:
 - "./scripts/remove-key.sh"
 env:
