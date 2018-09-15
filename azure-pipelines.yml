@@ -13,7 +13,7 @@ steps:
   displayName: 'Add key'
   env:
     KEY_PASSWORD: $(secret.keyPassword)
-- script: fastlane test
+- script: bundle exec fastlane test
   displayName: 'Build and test with fastlane'
 - script: "./scripts/remove-key.sh"
   displayName: 'Remove key'
