@@ -52,10 +52,10 @@ GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
 
 ## Developers
 
-Monolingual is written in Swift 3.1 and requires Xcode 8.3 or above.
+Monolingual is written in Swift 4.2 and requires Xcode 10 or above.
 
 ## Status
 
-[![Build Status](https://img.shields.io/travis/IngmarStein/Monolingual.svg)](https://travis-ci.org/IngmarStein/Monolingual)
-[![Dependencies](https://img.shields.io/gemnasium/IngmarStein/Monolingual.svg)](https://gemnasium.com/IngmarStein/Monolingual)
+[![Travis Build Status](https://img.shields.io/travis/IngmarStein/Monolingual.svg)](https://travis-ci.org/IngmarStein/Monolingual)
+[![Azure Build Status](https://dev.azure.com/ingmarstein/monolingual/_apis/build/status/IngmarStein.Monolingual)](https://dev.azure.com/ingmarstein/monolingual/_build/latest?definitionId=1)
 [![Code Climate](https://img.shields.io/codeclimate/github/IngmarStein/Monolingual.svg)](https://codeclimate.com/github/IngmarStein/Monolingual)
