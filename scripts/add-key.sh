@@ -20,4 +20,3 @@ security import ./scripts/certs/dist.p12 -k ~/Library/Keychains/mac-build.keycha
 
 # Required since macOS Sierra (see https://openradar.appspot.com/28524119)
 security set-key-partition-list -S "apple-tool:,apple:" -k travis ~/Library/Keychains/mac-build.keychain
-

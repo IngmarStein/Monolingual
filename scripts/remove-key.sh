@@ -1,2 +1,2 @@
 #!/bin/sh
-security delete-keychain osx-build.keychain
+security delete-keychain mac-build.keychain
