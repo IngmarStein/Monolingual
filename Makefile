@@ -14,10 +14,10 @@ CODESIGN_IDENTITY='Developer ID Application: Ingmar Stein (ADVP2P7SJK)'
 all: deployment
 
 development: clean
-	fastlane debug
+	bundle exec fastlane debug
 
 deployment: clean
-	fastlane release
+	bundle exec fastlane release
 
 clean:
 	-rm -rf $(BUILD_DIR) $(RELEASE_DIR)

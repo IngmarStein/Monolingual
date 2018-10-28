@@ -24,7 +24,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Monolingual</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Monolingual version 1.8.1, Copyleft 2001, 2002 J. Schrier, 2004-2017 Ingmar Stein</string>
+	<string>Monolingual version 1.8.1, Copyleft 2001, 2002 J. Schrier, 2004-2018 Ingmar Stein</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -55,6 +55,8 @@
 			</dict>
 		</array>
 	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Allow this to clean up your unneeded files.</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -76,6 +78,12 @@ Released under the GNU Public License.</string>
 	<string>https://ingmarstein.github.io/Monolingual/appcast.xml</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>dsa_pub.pem</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Allow this to clean up your unneeded files.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow this to clean up your unneeded files.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Allow this to clean up your unneeded files.</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array/>
 </dict>

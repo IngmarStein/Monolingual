@@ -625,7 +625,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -793,7 +793,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\n# Loop through all XPC services\nXPCSERVICES=`find \"${XPCSERVICES_DIR}\" -type d -name \"*.xpc\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${XPCSERVICES}\"\n\nfor XPCSERVICE in $XPCSERVICES; do\necho \"Signing '${XPCSERVICE}'\"\n`codesign -f --deep -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS";
+			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nSAVEIFS=$IFS\nIFS=$(echo -en \"\\n\\b\")\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# Loop through all frameworks\nFRAMEWORKS=`find \"${FRAMEWORK_DIR}\" -type d -name \"*.framework\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${FRAMEWORKS}\"\n\nfor FRAMEWORK in $FRAMEWORKS; do\necho \"Signing '${FRAMEWORK}'\"\n`codesign -f --deep --options runtime --runtime-version 10.14.0 -v -s \"${CODE_SIGN_IDENTITY}\" \"${FRAMEWORK}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\n# Loop through all XPC services\nXPCSERVICES=`find \"${XPCSERVICES_DIR}\" -type d -name \"*.xpc\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\n\necho \"Found:\"\necho \"${XPCSERVICES}\"\n\nfor XPCSERVICE in $XPCSERVICES; do\necho \"Signing '${XPCSERVICE}'\"\n`codesign -f --deep --options runtime --runtime-version 10.14.0 -v -s \"${CODE_SIGN_IDENTITY}\" \"${XPCSERVICE}\"`\nRESULT=$?\nif [[ $RESULT != 0 ]] ; then\nexit 1\nfi\ndone\n\n# restore $IFS\nIFS=$SAVEIFS\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1217,6 +1217,7 @@
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_POSTPROCESSING = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1276,6 +1277,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;

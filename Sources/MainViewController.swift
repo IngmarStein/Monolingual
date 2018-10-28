@@ -1,6 +1,6 @@
 /*
 *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
-*                2004-2017 Ingmar Stein
+*                2004-2018 Ingmar Stein
 *  Released under the GNU GPL.  For more information, see the header file.
 */
 //
