@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf400
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Monaco;}
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf200
+{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 Monaco;
+}
 {\colortbl;\red255\green255\blue255;\red0\green0\blue255;\red255\green12\blue9;}
 {\*\expandedcolortbl;;\csgenericrgb\c0\c0\c100000;\csgenericrgb\c100000\c4706\c3529;}
 \paperw12240\paperh15840\vieww9600\viewh8400\viewkind0
@@ -8,7 +9,7 @@
 \f0\b\fs24 \cf0 Monolingual\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 
-\b0 \cf0 \
+\f1\b0 \cf0 \
 Un outil pour supprimer les ressources des langues inutilis\'e9es\
 \
 Ce programme est un logiciel libre; vous pouvez le distribuer et/ou le modifier\
@@ -21,8 +22,8 @@ mais SANS AUCUNE GARANTIE; sans m\'eame la garantie implicite de la VALEUR MARCH
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 
-\b \cf0 1) Pourquoi :
-\b0 \
+\f0\b \cf0 1) Pourquoi :
+\f1\b0 \
 \
 Je ne sais pas pour vous, mais personnellement je n'utilise qu'une seule langue sur mon ordinateur : l'anglais. Et je pense que vous devez faire la m\'eame chose, n'utiliser qu'une langue, m\'eame si pour vous ce n'est pas l'anglais. Alors pourquoi perdre entre 160 et 200 Mo sur votre disque pour les r\'e9server \'e0 des fichiers de localisation que vous n'utiliserez pas ?\
 \
@@ -33,8 +34,8 @@ Voil\'e0 Monolingual \'97 un utilitaire pratique pour lib\'e9rer de la place pou
 \cf0 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 
-\b \cf0 2) Comment:
-\b0 \
+\f0\b \cf0 2) Comment:
+\f1\b0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\partightenfactor0
 \cf0 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
@@ -60,20 +61,20 @@ C'est tout ; plut\'f4t facile, non ?\
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 
-\b \cf0 3) FAQ 
-\b0 \
+\f0\b \cf0 3) FAQ 
+\f1\b0 \
 \
 Q. Monolingual made my OS X installation unusable.\
 \
 A. Chances are that you have accidently removed the English language files. Some language packs are only a subset of other language packs (for example "U.S. English" is a subset of "English"), so you will have an incomplete OS X installation if you remove "English" but not "U.S. English". In general, you should 
-\b never remove the English language files
-\b0  unless you know what you are doing. \
+\f0\b never remove the English language files
+\f1\b0  unless you know what you are doing. \
 \
 \
 Q. Should I remove the non-Intel architectures on my Intel based Mac?\
 . You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should 
-\b not strip the System frameworks if you want to use Rosetta
-\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
+\f0\b not strip the System frameworks if you want to use Rosetta
+\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
     /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
     mach-o, but wrong architecture\
 \
@@ -92,8 +93,8 @@ A.  RIEN. Monolingual est un gratuiciel (logiciel gratuit). If you like this pro
 Q. My Adobe applications want to be reinstalled after running Monolingual.\
 \
 A. Adobe's newer applications have a self-heal feature which checks for the existence of certain files and refuses to launch the application if one of those files is missing. This feature does not distinguish between files that are critical components of the program and those files which are not needed, e.g. localization files. Therefore, you should exclude Adobe's from being processed by Monolingual. Open Monolingual's preferences window, add "
-\f1\fs20 /Applications/Adobe Acrobat 7.0 Professional
-\f0\fs24 " (for example) and deselect the checkbox next to the item.\
+\f2\fs20 /Applications/Adobe Acrobat 7.0 Professional
+\f1\fs24 " (for example) and deselect the checkbox next to the item.\
 \
 \
 Q. Comment Monolingual est-il distribu\'e9?\
@@ -117,6 +118,11 @@ A.  Vous pouvez envoyer vos demandes en allant sur {\field{\*\fldinst{HYPERLINK 
 \
 \
 Q.  Historique des versions?\
+\
+Version 1.8.1\
+- Fixed "1 bytes saved" bug ({\field{\*\fldinst{HYPERLINK "https://github.com/IngmarStein/Monolingual/issues/132"}}{\fldrslt #132}})\
+- Use new hardened runtime\
+- Add support for the Slovak language ({\field{\*\fldinst{HYPERLINK "https://github.com/IngmarStein/Monolingual/pull/138"}}{\fldrslt #138}})\
 \
 Version 1.8.0\
 - Now requires macOS 10.13 (High Sierra)\
