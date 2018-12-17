@@ -793,7 +793,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --deep --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 --timestamp ${FRAMEWORK_DIR}/*.framework ${XPCSERVICES_DIR}/*.xpc/Contents/Library/LaunchServices/* ${XPCSERVICES_DIR}/*.xpc \"${CODESIGNING_FOLDER_PATH}\"\n";
+			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --deep --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${FRAMEWORK_DIR}/Sparkle.framework/Versions/Current/Resources/Autoupdate \\\n    ${FRAMEWORK_DIR}/Sparkle.framework/Versions/Current/Resources/Updater.app \\\n    ${FRAMEWORK_DIR}/*.framework \\\n    ${XPCSERVICES_DIR}/*.xpc/Contents/Library/LaunchServices/* \\\n    ${XPCSERVICES_DIR}/*.xpc \\\n    ${CODESIGNING_FOLDER_PATH}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1231,6 +1231,7 @@
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CODESIGN_FLAGS = "--timestamp";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
@@ -1293,6 +1294,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				OTHER_CODESIGN_FLAGS = "--timestamp";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
