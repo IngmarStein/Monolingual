@@ -15,8 +15,8 @@ extension ProgressUserInfoKey {
 
 @objc protocol HelperProtocol {
 
-	func connect(_ reply: (NSXPCListenerEndpoint) -> Void)
-	func getVersion(_ reply: (String) -> Void)
+	func connect(_ reply: @escaping (NSXPCListenerEndpoint) -> Void)
+	func getVersion(_ reply: @escaping (String) -> Void)
 	func uninstall()
 	func exit(code: Int)
 	@discardableResult func process(request: HelperRequest, reply: @escaping (Int) -> Void) -> Progress

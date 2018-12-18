@@ -59,11 +59,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		exit(code: Int(EXIT_SUCCESS))
 	}
 
-	@objc func connect(_ reply: (NSXPCListenerEndpoint) -> Void) {
+	@objc func connect(_ reply: @escaping (NSXPCListenerEndpoint) -> Void) {
 		reply(listener.endpoint)
 	}
 
-	@objc func getVersion(_ reply: (String) -> Void) {
+	@objc func getVersion(_ reply: @escaping (String) -> Void) {
 		reply(version)
 	}
 

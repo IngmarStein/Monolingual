@@ -14,11 +14,11 @@ import os.log
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?
 
-	func bundledHelperVersion(reply: (String) -> Void) {
+	func bundledHelperVersion(reply: @escaping (String) -> Void) {
 		reply(MonolingualHelperClient.bundledVersion!)
 	}
 
-	func installHelperTool(withReply reply: (NSError?) -> Void) {
+	func installHelperTool(withReply reply: @escaping (NSError?) -> Void) {
 		do {
 			try MonolingualHelperClient.installWithPrompt(prompt: nil)
 		} catch let error as SMJError {
