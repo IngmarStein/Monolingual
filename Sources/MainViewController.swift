@@ -329,7 +329,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		guard let progress = self.progress else { return }
 
 		processApplication = nil
-		progressViewController?.dismiss(self)
+		if let progressViewController = progressViewController {
+			dismiss(progressViewController)
+		}
 		progressResetTimer?.invalidate()
 		progressResetTimer = nil
 
