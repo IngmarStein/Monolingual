@@ -1,3 +1,15 @@
+- version: 1.8.1
+  release: 2018-12-23
+  changes:
+    - Fixed "1 bytes saved" bug (#132)
+    - Use new hardened runtime
+    - Add support for the Slovak language (#138)
+  sparkle:
+    md5: d3037bc1009872114ea9b91a2e8e1555
+    dsa: MC4CFQCsRBkRVN+LfhRvmEn6jtHJ4bH8DQIVAMO/kseEUAEIb/CGwoDXZeQ9SiVN
+    filesize: 9832461
+  minimum: '10.13'
+
 - version: 1.8.0
   release: 2018-03-12
   changes:
