@@ -89,7 +89,7 @@ class HelperTests: XCTestCase {
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		helper.process(request: request) { (exitCode) -> Void in
+		let progress = helper.process(request: request) { (exitCode) -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -112,6 +112,12 @@ class HelperTests: XCTestCase {
 				XCTFail("Expectation failed with error: \(error)")
 			}
 		}
+
+		XCTAssert(progress.fileCompletedCount == 1, "should have processed 1 file")
+		XCTAssert(progress.totalUnitCount == Int64(4097), "totalUnitCount should be 4097")
+		XCTAssert(progress.completedUnitCount == Int64(4096), "completedUnitCount should be 4096")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] as! String == "test", "app name should be 'test'")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as! Int == 4096, "last process file should have changed by 4k bytes")
     }
 
 	private func assertFileSize(path: URL, expectedSize: Int, message: String) {
@@ -144,7 +150,7 @@ class HelperTests: XCTestCase {
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		helper.process(request: request) { (exitCode) -> Void in
+		let progress = helper.process(request: request) { (exitCode) -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -168,6 +174,12 @@ class HelperTests: XCTestCase {
 				XCTFail("Expectation failed with error: \(error)")
 			}
 		}
+
+		XCTAssert(progress.fileCompletedCount == 2, "should have processed 2 files")
+		XCTAssert(progress.totalUnitCount == Int64(20481), "totalUnitCount should be the size difference plus 1")
+		XCTAssert(progress.completedUnitCount == Int64(20480), "should have removed 20480 bytes")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] == nil, "should not have an app name")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as! Int == 8192, "should have removed 8k bytes")
 	}
 
 }

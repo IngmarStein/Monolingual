@@ -24,20 +24,23 @@ private struct ArchFlag: Equatable, Hashable {
 	var cputype: cpu_type_t
 	var cpusubtype: cpu_subtype_t
 
-	var hashValue: Int {
-		return cputype.hashValue ^ cpusubtype.hashValue
+	func hash(into hasher: inout Hasher) {
+		hasher.combine(cputype)
+		hasher.combine(cpusubtype)
 	}
 }
 
 extension fat_arch: Hashable {
-	public var hashValue: Int {
-		return cputype.hashValue ^ cpusubtype.hashValue
+	public func hash(into hasher: inout Hasher) {
+		hasher.combine(cputype.hashValue)
+		hasher.combine(cpusubtype.hashValue)
 	}
 }
 
 extension fat_arch_64: Hashable {
-	public var hashValue: Int {
-		return cputype.hashValue ^ cpusubtype.hashValue
+	public func hash(into hasher: inout Hasher) {
+		hasher.combine(cputype.hashValue)
+		hasher.combine(cpusubtype.hashValue)
 	}
 }
 
@@ -470,7 +473,6 @@ class Lipo {
 			withUnsafePointer(to: &fatHeader) { (pointer) in
 				let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none)
 				fileHandle.write(data)
-				newsize += data.count
 				// os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
 				// return false
 			}
@@ -496,7 +498,6 @@ class Lipo {
 					withUnsafePointer(to: &fatArch) { (pointer) in
 						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
 						fileHandle.write(data)
-						newsize += data.count
 						// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 						// return false
 					}
@@ -505,7 +506,6 @@ class Lipo {
 					withUnsafePointer(to: &fatArch) { (pointer) in
 						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
 						fileHandle.write(data)
-						newsize += data.count
 						// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 						// return false
 					}
@@ -524,7 +524,6 @@ class Lipo {
 				withUnsafePointer(to: &fatArch) { (pointer) in
 					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
 					fileHandle.write(data)
-					newsize += data.count
 					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 					// return false
 				}
@@ -533,7 +532,6 @@ class Lipo {
 				withUnsafePointer(to: &fatArch) { (pointer) in
 					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
 					fileHandle.write(data)
-					newsize += data.count
 					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 					// return false
 				}
@@ -551,7 +549,6 @@ class Lipo {
 				withUnsafePointer(to: &fatArch) { (pointer) in
 					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
 					fileHandle.write(data)
-					newsize += data.count
 					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 					// return false
 				}
@@ -560,7 +557,6 @@ class Lipo {
 				withUnsafePointer(to: &fatArch) { (pointer) in
 					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
 					fileHandle.write(data)
-					newsize += data.count
 					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
 					// return false
 				}
@@ -576,6 +572,8 @@ class Lipo {
 			// os_log("can't write to output file: %@", type: .error, temporaryFile)
 			// return false
 		}
+
+		newsize = Int(fileHandle.seekToEndOfFile())
 
 		fileHandle.closeFile()
 
