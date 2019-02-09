@@ -231,6 +231,7 @@
 		95FAA33319752A6B00C506EE /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95FAA33519752A7200C506EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ja; path = Resources/ja.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95FAA33719752AA900C506EE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = en; path = Resources/en.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
+		95FB7D36220F61DD00E07548 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = Resources/sk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		99F35F9584E0B853627BE591 /* Pods-XPCService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.debug.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.debug.xcconfig"; sourceTree = "<group>"; };
 		9F63A03F3AF9E47EB48A4F2D /* Pods_Monolingual.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Monolingual.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F505F4EC0300C29D01E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = German; path = Resources/de.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -675,6 +676,7 @@
 				ro,
 				ko,
 				ru,
+				sk,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
@@ -903,6 +905,7 @@
 				950217341AD16F8D00907A24 /* ro */,
 				954DE0001AD4ED4F0097145C /* ko */,
 				95EBC3A11BD989F00022BA4A /* ru */,
+				95FB7D36220F61DD00E07548 /* sk */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
