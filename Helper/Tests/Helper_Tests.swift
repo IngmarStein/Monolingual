@@ -89,7 +89,7 @@ class HelperTests: XCTestCase {
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		let progress = helper.process(request: request) { (exitCode) -> Void in
+		let progress = helper.process(request: request, progress: nil) { (exitCode) -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -150,7 +150,7 @@ class HelperTests: XCTestCase {
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		let progress = helper.process(request: request) { (exitCode) -> Void in
+		let progress = helper.process(request: request, progress: nil) { (exitCode) -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default

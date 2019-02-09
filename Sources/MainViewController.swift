@@ -32,7 +32,7 @@ func mach_task_self() -> mach_port_t {
 }
 // tailor:on
 
-final class MainViewController: NSViewController, ProgressViewControllerDelegate {
+final class MainViewController: NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
 
 	@IBOutlet private weak var currentArchitecture: NSTextField!
 
@@ -145,6 +145,25 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
+	func processed(file: String, size: Int, appName: String?) {
+		if let progress = self.progress {
+			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
+			progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
+			progress.setUserInfoObject(URL(fileURLWithPath: file), forKey: .fileURLKey)
+			progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
+			if let appName = appName {
+				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
+			}
+			progress.completedUnitCount += Int64(size)
+
+			// show the file progress even if it has zero bytes
+			if size == 0 {
+				progress.willChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+				progress.didChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+			}
+		}
+	}
+
 	private func processProgress(file: URL, size: Int, appName: String?) {
 		log.message("\(file.path): \(size)\n")
 
@@ -219,10 +238,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private func runHelper(_ helper: HelperProtocol, arguments: HelperRequest) {
 		ProcessInfo.processInfo.disableSuddenTermination()
 
+		let helperProgress = Progress(totalUnitCount: -1)
+		helperProgress.becomeCurrent(withPendingUnitCount: -1)
+		progressObserverToken = helperProgress.observe(\.completedUnitCount) { (progress, change) in
+			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
+				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
+			}
+		}
+
 		// DEBUG
 		// arguments.dryRun = true
 
-		let helperProgress = helper.process(request: arguments) { exitCode in
+		helper.process(request: arguments, progress: self) { exitCode in
 			os_log("helper finished with exit code: %d", type: .info, exitCode)
 			helper.exit(code: exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {
@@ -232,9 +259,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		}
 
+		helperProgress.resignCurrent()
 		self.progress = helperProgress
 
 		progressObserverToken = helperProgress.observe(\.completedUnitCount) { (progress, _) in
+			print(progress)
+			print(progress.userInfo)
+			print(progress.completedUnitCount)
 			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
 				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
 			}
@@ -267,6 +298,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					var performInstallation = false
 					let connection = NSXPCConnection(listenerEndpoint: endpoint)
 					let interface = NSXPCInterface(with: HelperProtocol.self)
+					interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
 					connection.remoteObjectInterface = interface
 					connection.invalidationHandler = {
 						os_log("XPC connection to helper invalidated.", type: .error)

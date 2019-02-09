@@ -47,7 +47,7 @@ do {
 		request.bundleBlacklist = bundles.value.flatMap { Set<String>($0) }
 		request.directories = delete.value.flatMap { Set<String>($0) }
 		request.thin = thin.value
-		helper.process(request: request) { (result) -> Void in
+		helper.process(request: request, progress: nil) { (result) -> Void in
 			exit(Int32(result))
 		}
 		RunLoop.current.run()

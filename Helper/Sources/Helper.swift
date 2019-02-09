@@ -84,7 +84,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		Darwin.exit(Int32(code))
 	}
 
-	@discardableResult @objc func process(request: HelperRequest, reply: @escaping (Int) -> Void) -> Progress {
+	@discardableResult @objc func process(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) -> Progress {
 		timer?.invalidate()
 
 		let context = HelperContext(request, rootless: isRootless)
@@ -100,6 +100,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 			os_log("Stopping MonolingualHelper", type: .info)
 		}
 		context.progress = progress
+		context.remoteProgress = remoteProgress
 
 		// check if /usr/bin/strip is present
 		request.doStrip = request.doStrip && context.fileManager.fileExists(atPath: "/usr/bin/strip")
@@ -153,7 +154,8 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)
-		interface.setClasses(classes, for: #selector(Helper.process(request:reply:)), argumentIndex: 0, ofReply: false)
+		interface.setClasses(classes, for: #selector(Helper.process(request:progress:reply:)), argumentIndex: 0, ofReply: false)
+		interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(Helper.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
 		newConnection.exportedInterface = interface
 		newConnection.exportedObject = self
 		newConnection.resume()
