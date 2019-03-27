@@ -20,7 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		let defaults = UserDefaults.standard
 
 		let roots = defaults.array(forKey: "Roots")
-		if roots == nil || roots!.index(where: { (root) -> Bool in
+		if roots == nil || roots!.firstIndex(where: { (root) -> Bool in
 			if let rootDictionary = root as? NSDictionary {
 				return rootDictionary.object(forKey: "Path") == nil
 					|| rootDictionary.object(forKey: "Languages") == nil
