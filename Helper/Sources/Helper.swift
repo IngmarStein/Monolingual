@@ -112,7 +112,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 					if progress.isCancelled {
 						break
 					}
-					context.remove(URL(fileURLWithPath: file))
+					context.remove(URL(fileURLWithPath: file, isDirectory: false))
 				}
 			}
 
@@ -242,8 +242,8 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 					let data = try Data(contentsOf: theURL, options: [.alwaysMapped, .uncached])
 					if data.count >= MemoryLayout<UInt32>.size {
-						data.withUnsafeBytes { (pointer: UnsafePointer<UInt32>) -> Void in
-							let magic = pointer.pointee
+						data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Void in
+							let magic = pointer.load(as: UInt32.self)
 							let isFatMagic = magic == FAT_MAGIC || magic == FAT_CIGAM || magic == FAT_MAGIC_64 || magic == FAT_CIGAM_64
 							if isFatMagic {
 								self.thinFile(url: theURL, context: context, lipo: lipo)

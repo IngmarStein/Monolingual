@@ -293,7 +293,7 @@ class Lipo {
 
 		let data: Data
 		do {
-			data = try Data(contentsOf: URL(fileURLWithPath: fileName), options: [.alwaysMapped, .uncached])
+			data = try Data(contentsOf: URL(fileURLWithPath: fileName, isDirectory: false), options: [.alwaysMapped, .uncached])
 		} catch let error {
 			os_log("can't map input file '%@': %@", type: .error, fileName, error.localizedDescription)
 			return false
@@ -307,26 +307,21 @@ class Lipo {
 			return false
 		}
 
-		return inputData.withUnsafeBytes { (addr: UnsafePointer<Int8>) -> Bool in
-			let magic = addr.withMemoryRebound(to: UInt32.self, capacity: 1) { (pointer) in
-				return pointer.pointee
-			}
+		return inputData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) -> Bool in
+			let magic = buffer.load(as: UInt32.self)
 			if magic == FAT_MAGIC || magic == FAT_CIGAM {
 				// this file is a 32-bit fat file
-				addr.withMemoryRebound(to: fat_header.self, capacity: 1) { (headerPointer) in
-					fatHeader = fatHeaderFromFile(headerPointer.pointee)
-				}
+				fatHeader = fatHeaderFromFile(buffer.load(as: fat_header.self))
 				let bigSize = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch>.size + MemoryLayout<fat_header>.size
 				if bigSize > size {
 					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
 					inputData = nil
 					return false
 				}
-				let fatArchsPointer = addr + MemoryLayout<fat_header>.size
+				let fatArchsRawPointer = UnsafeRawBufferPointer(rebasing: buffer.dropFirst(MemoryLayout<fat_header>.size))
+				let fatArchsPointer = fatArchsRawPointer.bindMemory(to: fat_arch.self)
 				let fatArchsCount = Int(fatHeader.nfat_arch)
-				let fatArchs = fatArchsPointer.withMemoryRebound(to: fat_arch.self, capacity: fatArchsCount) { (pointer) in
-					return Array(UnsafeBufferPointer<fat_arch>(start: pointer, count: fatArchsCount)).map { self.fatArchFromFile($0) }
-				}
+				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer.baseAddress!, count: fatArchsCount)).map { self.fatArchFromFile($0) }
 				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
@@ -366,20 +361,17 @@ class Lipo {
 			} else if magic == FAT_MAGIC_64 || magic == FAT_CIGAM_64 {
 				// this file is a 64-bit fat file
 				fat64Flag = true
-				addr.withMemoryRebound(to: fat_header.self, capacity: 1) { (headerPointer) in
-					fatHeader = fatHeaderFromFile(headerPointer.pointee)
-				}
+				fatHeader = fatHeaderFromFile(buffer.load(as: fat_header.self))
 				let bigSize = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch_64>.size + MemoryLayout<fat_header>.size
 				if bigSize > size {
 					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
 					inputData = nil
 					return false
 				}
-				let fatArchsPointer = addr + MemoryLayout<fat_header>.size
+				let fatArchsRawPointer = UnsafeRawBufferPointer(rebasing: buffer.dropFirst(MemoryLayout<fat_header>.size))
+				let fatArchsPointer = fatArchsRawPointer.bindMemory(to: fat_arch_64.self)
 				let fatArchsCount = Int(fatHeader.nfat_arch)
-				let fatArchs = fatArchsPointer.withMemoryRebound(to: fat_arch_64.self, capacity: fatArchsCount) { (pointer) in
-					return Array(UnsafeBufferPointer<fat_arch_64>(start: pointer, count: fatArchsCount)).map { self.fatArch64FromFile($0) }
-				}
+				let fatArchs = Array(UnsafeBufferPointer<fat_arch_64>(start: fatArchsPointer.baseAddress!, count: fatArchsCount)).map { self.fatArch64FromFile($0) }
 				var fatArchSet = Set<fat_arch_64>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
@@ -577,8 +569,8 @@ class Lipo {
 
 		fileHandle.closeFile()
 
-		let temporaryURL = URL(fileURLWithPath: temporaryFile)
-		let inputURL = URL(fileURLWithPath: fileName)
+		let temporaryURL = URL(fileURLWithPath: temporaryFile, isDirectory: false)
+		let inputURL = URL(fileURLWithPath: fileName, isDirectory: false)
 		do {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error {

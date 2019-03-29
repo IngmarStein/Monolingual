@@ -149,7 +149,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if let progress = self.progress {
 			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
-			progress.setUserInfoObject(URL(fileURLWithPath: file), forKey: .fileURLKey)
+			progress.setUserInfoObject(URL(fileURLWithPath: file, isDirectory: false), forKey: .fileURLKey)
 			progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
 			if let appName = appName {
 				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
