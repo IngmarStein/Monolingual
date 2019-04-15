@@ -168,9 +168,9 @@
 		9558F7940615953D00F6DE23 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = German; path = Resources/de.lproj/Credits.html; sourceTree = "<group>"; };
 		9558F813061598BA00F6DE23 /* Lies-mich.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = "Lies-mich.rtfd"; path = "Resources/Lies-mich.rtfd"; sourceTree = "<group>"; };
 		9558F814061598BA00F6DE23 /* README.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = README.rtfd; path = Resources/README.rtfd; sourceTree = "<group>"; };
-		955CE2941B20D8D800F64646 /* CommandLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommandLine.swift; path = Externals/CommandLine/CommandLineKit/CommandLine.swift; sourceTree = "<group>"; };
-		955CE2951B20D8D800F64646 /* Option.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Option.swift; path = Externals/CommandLine/CommandLineKit/Option.swift; sourceTree = "<group>"; };
-		955CE2961B20D8D800F64646 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StringExtensions.swift; path = Externals/CommandLine/CommandLineKit/StringExtensions.swift; sourceTree = "<group>"; };
+		955CE2941B20D8D800F64646 /* CommandLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandLine.swift; sourceTree = "<group>"; };
+		955CE2951B20D8D800F64646 /* Option.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Option.swift; sourceTree = "<group>"; };
+		955CE2961B20D8D800F64646 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		9572AB161977E8E5002E4AF4 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Setting.swift; path = Sources/Setting.swift; sourceTree = "<group>"; };
 		95773339197939B70008E1A4 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95833CDF06ED8C2D00238761 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Resources/it.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -435,19 +435,20 @@
 		955CE2901B20D88E00F64646 /* Externals */ = {
 			isa = PBXGroup;
 			children = (
-				955CE29A1B20D8DC00F64646 /* CommandLine */,
+				955CE29A1B20D8DC00F64646 /* CommandLineKit */,
 			);
 			name = Externals;
 			sourceTree = "<group>";
 		};
-		955CE29A1B20D8DC00F64646 /* CommandLine */ = {
+		955CE29A1B20D8DC00F64646 /* CommandLineKit */ = {
 			isa = PBXGroup;
 			children = (
 				955CE2941B20D8D800F64646 /* CommandLine.swift */,
 				955CE2951B20D8D800F64646 /* Option.swift */,
 				955CE2961B20D8D800F64646 /* StringExtensions.swift */,
 			);
-			name = CommandLine;
+			name = CommandLineKit;
+			path = Externals/CommandLineKit/Sources/CommandLineKit;
 			sourceTree = "<group>";
 		};
 		95A393931D9323C900C43430 /* Sparkle */ = {

@@ -240,7 +240,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let helperProgress = Progress(totalUnitCount: -1)
 		helperProgress.becomeCurrent(withPendingUnitCount: -1)
-		progressObserverToken = helperProgress.observe(\.completedUnitCount) { (progress, change) in
+		progressObserverToken = helperProgress.observe(\.completedUnitCount) { (progress, _) in
 			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
 				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
 			}
