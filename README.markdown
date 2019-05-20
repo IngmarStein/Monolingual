@@ -58,3 +58,4 @@ Monolingual is written in Swift 5.0 and requires Xcode 10.2 or above.
 
 [![Travis Build Status](https://img.shields.io/travis/IngmarStein/Monolingual.svg)](https://travis-ci.org/IngmarStein/Monolingual)
 [![Azure Build Status](https://dev.azure.com/ingmarstein/monolingual/_apis/build/status/IngmarStein.Monolingual)](https://dev.azure.com/ingmarstein/monolingual/_build/latest?definitionId=1)
+[![Maintainability](https://api.codeclimate.com/v1/badges/4dbc05bd46eef3208edf/maintainability)](https://codeclimate.com/github/IngmarStein/Monolingual/maintainability)
