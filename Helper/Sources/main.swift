@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommandLineKit
 
 private let cli = CommandLine()
 private let uninstall = BoolOption(shortFlag: "u", longFlag: "uninstall", helpMessage: "Uninstall helper.")
