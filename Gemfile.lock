@@ -67,7 +67,7 @@ GEM
     faraday_middleware (0.13.1)
       faraday (>= 0.7.4, < 1.0)
     fastimage (2.1.5)
-    fastlane (2.124.0)
+    fastlane (2.125.2)
       CFPropertyList (>= 2.3, < 4.0.0)
       addressable (>= 2.3, < 3.0.0)
       babosa (>= 1.0.2, < 2.0.0)
@@ -86,6 +86,7 @@ GEM
       google-cloud-storage (>= 1.15.0, < 2.0.0)
       highline (>= 1.7.2, < 2.0.0)
       json (< 3.0.0)
+      jwt (~> 2.1.0)
       mini_magick (~> 4.5.1)
       multi_xml (~> 0.5)
       multipart-post (~> 2.0.0)
@@ -137,7 +138,7 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     json (2.2.0)
-    jwt (2.2.1)
+    jwt (2.1.0)
     memoist (0.16.0)
     mime-types (3.2.2)
       mime-types-data (~> 3.2015)
@@ -205,7 +206,7 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods (~> 1.7.1)
-  fastlane (~> 2.124)
+  fastlane (~> 2.125)
 
 BUNDLED WITH
    2.0.1
