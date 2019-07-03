@@ -12,7 +12,6 @@ class Fastfile: LaneFile {
 	var fastlaneVersion: String { return "2.69.3" }
 
 	func beforeAll() {
-		cocoapods(repoUpdate: true)
 		swiftlint(mode: "lint", configFile: ".swiftlint.yml", strict: false, ignoreExitStatus: false, quiet: false)
 	}
 

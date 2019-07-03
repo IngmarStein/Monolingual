@@ -3,11 +3,10 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8C98660D5B2CAD9D36779720 /* libPods-Monolingual.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB8BFDC544224A065D7736 /* libPods-Monolingual.a */; };
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
 		950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */; };
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
@@ -65,8 +64,8 @@
 		95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 95F7771C0ECC2644009C621B /* dsa_pub.pem */; };
-		C91EE2B8B3940C00DEA639D3 /* libPods-XPCService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E06C7E9000267EBCD1078CA /* libPods-XPCService.a */; };
-		C945FF26CDE2043F042C1559 /* libPods-Helper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92293E17F9C82F851982AA8A /* libPods-Helper.a */; };
+		95FCE24022CD3534008A55D3 /* CommandLineKit in Frameworks */ = {isa = PBXBuildFile; productRef = 95FCE23F22CD3534008A55D3 /* CommandLineKit */; };
+		95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */ = {isa = PBXBuildFile; productRef = 95FCE24222CD355D008A55D3 /* SMJobKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,14 +133,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		026148658B9AA2CD107A0754 /* Pods-Helper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Helper.release.xcconfig"; path = "Pods/Target Support Files/Pods-Helper/Pods-Helper.release.xcconfig"; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = English; path = Resources/en.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		271E7D7E5ACCB0766DF3580A /* Pods-Monolingual.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Monolingual.release.xcconfig"; path = "Pods/Target Support Files/Pods-Monolingual/Pods-Monolingual.release.xcconfig"; sourceTree = "<group>"; };
-		29AB8BFDC544224A065D7736 /* libPods-Monolingual.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Monolingual.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BCD7FCA097D043900FE7723 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Italian; path = Resources/it.lproj/Credits.html; sourceTree = "<group>"; };
-		3579871AA54059DABA10CC7E /* Pods-Monolingual.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Monolingual.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Monolingual/Pods-Monolingual.debug.xcconfig"; sourceTree = "<group>"; };
-		832AA36A7030E9574F2C948A /* Pods-XPCService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.release.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.release.xcconfig"; sourceTree = "<group>"; };
-		92293E17F9C82F851982AA8A /* libPods-Helper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Helper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		950217331AD16E7600907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ro; path = Resources/ro.lproj/Credits.html; sourceTree = "<group>"; };
 		950217341AD16F8D00907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		950217351AD16FB000907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -229,9 +222,6 @@
 		95FAA33519752A7200C506EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ja; path = Resources/ja.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95FAA33719752AA900C506EE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = en; path = Resources/en.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95FB7D36220F61DD00E07548 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = Resources/sk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		97E7963993E256B1B80C4BBE /* Pods-Helper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Helper.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Helper/Pods-Helper.debug.xcconfig"; sourceTree = "<group>"; };
-		99F35F9584E0B853627BE591 /* Pods-XPCService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XPCService.debug.xcconfig"; path = "Pods/Target Support Files/Pods-XPCService/Pods-XPCService.debug.xcconfig"; sourceTree = "<group>"; };
-		9E06C7E9000267EBCD1078CA /* libPods-XPCService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XPCService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F505F4EC0300C29D01E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = German; path = Resources/de.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F505F4ED0300C2B001E3DC1E /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = German; path = Resources/de.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F51C1B3501F29B1C0120C6FA /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = English; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -260,7 +250,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */,
-				8C98660D5B2CAD9D36779720 /* libPods-Monolingual.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,7 +257,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C945FF26CDE2043F042C1559 /* libPods-Helper.a in Frameworks */,
+				95FCE24022CD3534008A55D3 /* CommandLineKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,7 +265,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C91EE2B8B3940C00DEA639D3 /* libPods-XPCService.a in Frameworks */,
+				95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,7 +303,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA = {
+		29B97314FDCFA39411CA2CEA /* Monolingual */ = {
 			isa = PBXGroup;
 			children = (
 				080E96DDFE201D6D7F000001 /* Sources */,
@@ -326,7 +315,6 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				95A393931D9323C900C43430 /* Sparkle */,
 				95E236DB1AD526DF00076008 /* XPCService */,
-				B39CEEB6DCF93FBD69E89E7E /* Pods */,
 			);
 			name = Monolingual;
 			sourceTree = "<group>";
@@ -353,9 +341,6 @@
 			isa = PBXGroup;
 			children = (
 				95337A201B09EAC600303823 /* Sparkle.framework */,
-				92293E17F9C82F851982AA8A /* libPods-Helper.a */,
-				29AB8BFDC544224A065D7736 /* libPods-Monolingual.a */,
-				9E06C7E9000267EBCD1078CA /* libPods-XPCService.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -492,19 +477,6 @@
 			path = lipo;
 			sourceTree = "<group>";
 		};
-		B39CEEB6DCF93FBD69E89E7E /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				3579871AA54059DABA10CC7E /* Pods-Monolingual.debug.xcconfig */,
-				271E7D7E5ACCB0766DF3580A /* Pods-Monolingual.release.xcconfig */,
-				99F35F9584E0B853627BE591 /* Pods-XPCService.debug.xcconfig */,
-				832AA36A7030E9574F2C948A /* Pods-XPCService.release.xcconfig */,
-				97E7963993E256B1B80C4BBE /* Pods-Helper.debug.xcconfig */,
-				026148658B9AA2CD107A0754 /* Pods-Helper.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -529,7 +501,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */;
 			buildPhases = (
-				4B6992436AF109B55DF552C7 /* [CP] Check Pods Manifest.lock */,
 				95A1302C0608F92F00D8E30C /* Resources */,
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
@@ -552,7 +523,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */;
 			buildPhases = (
-				EB94707C8F2610201BFE306C /* [CP] Check Pods Manifest.lock */,
 				95C3C95D0610144300D417BC /* Sources */,
 				95C3C95E0610144300D417BC /* Frameworks */,
 			);
@@ -561,6 +531,9 @@
 			dependencies = (
 			);
 			name = Helper;
+			packageProductDependencies = (
+				95FCE23F22CD3534008A55D3 /* CommandLineKit */,
+			);
 			productName = Helper;
 			productReference = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */;
 			productType = "com.apple.product-type.tool";
@@ -569,7 +542,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95E236E91AD526DF00076008 /* Build configuration list for PBXNativeTarget "XPCService" */;
 			buildPhases = (
-				2FB13E69095670B83A3B069B /* [CP] Check Pods Manifest.lock */,
 				95E236D61AD526DF00076008 /* Sources */,
 				95E236D71AD526DF00076008 /* Frameworks */,
 				95E236D81AD526DF00076008 /* Resources */,
@@ -581,6 +553,9 @@
 				95E236F41AD532E400076008 /* PBXTargetDependency */,
 			);
 			name = XPCService;
+			packageProductDependencies = (
+				95FCE24222CD355D008A55D3 /* SMJobKit */,
+			);
 			productName = XPCService;
 			productReference = 95E236DA1AD526DF00076008 /* Monolingual.xpc */;
 			productType = "com.apple.product-type.xpc-service";
@@ -610,7 +585,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -662,7 +637,11 @@
 				ru,
 				sk,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
+			packageReferences = (
+				95FCE23E22CD3534008A55D3 /* XCRemoteSwiftPackageReference "CommandLineKit" */,
+				95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */,
+			);
 			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -717,42 +696,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2FB13E69095670B83A3B069B /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-XPCService-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		4B6992436AF109B55DF552C7 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Monolingual-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		950183451AF4FC26007F74C3 /* Fabric */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -780,28 +723,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --deep --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${FRAMEWORK_DIR}/Sparkle.framework/Versions/Current/Resources/Autoupdate \\\n    ${FRAMEWORK_DIR}/Sparkle.framework/Versions/Current/Resources/Updater.app \\\n    ${FRAMEWORK_DIR}/*.framework \\\n    ${XPCSERVICES_DIR}/*.xpc/Contents/Library/LaunchServices/* \\\n    ${XPCSERVICES_DIR}/*.xpc \\\n    ${TARGET_BUILD_DIR}/${EXECUTABLE_PATH} \\\n    ${CODESIGNING_FOLDER_PATH}\n";
-		};
-		EB94707C8F2610201BFE306C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Helper-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1068,12 +989,12 @@
 		};
 		95AAF5610856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 97E7963993E256B1B80C4BBE /* Pods-Helper.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "Helper/Sources/MonolingualHelper-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1103,12 +1024,12 @@
 		};
 		95AAF5620856C2DC007CEE36 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 026148658B9AA2CD107A0754 /* Pods-Helper.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "Helper/Sources/MonolingualHelper-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1136,7 +1057,6 @@
 		};
 		95AAF5650856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3579871AA54059DABA10CC7E /* Pods-Monolingual.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -1146,6 +1066,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
@@ -1168,7 +1089,6 @@
 		};
 		95AAF5660856C2DC007CEE36 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 271E7D7E5ACCB0766DF3580A /* Pods-Monolingual.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -1178,6 +1098,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
@@ -1321,7 +1242,6 @@
 		};
 		95E236E71AD526DF00076008 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 99F35F9584E0B853627BE591 /* Pods-XPCService.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1340,6 +1260,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1374,7 +1295,6 @@
 		};
 		95E236E81AD526DF00076008 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 832AA36A7030E9574F2C948A /* Pods-XPCService.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1393,6 +1313,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1434,6 +1355,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1473,6 +1395,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				DEVELOPMENT_TEAM = ADVP2P7SJK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1543,6 +1466,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		95FCE23E22CD3534008A55D3 /* XCRemoteSwiftPackageReference "CommandLineKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/IngmarStein/CommandLineKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
+		95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/IngmarStein/SMJobKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.20;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		95FCE23F22CD3534008A55D3 /* CommandLineKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 95FCE23E22CD3534008A55D3 /* XCRemoteSwiftPackageReference "CommandLineKit" */;
+			productName = CommandLineKit;
+		};
+		95FCE24222CD355D008A55D3 /* SMJobKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */;
+			productName = SMJobKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
 }
