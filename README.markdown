@@ -52,7 +52,7 @@ GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
 
 ## Developers
 
-Monolingual is written in Swift 5.0 and requires Xcode 10.2 or above.
+Monolingual is written in Swift 5.0 and requires Xcode 11.0 or above.
 
 ## Status
 
