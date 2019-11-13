@@ -17,6 +17,8 @@ jobs:
       run: "./scripts/add-key.sh"
       env:
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    - name: Resolve Swift Package Manager dependencies (https://github.com/fastlane/fastlane/pull/15505)
+      run: xcodebuild -resolvePackageDependencies
     - name: Build and test
       run: bundle exec fastlane test
     - name: Remove key
