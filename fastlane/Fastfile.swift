@@ -17,7 +17,7 @@ class Fastfile: LaneFile {
 
 	func testLane() {
 		desc("Runs all the tests")
-		scan(scheme: "Monolingual")
+		runTests(project: "Monolingual.xcodeproj", scheme: "Monolingual")
 	}
 
 	func betaLane() {

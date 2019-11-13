@@ -1487,6 +1487,7 @@ func captureScreenshots(workspace: String? = nil,
    - useSsh: Use SSH for downloading GitHub repositories
    - useSubmodules: Add dependencies as Git submodules
    - useBinaries: Check out dependency repositories even when prebuilt frameworks exist
+   - noCheckout: When bootstrapping Carthage do not checkout
    - noBuild: When bootstrapping Carthage do not build
    - noSkipCurrent: Don't skip building the Carthage project (in addition to its dependencies)
    - derivedData: Use derived data folder at path
@@ -1507,6 +1508,7 @@ func carthage(command: String = "bootstrap",
               useSsh: Bool? = nil,
               useSubmodules: Bool? = nil,
               useBinaries: Bool? = nil,
+              noCheckout: Bool? = nil,
               noBuild: Bool? = nil,
               noSkipCurrent: Bool? = nil,
               derivedData: String? = nil,
@@ -1526,6 +1528,7 @@ func carthage(command: String = "bootstrap",
                                                                                           RubyCommand.Argument(name: "use_ssh", value: useSsh),
                                                                                           RubyCommand.Argument(name: "use_submodules", value: useSubmodules),
                                                                                           RubyCommand.Argument(name: "use_binaries", value: useBinaries),
+                                                                                          RubyCommand.Argument(name: "no_checkout", value: noCheckout),
                                                                                           RubyCommand.Argument(name: "no_build", value: noBuild),
                                                                                           RubyCommand.Argument(name: "no_skip_current", value: noSkipCurrent),
                                                                                           RubyCommand.Argument(name: "derived_data", value: derivedData),
@@ -1564,7 +1567,7 @@ func carthage(command: String = "bootstrap",
 */
 func cert(development: Bool = false,
           force: Bool = false,
-          generateAppleCerts: Bool = true,
+          generateAppleCerts: Bool = false,
           username: String,
           teamId: String? = nil,
           teamName: String? = nil,
@@ -1799,6 +1802,7 @@ func clubmate() {
 
  - parameters:
    - repoUpdate: Add `--repo-update` flag to `pod install` command
+   - cleanInstall: Execute a full pod installation ignoring the content of the project cache
    - silent: Execute command without logging output
    - verbose: Show more debugging information
    - ansi: Show output with ANSI codes
@@ -1806,12 +1810,14 @@ func clubmate() {
    - podfile: Explicitly specify the path to the Cocoapods' Podfile. You can either set it to the Podfile's path or to the folder containing the Podfile file
    - errorCallback: A callback invoked with the command output if there is a non-zero exit status
    - tryRepoUpdateOnError: Retry with --repo-update if action was finished with error
-   - clean: **DEPRECATED!** (Option removed from cocoapods) Remove SCM directories
+   - deployment: Disallow any changes to the Podfile or the Podfile.lock during installation
+   - clean: **DEPRECATED!** (Option renamed as clean_install) Remove SCM directories
    - integrate: **DEPRECATED!** (Option removed from cocoapods) Integrate the Pods libraries into the Xcode project(s)
 
  If you use [CocoaPods](http://cocoapods.org) you can use the `cocoapods` integration to run `pod install` before building your app.
 */
 func cocoapods(repoUpdate: Bool = false,
+               cleanInstall: Bool = false,
                silent: Bool = false,
                verbose: Bool = false,
                ansi: Bool = true,
@@ -1819,9 +1825,11 @@ func cocoapods(repoUpdate: Bool = false,
                podfile: String? = nil,
                errorCallback: Any? = nil,
                tryRepoUpdateOnError: Bool = false,
+               deployment: Bool = false,
                clean: Bool = true,
                integrate: Bool = true) {
   let command = RubyCommand(commandID: "", methodName: "cocoapods", className: nil, args: [RubyCommand.Argument(name: "repo_update", value: repoUpdate),
+                                                                                           RubyCommand.Argument(name: "clean_install", value: cleanInstall),
                                                                                            RubyCommand.Argument(name: "silent", value: silent),
                                                                                            RubyCommand.Argument(name: "verbose", value: verbose),
                                                                                            RubyCommand.Argument(name: "ansi", value: ansi),
@@ -1829,6 +1837,7 @@ func cocoapods(repoUpdate: Bool = false,
                                                                                            RubyCommand.Argument(name: "podfile", value: podfile),
                                                                                            RubyCommand.Argument(name: "error_callback", value: errorCallback),
                                                                                            RubyCommand.Argument(name: "try_repo_update_on_error", value: tryRepoUpdateOnError),
+                                                                                           RubyCommand.Argument(name: "deployment", value: deployment),
                                                                                            RubyCommand.Argument(name: "clean", value: clean),
                                                                                            RubyCommand.Argument(name: "integrate", value: integrate)])
   _ = runner.executeCommand(command)
@@ -2496,11 +2505,12 @@ func download(url: String) {
    - teamId: The ID of your App Store Connect team if you're in multiple teams
    - teamName: The name of your App Store Connect team if you're in multiple teams
    - platform: The app platform for dSYMs you wish to download (ios, appletvos)
-   - version: The app version for dSYMs you wish to download, pass in 'latest' to download only the latest build's dSYMs
+   - version: The app version for dSYMs you wish to download, pass in 'latest' to download only the latest build's dSYMs or 'live' to download only the live version dSYMs
    - buildNumber: The app build_number for dSYMs you wish to download
    - minVersion: The minimum app version for dSYMs you wish to download
    - outputDirectory: Where to save the download dSYMs, defaults to the current path
    - waitForDsymProcessing: Wait for dSYMs to process
+   - waitTimeout: Number of seconds to wait for dSYMs to process
 
  This action downloads dSYM files from App Store Connect after the ipa gets re-compiled by Apple. Useful if you have Bitcode enabled.|
  |
@@ -2522,7 +2532,8 @@ func downloadDsyms(username: String,
                    buildNumber: String? = nil,
                    minVersion: String? = nil,
                    outputDirectory: String? = nil,
-                   waitForDsymProcessing: Bool = false) {
+                   waitForDsymProcessing: Bool = false,
+                   waitTimeout: Int = 300) {
   let command = RubyCommand(commandID: "", methodName: "download_dsyms", className: nil, args: [RubyCommand.Argument(name: "username", value: username),
                                                                                                 RubyCommand.Argument(name: "app_identifier", value: appIdentifier),
                                                                                                 RubyCommand.Argument(name: "team_id", value: teamId),
@@ -2532,7 +2543,8 @@ func downloadDsyms(username: String,
                                                                                                 RubyCommand.Argument(name: "build_number", value: buildNumber),
                                                                                                 RubyCommand.Argument(name: "min_version", value: minVersion),
                                                                                                 RubyCommand.Argument(name: "output_directory", value: outputDirectory),
-                                                                                                RubyCommand.Argument(name: "wait_for_dsym_processing", value: waitForDsymProcessing)])
+                                                                                                RubyCommand.Argument(name: "wait_for_dsym_processing", value: waitForDsymProcessing),
+                                                                                                RubyCommand.Argument(name: "wait_timeout", value: waitTimeout)])
   _ = runner.executeCommand(command)
 }
 
@@ -2541,6 +2553,8 @@ func downloadDsyms(username: String,
 
  - parameters:
    - packageName: The package name of the application to use
+   - versionName: Version name (used when uploading new apks/aabs) - defaults to 'versionName' in build.gradle or AndroidManifest.xml
+   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal
    - metadataPath: Path to the directory containing the metadata files
    - key: **DEPRECATED!** Use `--json_key` instead - The p12 File used to authenticate with Google
    - issuer: **DEPRECATED!** Use `--json_key` instead - The issuer of the p12 file (email address of the service account)
@@ -2552,7 +2566,9 @@ func downloadDsyms(username: String,
  More information: https://docs.fastlane.tools/actions/download_from_play_store/
 */
 func downloadFromPlayStore(packageName: String,
-                           metadataPath: String = "./metadata",
+                           versionName: String? = nil,
+                           track: String = "production",
+                           metadataPath: String? = nil,
                            key: String? = nil,
                            issuer: String? = nil,
                            jsonKey: String? = nil,
@@ -2560,6 +2576,8 @@ func downloadFromPlayStore(packageName: String,
                            rootUrl: String? = nil,
                            timeout: Int = 300) {
   let command = RubyCommand(commandID: "", methodName: "download_from_play_store", className: nil, args: [RubyCommand.Argument(name: "package_name", value: packageName),
+                                                                                                          RubyCommand.Argument(name: "version_name", value: versionName),
+                                                                                                          RubyCommand.Argument(name: "track", value: track),
                                                                                                           RubyCommand.Argument(name: "metadata_path", value: metadataPath),
                                                                                                           RubyCommand.Argument(name: "key", value: key),
                                                                                                           RubyCommand.Argument(name: "issuer", value: issuer),
@@ -2921,7 +2939,7 @@ func getBuildNumberRepository(useHgRevisionNumber: Bool = false) {
 */
 func getCertificates(development: Bool = false,
                      force: Bool = false,
-                     generateAppleCerts: Bool = true,
+                     generateAppleCerts: Bool = false,
                      username: String,
                      teamId: String? = nil,
                      teamName: String? = nil,
@@ -3354,7 +3372,7 @@ func githubApi(serverUrl: String = "https://api.github.com",
 
  - parameters:
    - packageName: The package name of the application to use
-   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal, rollout
+   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal
    - key: **DEPRECATED!** Use `--json_key` instead - The p12 File used to authenticate with Google
    - issuer: **DEPRECATED!** Use `--json_key` instead - The issuer of the p12 file (email address of the service account)
    - jsonKey: The path to a file containing service account JSON, used to authenticate with Google
@@ -6476,6 +6494,7 @@ func snapshot(workspace: Any? = snapshotfile.workspace,
    - sonarRunnerArgs: Pass additional arguments to sonar-scanner. Be sure to provide the arguments with a leading `-D` e.g. FL_SONAR_RUNNER_ARGS="-Dsonar.verbose=true"
    - sonarLogin: Pass the Sonar Login token (e.g: xxxxxxprivate_token_XXXXbXX7e)
    - sonarUrl: Pass the url of the Sonar server
+   - sonarOrganization: Key of the organization on SonarCloud
    - branchName: Pass the branch name which is getting scanned
    - pullRequestBranch: The name of the branch that contains the changes to be merged
    - pullRequestBase: The long-lived branch into which the PR will be merged
@@ -6496,6 +6515,7 @@ func sonar(projectConfigurationPath: String? = nil,
            sonarRunnerArgs: String? = nil,
            sonarLogin: String? = nil,
            sonarUrl: String? = nil,
+           sonarOrganization: String? = nil,
            branchName: String? = nil,
            pullRequestBranch: String? = nil,
            pullRequestBase: String? = nil,
@@ -6510,6 +6530,7 @@ func sonar(projectConfigurationPath: String? = nil,
                                                                                        RubyCommand.Argument(name: "sonar_runner_args", value: sonarRunnerArgs),
                                                                                        RubyCommand.Argument(name: "sonar_login", value: sonarLogin),
                                                                                        RubyCommand.Argument(name: "sonar_url", value: sonarUrl),
+                                                                                       RubyCommand.Argument(name: "sonar_organization", value: sonarOrganization),
                                                                                        RubyCommand.Argument(name: "branch_name", value: branchName),
                                                                                        RubyCommand.Argument(name: "pull_request_branch", value: pullRequestBranch),
                                                                                        RubyCommand.Argument(name: "pull_request_base", value: pullRequestBase),
@@ -6639,7 +6660,10 @@ func ssh(username: String,
 
  - parameters:
    - packageName: The package name of the application to use
-   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal, rollout
+   - versionName: Version name (used when uploading new apks/aabs) - defaults to 'versionName' in build.gradle or AndroidManifest.xml
+   - versionCode: Version code (used when updating rollout or promoting specific versions)
+   - releaseStatus: Release status (used when uploading new apks/aabs) - valid values are completed, draft, halted, inProgress
+   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal
    - rollout: The percentage of the user fraction when uploading to the rollout track
    - metadataPath: Path to the directory containing the metadata files
    - key: **DEPRECATED!** Use `--json_key` instead - The p12 File used to authenticate with Google
@@ -6652,17 +6676,18 @@ func ssh(username: String,
    - aabPaths: An array of paths to AAB files to upload
    - skipUploadApk: Whether to skip uploading APK
    - skipUploadAab: Whether to skip uploading AAB
-   - skipUploadMetadata: Whether to skip uploading metadata
+   - skipUploadMetadata: Whether to skip uploading metadata, changelogs not included
+   - skipUploadChangelogs: Whether to skip uploading changelogs
    - skipUploadImages: Whether to skip uploading images, screenshots not included
    - skipUploadScreenshots: Whether to skip uploading SCREENSHOTS
-   - trackPromoteTo: The track to promote to. The default available tracks are: production, beta, alpha, internal, rollout
+   - trackPromoteTo: The track to promote to. The default available tracks are: production, beta, alpha, internal
    - validateOnly: Only validate changes with Google Play rather than actually publish
    - mapping: Path to the mapping file to upload
    - mappingPaths: An array of paths to mapping files to upload
    - rootUrl: Root URL for the Google Play API. The provided URL will be used for API calls in place of https://www.googleapis.com/
-   - checkSupersededTracks: Check the other tracks for superseded versions and disable them
+   - checkSupersededTracks: **DEPRECATED!** Google Play does this automatically now - Check the other tracks for superseded versions and disable them
    - timeout: Timeout for read, open, and send (in seconds)
-   - deactivateOnPromote: When promoting to a new track, deactivate the binary in the origin track
+   - deactivateOnPromote: **DEPRECATED!** Google Play does this automatically now - When promoting to a new track, deactivate the binary in the origin track
    - versionCodesToRetain: An array of version codes to retain when publishing a new APK
    - obbMainReferencesVersion: References version of 'main' expansion file
    - obbMainFileSize: Size of 'main' expansion file in bytes
@@ -6672,9 +6697,12 @@ func ssh(username: String,
  More information: https://docs.fastlane.tools/actions/supply/
 */
 func supply(packageName: String,
+            versionName: String? = nil,
+            versionCode: Int? = nil,
+            releaseStatus: String = "completed",
             track: String = "production",
             rollout: String? = nil,
-            metadataPath: String = "./metadata",
+            metadataPath: String? = nil,
             key: String? = nil,
             issuer: String? = nil,
             jsonKey: String? = nil,
@@ -6686,6 +6714,7 @@ func supply(packageName: String,
             skipUploadApk: Bool = false,
             skipUploadAab: Bool = false,
             skipUploadMetadata: Bool = false,
+            skipUploadChangelogs: Bool = false,
             skipUploadImages: Bool = false,
             skipUploadScreenshots: Bool = false,
             trackPromoteTo: String? = nil,
@@ -6702,6 +6731,9 @@ func supply(packageName: String,
             obbPatchReferencesVersion: String? = nil,
             obbPatchFileSize: String? = nil) {
   let command = RubyCommand(commandID: "", methodName: "supply", className: nil, args: [RubyCommand.Argument(name: "package_name", value: packageName),
+                                                                                        RubyCommand.Argument(name: "version_name", value: versionName),
+                                                                                        RubyCommand.Argument(name: "version_code", value: versionCode),
+                                                                                        RubyCommand.Argument(name: "release_status", value: releaseStatus),
                                                                                         RubyCommand.Argument(name: "track", value: track),
                                                                                         RubyCommand.Argument(name: "rollout", value: rollout),
                                                                                         RubyCommand.Argument(name: "metadata_path", value: metadataPath),
@@ -6716,6 +6748,7 @@ func supply(packageName: String,
                                                                                         RubyCommand.Argument(name: "skip_upload_apk", value: skipUploadApk),
                                                                                         RubyCommand.Argument(name: "skip_upload_aab", value: skipUploadAab),
                                                                                         RubyCommand.Argument(name: "skip_upload_metadata", value: skipUploadMetadata),
+                                                                                        RubyCommand.Argument(name: "skip_upload_changelogs", value: skipUploadChangelogs),
                                                                                         RubyCommand.Argument(name: "skip_upload_images", value: skipUploadImages),
                                                                                         RubyCommand.Argument(name: "skip_upload_screenshots", value: skipUploadScreenshots),
                                                                                         RubyCommand.Argument(name: "track_promote_to", value: trackPromoteTo),
@@ -6816,7 +6849,7 @@ func swiftlint(mode: Any = "lint",
 */
 func syncCodeSigning(type: String = "development",
                      readonly: Bool = false,
-                     generateAppleCerts: Bool = true,
+                     generateAppleCerts: Bool = false,
                      skipProvisioningProfiles: Bool = false,
                      appIdentifier: [String],
                      username: String,
@@ -7164,9 +7197,8 @@ func updateAppIdentifier(xcodeproj: String,
  Makes sure fastlane-tools are up-to-date when running fastlane
 
  - parameters:
-   - nightly: Opt-in to install and use nightly fastlane builds
    - noUpdate: Don't update during this run. This is used internally
-   - tools: **DEPRECATED!** Comma separated list of fastlane tools to update (e.g. `fastlane,deliver,sigh`)
+   - nightly: **DEPRECATED!** Nightly builds are no longer being made available - Opt-in to install and use nightly fastlane builds
 
  This action will update fastlane to the most recent version - major version updates will not be performed automatically, as they might include breaking changes. If an update was performed, fastlane will be restarted before the run continues.
  
@@ -7183,12 +7215,10 @@ func updateAppIdentifier(xcodeproj: String,
  
  Recommended usage of the `update_fastlane` action is at the top inside of the `before_all` block, before running any other action.
 */
-func updateFastlane(nightly: Bool = false,
-                    noUpdate: Bool = false,
-                    tools: String? = nil) {
-  let command = RubyCommand(commandID: "", methodName: "update_fastlane", className: nil, args: [RubyCommand.Argument(name: "nightly", value: nightly),
-                                                                                                 RubyCommand.Argument(name: "no_update", value: noUpdate),
-                                                                                                 RubyCommand.Argument(name: "tools", value: tools)])
+func updateFastlane(noUpdate: Bool = false,
+                    nightly: Bool = false) {
+  let command = RubyCommand(commandID: "", methodName: "update_fastlane", className: nil, args: [RubyCommand.Argument(name: "no_update", value: noUpdate),
+                                                                                                 RubyCommand.Argument(name: "nightly", value: nightly)])
   _ = runner.executeCommand(command)
 }
 
@@ -7233,6 +7263,22 @@ func updateInfoPlist(xcodeproj: String? = nil,
                                                                                                    RubyCommand.Argument(name: "app_identifier", value: appIdentifier),
                                                                                                    RubyCommand.Argument(name: "display_name", value: displayName),
                                                                                                    RubyCommand.Argument(name: "block", value: block)])
+  _ = runner.executeCommand(command)
+}
+
+/**
+ This action changes the keychain access groups in the entitlements file
+
+ - parameters:
+   - entitlementsFile: The path to the entitlement file which contains the keychain access groups
+   - identifiers: An Array of unique identifiers for the keychain access groups. Eg. ['your.keychain.access.groups.identifiers']
+
+ Updates the Keychain Group Access Groups in the given Entitlements file, so you can have keychain access groups for the app store build and keychain access groups for an enterprise build.
+*/
+func updateKeychainAccessGroups(entitlementsFile: String,
+                                identifiers: Any) {
+  let command = RubyCommand(commandID: "", methodName: "update_keychain_access_groups", className: nil, args: [RubyCommand.Argument(name: "entitlements_file", value: entitlementsFile),
+                                                                                                               RubyCommand.Argument(name: "identifiers", value: identifiers)])
   _ = runner.executeCommand(command)
 }
 
@@ -7636,7 +7682,10 @@ func uploadToAppStore(username: String,
 
  - parameters:
    - packageName: The package name of the application to use
-   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal, rollout
+   - versionName: Version name (used when uploading new apks/aabs) - defaults to 'versionName' in build.gradle or AndroidManifest.xml
+   - versionCode: Version code (used when updating rollout or promoting specific versions)
+   - releaseStatus: Release status (used when uploading new apks/aabs) - valid values are completed, draft, halted, inProgress
+   - track: The track of the application to use. The default available tracks are: production, beta, alpha, internal
    - rollout: The percentage of the user fraction when uploading to the rollout track
    - metadataPath: Path to the directory containing the metadata files
    - key: **DEPRECATED!** Use `--json_key` instead - The p12 File used to authenticate with Google
@@ -7649,17 +7698,18 @@ func uploadToAppStore(username: String,
    - aabPaths: An array of paths to AAB files to upload
    - skipUploadApk: Whether to skip uploading APK
    - skipUploadAab: Whether to skip uploading AAB
-   - skipUploadMetadata: Whether to skip uploading metadata
+   - skipUploadMetadata: Whether to skip uploading metadata, changelogs not included
+   - skipUploadChangelogs: Whether to skip uploading changelogs
    - skipUploadImages: Whether to skip uploading images, screenshots not included
    - skipUploadScreenshots: Whether to skip uploading SCREENSHOTS
-   - trackPromoteTo: The track to promote to. The default available tracks are: production, beta, alpha, internal, rollout
+   - trackPromoteTo: The track to promote to. The default available tracks are: production, beta, alpha, internal
    - validateOnly: Only validate changes with Google Play rather than actually publish
    - mapping: Path to the mapping file to upload
    - mappingPaths: An array of paths to mapping files to upload
    - rootUrl: Root URL for the Google Play API. The provided URL will be used for API calls in place of https://www.googleapis.com/
-   - checkSupersededTracks: Check the other tracks for superseded versions and disable them
+   - checkSupersededTracks: **DEPRECATED!** Google Play does this automatically now - Check the other tracks for superseded versions and disable them
    - timeout: Timeout for read, open, and send (in seconds)
-   - deactivateOnPromote: When promoting to a new track, deactivate the binary in the origin track
+   - deactivateOnPromote: **DEPRECATED!** Google Play does this automatically now - When promoting to a new track, deactivate the binary in the origin track
    - versionCodesToRetain: An array of version codes to retain when publishing a new APK
    - obbMainReferencesVersion: References version of 'main' expansion file
    - obbMainFileSize: Size of 'main' expansion file in bytes
@@ -7669,9 +7719,12 @@ func uploadToAppStore(username: String,
  More information: https://docs.fastlane.tools/actions/supply/
 */
 func uploadToPlayStore(packageName: String,
+                       versionName: String? = nil,
+                       versionCode: Int? = nil,
+                       releaseStatus: String = "completed",
                        track: String = "production",
                        rollout: String? = nil,
-                       metadataPath: String = "./metadata",
+                       metadataPath: String? = nil,
                        key: String? = nil,
                        issuer: String? = nil,
                        jsonKey: String? = nil,
@@ -7683,6 +7736,7 @@ func uploadToPlayStore(packageName: String,
                        skipUploadApk: Bool = false,
                        skipUploadAab: Bool = false,
                        skipUploadMetadata: Bool = false,
+                       skipUploadChangelogs: Bool = false,
                        skipUploadImages: Bool = false,
                        skipUploadScreenshots: Bool = false,
                        trackPromoteTo: String? = nil,
@@ -7699,6 +7753,9 @@ func uploadToPlayStore(packageName: String,
                        obbPatchReferencesVersion: String? = nil,
                        obbPatchFileSize: String? = nil) {
   let command = RubyCommand(commandID: "", methodName: "upload_to_play_store", className: nil, args: [RubyCommand.Argument(name: "package_name", value: packageName),
+                                                                                                      RubyCommand.Argument(name: "version_name", value: versionName),
+                                                                                                      RubyCommand.Argument(name: "version_code", value: versionCode),
+                                                                                                      RubyCommand.Argument(name: "release_status", value: releaseStatus),
                                                                                                       RubyCommand.Argument(name: "track", value: track),
                                                                                                       RubyCommand.Argument(name: "rollout", value: rollout),
                                                                                                       RubyCommand.Argument(name: "metadata_path", value: metadataPath),
@@ -7713,6 +7770,7 @@ func uploadToPlayStore(packageName: String,
                                                                                                       RubyCommand.Argument(name: "skip_upload_apk", value: skipUploadApk),
                                                                                                       RubyCommand.Argument(name: "skip_upload_aab", value: skipUploadAab),
                                                                                                       RubyCommand.Argument(name: "skip_upload_metadata", value: skipUploadMetadata),
+                                                                                                      RubyCommand.Argument(name: "skip_upload_changelogs", value: skipUploadChangelogs),
                                                                                                       RubyCommand.Argument(name: "skip_upload_images", value: skipUploadImages),
                                                                                                       RubyCommand.Argument(name: "skip_upload_screenshots", value: skipUploadScreenshots),
                                                                                                       RubyCommand.Argument(name: "track_promote_to", value: trackPromoteTo),
@@ -8123,7 +8181,7 @@ func xcov(workspace: String? = nil,
           coverallsServiceJobId: String? = nil,
           coverallsRepoToken: String? = nil,
           xcconfig: String? = nil,
-          ideFoundationPath: String = "/Applications/Xcode-11.app/Contents/Developer/../Frameworks/IDEFoundation.framework/Versions/A/IDEFoundation",
+          ideFoundationPath: String = "/Applications/Xcode-10.3.app/Contents/Developer/../Frameworks/IDEFoundation.framework/Versions/A/IDEFoundation",
           legacySupport: Bool = false) {
   let command = RubyCommand(commandID: "", methodName: "xcov", className: nil, args: [RubyCommand.Argument(name: "workspace", value: workspace),
                                                                                       RubyCommand.Argument(name: "project", value: project),
@@ -8268,4 +8326,4 @@ let snapshotfile: Snapshotfile = Snapshotfile()
 
 // Please don't remove the lines below
 // They are used to detect outdated files
-// FastlaneRunnerAPIVersion [0.9.60]
+// FastlaneRunnerAPIVersion [0.9.63]
