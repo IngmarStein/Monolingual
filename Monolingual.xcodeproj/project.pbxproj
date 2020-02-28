@@ -33,6 +33,7 @@
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		9572AB171977E8E5002E4AF4 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9572AB161977E8E5002E4AF4 /* Setting.swift */; };
+		958FCAA824099C2F00048708 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 958FCAA724099C2F00048708 /* ArgumentParser */; };
 		959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEED919714E0500A433C0 /* ISTableView.swift */; };
 		959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */; };
 		959CEEE019714E0500A433C0 /* ProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDC19714E0500A433C0 /* ProgressViewController.swift */; };
@@ -64,7 +65,6 @@
 		95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 95F7771C0ECC2644009C621B /* dsa_pub.pem */; };
-		95FCE24022CD3534008A55D3 /* CommandLineKit in Frameworks */ = {isa = PBXBuildFile; productRef = 95FCE23F22CD3534008A55D3 /* CommandLineKit */; };
 		95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */ = {isa = PBXBuildFile; productRef = 95FCE24222CD355D008A55D3 /* SMJobKit */; };
 /* End PBXBuildFile section */
 
@@ -257,7 +257,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95FCE24022CD3534008A55D3 /* CommandLineKit in Frameworks */,
+				958FCAA824099C2F00048708 /* ArgumentParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -532,7 +532,7 @@
 			);
 			name = Helper;
 			packageProductDependencies = (
-				95FCE23F22CD3534008A55D3 /* CommandLineKit */,
+				958FCAA724099C2F00048708 /* ArgumentParser */,
 			);
 			productName = Helper;
 			productReference = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */;
@@ -583,7 +583,6 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = "Ingmar Stein";
@@ -639,8 +638,8 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			packageReferences = (
-				95FCE23E22CD3534008A55D3 /* XCRemoteSwiftPackageReference "CommandLineKit" */,
 				95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */,
+				958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 			);
 			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
 			projectDirPath = "";
@@ -1160,7 +1159,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
@@ -1224,7 +1223,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				RUN_CLANG_STATIC_ANALYZER = YES;
@@ -1468,12 +1467,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		95FCE23E22CD3534008A55D3 /* XCRemoteSwiftPackageReference "CommandLineKit" */ = {
+		958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/IngmarStein/CommandLineKit.git";
+			repositoryURL = "https://github.com/apple/swift-argument-parser";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.0;
+				minimumVersion = 0.0.1;
 			};
 		};
 		95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */ = {
@@ -1487,10 +1486,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		95FCE23F22CD3534008A55D3 /* CommandLineKit */ = {
+		958FCAA724099C2F00048708 /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 95FCE23E22CD3534008A55D3 /* XCRemoteSwiftPackageReference "CommandLineKit" */;
-			productName = CommandLineKit;
+			package = 958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
 		};
 		95FCE24222CD355D008A55D3 /* SMJobKit */ = {
 			isa = XCSwiftPackageProductDependency;
