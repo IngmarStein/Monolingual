@@ -57,7 +57,6 @@ public func == (lhs: fat_arch_64, rhs: fat_arch_64) -> Bool {
 }
 
 // swiftlint:disable comma
-// tailor:off
 private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "any",	     cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_MULTIPLE),
 	ArchFlag(name: "little",	 cputype: CPU_TYPE_ANY,	      cpusubtype: CPU_SUBTYPE_LITTLE_ENDIAN),
@@ -117,7 +116,6 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "armv7em",    cputype: CPU_TYPE_ARM,       cpusubtype: CPU_SUBTYPE_ARM_V7EM),
 	ArchFlag(name: "arm64v8",    cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_V8)
 ]
-// tailor:on
 // swiftlint:enable comma
 
 private func getArchFromFlag(_ name: String) -> ArchFlag? {

@@ -26,11 +26,9 @@ struct ArchitectureInfo {
 	let cpuSubtype: cpu_subtype_t
 }
 
-// tailor:off
 func mach_task_self() -> mach_port_t {
 	return mach_task_self_
 }
-// tailor:on
 
 final class MainViewController: NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
 
@@ -575,7 +573,6 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}.sorted { $0.displayName < $1.displayName }
 
 		// swiftlint:disable comma
-		// tailor:off
 		let archs = [
 			ArchitectureInfo(name: "arm",       displayName: "ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
 			ArchitectureInfo(name: "ppc",       displayName: "PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
@@ -589,7 +586,6 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			ArchitectureInfo(name: "x86_64",    displayName: "Intel 64-bit",           cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
 			ArchitectureInfo(name: "x86_64h",   displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_H)
 		]
-		// tailor:on
 		// swiftlint:enable comma
 
 		var infoCount = mach_msg_type_number_t(MemoryLayout<host_basic_info_data_t>.size / MemoryLayout<host_info_t>.size) // HOST_BASIC_INFO_COUNT
