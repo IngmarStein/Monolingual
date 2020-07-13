@@ -14,7 +14,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	var request: HelperRequest
 	var remoteProgress: ProgressProtocol?
 	var progress: Progress?
-	private var fileBlacklist = Set<URL>()
+	private var fileBlocklist = Set<URL>()
 	let fileManager = FileManager()
 	let isRootless: Bool
 
@@ -59,27 +59,27 @@ final class HelperContext: NSObject, FileManagerDelegate {
 		}
 	}
 
-	func isDirectoryBlacklisted(_ path: URL) -> Bool {
-		if let bundle = Bundle(url: path), let bundleIdentifier = bundle.bundleIdentifier, let bundleBlacklist = request.bundleBlacklist {
-			return bundleBlacklist.contains(bundleIdentifier)
+	func isDirectoryBlocklisted(_ path: URL) -> Bool {
+		if let bundle = Bundle(url: path), let bundleIdentifier = bundle.bundleIdentifier, let bundleBlocklist = request.bundleBlocklist {
+			return bundleBlocklist.contains(bundleIdentifier)
 		}
 		return false
 	}
 
-	func isFileBlacklisted(_ url: URL) -> Bool {
-		return fileBlacklist.contains(url)
+	func isFileBlocklisted(_ url: URL) -> Bool {
+		return fileBlocklist.contains(url)
 	}
 
-	private func addFileDictionaryToBlacklist(_ files: [String: AnyObject], baseURL: URL) {
+	private func addFileDictionaryToBlocklist(_ files: [String: AnyObject], baseURL: URL) {
 		for (key, value) in files {
 			if let valueDict = value as? [String: AnyObject], let optional = valueDict["optional"] as? Bool, optional {
 				continue
 			}
-			fileBlacklist.insert(baseURL.appendingPathComponent(key))
+			fileBlocklist.insert(baseURL.appendingPathComponent(key))
 		}
 	}
 
-	func addCodeResourcesToBlacklist(_ url: URL) {
+	func addCodeResourcesToBlocklist(_ url: URL) {
 		var codeRef: SecStaticCode?
 		// This call might print "MacOS error: -67028" to the console (harmless, but annoying)
 		// See rdar://33203786
@@ -100,13 +100,13 @@ final class HelperContext: NSObject, FileManagerDelegate {
 						baseURL = url
 					}
 					if let files = resDir["files"] as? [String: AnyObject] {
-						addFileDictionaryToBlacklist(files, baseURL: baseURL)
+						addFileDictionaryToBlocklist(files, baseURL: baseURL)
 					}
 
 					// Version 2 Code Signature (introduced in Mavericks)
 					// https://developer.apple.com/library/mac/technotes/tn2206
 					if let files = resDir["files2"] as? [String: AnyObject] {
-						addFileDictionaryToBlacklist(files, baseURL: baseURL)
+						addFileDictionaryToBlocklist(files, baseURL: baseURL)
 					}
 				}
 			}
@@ -176,11 +176,11 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 			var fileSize: [URL: Int] = [:]
 
-			// check if any file below `url` has been blacklisted and record sizes
+			// check if any file below `url` has been blocked and record sizes
 			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey], options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
 					guard let theURL = entry as? URL else { continue }
-					if isFileBlacklisted(theURL) {
+					if isFileBlocklisted(theURL) {
 						return
 					}
 
@@ -255,7 +255,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 				error = error1
 				if let error = error as NSError? {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
-						// ignore non-empty directories (they might contain blacklisted files and cannot be removed)
+						// ignore non-empty directories (they might contain blocklisted files and cannot be removed)
 					} else {
 						os_log("Error removing '%@': %@", type: .error, url.path, error)
 					}
@@ -265,7 +265,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	private func fileManager(_ fileManager: FileManager, shouldProcessItemAtURL url: URL) -> Bool {
-		if request.dryRun || isFileBlacklisted(url) || (isRootless && url.isProtected) {
+		if request.dryRun || isFileBlocklisted(url) || (isRootless && url.isProtected) {
 			return false
 		}
 

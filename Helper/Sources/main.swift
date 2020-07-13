@@ -65,7 +65,7 @@ if options.include.isEmpty {
 	request.trash = options.trash
 	request.includes = options.include
 	request.excludes = options.exclude
-	request.bundleBlacklist = Set<String>(options.bundle)
+	request.bundleBlocklist = Set<String>(options.bundle)
 	request.directories = Set<String>(options.delete)
 	request.thin = options.thin
 	helper.process(request: request, progress: nil) { (result) -> Void in

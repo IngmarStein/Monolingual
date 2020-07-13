@@ -1,9 +1,9 @@
 import Foundation
 
 var result: [[NSObject: AnyObject]] = []
-if let blacklist = NSArray(contentsOfFile: "blacklist.plist") as? [[NSObject: AnyObject]] {
+if let blocklist = NSArray(contentsOfFile: "blocklist.plist") as? [[NSObject: AnyObject]] {
 	var seen = Set<String>()
-	for entry in blacklist {
+	for entry in blocklist {
 		if let bundle = entry["bundle"] as? String {
 			if seen.contains(bundle) {
 				print("Duplicate: \(bundle)")

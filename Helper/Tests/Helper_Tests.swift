@@ -43,7 +43,7 @@ class HelperTests: XCTestCase {
 
 		createTestApp(name: "test", bundleIdentifier: "com.test.test")
 		createTestApp(name: "excluded", bundleIdentifier: "com.test.excluded")
-		createTestApp(name: "blacklisted", bundleIdentifier: "com.test.blacklisted")
+		createTestApp(name: "blocklisted", bundleIdentifier: "com.test.blocklisted")
 
 		let testHello1 = testDir.appendingPathComponent("hello1")
 		let testHello2 = testDir.appendingPathComponent("hello2")
@@ -84,7 +84,7 @@ class HelperTests: XCTestCase {
 		request.includes = [ testDir.path ]
 		request.excludes = [ (testDir.appendingPathComponent("excluded.app").path) ]
 		request.directories = [ "fr.lproj" ]
-		request.bundleBlacklist = [ "com.test.blacklisted" ]
+		request.bundleBlocklist = [ "com.test.blocklisted" ]
 
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
@@ -100,9 +100,9 @@ class HelperTests: XCTestCase {
 			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("excluded.app/Contents/Resources/en.lproj/Localizable.strings").path)), "excluded app should be untouched")
 			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("excluded.app/Contents/Resources/de.lproj/Localizable.strings").path)), "excluded app should be untouched")
 			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("excluded.app/Contents/Resources/fr.lproj/Localizable.strings").path)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blacklisted.app/Contents/Resources/en.lproj/Localizable.strings").path)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blacklisted.app/Contents/Resources/de.lproj/Localizable.strings").path)), "excluded app should be untouched")
-			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blacklisted.app/Contents/Resources/fr.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blocklisted.app/Contents/Resources/en.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blocklisted.app/Contents/Resources/de.lproj/Localizable.strings").path)), "excluded app should be untouched")
+			XCTAssert(fileManager.fileExists(atPath: (self.testDir.appendingPathComponent("blocklisted.app/Contents/Resources/fr.lproj/Localizable.strings").path)), "excluded app should be untouched")
 
 			helperExpectation.fulfill()
 		}
@@ -138,7 +138,7 @@ class HelperTests: XCTestCase {
 		request.includes = [ testDir.path ]
 		request.excludes = [ (testDir.appendingPathComponent("excluded.app").path) ]
 		request.thin = [ "i386" ]
-		request.bundleBlacklist = [ "com.test.blacklisted" ]
+		request.bundleBlocklist = [ "com.test.blocklisted" ]
 
 		let hello1Path = testDir.appendingPathComponent("hello1")
 		let hello2Path = testDir.appendingPathComponent("hello2")

@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
-		950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */; };
+		950ED26E1976AA6D00BAC239 /* BlocklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */; };
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
 		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
 		95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; };
@@ -140,7 +140,7 @@
 		950217351AD16FB000907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		950217391AD16FE500907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		950ED26B1976AA6400BAC239 /* LanguageSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LanguageSetting.swift; path = Sources/LanguageSetting.swift; sourceTree = "<group>"; };
-		950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BlacklistEntry.swift; path = Sources/BlacklistEntry.swift; sourceTree = "<group>"; };
+		950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BlocklistEntry.swift; path = Sources/BlocklistEntry.swift; sourceTree = "<group>"; };
 		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArchitectureSetting.swift; path = Sources/ArchitectureSetting.swift; sourceTree = "<group>"; };
 		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Root.swift; path = Sources/Root.swift; sourceTree = "<group>"; };
 		95337A201B09EAC600303823 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
@@ -349,7 +349,7 @@
 			isa = PBXGroup;
 			children = (
 				950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */,
-				950ED26D1976AA6D00BAC239 /* BlacklistEntry.swift */,
+				950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */,
 				950ED26B1976AA6400BAC239 /* LanguageSetting.swift */,
 				950ED2721976AAB600BAC239 /* Root.swift */,
 				9572AB161977E8E5002E4AF4 /* Setting.swift */,
@@ -744,7 +744,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */,
-				950ED26E1976AA6D00BAC239 /* BlacklistEntry.swift in Sources */,
+				950ED26E1976AA6D00BAC239 /* BlocklistEntry.swift in Sources */,
 				95355ADC1AD7FA5600872850 /* HelperRequest.swift in Sources */,
 				950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */,
 				9572AB171977E8E5002E4AF4 /* Setting.swift in Sources */,

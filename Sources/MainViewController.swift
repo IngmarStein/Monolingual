@@ -36,7 +36,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	private var progressViewController: ProgressViewController?
 
-	private var blacklist: [BlacklistEntry]?
+	private var blocklist: [BlocklistEntry]?
 	@objc dynamic var languages: [LanguageSetting]!
 	@objc dynamic var architectures: [ArchitectureSetting]!
 
@@ -122,13 +122,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 			let request = HelperRequest()
 			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
-			request.bundleBlacklist = Set<String>(self.blacklist!.filter { $0.architectures } .map { $0.bundle })
+			request.bundleBlocklist = Set<String>(self.blocklist!.filter { $0.architectures } .map { $0.bundle })
 			request.includes = roots.filter { $0.architectures } .map { $0.path }
 			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + sipProtectedLocations
 			request.thin = archs
 
-			for item in request.bundleBlacklist! {
-				os_log("Blacklisting %@", type: .info, item)
+			for item in request.bundleBlocklist! {
+				os_log("Blocking %@", type: .info, item)
 			}
 			for include in request.includes! {
 				os_log("Adding root %@", type: .info, include)
@@ -471,10 +471,10 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let includes = roots.filter { $0.languages } .map { $0.path }
 		let excludes = roots.filter { !$0.languages } .map { $0.path } + sipProtectedLocations
-		let bl = self.blacklist!.filter { $0.languages } .map { $0.bundle }
+		let bl = self.blocklist!.filter { $0.languages } .map { $0.bundle }
 
 		for item in bl {
-			os_log("Blacklisting %@", type: .info, item)
+			os_log("Blocklisting %@", type: .info, item)
 		}
 		for include in includes {
 			os_log("Adding root %@", type: .info, include)
@@ -516,7 +516,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let request = HelperRequest()
 			request.trash = UserDefaults.standard.bool(forKey: "Trash")
 			request.uid = getuid()
-			request.bundleBlacklist = Set<String>(bl)
+			request.bundleBlocklist = Set<String>(bl)
 			request.includes = includes
 			request.excludes = excludes
 			request.directories = folders
@@ -634,14 +634,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let decoder = PropertyListDecoder()
 
-		// load blacklist from asset catalog
-		if let blacklist = NSDataAsset(name: "blacklist") {
-			self.blacklist = try? decoder.decode([BlacklistEntry].self, from: blacklist.data)
+		// load blocklist from asset catalog
+		if let blocklist = NSDataAsset(name: "blocklist") {
+			self.blocklist = try? decoder.decode([BlocklistEntry].self, from: blocklist.data)
 		}
-		// load remote blacklist asynchronously
+		// load remote blocklist asynchronously
 		DispatchQueue.main.async {
-			if let blacklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blacklist.plist"), let data = try? Data(contentsOf: blacklistURL) {
-				self.blacklist = try? decoder.decode([BlacklistEntry].self, from: data)
+			if let blocklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blocklist.plist"), let data = try? Data(contentsOf: blocklistURL) {
+				self.blocklist = try? decoder.decode([BlocklistEntry].self, from: data)
 			}
 		}
 

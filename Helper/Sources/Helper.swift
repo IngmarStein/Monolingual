@@ -170,11 +170,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 			return
 		}
 
-		if context.isExcluded(url) || context.isDirectoryBlacklisted(url) || (isRootless && url.isProtected) {
+		if context.isExcluded(url) || context.isDirectoryBlocklisted(url) || (isRootless && url.isProtected) {
 			return
 		}
 
-		context.addCodeResourcesToBlacklist(url)
+		context.addCodeResourcesToBlocklist(url)
 
 		let dirEnumerator = context.fileManager.enumerator(at: url, includingPropertiesForKeys: prefetchedProperties, options: [], errorHandler: nil)
 		if let dirEnumerator = dirEnumerator {
@@ -188,11 +188,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 					let resourceValues = try theURL.resourceValues(forKeys: [.isDirectoryKey])
 
 					if let isDirectory = resourceValues.isDirectory, isDirectory {
-						if context.isExcluded(theURL) || context.isDirectoryBlacklisted(theURL) || (isRootless && theURL.isProtected) {
+						if context.isExcluded(theURL) || context.isDirectoryBlocklisted(theURL) || (isRootless && theURL.isProtected) {
 							dirEnumerator.skipDescendents()
 							continue
 						}
-						context.addCodeResourcesToBlacklist(theURL)
+						context.addCodeResourcesToBlocklist(theURL)
 					}
 				} catch {
 					// ignore
@@ -235,7 +235,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey, .isRegularFileKey, .isExecutableKey, .isApplicationKey]) { theURL, _ in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [.isRegularFileKey, .isExecutableKey, .isApplicationKey])
-				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlacklisted(theURL) {
+				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlocklisted(theURL) {
 					if theURL.pathExtension == "class" {
 						return
 					}
