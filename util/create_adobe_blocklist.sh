@@ -5,8 +5,8 @@ cat <<EOF
 <plist version="1.0">
 <array>
 EOF
-find /Applications/Adobe* -name Info.plist -print0 | while read -d $'\0' file; do
-	bundleid=`/usr/libexec/PlistBuddy -c Print:CFBundleIdentifier "$file" 2>&1`
+find /Applications/Adobe* -name Info.plist -print0 | while read -r -d $'\0' file; do
+	bundleid=$(/usr/libexec/PlistBuddy -c Print:CFBundleIdentifier "$file" 2>&1)
 	rc=$?
 	if [[ $rc == 0 ]]; then
 		echo "<dict><key>architectures</key><true/><key>bundle</key><string>$bundleid</string><key>languages</key><true/></dict>"
