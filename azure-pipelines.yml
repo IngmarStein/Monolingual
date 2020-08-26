@@ -1,7 +1,7 @@
 pool:
-  vmImage: 'macOS 10.14'
+  vmImage: 'macOS 10.15'
 variables:
-  DEVELOPER_DIR: /Applications/Xcode_11.2.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
 steps:
 - script: bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}
   displayName: 'Install gems'
