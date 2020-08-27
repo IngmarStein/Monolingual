@@ -11,19 +11,19 @@ import ArgumentParser
 
 struct Options: ParsableArguments {
 	@Flag(name: .shortAndLong, help: "Uninstall helper.")
-	var uninstall: Bool
+	var uninstall: Bool = false
 
 	@Flag(name: .shortAndLong, help: "Print version and exit.")
-	var version: Bool
+	var version: Bool = false
 
 	@Flag(name: [.customShort("n"), .long], help: "Dry run: don't make any changes to the filesystem.")
-	var dryRun: Bool
+	var dryRun: Bool = false
 
 	@Flag(name: .shortAndLong, help: "Strip debug info from executables.")
-	var strip: Bool
+	var strip: Bool = false
 
 	@Flag(name: .shortAndLong, help: "Don't delete files but move them to the trash.")
-	var trash: Bool
+	var trash: Bool = false
 
 	@Option(name: .shortAndLong, help: "Include directory.")
 	var include: [String]
@@ -40,7 +40,6 @@ struct Options: ParsableArguments {
 	@Option(name: [.customShort("a"), .long], help: "Remove architecture from universal binary (e.g. \"ppc\").")
 	var thin: [String]
 }
-
 
 let options = Options.parseOrExit()
 
