@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install gems
-      run: bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}
+      run: bundle config set deployment 'true'; bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}
     - name: Install homebrew dependencies
       run: brew bundle
     - name: Add key
