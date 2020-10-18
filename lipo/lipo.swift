@@ -8,7 +8,7 @@
 
 import Foundation
 import MachO.fat
-import os.log
+import OSLog
 
 private let cpuSubtypeMask: cpu_subtype_t = 0xffffff  // mask for feature flags
 
@@ -163,6 +163,7 @@ class Lipo {
 	private var thinFiles: [ThinFile]!
 	private var removeArchFlags: [ArchFlag]!
 	private var fat64Flag: Bool
+	private let logger = Logger()
 
 	init?(archs: [String]) {
 
@@ -174,7 +175,7 @@ class Lipo {
 			if let arch = getArchFromFlag(flag) {
 				removeArchFlags.append(arch)
 			} else {
-				os_log("unknown architecture specification flag: %@", type: .error, flag)
+				logger.error("unknown architecture specification flag: \(flag, privacy: .public)")
 				return nil
 			}
 		}
@@ -182,7 +183,7 @@ class Lipo {
 		var flagSet = Set<ArchFlag>()
 		for flag in removeArchFlags {
 			if flagSet.contains(flag) {
-				os_log("-remove %@ specified multiple times", type: .error, flag.name)
+				self.logger.error("-remove \(flag.name, privacy: .public) specified multiple times")
 			}
 			flagSet.insert(flag)
 		}
@@ -217,7 +218,7 @@ class Lipo {
 
 		// write output file
 		if thinFiles.isEmpty {
-			os_log("-remove's specified would result in an empty fat file", type: .error)
+			logger.error("-remove's specified would result in an empty fat file")
 			success = false
 		} else {
 			success = createFat(newsize: &newsize)
@@ -285,7 +286,7 @@ class Lipo {
 		do {
 			try FileManager.default.attributesOfItem(atPath: fileName)
 		} catch let error {
-			os_log("can't stat input file '%@': %@", type: .error, fileName, error.localizedDescription)
+			logger.error("can't stat input file '\(self.fileName, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			return false
 		}
 
@@ -293,7 +294,7 @@ class Lipo {
 		do {
 			data = try Data(contentsOf: URL(fileURLWithPath: fileName, isDirectory: false), options: [.alwaysMapped, .uncached])
 		} catch let error {
-			os_log("can't map input file '%@': %@", type: .error, fileName, error.localizedDescription)
+			logger.error("can't map input file '\(self.fileName, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			return false
 		}
 		inputData = data
@@ -312,7 +313,7 @@ class Lipo {
 				fatHeader = fatHeaderFromFile(buffer.load(as: fat_header.self))
 				let bigSize = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch>.size + MemoryLayout<fat_header>.size
 				if bigSize > size {
-					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
+					logger.error("truncated or malformed fat file (fat_arch structs would extend past the end of the file) \(self.fileName, privacy: .public)")
 					inputData = nil
 					return false
 				}
@@ -323,30 +324,26 @@ class Lipo {
 				var fatArchSet = Set<fat_arch>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
-						os_log("truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
-						       type: .error, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
+						logger.error("truncated or malformed fat file (offset plus size of cputype (\(fatArch.cputype, privacy: .public) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public) extends past the end of the file) \(self.fileName, privacy: .public)")
 						return false
 					}
 					if fatArch.align > UInt32(maxSectionAlign) {
-						os_log("align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
-						       type: .error, fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
+						logger.error("align (2^\(fatArch.align, privacy: .public) too large of fat file \(self.fileName, privacy: .public) (cputype (\(fatArch.cputype, privacy: .public) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public))) (maximum 2^\(maxSectionAlign, privacy: .public)")
 						return false
 					}
 					if (fatArch.offset % (1 << fatArch.align)) != 0 {
-						os_log("offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
-						       type: .error, fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
+						logger.error("offset \(fatArch.offset, privacy: .public) of fat file \(self.fileName, privacy: .public) (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public))) not aligned on its alignment (2^\(fatArch.align, privacy: .public)")
 						return false
 					}
 					if fatArchSet.contains(fatArch) {
-						os_log("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
-						       type: .error, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+						logger.error("fat file \(self.fileName, privacy: .public) contains two of the same architecture (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)))")
 						return false
 					}
 					fatArchSet.insert(fatArch)
 				}
 
 				if fatArchs.isEmpty {
-					os_log("fat file contains no architectures %@", type: .error, fileName)
+					logger.error("fat file contains no architectures \(self.fileName, privacy: .public)")
 					return false
 				} else {
 					// create a thin file struct for each arch in the fat file
@@ -362,7 +359,7 @@ class Lipo {
 				fatHeader = fatHeaderFromFile(buffer.load(as: fat_header.self))
 				let bigSize = Int(fatHeader.nfat_arch) * MemoryLayout<fat_arch_64>.size + MemoryLayout<fat_header>.size
 				if bigSize > size {
-					os_log("truncated or malformed fat file (fat_arch structs would extend past the end of the file) %@", type: .error, fileName)
+					logger.error("truncated or malformed fat file (fat_arch structs would extend past the end of the file) \(self.fileName, privacy: .public)")
 					inputData = nil
 					return false
 				}
@@ -373,30 +370,26 @@ class Lipo {
 				var fatArchSet = Set<fat_arch_64>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
-						os_log("truncated or malformed fat file (offset plus size of cputype (%d) cpusubtype (%d) extends past the end of the file) %@",
-						       type: .error, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fileName)
+						logger.error("truncated or malformed fat file (offset plus size of cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)) extends past the end of the file) \(self.fileName, privacy: .public)")
 						return false
 					}
 					if fatArch.align > UInt32(maxSectionAlign) {
-						os_log("align (2^%u) too large of fat file %@ (cputype (%d) cpusubtype (%d)) (maximum 2^%d)",
-						       type: .error, fatArch.align, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), maxSectionAlign)
+						logger.error("align (2^\(fatArch.align, privacy: .public) too large of fat file \(self.fileName, privacy: .public) (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public))) (maximum 2^\(maxSectionAlign, privacy: .public)")
 						return false
 					}
 					if (fatArch.offset % UInt64((1 << fatArch.align))) != 0 {
-						os_log("offset %u of fat file %@ (cputype (%d) cpusubtype (%d)) not aligned on its alignment (2^%u)",
-						       type: .error, fatArch.offset, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype), fatArch.align)
+						logger.error("offset \(fatArch.offset, privacy: .public) of fat file \(self.fileName, privacy: .public) (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public))) not aligned on its alignment (2^\(fatArch.align, privacy: .public)")
 						return false
 					}
 					if fatArchSet.contains(fatArch) {
-						os_log("fat file %@ contains two of the same architecture (cputype (%d) cpusubtype (%d))",
-						       type: .error, fileName, fatArch.cputype, cpuSubtypeWithMask(fatArch.cpusubtype))
+						logger.error("fat file \(self.fileName, privacy: .public) contains two of the same architecture (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)))")
 						return false
 					}
 					fatArchSet.insert(fatArch)
 				}
 
 				if fatArchs.isEmpty {
-					os_log("fat file contains no architectures %@", type: .error, fileName)
+					logger.error("fat file contains no architectures \(self.fileName, privacy: .public)")
 					return false
 				} else {
 					// create a thin file struct for each arch in the fat file
@@ -420,7 +413,7 @@ class Lipo {
 
 		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
 		if fd == -1 {
-			os_log("can't create temporary output file: %@", type: .error, temporaryFile)
+			logger.error("can't create temporary output file: \(temporaryFile, privacy: .public)")
 			return false
 		}
 		let fileHandle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
@@ -572,7 +565,7 @@ class Lipo {
 		do {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch let error {
-			os_log("can't move temporary file: '%@' to file '%@': %@", type: .error, temporaryFile, fileName, error.localizedDescription)
+			logger.error("can't move temporary file: '\(temporaryFile, privacy: .public)' to file '\(self.fileName, privacy: .public)': \(error.localizedDescription)")
 			try? FileManager.default.removeItem(at: temporaryURL)
 			return false
 		}

@@ -9,7 +9,7 @@
 import Foundation
 import MachO.fat
 import MachO.loader
-import os.log
+import OSLog
 
 extension URL {
 
@@ -30,6 +30,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 	private let timeoutInterval = TimeInterval(30.0)
 	private let workerQueue = OperationQueue()
 	private var isRootless = true
+	private let logger = Logger()
 
 	var version: String {
 		return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
@@ -43,11 +44,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
-		os_log("isRootless=%@", type: .debug, isRootless ? "true" : "false")
+		logger.debug("isRootless=\(self.isRootless ? "true" : "false", privacy: .public)")
 	}
 
 	func run() {
-		os_log("MonolingualHelper %@ started", type: .info, version)
+		logger.info("MonolingualHelper \(self.version, privacy: .public) started")
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
@@ -55,7 +56,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 	}
 
 	@objc func timeout(_: Timer) {
-		os_log("timeout while waiting for request", type: .info)
+		logger.info("timeout while waiting for request")
 		exit(code: Int(EXIT_SUCCESS))
 	}
 
@@ -79,7 +80,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 	}
 
 	@objc func exit(code: Int) {
-		os_log("exiting with exit status %d", type: .info, code)
+		logger.info("exiting with exit status \(code, privacy: .public)")
 		workerQueue.waitUntilAllOperationsAreFinished()
 		Darwin.exit(Int32(code))
 	}
@@ -89,7 +90,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 		let context = HelperContext(request, rootless: isRootless)
 
-		os_log("Received request: %@", type: .debug, request)
+		logger.debug("Received request: \(request, privacy: .public)")
 
 		// https://developer.apple.com/library/content/releasenotes/Foundation/RN-Foundation-v10.10/index.html#10_10NSXPC
 		// Progress must not be indeterminate - otherwise no KVO notifications are fired
@@ -97,7 +98,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		let progress = Progress(totalUnitCount: 1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
-			os_log("Stopping MonolingualHelper", type: .info)
+			self.logger.info("Stopping MonolingualHelper")
 		}
 		context.progress = progress
 		context.remoteProgress = remoteProgress
@@ -300,7 +301,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 				process.waitUntilExit()
 
 				if process.terminationStatus != EXIT_SUCCESS {
-					os_log("/usr/bin/strip failed with exit status %d", type: .error, process.terminationStatus)
+					logger.error("/usr/bin/strip failed with exit status \(process.terminationStatus, privacy: .public)")
 				}
 
 				let newAttributes = [
@@ -312,7 +313,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
 				} catch let error {
-					os_log("Failed to set file attributes for '%@': %@", type: .error, path, error.localizedDescription)
+					logger.error("Failed to set file attributes for '\(path, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 				}
 
 				do {
@@ -326,7 +327,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 				} catch {
 				}
 			} catch let error {
-				os_log("Failed to get file attributes for '%@': %@", type: .error, url.absoluteString, error.localizedDescription)
+				logger.error("Failed to get file attributes for '\(url.absoluteString, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			}
 		}
 	}
@@ -345,7 +346,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		do {
 			try fileManager.removeItem(at: protectedDirectory)
 		} catch let error {
-			os_log("Failed to remove temporary file '%@': %@", type: .error, protectedDirectory.absoluteString, error.localizedDescription)
+			logger.error("Failed to remove temporary file '\(protectedDirectory.absoluteString, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 		}
 
 		return false

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import os.log
+import OSLog
 
 final class HelperContext: NSObject, FileManagerDelegate {
 
@@ -17,6 +17,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	private var fileBlocklist = Set<URL>()
 	let fileManager = FileManager()
 	let isRootless: Bool
+	let logger = Logger()
 
 	init(_ request: HelperRequest, rootless: Bool) {
 		self.request = request
@@ -211,7 +212,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: url.path)
 				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: parent.path)
 			} catch let error {
-				os_log("Failed to set owner: %@", error.localizedDescription)
+				logger.error("failed to set owner: \(error.localizedDescription, privacy: .public)")
 			}
 
 			// try to move the file to the user's trash
@@ -222,7 +223,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 				success = true
 			} catch let error1 {
 				error = error1
-				os_log("Could not move %@ to trash: %@", url.absoluteString, error!.localizedDescription)
+				logger.error("Could not move \(url.absoluteString, privacy: .public) to trash: \(error!.localizedDescription, privacy: .public)")
 				success = false
 			}
 			seteuid(0)
@@ -246,7 +247,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					reportProgress(url: url, size: size)
 				}
 			} else if let error = error {
-				os_log("Error trashing '%@': %@", type: .error, url.path, error.localizedDescription)
+				logger.error("Error trashing '\(url.path, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			}
 		} else {
 			do {
@@ -257,7 +258,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blocklisted files and cannot be removed)
 					} else {
-						os_log("Error removing '%@': %@", type: .error, url.path, error)
+						logger.error("Error removing '\(url.path, privacy: .public)': \(error, privacy: .public)")
 					}
 				}
 			}
@@ -288,7 +289,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, removingItemAt url: URL) -> Bool {
 		// https://github.com/IngmarStein/Monolingual/issues/102
-		// os_log("Error removing '%@': %@", type: .error, url.path, error as NSError)
+		// logger.error("Error removing '\(url.path, privacy: .public)': \(error as NSError, privacy: .public)")
 
 		return true
 	}

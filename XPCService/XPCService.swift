@@ -9,10 +9,11 @@
 import Foundation
 import SMJobKit
 import XPC
-import os.log
+import OSLog
 
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?
+	private let logger = Logger()
 
 	func bundledHelperVersion(reply: @escaping (String) -> Void) {
 		reply(MonolingualHelperClient.bundledVersion!)
@@ -26,7 +27,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
 			case SMJError.unableToBless(let blessError):
-				os_log("Failed to bless helper. Error: %@", type: .error, blessError.localizedDescription)
+				logger.error("Failed to bless helper. Error: \(blessError.localizedDescription, privacy: .public)")
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
 			case SMJError.authorizationDenied:
 				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
@@ -53,7 +54,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		}
 
 		guard let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler({ error in
-			os_log("XPCService failed to connect to helper: %@", type: .error, error.localizedDescription)
+			self.logger.error("XPCService failed to connect to helper: \(error.localizedDescription, privacy: .public)")
 			reply(nil)
 		}) as? HelperProtocol else {
 			reply(nil)

@@ -12,7 +12,8 @@
 //
 
 import Cocoa
-import os.log
+import UserNotifications
+import OSLog
 
 enum MonolingualMode: Int {
 	case languages = 0
@@ -49,6 +50,8 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private var progressObserverToken: NSKeyValueObservation?
 
 	private let sipProtectedLocations = [ "/System", "/bin" ]
+
+	let logger = Logger()
 
 	private lazy var xpcServiceConnection: NSXPCConnection = {
 		let connection = NSXPCConnection(serviceName: "com.github.IngmarStein.Monolingual.XPCService")
@@ -128,13 +131,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			request.thin = archs
 
 			for item in request.bundleBlocklist! {
-				os_log("Blocking %@", type: .info, item)
+				logger.info("Blocking \(item, privacy: .public)")
 			}
 			for include in request.includes! {
-				os_log("Adding root %@", type: .info, include)
+				logger.info("Adding root \(include, privacy: .public)")
 			}
 			for exclude in request.excludes! {
-				os_log("Excluding root %@", type: .info, exclude)
+				logger.info("Excluding root \(exclude, privacy: .public)")
 			}
 
 			self.checkAndRunHelper(arguments: request)
@@ -211,7 +214,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	func installHelper(reply: @escaping (Bool) -> Void) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
-			os_log("XPCService error: %@", type: .error, error.localizedDescription)
+			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
@@ -248,7 +251,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		// arguments.dryRun = true
 
 		helper.process(request: arguments, progress: self) { exitCode in
-			os_log("helper finished with exit code: %d", type: .info, exitCode)
+			self.logger.info("helper finished with exit code: \(exitCode, privacy: .public)")
 			helper.exit(code: exitCode)
 			if exitCode == Int(EXIT_SUCCESS) {
 				DispatchQueue.main.async {
@@ -278,16 +281,22 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			presentAsSheet(self.progressViewController!)
 		}
 
-		let notification = NSUserNotification()
-		notification.title = NSLocalizedString("Monolingual started", comment: "")
-		notification.informativeText = NSLocalizedString("Started removing files", comment: "")
+		let content = UNMutableNotificationContent()
+		content.title = NSLocalizedString("Monolingual started", comment: "")
+		content.body = NSLocalizedString("Started removing files", comment: "")
 
-		NSUserNotificationCenter.default.deliver(notification)
+		let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
+		let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
+		let request = UNNotificationRequest(identifier: UUID().uuidString,
+																				content: content,
+																				trigger: trigger)
+
+		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 	}
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
 		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
-			os_log("XPCService error: %@", type: .error, error.localizedDescription)
+			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
 		} as? XPCServiceProtocol
 
 		if let xpcService = xpcService {
@@ -299,7 +308,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 					interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
 					connection.remoteObjectInterface = interface
 					connection.invalidationHandler = {
-						os_log("XPC connection to helper invalidated.", type: .error)
+						self.logger.error("XPC connection to helper invalidated.")
 						self.helperConnection = nil
 						if performInstallation {
 							self.installHelper { success in
@@ -314,9 +323,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 					if let connection = self.helperConnection {
 						guard let helper = connection.remoteObjectProxyWithErrorHandler({ error in
-							os_log("Error connecting to helper: %@", type: .error, error.localizedDescription)
+							self.logger.error("Error connecting to helper:: \(error.localizedDescription, privacy: .public)")
 						}) as? HelperProtocol else {
-							os_log("Helper does not conform to HelperProtocol")
+							self.logger.error("Helper does not conform to HelperProtocol")
 							return
 						}
 
@@ -340,7 +349,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 						}
 					}
 				} else {
-					os_log("Failed to get XPC endpoint.", type: .error)
+					self.logger.error("Failed to get XPC endpoint.")
 					self.installHelper { success in
 						if success {
 							self.checkAndRunHelper(arguments: arguments)
@@ -372,7 +381,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		if !completed {
 			// cancel the current progress which tells the helper to stop
 			progress.cancel()
-			os_log("Closing progress connection", type: .debug)
+			logger.debug("Closing progress connection")
 
 			if let helper = self.helperConnection?.remoteObjectProxy as? HelperProtocol {
 				helper.exit(code: Int(EXIT_FAILURE))
@@ -390,15 +399,21 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			alert.informativeText = String(format: NSLocalizedString("Space saved: %@.", comment: ""), byteCount)
 			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
 
-			let notification = NSUserNotification()
-			notification.title = NSLocalizedString("Monolingual finished", comment: "")
-			notification.informativeText = NSLocalizedString("Finished removing files", comment: "")
+			let content = UNMutableNotificationContent()
+			content.title = NSLocalizedString("Monolingual finished", comment: "")
+			content.body = NSLocalizedString("Finished removing files", comment: "")
 
-			NSUserNotificationCenter.default.deliver(notification)
+			let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
+			let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
+			let request = UNNotificationRequest(identifier: UUID().uuidString,
+																					content: content,
+																					trigger: trigger)
+
+			UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 		}
 
 		if let connection = self.helperConnection {
-			os_log("Closing connection to helper", type: .info)
+			logger.info("Closing connection to helper")
 			connection.invalidate()
 			self.helperConnection = nil
 		}
@@ -474,13 +489,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		let bl = self.blocklist!.filter { $0.languages } .map { $0.bundle }
 
 		for item in bl {
-			os_log("Blocklisting %@", type: .info, item)
+			logger.info("Blocklisting \(item, privacy: .public)")
 		}
 		for include in includes {
-			os_log("Adding root %@", type: .info, include)
+			logger.info("Adding root \(include, privacy: .public)")
 		}
 		for exclude in excludes {
-			os_log("Excluding root %@", type: .info, exclude)
+			logger.info("Excluding root \(exclude, privacy: .public)")
 		}
 
 		var rCount = 0
