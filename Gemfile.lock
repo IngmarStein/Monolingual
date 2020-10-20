@@ -15,7 +15,7 @@ GEM
     aws-sdk-kms (1.39.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.83.0)
+    aws-sdk-s3 (1.83.1)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -45,7 +45,7 @@ GEM
     faraday_middleware (1.0.0)
       faraday (~> 1.0)
     fastimage (2.2.0)
-    fastlane (2.163.0)
+    fastlane (2.164.0)
       CFPropertyList (>= 2.3, < 4.0.0)
       addressable (>= 2.3, < 3.0.0)
       aws-sdk-s3 (~> 1.0)
@@ -174,7 +174,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  fastlane (~> 2.163)
+  fastlane (~> 2.164)
 
 BUNDLED WITH
    2.1.4
