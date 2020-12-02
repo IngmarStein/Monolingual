@@ -406,7 +406,6 @@ class Lipo {
 
 	/*
 	 * createFat() creates a fat output file from the thin files.
-	 * TODO: The FileHandle API doesn't support error handling, yet (see https://bugs.swift.org/browse/SR-2138).
 	 */
 	private func createFat(newsize: inout Int) -> Bool {
 		let temporaryFile = "\(fileName!).lipo"
@@ -453,11 +452,14 @@ class Lipo {
 				return result
 			}
 
-			withUnsafePointer(to: &fatHeader) { (pointer) in
-				let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none)
-				fileHandle.write(data)
-				// os_log("can't write fat header to output file: %@", type: .error, temporaryFile)
-				// return false
+			do {
+				try withUnsafePointer(to: &fatHeader) { (pointer) in
+					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_header>.size, deallocator: .none)
+					try fileHandle.write(contentsOf: data)
+				}
+			} catch {
+				logger.error("can't write fat header to output file: \(temporaryFile, privacy: .public)")
+				return false
 			}
 			let thinFilesEnumerator = thinFiles.enumerated()
 			for (i, thinFile) in thinFilesEnumerator {
@@ -478,19 +480,25 @@ class Lipo {
 
 				if fat64Flag {
 					var fatArch = fatArch64ToFile(fat_arch_64(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: thinFile.offset, size: thinFile.size, align: thinFile.align, reserved: 0))
-					withUnsafePointer(to: &fatArch) { (pointer) in
-						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
-						fileHandle.write(data)
-						// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-						// return false
+					do {
+						try withUnsafePointer(to: &fatArch) { (pointer) in
+							let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
+							try fileHandle.write(contentsOf: data)
+						}
+					} catch {
+						logger.error("can't write fat arch to output file: \(temporaryFile, privacy: .public)")
+						return false
 					}
 				} else {
 					var fatArch = fatArchToFile(fat_arch(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt32(thinFile.offset), size: UInt32(thinFile.size), align: thinFile.align))
-					withUnsafePointer(to: &fatArch) { (pointer) in
-						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
-						fileHandle.write(data)
-						// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-						// return false
+					do {
+						try withUnsafePointer(to: &fatArch) { (pointer) in
+							let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
+							try fileHandle.write(contentsOf: data)
+						}
+					} catch {
+						logger.error("can't write fat arch to output file: \(temporaryFile, privacy: .public)")
+						return false
 					}
 				}
 			}
@@ -504,19 +512,25 @@ class Lipo {
 			let thinFile = thinFiles[arm64Arch]
 			if fat64Flag {
 				var fatArch = fatArch64ToFile(fat_arch_64(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: thinFile.offset, size: thinFile.size, align: thinFile.align, reserved: 0))
-				withUnsafePointer(to: &fatArch) { (pointer) in
-					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
-					fileHandle.write(data)
-					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-					// return false
+				do {
+					try withUnsafePointer(to: &fatArch) { (pointer) in
+						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
+						try fileHandle.write(contentsOf: data)
+					}
+				} catch {
+					logger.error("can't write fat arch to output file: \(temporaryFile, privacy: .public)")
+					return false
 				}
 			} else {
 				var fatArch = fatArchToFile(fat_arch(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt32(thinFile.offset), size: UInt32(thinFile.size), align: thinFile.align))
-				withUnsafePointer(to: &fatArch) { (pointer) in
-					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
-					fileHandle.write(data)
-					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-					// return false
+				do {
+					try withUnsafePointer(to: &fatArch) { (pointer) in
+						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
+						try fileHandle.write(contentsOf: data)
+					}
+				} catch {
+					logger.error("can't write fat arch to output file: \(temporaryFile, privacy: .public)")
+					return false
 				}
 			}
 		}
@@ -529,36 +543,57 @@ class Lipo {
 			let thinFile = thinFiles[x8664hArch]
 			if fat64Flag {
 				var fatArch = fatArch64ToFile(fat_arch_64(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: thinFile.offset, size: thinFile.size, align: thinFile.align, reserved: 0))
-				withUnsafePointer(to: &fatArch) { (pointer) in
-					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
-					fileHandle.write(data)
-					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-					// return false
+				do {
+					try withUnsafePointer(to: &fatArch) { (pointer) in
+						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch_64>.size, deallocator: .none)
+						try fileHandle.write(contentsOf: data)
+					}
+				} catch {
+					logger.error("can't write fat arch to output file: \(temporaryFile, privacy: .public)")
+					return false
 				}
 			} else {
 				var fatArch = fatArchToFile(fat_arch(cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt32(thinFile.offset), size: UInt32(thinFile.size), align: thinFile.align))
-				withUnsafePointer(to: &fatArch) { (pointer) in
-					let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
-					fileHandle.write(data)
-					// os_log("can't write fat arch to output file: %@", type: .error, temporaryFile)
-					// return false
+				do {
+					try withUnsafePointer(to: &fatArch) { (pointer) in
+						let data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: pointer), count: MemoryLayout<fat_arch>.size, deallocator: .none)
+						try fileHandle.write(contentsOf: data)
+					}
+				} catch {
+					logger.error("can't write fat arch to output file: \(temporaryFile, privacy: .public)")
+					return false
 				}
 			}
 		}
 		for thinFile in thinFiles {
 			if nthinFiles != 1 {
-				fileHandle.seek(toFileOffset: thinFile.offset)
-				// os_log("can't lseek in output file: %@", type: .error, temporaryFile)
-				// return false
+				do {
+					try fileHandle.seek(toOffset: thinFile.offset)
+				} catch {
+					logger.error("can't seek in output file: \(temporaryFile, privacy: .public)")
+					return false
+				}
 			}
-			fileHandle.write(thinFile.data)
-			// os_log("can't write to output file: %@", type: .error, temporaryFile)
-			// return false
+			do {
+				try fileHandle.write(contentsOf: thinFile.data)
+			} catch {
+				logger.error("can't write to output file: \(temporaryFile, privacy: .public)")
+				return false
+			}
 		}
 
-		newsize = Int(fileHandle.seekToEndOfFile())
+		do {
+			newsize = Int(try fileHandle.seekToEnd())
+		} catch {
+			logger.error("can't seek in output file: \(temporaryFile, privacy: .public)")
+			return false
+		}
 
-		fileHandle.closeFile()
+		do {
+			try fileHandle.close()
+		} catch {
+			logger.warning("can't close output file: \(temporaryFile, privacy: .public)")
+		}
 
 		let temporaryURL = URL(fileURLWithPath: temporaryFile, isDirectory: false)
 		let inputURL = URL(fileURLWithPath: fileName, isDirectory: false)
