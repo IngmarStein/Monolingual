@@ -590,6 +590,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		// swiftlint:disable comma
 		let archs = [
 			ArchitectureInfo(name: "arm",       displayName: "ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name: "arm64",     displayName: "ARM64",                  cpuType: CPU_TYPE_ARM64,     cpuSubtype: CPU_SUBTYPE_ARM64_ALL),
+			ArchitectureInfo(name: "arm64v8",   displayName: "ARM64v8",                cpuType: CPU_TYPE_ARM64,   cpuSubtype: CPU_SUBTYPE_ARM64_V8),
+			ArchitectureInfo(name: "arm64e",    displayName: "ARM64E",                 cpuType: CPU_TYPE_ARM64,     cpuSubtype: CPU_SUBTYPE_ARM64E),
 			ArchitectureInfo(name: "ppc",       displayName: "PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
 			ArchitectureInfo(name: "ppc750",    displayName: "PowerPC G3",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_750),
 			ArchitectureInfo(name: "ppc7400",   displayName: "PowerPC G4",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7400),

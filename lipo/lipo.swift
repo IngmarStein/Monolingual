@@ -69,6 +69,8 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "x86_64",     cputype: CPU_TYPE_X86_64,    cpusubtype: CPU_SUBTYPE_X86_64_ALL),
 	ArchFlag(name: "x86_64h",    cputype: CPU_TYPE_X86_64,    cpusubtype: CPU_SUBTYPE_X86_64_H),
 	ArchFlag(name: "arm64",      cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_ALL),
+	ArchFlag(name: "arm64v8",    cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64_V8),
+	ArchFlag(name: "arm64e",     cputype: CPU_TYPE_ARM64,     cpusubtype: CPU_SUBTYPE_ARM64E),
 	/* specific architecture implementations */
 	ArchFlag(name: "ppc970-64",  cputype: CPU_TYPE_POWERPC64, cpusubtype: CPU_SUBTYPE_POWERPC_970),
 
