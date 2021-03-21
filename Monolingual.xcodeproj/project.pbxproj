@@ -507,7 +507,6 @@
 				95337A221B09EB4200303823 /* Copy Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
 				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */,
-				950183451AF4FC26007F74C3 /* Fabric */,
 			);
 			buildRules = (
 			);
@@ -584,7 +583,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1230;
+				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -695,20 +694,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		950183451AF4FC26007F74C3 /* Fabric */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = Fabric;
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ \"Release\" = \"${CONFIGURATION}\" ]; then\n    ./Pods/Fabric/run 9367389c9ba1c46bb506967bf78235d24bdefc65 7a6a19ca726915f847582d51190afcf756d57e1d299d9fca036cfb517345ea9c\nfi\n";
-		};
 		95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -721,7 +706,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --deep --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${FRAMEWORK_DIR}/Sparkle.framework/Versions/Current/Resources/Autoupdate \\\n    ${FRAMEWORK_DIR}/Sparkle.framework/Versions/Current/Resources/Updater.app \\\n    ${FRAMEWORK_DIR}/*.framework \\\n    ${XPCSERVICES_DIR}/*.xpc/Contents/Library/LaunchServices/* \\\n    ${XPCSERVICES_DIR}/*.xpc \\\n    ${TARGET_BUILD_DIR}/${EXECUTABLE_PATH} \\\n    ${CODESIGNING_FOLDER_PATH}\n";
+			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --deep --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${FRAMEWORK_DIR}/*.framework \\\n    ${XPCSERVICES_DIR}/*.xpc/Contents/Library/LaunchServices/* \\\n    ${XPCSERVICES_DIR}/*.xpc \\\n    ${TARGET_BUILD_DIR}/${EXECUTABLE_PATH} \\\n    ${CODESIGNING_FOLDER_PATH}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

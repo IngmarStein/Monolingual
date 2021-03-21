@@ -7,12 +7,15 @@
 //
 
 #if __has_feature(modules)
+#if __has_warning("-Watimport-in-framework-header")
+#pragma clang diagnostic ignored "-Watimport-in-framework-header"
+#endif
 @import Foundation;
 #else
 #import <Foundation/Foundation.h>
 #endif
-#import <Sparkle/SUExport.h>
-#import <Sparkle/SPUUserDriver.h>
+#import "SUExport.h"
+#import "SPUUserDriver.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -101,6 +104,17 @@ SU_EXPORT @interface SPUUpdater : NSObject
 - (void)checkForUpdateInformation;
 
 /*!
+ A property indicating whether or not updates can be checked.
+ 
+ This property is useful for determining whether update checks can be made programatically or by the user.
+ An update check cannot be made when an on-going update check is in progress.
+ 
+ Note this property does not reflect whether or not an update itself is in progress. For example,
+ an update check can be done to check if there's an already started update that can be resumed.
+ */
+@property (nonatomic, readonly) BOOL canCheckForUpdates;
+
+/*!
  A property indicating whether or not to check for updates automatically.
  
  Setting this property will persist in the host bundle's user defaults.
@@ -134,9 +148,9 @@ SU_EXPORT @interface SPUUpdater : NSObject
  If the updater's delegate implements -[SPUUpdaterDelegate feedURLStringForUpdater:], this will return that feed URL.
  Otherwise if the feed URL has been set before, the feed URL returned will be retrieved from the host bundle's user defaults.
  Otherwise the feed URL in the host bundle's Info.plist will be returned.
- If no feed URL can be retrieved, this will raise an exception.
+ If no feed URL can be retrieved, returns nil.
  
- This property must be called on the main thread.
+ This property must be called on the main thread; calls from background threads will return nil.
  */
 @property (nonatomic, readonly) NSURL *feedURL;
 
@@ -149,7 +163,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  
  Passing nil will remove any feed URL that has been set in the host bundle's user defaults.
  
- This method must be called on the main thread.
+ This method must be called on the main thread; calls from background threads will have no effect.
  */
 - (void)setFeedURL:(NSURL * _Nullable)feedURL;
 
@@ -203,6 +217,12 @@ SU_EXPORT @interface SPUUpdater : NSObject
     but only the internal timer.
  */
 - (void)resetUpdateCycle;
+
+
+/*!
+ The system profile information that is sent when checking for updates
+ */
+@property (nonatomic, readonly, copy) NSArray<NSDictionary<NSString *, NSString *> *> *systemProfileArray;
 
 @end
 

@@ -10,11 +10,14 @@
 #define SUERRORS_H
 
 #if __has_feature(modules)
+#if __has_warning("-Watimport-in-framework-header")
+#pragma clang diagnostic ignored "-Watimport-in-framework-header"
+#endif
 @import Foundation;
 #else
 #import <Foundation/Foundation.h>
 #endif
-#import <Sparkle/SUExport.h>
+#import "SUExport.h"
 
 /**
  * Error domain used by Sparkle
@@ -37,6 +40,8 @@ typedef NS_ENUM(OSStatus, SUError) {
     SUAppcastError = 1002,
     SURunningFromDiskImageError = 1003,
     SUResumeAppcastError = 1004,
+    SURunningTranslocated = 1005,
+    SUWebKitTerminationError = 1006,
 
     // Download phase errors.
     SUTemporaryDirectoryError = 2000,
@@ -45,6 +50,7 @@ typedef NS_ENUM(OSStatus, SUError) {
     // Extraction phase errors.
     SUUnarchivingError = 3000,
     SUSignatureError = 3001,
+    SUValidationError = 3002,
     
     // Installation phase errors.
     SUFileCopyFailure = 4000,
@@ -56,7 +62,11 @@ typedef NS_ENUM(OSStatus, SUError) {
     SUDowngradeError = 4006,
     SUInstallationCanceledError = 4007,
     SUInstallationAuthorizeLaterError = 4008,
-    SUNotAllowedInteractionError = 4009
+    SUNotAllowedInteractionError = 4009,
+    SUAgentInvalidationError = 4010,
+    
+    // API misuse errors.
+    SUIncorrectAPIUsageError = 5000
 };
 
 #endif
