@@ -12,7 +12,11 @@ class Fastfile: LaneFile {
 	var fastlaneVersion: String { return "2.69.3" }
 
 	func beforeAll() {
-		swiftlint(mode: "lint", configFile: ".swiftlint.yml", strict: false, ignoreExitStatus: false, quiet: false)
+		swiftlint(mode: "lint",
+              configFile: ".swiftlint.yml",
+              strict: false,
+              ignoreExitStatus: false,
+              quiet: false)
 	}
 
 	func testLane() {
@@ -22,11 +26,19 @@ class Fastfile: LaneFile {
 
 	func betaLane() {
 		desc("Build a new beta version with debug information")
-		buildApp(project: "Monolingual.xcodeproj", scheme: "Monolingual", outputDirectory: "./build", configuration: "Debug")
+		buildApp(project: "Monolingual.xcodeproj",
+             scheme: "Monolingual",
+             outputDirectory: "./build",
+             configuration: "Debug")
 	}
 
 	func releaseLane() {
 		desc("Build a new release version")
-		buildApp(project: "Monolingual.xcodeproj", scheme: "Monolingual", clean: true, outputDirectory: "./build", configuration: "Release")
+		buildApp(project: "Monolingual.xcodeproj",
+             scheme: "Monolingual",
+             clean: true,
+             outputDirectory: "./build",
+             configuration: "Release",
+             exportMethod: "developer-id")
 	}
 }
