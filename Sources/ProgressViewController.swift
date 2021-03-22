@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
- *  2004-2019 Ingmar Stein
+ *  2004-2021 Ingmar Stein
  */
 
 import Cocoa
