@@ -11,8 +11,6 @@
 		950ED26E1976AA6D00BAC239 /* BlocklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */; };
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
 		950ED2731976AAB600BAC239 /* Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2721976AAB600BAC239 /* Root.swift */; };
-		95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; };
-		95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 95337A201B09EAC600303823 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		95355AD31AD7F31200872850 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD21AD7F31200872850 /* main.swift */; };
 		95355AD51AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
 		95355AD61AD7F50200872850 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
@@ -22,6 +20,8 @@
 		95355ADC1AD7FA5600872850 /* HelperRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD81AD7F5C500872850 /* HelperRequest.swift */; };
 		95355ADE1AD7FAF900872850 /* HelperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADD1AD7FAF900872850 /* HelperContext.swift */; };
 		95355AE01AD806DD00872850 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
+		953B847626093C5800B16624 /* Sparkle.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 953B847426093C4900B16624 /* Sparkle.xcframework */; };
+		953B847726093C5800B16624 /* Sparkle.xcframework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 953B847426093C4900B16624 /* Sparkle.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955263A01AE67351001AD4F3 /* Helper_Tests.swift */; };
 		955263A51AE67594001AD4F3 /* HelperRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD81AD7F5C500872850 /* HelperRequest.swift */; };
 		955263A61AE675AE001AD4F3 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
@@ -92,7 +92,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				95337A231B09EB5600303823 /* Sparkle.framework in Copy Frameworks */,
+				953B847726093C5800B16624 /* Sparkle.xcframework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,6 +149,7 @@
 		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperRequest.swift; path = Helper/Sources/HelperRequest.swift; sourceTree = "<group>"; };
 		95355ADD1AD7FAF900872850 /* HelperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperContext.swift; path = Helper/Sources/HelperContext.swift; sourceTree = "<group>"; };
 		95355ADF1AD806DD00872850 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = Helper.swift; path = Helper/Sources/Helper.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		953B847426093C4900B16624 /* Sparkle.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Sparkle.xcframework; sourceTree = "<group>"; };
 		954DDFFF1AD4ED350097145C /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ko; path = Resources/ko.lproj/Credits.html; sourceTree = "<group>"; };
 		954DE0001AD4ED4F0097145C /* ko */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ko; path = Resources/ko.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		954DE0011AD4EDB60097145C /* ko */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ko; path = Resources/ko.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -249,7 +250,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95337A211B09EAC600303823 /* Sparkle.framework in Frameworks */,
+				953B847626093C5800B16624 /* Sparkle.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,6 +341,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				953B847426093C4900B16624 /* Sparkle.xcframework */,
 				95337A201B09EAC600303823 /* Sparkle.framework */,
 			);
 			name = Frameworks;
