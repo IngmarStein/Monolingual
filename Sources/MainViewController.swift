@@ -323,7 +323,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 					if let connection = self.helperConnection {
 						guard let helper = connection.remoteObjectProxyWithErrorHandler({ error in
-							self.logger.error("Error connecting to helper:: \(error.localizedDescription, privacy: .public)")
+							self.logger.error("Error connecting to helper: \(error.localizedDescription, privacy: .public)")
 						}) as? HelperProtocol else {
 							self.logger.error("Helper does not conform to HelperProtocol")
 							return

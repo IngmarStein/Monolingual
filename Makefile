@@ -3,7 +3,7 @@ RELEASE_VERSION=1.9.0
 RELEASE_DIR=$(TOP)/release-$(RELEASE_VERSION)
 RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
 RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
-RELEASE_ZIPFILE=$(RELEASE_NAME).tar.bz2
+RELEASE_ZIPFILE=$(RELEASE_NAME).zip
 RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_ZIPFILE)
 SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
@@ -35,8 +35,12 @@ release: clean deployment
 	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
-	./make-diskimage.sh $(RELEASE_FILE) $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
-	tar cjf $(RELEASE_ZIP) -C $(BUILD_DIR) Monolingual.app
+	./make-diskimage.sh $(BUILD_DIR)/Monolingual.dmg $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
+	bundle exec fastlane notarize
+	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.app
+	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.dmg
+	/usr/bin/ditto -c -k --keepParent $(BUILD_DIR)/Monolingual.app $(RELEASE_ZIP)
+	mv $(BUILD_DIR)/Monolingual.dmg $(RELEASE_FILE)
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
 		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_ZIP)")/g" \

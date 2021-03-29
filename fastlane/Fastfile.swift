@@ -41,4 +41,21 @@ class Fastfile: LaneFile {
              configuration: "Release",
              exportMethod: "developer-id")
 	}
+
+  func notarizeLane() {
+    notarize(package: "./build/Monolingual.app",
+             tryEarlyStapling: true,
+             bundleId: "com.github.IngmarStein.Monolingual",
+             username: "ingmarstein@icloud.com",
+             ascProvider: "ADVP2P7SJK",
+             printLog: true,
+             verbose: true)
+    notarize(package: "./build/Monolingual.dmg",
+             tryEarlyStapling: true,
+             bundleId: "com.github.IngmarStein.Monolingual",
+             username: "ingmarstein@icloud.com",
+             ascProvider: "ADVP2P7SJK",
+             printLog: true,
+             verbose: true)
+  }
 }
