@@ -42,11 +42,18 @@ SU_EXPORT @interface SPUUpdater : NSObject
  Related: See SPUStandardUpdaterController which wraps a SPUUpdater instance and is suitable for instantiating in nib files
  
  @param hostBundle The bundle that should be targetted for updating. This must not be nil.
- @param applicationBundle The application bundle that should be relaunched and waited for termination. Usually this can be the same as hostBundle. This may differ when updating a plug-in or other non-application bundle.
+ @param applicationBundle The application bundle that should be waited for termination and relaunched (unless overridden). Usually this can be the same as hostBundle. This may differ when updating a plug-in or other non-application bundle.
  @param userDriver The user driver that Sparkle uses for user update interaction
  @param delegate The delegate for SPUUpdater. This may be nil.
  */
 - (instancetype)initWithHostBundle:(NSBundle *)hostBundle applicationBundle:(NSBundle *)applicationBundle userDriver:(id <SPUUserDriver>)userDriver delegate:(id<SPUUpdaterDelegate> _Nullable)delegate;
+
+/*!
+ Use -initWithHostBundle:applicationBundle:userDriver:delegate: or SPUStandardUpdaterController standard adapter instead.
+ 
+ If you want to drop an updater into a nib, use SPUStandardUpdaterController.
+ */
+- (instancetype)init NS_UNAVAILABLE;
 
 /*!
  Starts the updater.
@@ -54,12 +61,12 @@ SU_EXPORT @interface SPUUpdater : NSObject
  This method checks if Sparkle is configured properly. A valid feed URL should be set before this method is invoked.
  Other properties of this SPUUpdater instance can be set before this method is invoked as well, such as automatic update checks.
 
- If the configuration is valid, this method may bring up a permission prompt (if needed) for checking if the user wants automatic update checking.
- This method then starts the regular update cycle if automatic update checks are enabled.
+ If the configuration is valid, an update cycle is started in the next main runloop cycle.
+ During this cycle, a permission prompt may be brought up (if needed) for checking if the user wants automatic update checking.
+ Otherwise if automatic update checks are enabled, a scheduled update alert may be brought up if enough time has elapsed since the last check.
 
- One of -checkForUpdates, -checkForUpdatesInBackground, or -checkForUpdateInformation can be invoked before starting the updater.
- This preschedules an update action before starting the updater. When the updater is started, the prescheduled action is immediately invoked.
- This may be useful for example if you want to check for updates right away without a permission prompt potentially showing.
+ After starting the updater and before the next runloop cycle, one of -checkForUpdates, -checkForUpdatesInBackground, or -checkForUpdateInformation can be invoked.
+ This may be useful if you want to check for updates immediately or without showing a permission prompt.
 
  This must be called on the main thread.
 
@@ -152,7 +159,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  
  This property must be called on the main thread; calls from background threads will return nil.
  */
-@property (nonatomic, readonly) NSURL *feedURL;
+@property (nonatomic, readonly, nullable) NSURL *feedURL;
 
 /*!
  Set the URL of the appcast used to download update information. Using this method is discouraged.

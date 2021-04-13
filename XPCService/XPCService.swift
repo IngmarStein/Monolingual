@@ -49,10 +49,19 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			connection.invalidationHandler = {
 				self.helperToolConnection = nil
 			}
+			connection.interruptionHandler = {
+				print("interruptionHandler")
+			}
 			connection.resume()
 			helperToolConnection = connection
 		}
 
+		let h = self.helperToolConnection!.synchronousRemoteObjectProxyWithErrorHandler({ error in
+			print("error")
+		}) as? HelperProtocol
+		h!.getVersion { s in
+			print(s)
+		}
 		guard let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler({ error in
 			self.logger.error("XPCService failed to connect to helper: \(error.localizedDescription, privacy: .public)")
 			reply(nil)

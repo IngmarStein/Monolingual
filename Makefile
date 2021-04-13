@@ -28,7 +28,7 @@ release: clean deployment
 	# Check SMJobBless code signing setup
 	./SMJobBlessUtil.py check $(BUILD_DIR)/Monolingual.app/Contents/XPCServices/Monolingual.xpc
 	# Check app against Gatekeeper system policies
-	spctl -vv --assess --type execute $(BUILD_DIR)/Monolingual.app
+	spctl --assess --type execute -vv $(BUILD_DIR)/Monolingual.app
 	mkdir -p $(RELEASE_DIR)/build
 	cp -R $(BUILD_DIR)/Monolingual.app.dSYM.zip $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
@@ -36,9 +36,14 @@ release: clean deployment
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(BUILD_DIR)/Monolingual.dmg $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
+	# Verify DMG code signature
+	spctl --assess --type open --context context:primary-signature -vv $(BUILD_DIR)/Monolingual.dmg
+	# Notarize app and disk image
 	bundle exec fastlane notarize
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.app
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.dmg
+	# Verify notarization
+	codesign -vvvv -R="notarized" --check-notarization $(BUILD_DIR)/Monolingual.dmg
 	/usr/bin/ditto -c -k --keepParent $(BUILD_DIR)/Monolingual.app $(RELEASE_ZIP)
 	mv $(BUILD_DIR)/Monolingual.dmg $(RELEASE_FILE)
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \

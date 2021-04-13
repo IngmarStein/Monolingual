@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -40,9 +40,7 @@
 		959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEE11972F29B00A433C0 /* MainViewController.swift */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
-		95A393B11D93243F00C43430 /* org.sparkle-project.InstallerConnection.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		95A393B21D93243F00C43430 /* org.sparkle-project.InstallerLauncher.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		95A393B31D93243F00C43430 /* org.sparkle-project.InstallerStatus.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
@@ -103,9 +101,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
 			dstSubfolderSpec = 16;
 			files = (
-				95A393B11D93243F00C43430 /* org.sparkle-project.InstallerConnection.xpc in Embed XPC Services */,
 				95A393B21D93243F00C43430 /* org.sparkle-project.InstallerLauncher.xpc in Embed XPC Services */,
-				95A393B31D93243F00C43430 /* org.sparkle-project.InstallerStatus.xpc in Embed XPC Services */,
 				95E236E61AD526DF00076008 /* Monolingual.xpc in Embed XPC Services */,
 			);
 			name = "Embed XPC Services";
@@ -143,7 +139,6 @@
 		950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BlocklistEntry.swift; path = Sources/BlocklistEntry.swift; sourceTree = "<group>"; };
 		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArchitectureSetting.swift; path = Sources/ArchitectureSetting.swift; sourceTree = "<group>"; };
 		950ED2721976AAB600BAC239 /* Root.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Root.swift; path = Sources/Root.swift; sourceTree = "<group>"; };
-		95337A201B09EAC600303823 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		95355AD21AD7F31200872850 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = Helper/Sources/main.swift; sourceTree = "<group>"; };
 		95355AD41AD7F50200872850 /* HelperProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperProtocol.swift; path = Helper/Sources/HelperProtocol.swift; sourceTree = "<group>"; };
 		95355AD81AD7F5C500872850 /* HelperRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperRequest.swift; path = Helper/Sources/HelperRequest.swift; sourceTree = "<group>"; };
@@ -181,9 +176,7 @@
 		959CEEE11972F29B00A433C0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = MainViewController.swift; path = Sources/MainViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerConnection.xpc"; sourceTree = "<group>"; };
 		95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerLauncher.xpc"; sourceTree = "<group>"; };
-		95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.xpc-service"; path = "org.sparkle-project.InstallerStatus.xpc"; sourceTree = "<group>"; };
 		95A74F39197410EF005D3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Resources/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = Resources/el.lproj/Credits.html; sourceTree = "<group>"; };
 		95A75A8318FC6C9300BD2E36 /* el */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = el; path = Resources/el.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -342,7 +335,6 @@
 			isa = PBXGroup;
 			children = (
 				953B847426093C4900B16624 /* Sparkle.xcframework */,
-				95337A201B09EAC600303823 /* Sparkle.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -421,9 +413,7 @@
 		95A393931D9323C900C43430 /* Sparkle */ = {
 			isa = PBXGroup;
 			children = (
-				95A393AD1D93243600C43430 /* org.sparkle-project.InstallerConnection.xpc */,
 				95A393AE1D93243600C43430 /* org.sparkle-project.InstallerLauncher.xpc */,
-				95A393AF1D93243600C43430 /* org.sparkle-project.InstallerStatus.xpc */,
 			);
 			name = Sparkle;
 			sourceTree = "<group>";
@@ -506,9 +496,10 @@
 				95A1302C0608F92F00D8E30C /* Resources */,
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
+				950180972626396400D6FEEE /* Strip Sparkle Framework */,
 				95337A221B09EB4200303823 /* Copy Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
-				95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */,
+				95B9D1821769D1E80072A7E0 /* Codesign Sparkle XPC Services */,
 			);
 			buildRules = (
 			);
@@ -696,19 +687,39 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		95B9D1821769D1E80072A7E0 /* Codesign Embedded Frameworks and XPC Services */ = {
+		950180972626396400D6FEEE /* Strip Sparkle Framework */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Strip Sparkle Framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# https://sparkle-project.org/documentation/sandboxing/\n# The Installer Launcher XPC Service bundles a copy of Sparkle’s helper tools Autoupdate and Updater.app\nSPARKLE_SOURCE_ROOT=\"${SOURCE_ROOT}/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework\"\nrm -f \"${SPARKLE_SOURCE_ROOT}/Autoupdate\"\nrm -f \"${SPARKLE_SOURCE_ROOT}/Updater\"\nrm -f \"${SPARKLE_SOURCE_ROOT}/Versions/A/Autoupdate\"\nrm -rf \"${SPARKLE_SOURCE_ROOT}/Versions/A/Updater.app\"\n";
+		};
+		95B9D1821769D1E80072A7E0 /* Codesign Sparkle XPC Services */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Codesign Embedded Frameworks and XPC Services";
+			name = "Codesign Sparkle XPC Services";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nFRAMEWORK_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --deep --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${FRAMEWORK_DIR}/*.framework \\\n    ${XPCSERVICES_DIR}/*.xpc/Contents/Library/LaunchServices/* \\\n    ${XPCSERVICES_DIR}/*.xpc \\\n    ${TARGET_BUILD_DIR}/${EXECUTABLE_PATH} \\\n    ${CODESIGNING_FOLDER_PATH}\n";
+			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project*.xpc\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
