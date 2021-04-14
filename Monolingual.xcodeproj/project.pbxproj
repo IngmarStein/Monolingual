@@ -62,7 +62,6 @@
 		95EB7AB31AE7780C0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EB7AB41AE7B0FB0066369B /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
-		95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 95F7771C0ECC2644009C621B /* dsa_pub.pem */; };
 		95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */ = {isa = PBXBuildFile; productRef = 95FCE24222CD355D008A55D3 /* SMJobKit */; };
 /* End PBXBuildFile section */
 
@@ -205,7 +204,6 @@
 		95EDCC87062C4264007229A3 /* LisezMoi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = LisezMoi.rtfd; path = Resources/LisezMoi.rtfd; sourceTree = "<group>"; };
 		95EDCC8B062C4393007229A3 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = French; path = Resources/fr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95F508FD098CC8DF009FD7EC /* English */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = English; path = Resources/en.lproj/Credits.html; sourceTree = "<group>"; };
-		95F7771C0ECC2644009C621B /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		95FAA327197507E400C506EE /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = de; path = Resources/de.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95FAA329197507F500C506EE /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = fr; path = Resources/fr.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95FAA32B19752A5300C506EE /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = sv; path = Resources/sv.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -318,7 +316,6 @@
 			isa = PBXGroup;
 			children = (
 				9558F78F0615953200F6DE23 /* Credits.html */,
-				95F7771C0ECC2644009C621B /* dsa_pub.pem */,
 				95A130420608F92F00D8E30C /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				95B70C491AD2715500801026 /* LICENSE.txt */,
@@ -672,7 +669,6 @@
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
 				95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */,
-				95F7771D0ECC2644009C621B /* dsa_pub.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -719,7 +715,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime --runtime-version 10.14.0 ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project*.xpc\n";
+			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project.InstallerLauncher.xpc/Contents/MacOS/Updater.app\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project.InstallerLauncher.xpc/Contents/MacOS/Autoupdate\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project.InstallerLauncher.xpc\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

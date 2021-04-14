@@ -36,21 +36,19 @@ release: clean deployment
 	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(BUILD_DIR)/Monolingual.dmg $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
-	# Verify DMG code signature
-	spctl --assess --type open --context context:primary-signature -vv $(BUILD_DIR)/Monolingual.dmg
 	# Notarize app and disk image
 	bundle exec fastlane notarize
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.app
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.dmg
+	# Verify DMG code signature
+	spctl --assess --type open --context context:primary-signature -vv $(BUILD_DIR)/Monolingual.dmg
 	# Verify notarization
 	codesign -vvvv -R="notarized" --check-notarization $(BUILD_DIR)/Monolingual.dmg
 	/usr/bin/ditto -c -k --keepParent $(BUILD_DIR)/Monolingual.app $(RELEASE_ZIP)
 	mv $(BUILD_DIR)/Monolingual.dmg $(RELEASE_FILE)
 	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
 		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
-		-e "s/%SIZE%/$$(stat -f %z "$(RELEASE_ZIP)")/g" \
 		-e "s/%FILENAME%/$(RELEASE_ZIPFILE)/g" \
-		-e "s/%MD5%/$$(md5 -q $(RELEASE_ZIP))/g" \
-		-e "s@%SIGNATURE%@$$(openssl dgst -sha1 -binary < $(RELEASE_ZIP) | openssl dgst -dss1 -sign ~/.ssh/monolingual_priv.pem | openssl enc -base64)@g" \
+		-e "s@%SIGNATURE%@$$(./sign_update $(RELEASE_ZIP))@g" \
 		appcast.xml.tmpl > $(RELEASE_DIR)/appcast.xml
 	rm -rf $(RELEASE_DIR)/build
