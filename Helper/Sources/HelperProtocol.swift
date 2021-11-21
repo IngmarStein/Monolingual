@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension ProgressUserInfoKey {
-	public static let appName = ProgressUserInfoKey("MonolingualAppName")
-	public static let sizeDifference = ProgressUserInfoKey("MonolingualSizeDifference")
+public extension ProgressUserInfoKey {
+	static let appName = ProgressUserInfoKey("MonolingualAppName")
+	static let sizeDifference = ProgressUserInfoKey("MonolingualSizeDifference")
 }
 
 @objc protocol HelperProtocol {

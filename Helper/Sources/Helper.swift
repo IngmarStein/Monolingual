@@ -12,19 +12,16 @@ import MachO.loader
 import OSLog
 
 extension URL {
-
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
-		return getxattr(self.path, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
+		getxattr(path, attribute, nil, 0, 0, XATTR_NOFOLLOW) != -1
 	}
 
 	var isProtected: Bool {
-		return hasExtendedAttribute("com.apple.rootless")
+		hasExtendedAttribute("com.apple.rootless")
 	}
-
 }
 
 final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
-
 	private var listener: NSXPCListener
 	private var timer: Timer?
 	private let timeoutInterval = TimeInterval(30.0)
@@ -33,7 +30,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 	private let logger = Logger()
 
 	var version: String {
-		return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
+		Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
 	}
 
 	override init() {
@@ -44,11 +41,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
-		logger.debug("isRootless=\(self.isRootless ? "true" : "false", privacy: .public)")
+		logger.debug("isRootless=\(isRootless ? "true" : "false", privacy: .public)")
 	}
 
 	func run() {
-		logger.info("MonolingualHelper \(self.version, privacy: .public) started")
+		logger.info("MonolingualHelper \(version, privacy: .public) started")
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
@@ -75,8 +72,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		do {
 			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
 			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
-		} catch {
-		}
+		} catch {}
 	}
 
 	@objc func exit(code: Int) {
@@ -151,7 +147,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 	// MARK: - NSXPCListenerDelegate
 
-	func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+	func listener(_: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)
@@ -218,8 +214,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 						}
 					}
 				}
-			} catch {
-			}
+			} catch {}
 		}
 	}
 
@@ -236,7 +231,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey, .isRegularFileKey, .isExecutableKey, .isApplicationKey]) { theURL, _ in
 			do {
 				let resourceValues = try theURL.resourceValues(forKeys: [.isRegularFileKey, .isExecutableKey, .isApplicationKey])
-				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable && isRegularFile && !context.isFileBlocklisted(theURL) {
+				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable, isRegularFile, !context.isFileBlocklisted(theURL) {
 					if theURL.pathExtension == "class" {
 						return
 					}
@@ -249,7 +244,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 							if isFatMagic {
 								self.thinFile(url: theURL, context: context, lipo: lipo)
 							}
-							if context.request.doStrip && (isFatMagic || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64) {
+							if context.request.doStrip, isFatMagic || magic == MH_MAGIC || magic == MH_CIGAM || magic == MH_MAGIC_64 || magic == MH_CIGAM_64 {
 								self.stripFile(theURL, context: context)
 							}
 						}
@@ -267,8 +262,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 						}
 					}
 				}
-			} catch {
-			}
+			} catch {}
 		}
 	}
 
@@ -307,12 +301,12 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 				let newAttributes = [
 					FileAttributeKey.ownerAccountID: attributes[FileAttributeKey.ownerAccountID]!,
 					FileAttributeKey.groupOwnerAccountID: attributes[FileAttributeKey.groupOwnerAccountID]!,
-					FileAttributeKey.posixPermissions: attributes[FileAttributeKey.posixPermissions]!
+					FileAttributeKey.posixPermissions: attributes[FileAttributeKey.posixPermissions]!,
 				]
 
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
-				} catch let error {
+				} catch {
 					logger.error("Failed to set file attributes for '\(path, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 				}
 
@@ -324,9 +318,8 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 						let sizeDiff = oldSize - newSize
 						context.reportProgress(url: url, size: sizeDiff)
 					}
-				} catch {
-				}
-			} catch let error {
+				} catch {}
+			} catch {
 				logger.error("Failed to get file attributes for '\(url.absoluteString, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			}
 		}
@@ -345,11 +338,10 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 		do {
 			try fileManager.removeItem(at: protectedDirectory)
-		} catch let error {
+		} catch {
 			logger.error("Failed to remove temporary file '\(protectedDirectory.absoluteString, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 		}
 
 		return false
 	}
-
 }

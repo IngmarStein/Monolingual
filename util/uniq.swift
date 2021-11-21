@@ -14,4 +14,5 @@ if let blocklist = NSArray(contentsOfFile: "blocklist.plist") as? [[NSObject: An
 		}
 	}
 }
+
 (result as NSArray).write(toFile: "uniq.plist", atomically: true)

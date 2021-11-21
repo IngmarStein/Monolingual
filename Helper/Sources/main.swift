@@ -6,8 +6,8 @@
 //
 //
 
-import Foundation
 import ArgumentParser
+import Foundation
 
 struct Options: ParsableArguments {
 	@Flag(name: .shortAndLong, help: "Uninstall helper.")
@@ -67,7 +67,7 @@ if options.include.isEmpty {
 	request.bundleBlocklist = Set<String>(options.bundle)
 	request.directories = Set<String>(options.delete)
 	request.thin = options.thin
-	helper.process(request: request, progress: nil) { (result) -> Void in
+	helper.process(request: request, progress: nil) { result -> Void in
 		exit(Int32(result))
 	}
 	RunLoop.current.run()

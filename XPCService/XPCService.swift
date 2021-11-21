@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import OSLog
 import SMJobKit
 import XPC
-import OSLog
 
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?
@@ -25,19 +25,19 @@ final class XPCService: NSObject, XPCServiceProtocol {
 		} catch let error as SMJError {
 			switch error {
 			case SMJError.bundleNotFound, SMJError.unsignedBundle, SMJError.badBundleSecurity, SMJError.badBundleCodeSigningDictionary:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
-			case SMJError.unableToBless(let blessError):
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "")]))
+			case let SMJError.unableToBless(blessError):
 				logger.error("Failed to bless helper. Error: \(blessError.localizedDescription, privacy: .public)")
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("Failed to install helper utility.", comment: "")]))
 			case SMJError.authorizationDenied:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("You entered an incorrect administrator password.", comment: "")]))
 			case SMJError.authorizationCanceled:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Monolingual is stopping without making any changes.", comment: "") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("Monolingual is stopping without making any changes.", comment: "")]))
 			case SMJError.authorizationInteractionNotAllowed, SMJError.authorizationFailed:
-				reply(NSError(domain: "XPCService", code: error.code, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("Failed to authorize as an administrator.", comment: "") ]))
+				reply(NSError(domain: "XPCService", code: error.code, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("Failed to authorize as an administrator.", comment: "")]))
 			}
 		} catch {
-			reply(NSError(domain: "XPCService", code: 0, userInfo: [ NSLocalizedDescriptionKey: NSLocalizedString("An unknown error occurred.", comment: "") ]))
+			reply(NSError(domain: "XPCService", code: 0, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("An unknown error occurred.", comment: "")]))
 		}
 		reply(nil)
 	}
@@ -53,7 +53,7 @@ final class XPCService: NSObject, XPCServiceProtocol {
 			helperToolConnection = connection
 		}
 
-		guard let helper = self.helperToolConnection!.remoteObjectProxyWithErrorHandler({ error in
+		guard let helper = helperToolConnection!.remoteObjectProxyWithErrorHandler({ error in
 			self.logger.error("XPCService failed to connect to helper: \(error.localizedDescription, privacy: .public)")
 			reply(nil)
 		}) as? HelperProtocol else {
@@ -68,5 +68,4 @@ final class XPCService: NSObject, XPCServiceProtocol {
 	func disconnect() {
 		helperToolConnection = nil
 	}
-
 }

@@ -9,7 +9,6 @@
 import Foundation
 
 final class Log {
-
 	// use the real (non-sandboxed) directory $HOME/Library/Logs for the log file as long as we have the temporary exception com.apple.security.temporary-exception.files.home-relative-path.read-write.
 	// FileManager.homeDirectoryForCurrentUser points to $HOME/Library/Containers/com.github.IngmarStein.Monolingual/Data
 	class var realHomeDirectory: String {
@@ -21,8 +20,9 @@ final class Log {
 	}
 
 	lazy var logFileURL: URL = {
-		return URL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
+		URL(fileURLWithPath: "\(Log.realHomeDirectory)/Library/Logs/Monolingual.log", isDirectory: false)
 	}()
+
 	var logFile: OutputStream?
 
 	let dateFormatter = ISO8601DateFormatter()

@@ -12,10 +12,10 @@ final class LanguageSetting: Setting {
 	var folders: [String]
 	@objc var displayName: String
 
-	init(enabled: Bool, folders: [String], displayName: String) {
+	init(id: Int, enabled: Bool, folders: [String], displayName: String) {
 		self.folders = folders
 		self.displayName = displayName
 
-		super.init(enabled: enabled)
+		super.init(id: id, enabled: enabled)
 	}
 }

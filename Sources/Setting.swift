@@ -9,10 +9,12 @@
 import Foundation
 
 // Cocoa Bindings requires NSObject
-class Setting: NSObject {
+class Setting: NSObject, Identifiable {
 	@objc dynamic var enabled: Bool = false
+	var id: Int
 
-	init(enabled: Bool) {
+	init(id: Int, enabled: Bool) {
+		self.id = id
 		self.enabled = enabled
 	}
 }

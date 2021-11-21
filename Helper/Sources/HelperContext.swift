@@ -10,7 +10,6 @@ import Foundation
 import OSLog
 
 final class HelperContext: NSObject, FileManagerDelegate {
-
 	var request: HelperRequest
 	var remoteProgress: ProgressProtocol?
 	var progress: Progress?
@@ -21,7 +20,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 
 	init(_ request: HelperRequest, rootless: Bool) {
 		self.request = request
-		self.isRootless = rootless
+		isRootless = rootless
 
 		super.init()
 
@@ -68,7 +67,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	}
 
 	func isFileBlocklisted(_ url: URL) -> Bool {
-		return fileBlocklist.contains(url)
+		fileBlocklist.contains(url)
 	}
 
 	private func addFileDictionaryToBlocklist(_ files: [String: AnyObject], baseURL: URL) {
@@ -117,12 +116,13 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	private func appNameForURL(_ url: URL) -> String? {
 		let pathComponents = url.pathComponents
 		for (i, pathComponent) in pathComponents.enumerated() where (pathComponent as NSString).pathExtension == "app" {
-			if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0...i])) {
+			if let bundleURL = NSURL.fileURL(withPathComponents: Array(pathComponents[0 ... i])) {
 				if let bundle = Bundle(url: bundleURL) {
 					var displayName: String?
 					if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
-						let infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-						let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
+					   let infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
+					   let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String]
+					{
 						displayName = strings["CFBundleDisplayName"]
 					}
 					if displayName == nil {
@@ -142,7 +142,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 	func reportProgress(url: URL, size: Int) {
 		let appName = appNameForURL(url)
 
-		if let progress = self.progress {
+		if let progress = progress {
 			progress.fileCompletedCount = (progress.fileCompletedCount ?? 0) + 1
 			progress.fileURL = url
 			progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
@@ -200,8 +200,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 							attributes = [.ownerAccountID: request.uid]
 						}
 						try fileManager.setAttributes(attributes, ofItemAtPath: theURL.path)
-					} catch {
-					}
+					} catch {}
 				}
 			}
 
@@ -211,7 +210,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			do {
 				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: url.path)
 				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: parent.path)
-			} catch let error {
+			} catch {
 				logger.error("failed to set owner: \(error.localizedDescription, privacy: .public)")
 			}
 
@@ -230,7 +229,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if !success {
 				do {
 					// move the file to root's trash
-					try self.fileManager.trashItem(at: url, resultingItemURL: &dstURL)
+					try fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 					success = true
 				} catch let error1 {
 					error = error1
@@ -251,11 +250,11 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			}
 		} else {
 			do {
-				try self.fileManager.removeItem(at: url)
+				try fileManager.removeItem(at: url)
 			} catch let error1 {
 				error = error1
 				if let error = error as NSError? {
-					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == Int(ENOTEMPTY) {
+					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain, underlyingError.code == Int(ENOTEMPTY) {
 						// ignore non-empty directories (they might contain blocklisted files and cannot be removed)
 					} else {
 						logger.error("Error removing '\(url.path, privacy: .public)': \(error, privacy: .public)")
@@ -265,7 +264,7 @@ final class HelperContext: NSObject, FileManagerDelegate {
 		}
 	}
 
-	private func fileManager(_ fileManager: FileManager, shouldProcessItemAtURL url: URL) -> Bool {
+	private func fileManager(_: FileManager, shouldProcessItemAtURL url: URL) -> Bool {
 		if request.dryRun || isFileBlocklisted(url) || (isRootless && url.isProtected) {
 			return false
 		}
@@ -276,22 +275,20 @@ final class HelperContext: NSObject, FileManagerDelegate {
 			if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
 				reportProgress(url: url, size: size)
 			}
-		} catch {
-		}
+		} catch {}
 		return true
 	}
 
 	// MARK: - NSFileManagerDelegate
 
 	func fileManager(_ fileManager: FileManager, shouldRemoveItemAt url: URL) -> Bool {
-		return self.fileManager(fileManager, shouldProcessItemAtURL: url)
+		self.fileManager(fileManager, shouldProcessItemAtURL: url)
 	}
 
-	func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, removingItemAt url: URL) -> Bool {
+	func fileManager(_: FileManager, shouldProceedAfterError _: Error, removingItemAt _: URL) -> Bool {
 		// https://github.com/IngmarStein/Monolingual/issues/102
 		// logger.error("Error removing '\(url.path, privacy: .public)': \(error as NSError, privacy: .public)")
 
-		return true
+		true
 	}
-
 }

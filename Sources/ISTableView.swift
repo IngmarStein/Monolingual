@@ -13,9 +13,9 @@ final class ISTableView: NSTableView {
 
 	override func keyDown(with theEvent: NSEvent) {
 		if let characters = theEvent.charactersIgnoringModifiers, characters.hasPrefix(" ") {
-			let row = self.selectedRow
+			let row = selectedRow
 			if row != -1 {
-				if let arrangedObjects = self.arrayController.arrangedObjects as? [Setting] {
+				if let arrangedObjects = arrayController.arrangedObjects as? [Setting] {
 					let setting = arrangedObjects[row]
 					setting.enabled = !setting.enabled
 				}
@@ -24,5 +24,4 @@ final class ISTableView: NSTableView {
 			super.keyDown(with: theEvent)
 		}
 	}
-
 }

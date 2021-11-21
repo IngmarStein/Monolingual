@@ -12,13 +12,12 @@ let processApplicationNotification = NSNotification.Name(rawValue: "ProcessAppli
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
-
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {
 		let defaults = UserDefaults.standard
 
 		let roots = defaults.array(forKey: "Roots")
-		if roots == nil || roots!.firstIndex(where: { (root) -> Bool in
+		if roots == nil || roots!.firstIndex(where: { root -> Bool in
 			if let rootDictionary = root as? NSDictionary {
 				return rootDictionary.object(forKey: "Path") == nil
 					|| rootDictionary.object(forKey: "Languages") == nil
@@ -32,19 +31,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func applicationDidFinishLaunching(_: Notification) {
-		let defaultDict: [String: Any]  = [ "Roots": Root.defaults, "Trash": false, "Strip": false, "NSApplicationCrashOnExceptions": true ]
+		let defaultDict: [String: Any] = ["Roots": Root.defaults, "Trash": false, "Strip": false, "NSApplicationCrashOnExceptions": true]
 
 		UserDefaults.standard.register(defaults: defaultDict)
 
 		validateDefaults()
 	}
 
-	func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-		return true
+	func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
+		true
 	}
 
-	func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-		let dict: [String: Any] = [ "Path": filename, "Language": true, "Architectures": true ]
+	func application(_: NSApplication, openFile filename: String) -> Bool {
+		let dict: [String: Any] = ["Path": filename, "Language": true, "Architectures": true]
 
 		NotificationCenter.default.post(name: processApplicationNotification, object: self, userInfo: dict)
 
@@ -65,5 +64,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	@IBAction func donate(_: AnyObject) {
 		NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual/donate.html")!)
 	}
-
 }

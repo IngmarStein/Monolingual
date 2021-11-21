@@ -1,8 +1,8 @@
 /*
-*  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
-*                2004-2021 Ingmar Stein
-*  Released under the GNU GPL.  For more information, see the header file.
-*/
+ *  Copyright (C) 2001, 2002  Joshua Schrier (jschrier@mac.com),
+ *                2004-2021 Ingmar Stein
+ *  Released under the GNU GPL.  For more information, see the header file.
+ */
 //
 //  MainViewController.swift
 //  Monolingual
@@ -12,8 +12,8 @@
 //
 
 import Cocoa
-import UserNotifications
 import OSLog
+import UserNotifications
 
 enum MonolingualMode: Int {
 	case languages = 0
@@ -28,12 +28,11 @@ struct ArchitectureInfo {
 }
 
 func mach_task_self() -> mach_port_t {
-	return mach_task_self_
+	mach_task_self_
 }
 
 final class MainViewController: NSViewController, ProgressViewControllerDelegate, ProgressProtocol {
-
-	@IBOutlet private weak var currentArchitecture: NSTextField!
+	@IBOutlet private var currentArchitecture: NSTextField!
 
 	private var progressViewController: ProgressViewController?
 
@@ -49,7 +48,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	private var progressResetTimer: Timer?
 	private var progressObserverToken: NSKeyValueObservation?
 
-	private let sipProtectedLocations = [ "/System", "/bin" ]
+	private let sipProtectedLocations = ["/System", "/bin"]
 
 	let logger = Logger()
 
@@ -62,7 +61,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	private var roots: [Root] {
 		if let application = self.processApplication {
-			return [ application ]
+			return [application]
 		} else {
 			if let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String: AnyObject]] {
 				return pref.map { Root(dictionary: $0) }
@@ -80,7 +79,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		progressDidEnd(completed: true)
 	}
 
-	@IBAction func removeLanguages(_ sender: AnyObject) {
+	@IBAction func removeLanguages(_: AnyObject) {
 		// Display a warning first
 		let alert = NSAlert()
 		alert.alertStyle = .warning
@@ -88,15 +87,15 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		alert.addButton(withTitle: NSLocalizedString("Continue", comment: ""))
 		alert.messageText = NSLocalizedString("Are you sure you want to remove these languages?", comment: "")
 		alert.informativeText = NSLocalizedString("You will not be able to restore them without reinstalling macOS.", comment: "")
-		alert.beginSheetModal(for: self.view.window!) { responseCode in
+		alert.beginSheetModal(for: view.window!) { responseCode in
 			if NSApplication.ModalResponse.alertSecondButtonReturn == responseCode {
 				self.checkAndRemove()
 			}
 		}
 	}
 
-	@IBAction func removeArchitectures(_ sender: AnyObject) {
-		self.mode = .architectures
+	@IBAction func removeArchitectures(_: AnyObject) {
+		mode = .architectures
 
 		log.open()
 
@@ -104,7 +103,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		log.message("Monolingual \(version) started\n")
 		log.message("Removing architectures:")
 
-		let archs = self.architectures.filter { $0.enabled } .map { $0.name }
+		let archs = architectures.filter(\.enabled).map(\.name)
 		for arch in archs {
 			log.message(" \(arch)", timestamp: false)
 		}
@@ -112,22 +111,22 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		log.message("\nModified files:\n")
 
 		let numArchs = archs.count
-		if numArchs == self.architectures.count {
+		if numArchs == architectures.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Removing all architectures will make macOS inoperable.", comment: "")
 			alert.informativeText = NSLocalizedString("Please keep at least one architecture and try again.", comment: "")
-			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+			alert.beginSheetModal(for: view.window!, completionHandler: nil)
 			log.close()
 		} else if numArchs > 0 {
 			// start things off if we have something to remove!
-			let roots = self.roots
+			let roots = roots
 
 			let request = HelperRequest()
 			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
-			request.bundleBlocklist = Set<String>(self.blocklist!.filter { $0.architectures } .map { $0.bundle })
-			request.includes = roots.filter { $0.architectures } .map { $0.path }
-			request.excludes = roots.filter { !$0.architectures } .map { $0.path } + sipProtectedLocations
+			request.bundleBlocklist = Set<String>(blocklist!.filter(\.architectures).map(\.bundle))
+			request.includes = roots.filter(\.architectures).map(\.path)
+			request.excludes = roots.filter { !$0.architectures }.map(\.path) + sipProtectedLocations
 			request.thin = archs
 
 			for item in request.bundleBlocklist! {
@@ -140,14 +139,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				logger.info("Excluding root \(exclude, privacy: .public)")
 			}
 
-			self.checkAndRunHelper(arguments: request)
+			checkAndRunHelper(arguments: request)
 		} else {
 			log.close()
 		}
 	}
 
 	func processed(file: String, size: Int, appName: String?) {
-		if let progress = self.progress {
+		if let progress = progress {
 			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
 			progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
 			progress.setUserInfoObject(URL(fileURLWithPath: file, isDirectory: false), forKey: .fileURLKey)
@@ -169,13 +168,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		log.message("\(file.path): \(size)\n")
 
 		let message: String
-		if self.mode == .architectures {
+		if mode == .architectures {
 			message = NSLocalizedString("Removing architecture from universal binary", comment: "")
 		} else {
 			// parse file name
 			var lang: String?
 
-			if self.mode == .languages {
+			if mode == .languages {
 				for pathComponent in file.pathComponents where (pathComponent as NSString).pathExtension == "lproj" {
 					for language in self.languages {
 						if language.folders.contains(pathComponent) {
@@ -213,7 +212,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	func installHelper(reply: @escaping (Bool) -> Void) {
-		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
+		let xpcService = xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
 			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
 		} as? XPCServiceProtocol
 
@@ -241,7 +240,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		let helperProgress = Progress(totalUnitCount: -1)
 		helperProgress.becomeCurrent(withPendingUnitCount: -1)
-		progressObserverToken = helperProgress.observe(\.completedUnitCount) { (progress, _) in
+		progressObserverToken = helperProgress.observe(\.completedUnitCount) { progress, _ in
 			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
 				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
 			}
@@ -261,9 +260,9 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 
 		helperProgress.resignCurrent()
-		self.progress = helperProgress
+		progress = helperProgress
 
-		progressObserverToken = helperProgress.observe(\.completedUnitCount) { (progress, _) in
+		progressObserverToken = helperProgress.observe(\.completedUnitCount) { progress, _ in
 			print(progress)
 			print(progress.userInfo)
 			print(progress.completedUnitCount)
@@ -272,13 +271,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			}
 		}
 
-		if self.progressViewController == nil {
+		if progressViewController == nil {
 			let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-			self.progressViewController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("ProgressViewController")) as? ProgressViewController
+			progressViewController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("ProgressViewController")) as? ProgressViewController
 		}
-		self.progressViewController?.delegate = self
-		if self.progressViewController!.presentingViewController == nil {
-			presentAsSheet(self.progressViewController!)
+		progressViewController?.delegate = self
+		if progressViewController!.presentingViewController == nil {
+			presentAsSheet(progressViewController!)
 		}
 
 		let content = UNMutableNotificationContent()
@@ -288,14 +287,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
 		let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
 		let request = UNNotificationRequest(identifier: UUID().uuidString,
-																				content: content,
-																				trigger: trigger)
+		                                    content: content,
+		                                    trigger: trigger)
 
 		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 	}
 
 	private func checkAndRunHelper(arguments: HelperRequest) {
-		let xpcService = self.xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
+		let xpcService = xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
 			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
 		} as? XPCServiceProtocol
 
@@ -360,12 +359,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 	}
 
-	func progressViewControllerDidCancel(_ progressViewController: ProgressViewController) {
+	func progressViewControllerDidCancel(_: ProgressViewController) {
 		progressDidEnd(completed: false)
 	}
 
 	private func progressDidEnd(completed: Bool) {
-		guard let progress = self.progress else { return }
+		guard let progress = progress else { return }
 
 		processApplication = nil
 		if let progressViewController = progressViewController {
@@ -383,7 +382,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			progress.cancel()
 			logger.debug("Closing progress connection")
 
-			if let helper = self.helperConnection?.remoteObjectProxy as? HelperProtocol {
+			if let helper = helperConnection?.remoteObjectProxy as? HelperProtocol {
 				helper.exit(code: Int(EXIT_FAILURE))
 			}
 
@@ -391,13 +390,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("You cancelled the removal. Some files were erased, some were not.", comment: "")
 			alert.informativeText = String(format: NSLocalizedString("Space saved: %@.", comment: ""), byteCount)
-			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+			alert.beginSheetModal(for: view.window!, completionHandler: nil)
 		} else {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Files removed.", comment: "")
 			alert.informativeText = String(format: NSLocalizedString("Space saved: %@.", comment: ""), byteCount)
-			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+			alert.beginSheetModal(for: view.window!, completionHandler: nil)
 
 			let content = UNMutableNotificationContent()
 			content.title = NSLocalizedString("Monolingual finished", comment: "")
@@ -406,16 +405,16 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
 			let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
 			let request = UNNotificationRequest(identifier: UUID().uuidString,
-																					content: content,
-																					trigger: trigger)
+			                                    content: content,
+			                                    trigger: trigger)
 
 			UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 		}
 
-		if let connection = self.helperConnection {
+		if let connection = helperConnection {
 			logger.info("Closing connection to helper")
 			connection.invalidate()
-			self.helperConnection = nil
+			helperConnection = nil
 		}
 
 		log.close()
@@ -424,14 +423,14 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func checkAndRemove() {
-		if checkRoots() && checkLanguages() {
+		if checkRoots(), checkLanguages() {
 			doRemoveLanguages()
 		}
 	}
 
 	private func checkRoots() -> Bool {
 		var languageEnabled = false
-		let roots = self.roots
+		let roots = roots
 		for root in roots where root.languages {
 			languageEnabled = true
 			break
@@ -442,7 +441,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Monolingual is stopping without making any changes.", comment: "")
 			alert.informativeText = NSLocalizedString("Your OS has not been modified.", comment: "")
-			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+			alert.beginSheetModal(for: view.window!, completionHandler: nil)
 		}
 
 		return languageEnabled
@@ -450,7 +449,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 	private func checkLanguages() -> Bool {
 		var englishChecked = false
-		for language in self.languages where language.enabled && language.folders[0] == "en.lproj" {
+		for language in languages where language.enabled && language.folders[0] == "en.lproj" {
 			englishChecked = true
 			break
 		}
@@ -464,7 +463,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			alert.messageText = NSLocalizedString("You are about to delete the English language files.", comment: "")
 			alert.informativeText = NSLocalizedString("Are you sure you want to do that?", comment: "")
 
-			alert.beginSheetModal(for: self.view.window!) { response in
+			alert.beginSheetModal(for: view.window!) { response in
 				if response == NSApplication.ModalResponse.alertSecondButtonReturn {
 					self.doRemoveLanguages()
 				}
@@ -475,18 +474,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 	}
 
 	private func doRemoveLanguages() {
-		self.mode = .languages
+		mode = .languages
 
 		log.open()
 		let version = (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "vUNKNOWN"
 		log.message("Monolingual \(version) started\n")
 		log.message("Removing languages:")
 
-		let roots = self.roots
+		let roots = roots
 
-		let includes = roots.filter { $0.languages } .map { $0.path }
-		let excludes = roots.filter { !$0.languages } .map { $0.path } + sipProtectedLocations
-		let bl = self.blocklist!.filter { $0.languages } .map { $0.bundle }
+		let includes = roots.filter(\.languages).map(\.path)
+		let excludes = roots.filter { !$0.languages }.map(\.path) + sipProtectedLocations
+		let bl = blocklist!.filter(\.languages).map(\.bundle)
 
 		for item in bl {
 			logger.info("Blocklisting \(item, privacy: .public)")
@@ -500,7 +499,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 
 		var rCount = 0
 		var folders = Set<String>()
-		for language in self.languages where language.enabled {
+		for language in languages where language.enabled {
 			for path in language.folders {
 				folders.insert(path)
 				log.message(" \(path)", timestamp: false)
@@ -518,12 +517,12 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 			log.message("Deleted files:\n")
 		}
 
-		if rCount == self.languages.count {
+		if rCount == languages.count {
 			let alert = NSAlert()
 			alert.alertStyle = .informational
 			alert.messageText = NSLocalizedString("Removing all languages will make macOS inoperable.", comment: "")
 			alert.informativeText = NSLocalizedString("Please keep at least one language and try again.", comment: "")
-			alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+			alert.beginSheetModal(for: view.window!, completionHandler: nil)
 			log.close()
 		} else if rCount > 0 {
 			// start things off if we have something to remove!
@@ -549,18 +548,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		let userLanguages = Set<String>(Locale.preferredLanguages.flatMap { language -> [String] in
 			let components = language.components(separatedBy: "-")
 			if components.count == 1 {
-				return [ components[0] ]
+				return [components[0]]
 			} else {
-				return [ components[0], components.joined(separator: "_") ]
+				return [components[0], components.joined(separator: "_")]
 			}
 		} + ["en", currentLocale.identifier, currentLocale.languageCode ?? ""])
 
-		let availableLocalizations = Set<String>((Locale.availableIdentifiers)
-			// add some known locales not contained in availableLocaleIdentifiers
-			+ ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW" ])
+		let knownLocales: [String] = ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW"]
+		// add some known locales not contained in availableLocaleIdentifiers
+		let availableLocalizations = Set<String>(Locale.availableIdentifiers + knownLocales)
 
 		let systemLocale = Locale(identifier: "en_US_POSIX")
-		self.languages = [String](availableLocalizations).map { (localeIdentifier) -> LanguageSetting in
+		languages = [String](availableLocalizations).map { localeIdentifier -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let locale = Locale(identifier: localeIdentifier)
 			if let language = locale.languageCode, let region = locale.regionCode {
@@ -584,25 +583,25 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				folders.append("\(displayName).lproj")
 			}
 			let displayName = currentLocale.localizedString(forIdentifier: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
-			return LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
+			return LanguageSetting(id: 0, enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 		}.sorted { $0.displayName < $1.displayName }
 
 		// swiftlint:disable comma
 		let archs = [
-			ArchitectureInfo(name: "arm",       displayName: "ARM",                    cpuType: CPU_TYPE_ARM,       cpuSubtype: CPU_SUBTYPE_ARM_ALL),
-			ArchitectureInfo(name: "arm64",     displayName: "ARM64",                  cpuType: CPU_TYPE_ARM64,     cpuSubtype: CPU_SUBTYPE_ARM64_ALL),
-			ArchitectureInfo(name: "arm64v8",   displayName: "ARM64v8",                cpuType: CPU_TYPE_ARM64,   cpuSubtype: CPU_SUBTYPE_ARM64_V8),
-			ArchitectureInfo(name: "arm64e",    displayName: "ARM64E",                 cpuType: CPU_TYPE_ARM64,     cpuSubtype: CPU_SUBTYPE_ARM64E),
-			ArchitectureInfo(name: "ppc",       displayName: "PowerPC",                cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name: "ppc750",    displayName: "PowerPC G3",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_750),
-			ArchitectureInfo(name: "ppc7400",   displayName: "PowerPC G4",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7400),
-			ArchitectureInfo(name: "ppc7450",   displayName: "PowerPC G4+",            cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_7450),
-			ArchitectureInfo(name: "ppc970",    displayName: "PowerPC G5",             cpuType: CPU_TYPE_POWERPC,   cpuSubtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name: "ppc64",     displayName: "PowerPC 64-bit",         cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
-			ArchitectureInfo(name: "ppc970-64", displayName: "PowerPC G5 64-bit",      cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
-			ArchitectureInfo(name: "x86",       displayName: "Intel 32-bit",           cpuType: CPU_TYPE_X86,       cpuSubtype: CPU_SUBTYPE_X86_ALL),
-			ArchitectureInfo(name: "x86_64",    displayName: "Intel 64-bit",           cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
-			ArchitectureInfo(name: "x86_64h",   displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64,    cpuSubtype: CPU_SUBTYPE_X86_64_H)
+			ArchitectureInfo(name: "arm", displayName: "ARM", cpuType: CPU_TYPE_ARM, cpuSubtype: CPU_SUBTYPE_ARM_ALL),
+			ArchitectureInfo(name: "arm64", displayName: "ARM64", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64_ALL),
+			ArchitectureInfo(name: "arm64v8", displayName: "ARM64v8", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64_V8),
+			ArchitectureInfo(name: "arm64e", displayName: "ARM64E", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64E),
+			ArchitectureInfo(name: "ppc", displayName: "PowerPC", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name: "ppc750", displayName: "PowerPC G3", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_750),
+			ArchitectureInfo(name: "ppc7400", displayName: "PowerPC G4", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_7400),
+			ArchitectureInfo(name: "ppc7450", displayName: "PowerPC G4+", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_7450),
+			ArchitectureInfo(name: "ppc970", displayName: "PowerPC G5", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name: "ppc64", displayName: "PowerPC 64-bit", cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
+			ArchitectureInfo(name: "ppc970-64", displayName: "PowerPC G5 64-bit", cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
+			ArchitectureInfo(name: "x86", displayName: "Intel 32-bit", cpuType: CPU_TYPE_X86, cpuSubtype: CPU_SUBTYPE_X86_ALL),
+			ArchitectureInfo(name: "x86_64", displayName: "Intel 64-bit", cpuType: CPU_TYPE_X86_64, cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
+			ArchitectureInfo(name: "x86_64h", displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64, cpuSubtype: CPU_SUBTYPE_X86_64_H),
 		]
 		// swiftlint:enable comma
 
@@ -610,7 +609,7 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		var hostInfo = host_basic_info_data_t(max_cpus: 0, avail_cpus: 0, memory_size: 0, cpu_type: 0, cpu_subtype: 0, cpu_threadtype: 0, physical_cpu: 0, physical_cpu_max: 0, logical_cpu: 0, logical_cpu_max: 0, max_mem: 0)
 		let myMachHostSelf = mach_host_self()
 		let ret = withUnsafeMutablePointer(to: &hostInfo) { (pointer: UnsafeMutablePointer<host_basic_info_data_t>) in
-			pointer.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) { (pointer) in
+			pointer.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) { pointer in
 				host_info(myMachHostSelf, HOST_BASIC_INFO, pointer, &infoCount)
 			}
 		}
@@ -634,17 +633,18 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 						physical_cpu_max: hostInfo.physical_cpu_max,
 						logical_cpu: hostInfo.logical_cpu,
 						logical_cpu_max: hostInfo.logical_cpu_max,
-						max_mem: hostInfo.max_mem)
+						max_mem: hostInfo.max_mem
+					)
 				}
 			}
 		}
 
-		self.currentArchitecture.stringValue = NSLocalizedString("unknown", comment: "")
+		currentArchitecture.stringValue = NSLocalizedString("unknown", comment: "")
 
-		self.architectures = archs.map { arch in
+		architectures = archs.map { arch in
 			let enabled = ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpuType
-			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
-			if hostInfo.cpu_type == arch.cpuType && hostInfo.cpu_subtype == arch.cpuSubtype {
+			let architecture = ArchitectureSetting(id: 0, enabled: enabled, name: arch.name, displayName: arch.displayName)
+			if hostInfo.cpu_type == arch.cpuType, hostInfo.cpu_subtype == arch.cpuSubtype {
 				self.currentArchitecture.stringValue = String(format: NSLocalizedString("Current architecture: %@", comment: ""), arch.displayName)
 			}
 			return architecture
@@ -662,12 +662,13 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 				self.blocklist = try? decoder.decode([BlocklistEntry].self, from: data)
 			}
 		}
-
-		self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { [weak self] notification in
-			if let dictionary = notification.userInfo {
-				self?.processApplication = Root(dictionary: dictionary)
-			}
-		}
+		/*
+		 self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { [weak self] notification in
+		 if let dictionary = notification.userInfo {
+		 self?.processApplication = Root(dictionary: dictionary)
+		 }
+		 }
+		 */
 	}
 
 	deinit {
@@ -676,5 +677,4 @@ final class MainViewController: NSViewController, ProgressViewControllerDelegate
 		}
 		xpcServiceConnection.invalidate()
 	}
-
 }

@@ -9,19 +9,18 @@
 import Cocoa
 
 final class PreferencesViewController: NSViewController, NSTableViewDelegate {
-
 	@IBOutlet private var roots: NSArrayController!
 	@IBOutlet private var tableView: NSTableView!
-	@IBOutlet weak var segmentedControl: NSSegmentedControl!
+	@IBOutlet var segmentedControl: NSSegmentedControl!
 
-	func tableViewSelectionDidChange(_ notification: Notification) {
+	func tableViewSelectionDidChange(_: Notification) {
 		segmentedControl.setEnabled(tableView.numberOfSelectedRows > 0, forSegment: 1)
 	}
 
 	// Ugly workaround to force NSUserDefaultsController to notice the model changes from the UI.
 	// This currently seems broken for view-based NSTableViews (the changes to the objectValue property are not propagated).
 	// see rdar://32840640
-	@IBAction func togglePreference(_ sender: AnyObject) {
+	@IBAction func togglePreference(_: AnyObject) {
 		let selectionIndex = roots.selectionIndex
 		let dummy = [String: Any]()
 		roots.addObject(dummy)
@@ -41,7 +40,7 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 
 			oPanel.begin { result in
 				if NSApplication.ModalResponse.OK == result {
-					self.roots.add(contentsOf: oPanel.urls.map { [ "Path": $0.path, "Languages": true, "Architectures": true ] })
+					self.roots.add(contentsOf: oPanel.urls.map { ["Path": $0.path, "Languages": true, "Architectures": true] })
 				}
 			}
 		} else if sender.selectedSegment == 1 {
@@ -52,9 +51,8 @@ final class PreferencesViewController: NSViewController, NSTableViewDelegate {
 		segmentedControl.setEnabled(tableView.numberOfSelectedRows > 0, forSegment: 1)
 	}
 
-	@IBAction func restoreDefaults(_ sender: NSButton) {
+	@IBAction func restoreDefaults(_: NSButton) {
 		roots.content = nil
 		roots.add(contentsOf: Root.defaults)
 	}
-
 }

@@ -12,10 +12,10 @@ final class ArchitectureSetting: Setting {
 	var name: String
 	@objc dynamic var displayName: String
 
-	init(enabled: Bool, name: String, displayName: String) {
+	init(id: Int, enabled: Bool, name: String, displayName: String) {
 		self.name = name
 		self.displayName = displayName
 
-		super.init(enabled: enabled)
+		super.init(id: id, enabled: enabled)
 	}
 }

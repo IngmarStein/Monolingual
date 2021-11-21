@@ -9,7 +9,6 @@
 import Foundation
 
 @objc(HelperRequest) class HelperRequest: NSObject, NSSecureCoding {
-
 	var dryRun: Bool
 	var doStrip: Bool
 	var uid: uid_t
@@ -53,28 +52,27 @@ import Foundation
 		coder.encode(doStrip, forKey: "doStrip")
 		coder.encode(Int(uid), forKey: "uid")
 		coder.encode(trash, forKey: "trash")
-		if let includes = self.includes {
+		if let includes = includes {
 			coder.encode(includes as NSArray, forKey: "includes")
 		}
-		if let excludes = self.excludes {
+		if let excludes = excludes {
 			coder.encode(excludes as NSArray, forKey: "excludes")
 		}
-		if let bundleBlocklist = self.bundleBlocklist {
+		if let bundleBlocklist = bundleBlocklist {
 			coder.encode(bundleBlocklist as NSSet, forKey: "bundleBlocklist")
 		}
-		if let directories = self.directories {
+		if let directories = directories {
 			coder.encode(directories as NSSet, forKey: "directories")
 		}
-		if let files = self.files {
+		if let files = files {
 			coder.encode(files as NSArray, forKey: "files")
 		}
-		if let thin = self.thin {
+		if let thin = thin {
 			coder.encode(thin as NSArray, forKey: "thin")
 		}
 	}
 
 	static var supportsSecureCoding: Bool {
-		return true
+		true
 	}
-
 }
