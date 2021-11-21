@@ -291,7 +291,7 @@ class Lipo {
 		do {
 			try FileManager.default.attributesOfItem(atPath: fileName)
 		} catch {
-			logger.error("can't stat input file '\(fileName, privacy: .public)': \(error.localizedDescription, privacy: .public)")
+			logger.error("can't stat input file '\(self.fileName, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			return false
 		}
 
@@ -299,7 +299,7 @@ class Lipo {
 		do {
 			data = try Data(contentsOf: URL(fileURLWithPath: fileName, isDirectory: false), options: [.alwaysMapped, .uncached])
 		} catch {
-			logger.error("can't map input file '\(fileName, privacy: .public)': \(error.localizedDescription, privacy: .public)")
+			logger.error("can't map input file '\(self.fileName, privacy: .public)': \(error.localizedDescription, privacy: .public)")
 			return false
 		}
 		inputData = data
@@ -605,7 +605,7 @@ class Lipo {
 		do {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
 		} catch {
-			logger.error("can't move temporary file: '\(temporaryFile, privacy: .public)' to file '\(fileName, privacy: .public)': \(error.localizedDescription)")
+			logger.error("can't move temporary file: '\(temporaryFile, privacy: .public)' to file '\(self.fileName, privacy: .public)': \(error.localizedDescription)")
 			try? FileManager.default.removeItem(at: temporaryURL)
 			return false
 		}

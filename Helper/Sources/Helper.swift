@@ -41,11 +41,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		listener.delegate = self
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
-		logger.debug("isRootless=\(isRootless ? "true" : "false", privacy: .public)")
+		logger.debug("isRootless=\(self.isRootless ? "true" : "false", privacy: .public)")
 	}
 
 	func run() {
-		logger.info("MonolingualHelper \(version, privacy: .public) started")
+		logger.info("MonolingualHelper \(self.version, privacy: .public) started")
 
 		listener.resume()
 		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)

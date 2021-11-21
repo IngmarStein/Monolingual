@@ -149,6 +149,7 @@
 		95355ADD1AD7FAF900872850 /* HelperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HelperContext.swift; path = Helper/Sources/HelperContext.swift; sourceTree = "<group>"; };
 		95355ADF1AD806DD00872850 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = Helper.swift; path = Helper/Sources/Helper.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		953B847426093C4900B16624 /* Sparkle.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Sparkle.xcframework; sourceTree = "<group>"; };
+		953BE18F274AE63200EEE16C /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = Resources/sk.lproj/Main.strings; sourceTree = "<group>"; };
 		9540AC1926F7C0B400368CC8 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PreferencesView.swift; path = Sources/PreferencesView.swift; sourceTree = "<group>"; };
 		954DDFFF1AD4ED350097145C /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ko; path = Resources/ko.lproj/Credits.html; sourceTree = "<group>"; };
 		954DE0001AD4ED4F0097145C /* ko */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ko; path = Resources/ko.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -587,7 +588,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1310;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -879,6 +880,7 @@
 				950217391AD16FE500907A24 /* ro */,
 				954DE0051AD4EE8C0097145C /* ko */,
 				95EBC3A61BD98A720022BA4A /* ru */,
+				953BE18F274AE63200EEE16C /* sk */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
