@@ -166,8 +166,8 @@
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController storyboardIdentifier="MainViewController" showSeguePresentationStyle="single" id="XfG-lQ-9wD" customClass="MainViewController" customModule="Monolingual" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" misplaced="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="425" height="284"/>
+                    <view key="view" id="m2S-Jp-Qdl">
+                        <rect key="frame" x="0.0" y="0.0" width="425" height="260"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <tabView translatesAutoresizingMaskIntoConstraints="NO" id="3Kl-1z-1DJ">
@@ -563,7 +563,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="de3-Hy-9QC">
-                                <rect key="frame" x="18" y="63" width="436" height="18"/>
+                                <rect key="frame" x="18" y="63" width="440" height="18"/>
                                 <buttonCell key="cell" type="check" title="Move language files to Trash" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="GpT-ew-TUw">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -573,7 +573,7 @@
                                 </connections>
                             </button>
                             <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bfw-zw-wXa">
-                                <rect key="frame" x="18" y="41" width="436" height="18"/>
+                                <rect key="frame" x="18" y="41" width="440" height="18"/>
                                 <buttonCell key="cell" type="check" title="Automatically check for updates" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="Ug3-e7-H88">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -583,19 +583,19 @@
                                 </connections>
                             </button>
                             <box verticalHuggingPriority="249" title="Directories" translatesAutoresizingMaskIntoConstraints="NO" id="55G-Fd-xJZ">
-                                <rect key="frame" x="17" y="132" width="440" height="198"/>
+                                <rect key="frame" x="17" y="132" width="444" height="198"/>
                                 <view key="contentView" id="phW-MN-TLV">
-                                    <rect key="frame" x="3" y="3" width="434" height="180"/>
+                                    <rect key="frame" x="3" y="3" width="438" height="180"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tBG-2t-RdI">
-                                            <rect key="frame" x="19" y="38" width="396" height="132"/>
+                                            <rect key="frame" x="19" y="38" width="400" height="132"/>
                                             <clipView key="contentView" id="re4-3X-lnR">
-                                                <rect key="frame" x="1" y="1" width="394" height="130"/>
+                                                <rect key="frame" x="1" y="1" width="398" height="130"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" rowSizeStyle="automatic" headerView="xcr-EI-XkG" viewBased="YES" id="opZ-3w-oKJ">
-                                                        <rect key="frame" x="0.0" y="0.0" width="394" height="107"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="398" height="107"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -730,7 +730,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" wantsLayer="YES" id="xcr-EI-XkG">
-                                                <rect key="frame" x="0.0" y="0.0" width="394" height="23"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="398" height="23"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
@@ -752,7 +752,7 @@
                                             </connections>
                                         </segmentedControl>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nHt-AT-ZAU">
-                                            <rect key="frame" x="286" y="3" width="135" height="32"/>
+                                            <rect key="frame" x="290" y="3" width="135" height="32"/>
                                             <buttonCell key="cell" type="push" title="Restore Defaults" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XNp-m4-e9I">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -778,7 +778,7 @@
                                 </constraints>
                             </box>
                             <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EUm-lj-8tR">
-                                <rect key="frame" x="18" y="19" width="436" height="18"/>
+                                <rect key="frame" x="18" y="19" width="440" height="18"/>
                                 <buttonCell key="cell" type="check" title="Strip debug info when removing architectures" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="NXp-MA-naz">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
