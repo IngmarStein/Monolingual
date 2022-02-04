@@ -42,6 +42,7 @@ J. Schrier
 - Polish localization by Mariusz Ostrowski
 - Spanish localization by Fran Ramírez
 - Swedish localization by Joel Arvidsson
+- Turkish localization by Hasan Beder
 
 ### Artwork
 Icon by Matt Davey
