@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		950D908A277DF88E00478D6C /* HelperTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950D9089277DF88E00478D6C /* HelperTask.swift */; };
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
 		950ED26E1976AA6D00BAC239 /* BlocklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */; };
 		950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */; };
@@ -23,6 +24,7 @@
 		95355AE01AD806DD00872850 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
 		9540AC1A26F7C0B400368CC8 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9540AC1926F7C0B400368CC8 /* PreferencesView.swift */; };
 		954BF6602779F6BE003DE633 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 954BF65F2779F6BE003DE633 /* Sparkle */; };
+		954BF661277BB5D7003DE633 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE219741A540092C744 /* AppDelegate.swift */; };
 		955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955263A01AE67351001AD4F3 /* Helper_Tests.swift */; };
 		955263A51AE67594001AD4F3 /* HelperRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD81AD7F5C500872850 /* HelperRequest.swift */; };
 		955263A61AE675AE001AD4F3 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
@@ -36,8 +38,6 @@
 		958FCAA824099C2F00048708 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 958FCAA724099C2F00048708 /* ArgumentParser */; };
 		959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEED919714E0500A433C0 /* ISTableView.swift */; };
 		959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */; };
-		959CEEE019714E0500A433C0 /* ProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEDC19714E0500A433C0 /* ProgressViewController.swift */; };
-		959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEE11972F29B00A433C0 /* MainViewController.swift */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95A130360608F92F00D8E30C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95A74F3A197410EF005D3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 95A74F38197410EF005D3792 /* Main.storyboard */; };
@@ -134,6 +134,7 @@
 		950217341AD16F8D00907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		950217351AD16FB000907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		950217391AD16FE500907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
+		950D9089277DF88E00478D6C /* HelperTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelperTask.swift; path = Sources/HelperTask.swift; sourceTree = "<group>"; };
 		950ED26B1976AA6400BAC239 /* LanguageSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LanguageSetting.swift; path = Sources/LanguageSetting.swift; sourceTree = "<group>"; };
 		950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BlocklistEntry.swift; path = Sources/BlocklistEntry.swift; sourceTree = "<group>"; };
 		950ED2701976AA9D00BAC239 /* ArchitectureSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArchitectureSetting.swift; path = Sources/ArchitectureSetting.swift; sourceTree = "<group>"; };
@@ -173,8 +174,6 @@
 		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MonolingualHelperClient.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		959CEED919714E0500A433C0 /* ISTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = ISTableView.swift; path = Sources/ISTableView.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = PreferencesViewController.swift; path = Sources/PreferencesViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		959CEEDC19714E0500A433C0 /* ProgressViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = ProgressViewController.swift; path = Sources/ProgressViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		959CEEE11972F29B00A433C0 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = MainViewController.swift; path = Sources/MainViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95A74F39197410EF005D3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Resources/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -347,6 +346,7 @@
 		950ED2741976AC0600BAC239 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				950D9089277DF88E00478D6C /* HelperTask.swift */,
 				95527CE419741A930092C744 /* Log.swift */,
 			);
 			name = Util;
@@ -355,9 +355,7 @@
 		950ED2751976AC1A00BAC239 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				959CEEE11972F29B00A433C0 /* MainViewController.swift */,
 				959CEEDB19714E0500A433C0 /* PreferencesViewController.swift */,
-				959CEEDC19714E0500A433C0 /* ProgressViewController.swift */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -486,7 +484,6 @@
 				95A1303E0608F92F00D8E30C /* Frameworks */,
 				95337A221B09EB4200303823 /* Copy Frameworks */,
 				95E236EA1AD526DF00076008 /* Embed XPC Services */,
-				95B9D1821769D1E80072A7E0 /* Codesign Sparkle XPC Services */,
 			);
 			buildRules = (
 			);
@@ -566,7 +563,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1310;
+				LastUpgradeCheck = 1330;
 				ORGANIZATIONNAME = "Ingmar Stein";
 				TargetAttributes = {
 					9552639B1AE67351001AD4F3 = {
@@ -676,24 +673,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		95B9D1821769D1E80072A7E0 /* Codesign Sparkle XPC Services */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Codesign Sparkle XPC Services";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\n# WARNING: You may have to run Clean in Xcode after changing CODE_SIGN_IDENTITY!\n\n# Verify that $CODE_SIGN_IDENTITY is set\nif [ -z \"$CODE_SIGN_IDENTITY\" ] ; then\necho \"CODE_SIGN_IDENTITY needs to be non-empty for codesigning frameworks!\"\n\nif [ \"$CONFIGURATION\" = \"Release\" ] ; then\nexit 1\nelse\n# Codesigning is optional for non-release builds.\nexit 0\nfi\nfi\n\nXPCSERVICES_DIR=\"${TARGET_BUILD_DIR}/${XPCSERVICES_FOLDER_PATH}\"\n\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project.InstallerLauncher.xpc/Contents/MacOS/Updater.app\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project.InstallerLauncher.xpc/Contents/MacOS/Autoupdate\ncodesign -s \"${CODE_SIGN_IDENTITY}\" -vv --force --preserve-metadata=identifier,entitlements,requirements --options runtime ${OTHER_CODESIGN_FLAGS} \\\n    ${XPCSERVICES_DIR}/org.sparkle-project.InstallerLauncher.xpc\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		955263981AE67351001AD4F3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -714,6 +693,7 @@
 			files = (
 				959CEEDF19714E0500A433C0 /* PreferencesViewController.swift in Sources */,
 				950ED26E1976AA6D00BAC239 /* BlocklistEntry.swift in Sources */,
+				954BF661277BB5D7003DE633 /* AppDelegate.swift in Sources */,
 				9540AC1A26F7C0B400368CC8 /* PreferencesView.swift in Sources */,
 				95355ADC1AD7FA5600872850 /* HelperRequest.swift in Sources */,
 				950ED2711976AA9D00BAC239 /* ArchitectureSetting.swift in Sources */,
@@ -723,12 +703,11 @@
 				95527CE519741A930092C744 /* Log.swift in Sources */,
 				95C2E0342708FCF600ED1D38 /* MonolingualApp.swift in Sources */,
 				950ED2731976AAB600BAC239 /* Root.swift in Sources */,
-				959CEEE21972F29B00A433C0 /* MainViewController.swift in Sources */,
 				95EEC9AE2702693E00F4EF51 /* MainView.swift in Sources */,
-				959CEEE019714E0500A433C0 /* ProgressViewController.swift in Sources */,
 				959CEEDD19714E0500A433C0 /* ISTableView.swift in Sources */,
 				951A52DE270114B000EE757C /* ProgressView.swift in Sources */,
 				95E236ED1AD526F700076008 /* XPCServiceProtocol.swift in Sources */,
+				950D908A277DF88E00478D6C /* HelperTask.swift in Sources */,
 				95355AD51AD7F50200872850 /* HelperProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

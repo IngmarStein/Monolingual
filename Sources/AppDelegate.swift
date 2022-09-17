@@ -10,7 +10,6 @@ import Cocoa
 
 let processApplicationNotification = NSNotification.Name(rawValue: "ProcessApplicationNotification")
 
-@NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {

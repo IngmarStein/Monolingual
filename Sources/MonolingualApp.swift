@@ -10,9 +10,11 @@ import SwiftUI
 
 @main
 struct MonolingualApp: App {
+	@NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
 	var body: some Scene {
 		WindowGroup {
-			MainView(languages: [], architectures: [])
+			MainView()
 		}
 		.commands {
 			HelpCommands()
