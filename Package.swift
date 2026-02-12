@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Monolingual",
-    platforms: [.macOS(.v12)],
+    platforms: [.macOS(.v14)],
     products: [
         .executable(name: "Helper", targets: ["Helper"]),
         .executable(name: "lipo", targets: ["lipo"]),
