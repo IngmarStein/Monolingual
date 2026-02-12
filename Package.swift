@@ -17,13 +17,15 @@ let package = Package(
         .target(
             name: "LipoCore",
             path: "lipo",
-            exclude: ["main.swift"]
+            exclude: ["main.swift"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .target(
             name: "HelperShared",
             dependencies: ["LipoCore"],
             path: "Helper/Sources",
-            exclude: ["main.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
+            exclude: ["main.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
             name: "Helper",
@@ -33,13 +35,15 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
             path: "Helper/Sources",
-            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
+            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
             name: "lipo",
             dependencies: ["LipoCore"],
             path: "lipo",
-            exclude: ["lipo.swift"]
+            exclude: ["lipo.swift"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
             name: "XPCService",
@@ -48,7 +52,8 @@ let package = Package(
                 .product(name: "SMJobKit", package: "SMJobKit")
             ],
             path: "XPCService",
-            exclude: ["Info.plist"]
+            exclude: ["Info.plist"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "HelperTests",
@@ -59,7 +64,8 @@ let package = Package(
                 .copy("Resources/hello1"),
                 .copy("Resources/hello2"),
                 .copy("Resources/hello3")
-            ]
+            ],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         )
     ]
 )
