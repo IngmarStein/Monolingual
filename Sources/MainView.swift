@@ -41,7 +41,7 @@ struct MainView: View {
 	@State private var blocklist: [BlocklistEntry]?
 
 	@State private var mode: MonolingualMode = .languages
-	@StateObject private var helperTask = HelperTask()
+	@State private var helperTask = HelperTask()
 	@State private var processApplication: Root?
 	@State private var processApplicationObserver: NSObjectProtocol?
 

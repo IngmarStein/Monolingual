@@ -11,7 +11,7 @@ import SwiftUI
 struct ProgressView: View {
 	@State private var showingCancelledAlert = false
 	@State private var showingCompletedAlert = false
-	@ObservedObject var task: HelperTask
+	let task: HelperTask
 	@Environment(\.dismiss) var dismiss
 
 	private let byteCountFormatter: Formatter = {

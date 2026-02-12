@@ -14,26 +14,33 @@ import OSLog
 import HelperShared
 #endif
 
-@MainActor class HelperTask: ProgressProtocol, ObservableObject {
+import Observation
+
+@MainActor @Observable class HelperTask: ProgressProtocol {
 	private var helperConnection: NSXPCConnection?
 	private var progress: Progress?
 	private var progressResetTimer: Timer?
 	private var progressObserverToken: NSKeyValueObservation?
 	private let logger = Logger()
-	@Published var text = ""
-	@Published var file = ""
-	@Published var byteCount: Int64 = 0
-	@Published var isRunning = false
+	var text = ""
+	var file = ""
+	var byteCount: Int64 = 0
+	var isRunning = false
 	
 	var languages: [LanguageSetting] = []
 	var mode: MainView.MonolingualMode = .languages
 
-	private lazy var xpcServiceConnection: NSXPCConnection = {
+	private var cachedXPCServiceConnection: NSXPCConnection?
+	private var xpcServiceConnection: NSXPCConnection {
+		if let connection = cachedXPCServiceConnection {
+			return connection
+		}
 		let connection = NSXPCConnection(serviceName: "com.github.IngmarStein.Monolingual.XPCService")
 		connection.remoteObjectInterface = NSXPCInterface(with: XPCServiceProtocol.self)
 		connection.resume()
+		cachedXPCServiceConnection = connection
 		return connection
-	}()
+	}
 
 	func checkAndRunHelper(arguments: HelperRequest) {
 		let xpcService = xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
