@@ -1,34 +1,33 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "SMJobKit",
-        "repositoryURL": "https://github.com/IngmarStein/SMJobKit.git",
-        "state": {
-          "branch": null,
-          "revision": "4ed936712e6994a037581d33e1afbadda15e3394",
-          "version": "0.0.21"
-        }
-      },
-      {
-        "package": "Sparkle",
-        "repositoryURL": "https://github.com/sparkle-project/Sparkle",
-        "state": {
-          "branch": null,
-          "revision": "85d3fa2e0e2b7871866eb1a92231847cff4162fd",
-          "version": "2.0.0"
-        }
-      },
-      {
-        "package": "swift-argument-parser",
-        "repositoryURL": "https://github.com/apple/swift-argument-parser",
-        "state": {
-          "branch": null,
-          "revision": "6b2aa2748a7881eebb9f84fb10c01293e15b52ca",
-          "version": "0.5.0"
-        }
+  "originHash" : "eec76137c2703c044c4b904361d6c6952867460d18b964ab09a6147ad94f3571",
+  "pins" : [
+    {
+      "identity" : "smjobkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/IngmarStein/SMJobKit.git",
+      "state" : {
+        "revision" : "4ed936712e6994a037581d33e1afbadda15e3394",
+        "version" : "0.0.21"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle",
+      "state" : {
+        "revision" : "5581748cef2bae787496fe6d61139aebe0a451f6",
+        "version" : "2.8.1"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "6b2aa2748a7881eebb9f84fb10c01293e15b52ca",
+        "version" : "0.5.0"
+      }
+    }
+  ],
+  "version" : 3
 }
