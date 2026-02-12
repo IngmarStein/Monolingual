@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc(HelperRequest) public class HelperRequest: NSObject, NSSecureCoding {
+@objc(HelperRequest) public class HelperRequest: NSObject, NSSecureCoding, @unchecked Sendable {
 	public var dryRun: Bool
 	public var doStrip: Bool
 	public var uid: uid_t

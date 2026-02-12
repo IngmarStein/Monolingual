@@ -1,9 +1,9 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
     name: "Monolingual",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v15)],
     products: [
         .executable(name: "Helper", targets: ["Helper"]),
         .executable(name: "lipo", targets: ["lipo"]),

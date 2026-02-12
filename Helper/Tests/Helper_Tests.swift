@@ -12,12 +12,12 @@ import XCTest
 import HelperShared
 #endif
 
-class HelperTests: XCTestCase {
-	private var testDir: URL {
+@MainActor class HelperTests: XCTestCase {
+	nonisolated private var testDir: URL {
 		URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true).appendingPathComponent("testdata")
 	}
 
-	private var utilDir: URL {
+	nonisolated private var utilDir: URL {
 		#if SWIFT_PACKAGE
 		return Bundle.module.resourceURL!
 		#else
@@ -25,7 +25,7 @@ class HelperTests: XCTestCase {
 		#endif
 	}
 
-	private func createTestApp(name: String, bundleIdentifier: String) {
+	nonisolated private func createTestApp(name: String, bundleIdentifier: String) {
 		do {
 			let appDir = testDir.appendingPathComponent("\(name).app")
 			let localizableStringsData = Data(base64Encoded: "dGVzdA==", options: [])!
@@ -126,7 +126,7 @@ class HelperTests: XCTestCase {
 		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as! Int == 4096, "last process file should have changed by 4k bytes")
 	}
 
-	private func assertFileSize(path: URL, expectedSize: Int, message: String) {
+	nonisolated private func assertFileSize(path: URL, expectedSize: Int, message: String) {
 		do {
 			let attributes = try FileManager.default.attributesOfItem(atPath: path.path)
 			let size = attributes[FileAttributeKey.size] as? Int

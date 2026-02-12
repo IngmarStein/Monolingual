@@ -24,7 +24,7 @@ extension URL {
 	}
 }
 
-public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
+public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unchecked Sendable {
 	private var listener: NSXPCListener
 	private var timer: Timer?
 	private let timeoutInterval = TimeInterval(30.0)
@@ -105,6 +105,11 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		// check if /usr/bin/strip is present
 		request.doStrip = request.doStrip && context.fileManager.fileExists(atPath: "/usr/bin/strip")
 
+		struct SendableReply: @unchecked Sendable {
+			let reply: (Int) -> Void
+		}
+		let sendableReply = SendableReply(reply: reply)
+
 		workerQueue.addOperation {
 			// delete regular files
 			if let files = request.files {
@@ -142,7 +147,7 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 				}
 			}
 
-			reply(progress.isCancelled ? Int(EXIT_FAILURE) : Int(EXIT_SUCCESS))
+			sendableReply.reply(progress.isCancelled ? Int(EXIT_FAILURE) : Int(EXIT_SUCCESS))
 		}
 
 		return progress

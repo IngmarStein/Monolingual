@@ -9,7 +9,7 @@
 import Foundation
 import OSLog
 
-final class HelperContext: NSObject, FileManagerDelegate {
+final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 	var request: HelperRequest
 	var remoteProgress: ProgressProtocol?
 	var progress: Progress?
