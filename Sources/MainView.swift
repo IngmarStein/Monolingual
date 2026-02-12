@@ -216,7 +216,7 @@ struct MainView: View {
 			} else {
 				return [components[0], components.joined(separator: "_")]
 			}
-		} + ["en", currentLocale.identifier, currentLocale.languageCode ?? ""])
+		} + ["en", currentLocale.identifier, currentLocale.language.languageCode?.identifier ?? ""])
 
 		let knownLocales: [String] = ["ach", "an", "ast", "ay", "bi", "co", "fur", "gd", "gn", "ia", "jv", "ku", "la", "mi", "md", "no", "oc", "qu", "sa", "sd", "se", "su", "tet", "tk_Cyrl", "tl", "tlh", "tt", "wa", "yi", "zh_CN", "zh_TW"]
 		// add some known locales not contained in availableLocaleIdentifiers
@@ -226,12 +226,12 @@ struct MainView: View {
 		languages = [String](availableLocalizations).map { localeIdentifier -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let locale = Locale(identifier: localeIdentifier)
-			if let language = locale.languageCode, let region = locale.regionCode {
-				if let variantCode = locale.variantCode {
+			if let language = locale.language.languageCode?.identifier, let region = locale.region?.identifier {
+				if let variantCode = locale.variant?.identifier {
 					// e.g. en_US_POSIX
 					folders.append("\(language)-\(region)_\(variantCode).lproj")
 					folders.append("\(language)_\(region)_\(variantCode).lproj")
-				} else if let script = locale.scriptCode {
+				} else if let script = locale.language.script?.identifier {
 					// e.g. zh_Hans_SG
 					folders.append("\(language)-\(script)-\(region).lproj")
 					folders.append("\(language)_\(script)_\(region).lproj")
@@ -239,7 +239,7 @@ struct MainView: View {
 					folders.append("\(language)-\(region).lproj")
 					folders.append("\(language)_\(region).lproj")
 				}
-			} else if let language = locale.languageCode, let script = locale.scriptCode {
+			} else if let language = locale.language.languageCode?.identifier, let script = locale.language.script?.identifier {
 				// e.g. zh_Hans
 				folders.append("\(language)-\(script).lproj")
 				folders.append("\(language)_\(script).lproj")
