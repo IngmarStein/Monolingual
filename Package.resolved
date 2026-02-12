@@ -1,4 +1,5 @@
 {
+  "originHash" : "718b2cf59259d265597cd9c7271042a7712daa9ca85bb1e774270ea22ebe4a3f",
   "pins" : [
     {
       "identity" : "smjobkit",
@@ -7,6 +8,15 @@
       "state" : {
         "revision" : "4ed936712e6994a037581d33e1afbadda15e3394",
         "version" : "0.0.21"
+      }
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle",
+      "state" : {
+        "revision" : "5581748cef2bae787496fe6d61139aebe0a451f6",
+        "version" : "2.8.1"
       }
     },
     {
@@ -19,5 +29,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

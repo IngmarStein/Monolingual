@@ -12,6 +12,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
         .package(url: "https://github.com/IngmarStein/SMJobKit", from: "0.0.21"),
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.8.1"),
     ],
     targets: [
         .target(
