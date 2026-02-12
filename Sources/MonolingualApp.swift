@@ -7,16 +7,27 @@
 //
 
 import SwiftUI
+import Sparkle
 
 @main
 struct MonolingualApp: App {
 	@NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+	private let updaterController: SPUStandardUpdaterController
+
+	init() {
+		updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+	}
 
 	var body: some Scene {
 		WindowGroup {
 			MainView()
 		}
 		.commands {
+			CommandGroup(after: .appInfo) {
+				Button("Check for Updates…") {
+					updaterController.checkForUpdates(nil)
+				}
+			}
 			HelpCommands()
 		}
 		Settings {
