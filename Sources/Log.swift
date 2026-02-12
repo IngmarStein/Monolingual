@@ -48,4 +48,4 @@ final class Log {
 	}
 }
 
-let log = Log()
+@MainActor let log = Log()

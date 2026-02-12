@@ -14,7 +14,7 @@ import OSLog
 import HelperShared
 #endif
 
-class HelperTask: ProgressProtocol, ObservableObject {
+@MainActor class HelperTask: ProgressProtocol, ObservableObject {
 	private var helperConnection: NSXPCConnection?
 	private var progress: Progress?
 	private var progressResetTimer: Timer?
@@ -54,7 +54,9 @@ class HelperTask: ProgressProtocol, ObservableObject {
 						if performInstallation {
 							self.installHelper { success in
 								if success {
-									self.checkAndRunHelper(arguments: arguments)
+									DispatchQueue.main.async {
+										self.checkAndRunHelper(arguments: arguments)
+									}
 								}
 							}
 						}
@@ -93,7 +95,9 @@ class HelperTask: ProgressProtocol, ObservableObject {
 					self.logger.error("Failed to get XPC endpoint.")
 					self.installHelper { success in
 						if success {
-							self.checkAndRunHelper(arguments: arguments)
+							DispatchQueue.main.async {
+								self.checkAndRunHelper(arguments: arguments)
+							}
 						}
 					}
 				}
@@ -111,7 +115,9 @@ class HelperTask: ProgressProtocol, ObservableObject {
 		helperProgress.becomeCurrent(withPendingUnitCount: -1)
 		progressObserverToken = helperProgress.observe(\.completedUnitCount) { progress, _ in
 			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
-				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
+				Task { @MainActor in
+					self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
+				}
 			}
 		}
 
@@ -133,7 +139,9 @@ class HelperTask: ProgressProtocol, ObservableObject {
 
 		progressObserverToken = helperProgress.observe(\.completedUnitCount) { progress, _ in
 			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
-				self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
+				Task { @MainActor in
+					self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
+				}
 			}
 		}
 
@@ -152,7 +160,7 @@ class HelperTask: ProgressProtocol, ObservableObject {
 		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 	}
 
-	func installHelper(reply: @escaping (Bool) -> Void) {
+	func installHelper(reply: @escaping @Sendable (Bool) -> Void) {
 		let xpcService = xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
 			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
 		} as? XPCServiceProtocol
@@ -173,21 +181,23 @@ class HelperTask: ProgressProtocol, ObservableObject {
 		}
 	}
 
-	func processed(file: String, size: Int, appName: String?) {
-		if let progress = progress {
-			let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
-			progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
-			progress.setUserInfoObject(URL(fileURLWithPath: file, isDirectory: false), forKey: .fileURLKey)
-			progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
-			if let appName = appName {
-				progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
-			}
-			progress.completedUnitCount += Int64(size)
+	nonisolated func processed(file: String, size: Int, appName: String?) {
+		Task { @MainActor in
+			if let progress = self.progress {
+				let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
+				progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
+				progress.setUserInfoObject(URL(fileURLWithPath: file, isDirectory: false), forKey: .fileURLKey)
+				progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
+				if let appName = appName {
+					progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
+				}
+				progress.completedUnitCount += Int64(size)
 
-			// show the file progress even if it has zero bytes
-			if size == 0 {
-				progress.willChangeValue(forKey: #keyPath(Progress.completedUnitCount))
-				progress.didChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+				// show the file progress even if it has zero bytes
+				if size == 0 {
+					// progress.willChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+					// progress.didChangeValue(forKey: #keyPath(Progress.completedUnitCount))
+				}
 			}
 		}
 	}
@@ -283,8 +293,10 @@ class HelperTask: ProgressProtocol, ObservableObject {
 
 		self.progressResetTimer?.invalidate()
 		self.progressResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
-			self.text = NSLocalizedString("Removing...", comment: "")
-			self.file = ""
+			Task { @MainActor in
+				self.text = NSLocalizedString("Removing...", comment: "")
+				self.file = ""
+			}
 		}
 	}
 }
