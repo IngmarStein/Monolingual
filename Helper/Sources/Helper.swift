@@ -13,9 +13,6 @@ import OSLog
 #if canImport(LipoCore)
 import LipoCore
 #endif
-#if canImport(HelperShared)
-import HelperShared
-#endif
 
 extension URL {
 	func hasExtendedAttribute(_ attribute: String) -> Bool {
@@ -27,7 +24,7 @@ extension URL {
 	}
 }
 
-final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
+public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 	private var listener: NSXPCListener
 	private var timer: Timer?
 	private let timeoutInterval = TimeInterval(30.0)
@@ -35,11 +32,11 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 	private var isRootless = true
 	private let logger = Logger()
 
-	var version: String {
+	public var version: String {
 		Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
 	}
 
-	override init() {
+	public override init() {
 		listener = NSXPCListener(machServiceName: "com.github.IngmarStein.Monolingual.Helper")
 
 		super.init()
@@ -50,7 +47,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		logger.debug("isRootless=\(self.isRootless ? "true" : "false", privacy: .public)")
 	}
 
-	func run() {
+	public func run() {
 		logger.info("MonolingualHelper \(self.version, privacy: .public) started")
 
 		listener.resume()
@@ -63,16 +60,16 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		exit(code: Int(EXIT_SUCCESS))
 	}
 
-	@objc func connect(_ reply: @escaping (NSXPCListenerEndpoint) -> Void) {
+	@objc public func connect(_ reply: @escaping (NSXPCListenerEndpoint) -> Void) {
 		reply(listener.endpoint)
 	}
 
-	@objc func getVersion(_ reply: @escaping (String) -> Void) {
+	@objc public func getVersion(_ reply: @escaping (String) -> Void) {
 		reply(version)
 	}
 
 	// see https://devforums.apple.com/message/1004420#1004420
-	@objc func uninstall() {
+	@objc public func uninstall() {
 		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
 		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
@@ -81,13 +78,13 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 		} catch {}
 	}
 
-	@objc func exit(code: Int) {
+	@objc public func exit(code: Int) {
 		logger.info("exiting with exit status \(code, privacy: .public)")
 		workerQueue.waitUntilAllOperationsAreFinished()
 		Darwin.exit(Int32(code))
 	}
 
-	@discardableResult @objc func process(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) -> Progress {
+	@discardableResult @objc public func process(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) -> Progress {
 		timer?.invalidate()
 
 		let context = HelperContext(request, rootless: isRootless)
@@ -153,7 +150,7 @@ final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol {
 
 	// MARK: - NSXPCListenerDelegate
 
-	func listener(_: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+	public func listener(_: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)

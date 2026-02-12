@@ -8,9 +8,6 @@
 
 import Foundation
 import OSLog
-#if canImport(HelperShared)
-import HelperShared
-#endif
 
 final class HelperContext: NSObject, FileManagerDelegate {
 	var request: HelperRequest

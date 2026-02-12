@@ -21,8 +21,9 @@ let package = Package(
         ),
         .target(
             name: "HelperShared",
+            dependencies: ["LipoCore"],
             path: "Helper/Sources",
-            exclude: ["main.swift", "Helper.swift", "HelperContext.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
+            exclude: ["main.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
         ),
         .executableTarget(
             name: "Helper",
@@ -32,7 +33,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
             path: "Helper/Sources",
-            exclude: ["HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
+            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
         ),
         .executableTarget(
             name: "lipo",
@@ -48,6 +49,17 @@ let package = Package(
             ],
             path: "XPCService",
             exclude: ["Info.plist"]
+        ),
+        .testTarget(
+            name: "HelperTests",
+            dependencies: ["HelperShared"],
+            path: "Helper/Tests",
+            exclude: ["Info.plist"],
+            resources: [
+                .copy("Resources/hello1"),
+                .copy("Resources/hello2"),
+                .copy("Resources/hello3")
+            ]
         )
     ]
 )

@@ -8,6 +8,9 @@
 
 import Cocoa
 import XCTest
+#if canImport(HelperShared)
+import HelperShared
+#endif
 
 class HelperTests: XCTestCase {
 	private var testDir: URL {
@@ -15,7 +18,11 @@ class HelperTests: XCTestCase {
 	}
 
 	private var utilDir: URL {
-		Bundle(for: type(of: self)).resourceURL!
+		#if SWIFT_PACKAGE
+		return Bundle.module.resourceURL!
+		#else
+		return Bundle(for: type(of: self)).resourceURL!
+		#endif
 	}
 
 	private func createTestApp(name: String, bundleIdentifier: String) {
