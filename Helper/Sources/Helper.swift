@@ -10,6 +10,12 @@ import Foundation
 import MachO.fat
 import MachO.loader
 import OSLog
+#if canImport(LipoCore)
+import LipoCore
+#endif
+#if canImport(HelperShared)
+import HelperShared
+#endif
 
 extension URL {
 	func hasExtendedAttribute(_ attribute: String) -> Bool {

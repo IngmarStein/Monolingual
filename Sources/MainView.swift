@@ -8,6 +8,9 @@
 
 import SwiftUI
 import OSLog
+#if canImport(HelperShared)
+import HelperShared
+#endif
 
 func mach_task_self() -> mach_port_t {
 	mach_task_self_
@@ -31,15 +34,16 @@ struct MainView: View {
 	@State private var currentArchitecture = "unknown"
 	@State private var showingRemoveLanguagesAlert = false
 	@State private var showingUnchangedAlert = false
+	@State private var showingEnglishAlert = false
 	@State private var showingProgressView = false
 	@State private var showingAllArchitecturesAlert = false
 
 	@State private var blocklist: [BlocklistEntry]?
 
 	@State private var mode: MonolingualMode = .languages
-	private var helperTask = HelperTask()
-	private var processApplication: Root?
-	private var processApplicationObserver: NSObjectProtocol?
+	@StateObject private var helperTask = HelperTask()
+	@State private var processApplication: Root?
+	@State private var processApplicationObserver: NSObjectProtocol?
 
 	private let sipProtectedLocations = ["/System", "/bin"]
 
@@ -201,9 +205,7 @@ struct MainView: View {
 		}
 	}
 
-	init() {
-		helperTask = HelperTask()
-
+	private func loadData() {
 		let currentLocale = Locale.current
 
 		// never check the user's preferred languages, English and the user's locale by default
@@ -221,7 +223,6 @@ struct MainView: View {
 		let availableLocalizations = Set<String>(Locale.availableIdentifiers + knownLocales)
 
 		let systemLocale = Locale(identifier: "en_US_POSIX")
-		var id = 0
 		languages = [String](availableLocalizations).map { localeIdentifier -> LanguageSetting in
 			var folders = ["\(localeIdentifier).lproj"]
 			let locale = Locale(identifier: localeIdentifier)
@@ -246,8 +247,7 @@ struct MainView: View {
 				folders.append("\(displayName).lproj")
 			}
 			let displayName = currentLocale.localizedString(forIdentifier: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
-			let setting = LanguageSetting(id: id, enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
-			id += 1
+			let setting = LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 			return setting
 		}.sorted { $0.displayName < $1.displayName }
 
@@ -305,14 +305,12 @@ struct MainView: View {
 		}
 
 		var curArch = NSLocalizedString("unknown", comment: "")
-		id =  0
 		architectures = archs.map { arch in
 			let enabled = ret == KERN_SUCCESS && hostInfo.cpu_type != arch.cpuType
-			let architecture = ArchitectureSetting(id: id, enabled: enabled, name: arch.name, displayName: arch.displayName)
+			let architecture = ArchitectureSetting(enabled: enabled, name: arch.name, displayName: arch.displayName)
 			if hostInfo.cpu_type == arch.cpuType, hostInfo.cpu_subtype == arch.cpuSubtype {
 				curArch = arch.displayName
 			}
-			id += 1
 			return architecture
 		}
 		currentArchitecture = curArch
@@ -346,11 +344,11 @@ struct MainView: View {
 				Text("Select the items you wish to remove:")
 				Table(languages) {
 					TableColumn("Remove language") { setting in
-						Toggle(setting.displayName, isOn: $languages[setting.id].enabled)
-							.toggleStyle(.checkbox)
-							.disabled($languages[setting.id].folders.contains {
-								$0.wrappedValue == "en.proj"
-							})
+						if let index = languages.firstIndex(where: { $0.id == setting.id }) {
+							Toggle(setting.displayName, isOn: $languages[index].enabled)
+								.toggleStyle(.checkbox)
+								.disabled(setting.folders.contains("en.lproj"))
+						}
 					}
 				}
 				HStack {
@@ -392,8 +390,10 @@ struct MainView: View {
 				Text("Select the items you wish to remove:")
 				Table(architectures) {
 					TableColumn("Remove architecture") { setting in
-						Toggle(setting.displayName, isOn: $architectures[setting.id].enabled)
-							.toggleStyle(.checkbox)
+						if let index = architectures.firstIndex(where: { $0.id == setting.id }) {
+							Toggle(setting.displayName, isOn: $architectures[index].enabled)
+								.toggleStyle(.checkbox)
+						}
 					}
 				}
 				HStack {
@@ -410,13 +410,13 @@ struct MainView: View {
 			}
 		}
 		.padding()
-		.onAppear {
-			DispatchQueue.main.async {
-				// load remote blocklist asynchronously
-				if let blocklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blocklist.plist"), let data = try? Data(contentsOf: blocklistURL) {
-					let decoder = PropertyListDecoder()
-					self.blocklist = try? decoder.decode([BlocklistEntry].self, from: data)
-				}
+		.task {
+			loadData()
+			// load remote blocklist asynchronously
+			if let blocklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blocklist.plist"),
+			   let (data, _) = try? await URLSession.shared.data(from: blocklistURL) {
+				let decoder = PropertyListDecoder()
+				self.blocklist = try? decoder.decode([BlocklistEntry].self, from: data)
 			}
 		}
 	}

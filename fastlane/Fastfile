@@ -1,0 +1,63 @@
+default_platform(:mac)
+
+platform :mac do
+  before_all do
+    swiftlint(
+      mode: :lint,
+      config_file: ".swiftlint.yml",
+      strict: false,
+      ignore_exit_status: false,
+      quiet: false
+    )
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    run_tests(project: "Monolingual.xcodeproj", scheme: "Monolingual")
+  end
+
+  desc "Build a new beta version with debug information"
+  lane :debug do
+    build_app(
+      project: "Monolingual.xcodeproj",
+      scheme: "Monolingual",
+      output_directory: "./build",
+      configuration: "Debug"
+    )
+  end
+
+  desc "Build a new release version"
+  lane :release do
+    build_app(
+      project: "Monolingual.xcodeproj",
+      scheme: "Monolingual",
+      clean: true,
+      output_directory: "./build",
+      configuration: "Release",
+      export_method: "developer-id"
+    )
+  end
+
+  desc "Notarize the app and DMG"
+  lane :notarize do
+    notarize(
+      package: "./build/Monolingual.app",
+      try_early_stapling: true,
+      bundle_id: "com.github.IngmarStein.Monolingual",
+      username: "ingmarstein@icloud.com",
+      asc_provider: "ADVP2P7SJK",
+      print_log: true,
+      verbose: true
+    )
+    
+    notarize(
+      package: "./build/Monolingual.dmg",
+      try_early_stapling: true,
+      bundle_id: "com.github.IngmarStein.Monolingual",
+      username: "ingmarstein@icloud.com",
+      asc_provider: "ADVP2P7SJK",
+      print_log: true,
+      verbose: true
+    )
+  end
+end

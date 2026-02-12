@@ -8,14 +8,16 @@
 
 import Foundation
 
-final class ArchitectureSetting: Setting {
-	var name: String
-	@objc dynamic var displayName: String
+struct ArchitectureSetting: Identifiable, Equatable {
+	let id: UUID
+	var enabled: Bool
+	let name: String
+	let displayName: String
 
-	init(id: Int, enabled: Bool, name: String, displayName: String) {
+	init(enabled: Bool, name: String, displayName: String) {
+		self.id = UUID()
+		self.enabled = enabled
 		self.name = name
 		self.displayName = displayName
-
-		super.init(id: id, enabled: enabled)
 	}
 }

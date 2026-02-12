@@ -20,7 +20,7 @@ struct MonolingualApp: App {
 			HelpCommands()
 		}
 		Settings {
-			PreferencesView(roots: [])
+			PreferencesView()
 		}
 	}
 }

@@ -10,6 +10,9 @@ import Foundation
 import OSLog
 import SMJobKit
 import XPC
+#if canImport(HelperShared)
+import HelperShared
+#endif
 
 final class XPCService: NSObject, XPCServiceProtocol {
 	private var helperToolConnection: NSXPCConnection?

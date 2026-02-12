@@ -8,19 +8,19 @@
 
 import Foundation
 
-@objc(HelperRequest) class HelperRequest: NSObject, NSSecureCoding {
-	var dryRun: Bool
-	var doStrip: Bool
-	var uid: uid_t
-	var trash: Bool
-	var includes: [String]?
-	var excludes: [String]?
-	var bundleBlocklist: Set<String>?
-	var directories: Set<String>?
-	var files: [String]?
-	var thin: [String]?
+@objc(HelperRequest) public class HelperRequest: NSObject, NSSecureCoding {
+	public var dryRun: Bool
+	public var doStrip: Bool
+	public var uid: uid_t
+	public var trash: Bool
+	public var includes: [String]?
+	public var excludes: [String]?
+	public var bundleBlocklist: Set<String>?
+	public var directories: Set<String>?
+	public var files: [String]?
+	public var thin: [String]?
 
-	override init() {
+	override public init() {
 		dryRun = false
 		doStrip = false
 		uid = 0
@@ -29,7 +29,7 @@ import Foundation
 		super.init()
 	}
 
-	required init?(coder aDecoder: NSCoder) {
+	public required init?(coder aDecoder: NSCoder) {
 		let stringArray: [AnyClass] = [NSString.self, NSArray.self]
 		let stringSet: [AnyClass] = [NSString.self, NSSet.self]
 
@@ -47,7 +47,7 @@ import Foundation
 		super.init()
 	}
 
-	func encode(with coder: NSCoder) {
+	public func encode(with coder: NSCoder) {
 		coder.encode(dryRun, forKey: "dryRun")
 		coder.encode(doStrip, forKey: "doStrip")
 		coder.encode(Int(uid), forKey: "uid")
@@ -72,7 +72,7 @@ import Foundation
 		}
 	}
 
-	static var supportsSecureCoding: Bool {
+	public static var supportsSecureCoding: Bool {
 		true
 	}
 }

@@ -8,14 +8,16 @@
 
 import Foundation
 
-final class LanguageSetting: Setting {
-	var folders: [String]
-	@objc var displayName: String
-
-	init(id: Int, enabled: Bool, folders: [String], displayName: String) {
+struct LanguageSetting: Identifiable, Equatable {
+	let id: UUID
+	var enabled: Bool
+	let folders: [String]
+	let displayName: String
+	
+	init(enabled: Bool, folders: [String], displayName: String) {
+		self.id = UUID()
+		self.enabled = enabled
 		self.folders = folders
 		self.displayName = displayName
-
-		super.init(id: id, enabled: enabled)
 	}
 }

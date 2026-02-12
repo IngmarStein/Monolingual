@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if canImport(LipoCore)
+import LipoCore
+#endif
 
 private let arguments = CommandLine.arguments
 

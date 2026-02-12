@@ -8,15 +8,22 @@
 
 import Foundation
 
-struct Root: Identifiable, Equatable {
+struct Root: Identifiable, Equatable, Codable {
 	let path: String
 	var languages: Bool
 	var architectures: Bool
 
+	static var defaultRoots: [Root] {
+		[
+			Root(path: "/Applications", languages: true, architectures: true),
+			Root(path: "/Library", languages: true, architectures: true)
+		]
+	}
+
 	static var defaults: [[String: Any]] {
-		let applications: [String: Any] = ["Path": "/Applications", "Languages": true, "Architectures": true]
-		let localLibrary: [String: Any] = ["Path": "/Library", "Languages": true, "Architectures": true]
-		return [applications, localLibrary]
+		defaultRoots.map { root in
+			["Path": root.path, "Languages": root.languages, "Architectures": root.architectures]
+		}
 	}
 
 	init(dictionary: [AnyHashable: Any]) {

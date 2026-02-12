@@ -10,6 +10,9 @@ import Foundation
 import AppKit
 import UserNotifications
 import OSLog
+#if canImport(HelperShared)
+import HelperShared
+#endif
 
 class HelperTask: ProgressProtocol, ObservableObject {
 	private var helperConnection: NSXPCConnection?
@@ -20,6 +23,10 @@ class HelperTask: ProgressProtocol, ObservableObject {
 	@Published var text = ""
 	@Published var file = ""
 	@Published var byteCount: Int64 = 0
+	@Published var isRunning = false
+	
+	var languages: [LanguageSetting] = []
+	var mode: MainView.MonolingualMode = .languages
 
 	private lazy var xpcServiceConnection: NSXPCConnection = {
 		let connection = NSXPCConnection(serviceName: "com.github.IngmarStein.Monolingual.XPCService")
@@ -130,7 +137,7 @@ class HelperTask: ProgressProtocol, ObservableObject {
 			}
 		}
 
-		showingProgressView = true
+		isRunning = true
 
 		let content = UNMutableNotificationContent()
 		content.title = NSLocalizedString("Monolingual started", comment: "")
@@ -154,11 +161,8 @@ class HelperTask: ProgressProtocol, ObservableObject {
 			xpcService.installHelperTool { error in
 				if let error = error {
 					DispatchQueue.main.async {
-						let alert = NSAlert()
-						alert.alertStyle = .critical
-						alert.messageText = error.localizedDescription
-						alert.informativeText = error.localizedRecoverySuggestion ?? error.localizedFailureReason ?? " "
-						alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+						// TODO: Show alert in SwiftUI way
+						self.logger.error("Install failed: \(error.localizedDescription)")
 						log.close()
 					}
 					reply(false)
@@ -198,8 +202,7 @@ class HelperTask: ProgressProtocol, ObservableObject {
 	private func progressDidEnd(completed: Bool) {
 		guard let progress = progress else { return }
 
-		processApplication = nil
-		showingProgressView = false
+		isRunning = false
 		progressResetTimer?.invalidate()
 		progressResetTimer = nil
 
@@ -216,17 +219,11 @@ class HelperTask: ProgressProtocol, ObservableObject {
 				helper.exit(code: Int(EXIT_FAILURE))
 			}
 
-			let alert = NSAlert()
-			alert.alertStyle = .informational
-			alert.messageText = NSLocalizedString("You cancelled the removal. Some files were erased, some were not.", comment: "")
-			alert.informativeText = String(format: NSLocalizedString("Space saved: %@.", comment: ""), byteCount)
-			alert.beginSheetModal(for: view.window!, completionHandler: nil)
+			// TODO: Show cancellation alert
+			logger.info("Cancelled. Space saved: \(self.byteCount)")
 		} else {
-			let alert = NSAlert()
-			alert.alertStyle = .informational
-			alert.messageText = NSLocalizedString("Files removed.", comment: "")
-			alert.informativeText = String(format: NSLocalizedString("Space saved: %@.", comment: ""), byteCount)
-			alert.beginSheetModal(for: view.window!, completionHandler: nil)
+			// TODO: Show completion alert
+			logger.info("Files removed. Space saved: \(self.byteCount)")
 
 			let content = UNMutableNotificationContent()
 			content.title = NSLocalizedString("Monolingual finished", comment: "")

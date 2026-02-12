@@ -8,6 +8,9 @@
 
 import ArgumentParser
 import Foundation
+#if canImport(HelperShared)
+import HelperShared
+#endif
 
 struct Options: ParsableArguments {
 	@Flag(name: .shortAndLong, help: "Uninstall helper.")

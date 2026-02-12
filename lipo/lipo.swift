@@ -30,17 +30,13 @@ private struct ArchFlag: Equatable, Hashable {
 	}
 }
 
-extension fat_arch: Hashable {
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(cputype.hashValue)
-		hasher.combine(cpusubtype.hashValue)
-	}
-}
+private struct ArchKey: Hashable {
+	var cputype: cpu_type_t
+	var cpusubtype: cpu_subtype_t
 
-extension fat_arch_64: Hashable {
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(cputype.hashValue)
-		hasher.combine(cpusubtype.hashValue)
+	init(cputype: cpu_type_t, cpusubtype: cpu_subtype_t) {
+		self.cputype = cputype
+		self.cpusubtype = cpuSubtypeWithMask(cpusubtype)
 	}
 }
 
@@ -116,7 +112,9 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "armv7k", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V7K),
 	ArchFlag(name: "armv7m", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V7M),
 	ArchFlag(name: "armv7em", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V7EM),
+	ArchFlag(name: "armv8m", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V8M_MAIN),
 	ArchFlag(name: "arm64v8", cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64_V8),
+	ArchFlag(name: "arm64_32", cputype: CPU_TYPE_ARM64_32, cpusubtype: CPU_SUBTYPE_ARM64_32_V8),
 ]
 // swiftlint:enable comma
 
@@ -148,7 +146,7 @@ private func cpuSubtypeWithMask(_ subtype: cpu_subtype_t) -> cpu_subtype_t {
 	subtype & cpuSubtypeMask
 }
 
-class Lipo {
+public class Lipo {
 	// Thin files from the input file to operate on
 	private struct ThinFile {
 		var data: Data
@@ -167,7 +165,7 @@ class Lipo {
 	private var fat64Flag: Bool
 	private let logger = Logger()
 
-	init?(archs: [String]) {
+	public init?(archs: [String]) {
 		fat64Flag = false
 		removeArchFlags = []
 		removeArchFlags.reserveCapacity(archs.count)
@@ -190,7 +188,7 @@ class Lipo {
 		}
 	}
 
-	func run(path: String, sizeDiff: inout Int) -> Bool {
+	public func run(path: String, sizeDiff: inout Int) -> Bool {
 		var success = true
 		var newsize = 0
 
@@ -326,7 +324,7 @@ class Lipo {
 				let fatArchsPointer = fatArchsRawPointer.bindMemory(to: fat_arch.self)
 				let fatArchsCount = Int(fatHeader.nfat_arch)
 				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer.baseAddress!, count: fatArchsCount)).map { self.fatArchFromFile($0) }
-				var fatArchSet = Set<fat_arch>()
+				var fatArchSet = Set<ArchKey>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
 						logger.error("truncated or malformed fat file (offset plus size of cputype (\(fatArch.cputype, privacy: .public) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public) extends past the end of the file) \(self.fileName, privacy: .public)")
@@ -340,11 +338,12 @@ class Lipo {
 						logger.error("offset \(fatArch.offset, privacy: .public) of fat file \(self.fileName, privacy: .public) (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public))) not aligned on its alignment (2^\(fatArch.align, privacy: .public)")
 						return false
 					}
-					if fatArchSet.contains(fatArch) {
+					let key = ArchKey(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype)
+					if fatArchSet.contains(key) {
 						logger.error("fat file \(self.fileName, privacy: .public) contains two of the same architecture (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)))")
 						return false
 					}
-					fatArchSet.insert(fatArch)
+					fatArchSet.insert(key)
 				}
 
 				if fatArchs.isEmpty {
@@ -372,7 +371,7 @@ class Lipo {
 				let fatArchsPointer = fatArchsRawPointer.bindMemory(to: fat_arch_64.self)
 				let fatArchsCount = Int(fatHeader.nfat_arch)
 				let fatArchs = Array(UnsafeBufferPointer<fat_arch_64>(start: fatArchsPointer.baseAddress!, count: fatArchsCount)).map { self.fatArch64FromFile($0) }
-				var fatArchSet = Set<fat_arch_64>()
+				var fatArchSet = Set<ArchKey>()
 				for fatArch in fatArchs {
 					if Int(fatArch.offset + fatArch.size) > size {
 						logger.error("truncated or malformed fat file (offset plus size of cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)) extends past the end of the file) \(self.fileName, privacy: .public)")
@@ -386,11 +385,12 @@ class Lipo {
 						logger.error("offset \(fatArch.offset, privacy: .public) of fat file \(self.fileName, privacy: .public) (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public))) not aligned on its alignment (2^\(fatArch.align, privacy: .public)")
 						return false
 					}
-					if fatArchSet.contains(fatArch) {
+					let key = ArchKey(cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype)
+					if fatArchSet.contains(key) {
 						logger.error("fat file \(self.fileName, privacy: .public) contains two of the same architecture (cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)))")
 						return false
 					}
-					fatArchSet.insert(fatArch)
+					fatArchSet.insert(key)
 				}
 
 				if fatArchs.isEmpty {

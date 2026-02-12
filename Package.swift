@@ -1,17 +1,53 @@
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
-	name: "Monolingual",
-	exclude: ["build", "Monolingual", "XPCService"],
-	targets: [
-		//		Target(name: "Monolingual", dependencies: [.Target(name: "XPCService")]),
-		Target(name: "XPCService", dependencies: [.Target(name: "Helper")]),
-		Target(name: "Helper"),
-		Target(name: "lipo"),
-	],
-	dependencies: [
-		// .Package(url: "https://github.com/jatoben/CommandLine.git", versions: Version(2, 2, 0, prereleaseIdentifiers: ["pre1"])..<Version(3, 0, 0)),
-		.Package(url: "https://github.com/IngmarStein/CommandLine.git", versions: Version(2, 2, 0, prereleaseIdentifiers: ["pre3"]) ..< Version(3, 0, 0)),
-		.Package(url: "https://github.com/IngmarStein/SMJobKit.git", versions: Version(0, 0, 8) ..< Version(1, 0, 0)),
-	]
+    name: "Monolingual",
+    platforms: [.macOS(.v11)],
+    products: [
+        .executable(name: "Helper", targets: ["Helper"]),
+        .executable(name: "lipo", targets: ["lipo"]),
+        .executable(name: "XPCService", targets: ["XPCService"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+        .package(url: "https://github.com/IngmarStein/SMJobKit", from: "0.0.21"),
+    ],
+    targets: [
+        .target(
+            name: "LipoCore",
+            path: "lipo",
+            exclude: ["main.swift"]
+        ),
+        .target(
+            name: "HelperShared",
+            path: "Helper/Sources",
+            exclude: ["main.swift", "Helper.swift", "HelperContext.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
+        ),
+        .executableTarget(
+            name: "Helper",
+            dependencies: [
+                "LipoCore",
+                "HelperShared",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ],
+            path: "Helper/Sources",
+            exclude: ["HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"]
+        ),
+        .executableTarget(
+            name: "lipo",
+            dependencies: ["LipoCore"],
+            path: "lipo",
+            exclude: ["lipo.swift"]
+        ),
+        .executableTarget(
+            name: "XPCService",
+            dependencies: [
+                "HelperShared",
+                .product(name: "SMJobKit", package: "SMJobKit")
+            ],
+            path: "XPCService",
+            exclude: ["Info.plist"]
+        )
+    ]
 )

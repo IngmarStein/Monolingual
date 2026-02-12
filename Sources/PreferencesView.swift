@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct PreferencesView: View {
-	@State var roots: [Root]
+	@State private var roots: [Root] = []
 	@State private var sortOrder = [KeyPathComparator(\Root.path)]
 	@State private var selection: Root.ID?
 	@AppStorage("Trash") var trash: Bool = false
@@ -40,7 +40,7 @@ struct PreferencesView: View {
 						oPanel.treatsFilePackagesAsDirectories = true
 
 						oPanel.begin { result in
-							if NSApplication.ModalResponse.OK == result {
+							if result == .OK {
 								roots.append(contentsOf: oPanel.urls.map { Root(path: $0.path, languages: true, architectures: true) })
 							}
 						}
@@ -51,7 +51,9 @@ struct PreferencesView: View {
 						}
 					}.disabled(selection == nil)
 					Spacer()
-					Button("Standard") {}
+					Button("Standard") {
+						roots = Root.defaultRoots
+					}
 				}
 			}
 			Toggle("Move language files to Trash", isOn: $trash)
@@ -59,11 +61,24 @@ struct PreferencesView: View {
 			Toggle("Strip debug info when removing architectures", isOn: $strip)
 		}
 		.padding()
+		.onAppear {
+			if let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String: Any]] {
+				roots = pref.map { Root(dictionary: $0) }
+			} else {
+				roots = Root.defaultRoots
+			}
+		}
+		.onChange(of: roots) { newRoots in
+			let dicts = newRoots.map { root in
+				["Path": root.path, "Languages": root.languages, "Architectures": root.architectures]
+			}
+			UserDefaults.standard.set(dicts, forKey: "Roots")
+		}
 	}
 }
 
 struct PreferencesView_Previews: PreviewProvider {
 	static var previews: some View {
-		PreferencesView(roots: Root.defaults.map(Root.init(dictionary:)))
+		PreferencesView()
 	}
 }
