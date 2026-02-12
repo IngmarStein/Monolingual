@@ -154,15 +154,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95EB7AAA1AE777F90066369B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -276,14 +267,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		955263991AE67351001AD4F3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C4622BCC1384C2654165FC6D /* libHelperShared.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		95A1303E0608F92F00D8E30C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -309,14 +292,6 @@
 			files = (
 				95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */,
 				4F3E63A8FE6C5E0D570D4DED /* libHelperShared.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		95EB7AA91AE777F90066369B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				91AD1EDA859DF4FD0498B744 /* libLipoCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -539,24 +514,6 @@
 			productReference = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		9552639B1AE67351001AD4F3 /* Helper Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 955263A41AE67351001AD4F3 /* Build configuration list for PBXNativeTarget "Helper Tests" */;
-			buildPhases = (
-				955263981AE67351001AD4F3 /* Sources */,
-				955263991AE67351001AD4F3 /* Frameworks */,
-				9552639A1AE67351001AD4F3 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BDE2282BCB7FFDE544386C1F /* PBXTargetDependency */,
-			);
-			name = "Helper Tests";
-			productName = "Helper Tests";
-			productReference = 9552639C1AE67351001AD4F3 /* Helper Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		95A130250608F92F00D8E30C /* Monolingual */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */;
@@ -624,24 +581,6 @@
 			productName = XPCService;
 			productReference = 95E236DA1AD526DF00076008 /* Monolingual.xpc */;
 			productType = "com.apple.product-type.xpc-service";
-		};
-		95EB7AAB1AE777F90066369B /* lipo */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 95EB7AB01AE777F90066369B /* Build configuration list for PBXNativeTarget "lipo" */;
-			buildPhases = (
-				95EB7AA81AE777F90066369B /* Sources */,
-				95EB7AA91AE777F90066369B /* Frameworks */,
-				95EB7AAA1AE777F90066369B /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				0FE096F153916806BF821901 /* PBXTargetDependency */,
-			);
-			name = lipo;
-			productName = lipo;
-			productReference = 95EB7AAC1AE777F90066369B /* lipo */;
-			productType = "com.apple.product-type.tool";
 		};
 		BDD9E8E053EFDA48FE590D82 /* HelperShared */ = {
 			isa = PBXNativeTarget;
@@ -733,8 +672,6 @@
 				95A130250608F92F00D8E30C /* Monolingual */,
 				95C3C95F0610144300D417BC /* Helper */,
 				95E236D91AD526DF00076008 /* XPCService */,
-				9552639B1AE67351001AD4F3 /* Helper Tests */,
-				95EB7AAB1AE777F90066369B /* lipo */,
 				2DDF1FA6351F0EE7A6268412 /* LipoCore */,
 				BDD9E8E053EFDA48FE590D82 /* HelperShared */,
 			);
@@ -742,16 +679,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		9552639A1AE67351001AD4F3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				95CA053A1B93680E000ABDCE /* hello3 in Resources */,
-				95CA05391B93680E000ABDCE /* hello2 in Resources */,
-				95CA05381B93680E000ABDCE /* hello1 in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		95A1302C0608F92F00D8E30C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -789,17 +716,6 @@
 				31517E9714BA38FE7CC854A3 /* HelperRequest.swift in Sources */,
 				7D7BCD5C66589B1085308738 /* Helper.swift in Sources */,
 				D301E54D216C35285B4772C8 /* HelperContext.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		955263981AE67351001AD4F3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */,
-				955263A61AE675AE001AD4F3 /* Helper.swift in Sources */,
-				955263A71AE675AE001AD4F3 /* HelperContext.swift in Sources */,
-				95E2DEA41AEE593800243579 /* lipo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -842,14 +758,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95EB7AA81AE777F90066369B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				95EB7AAF1AE777F90066369B /* main.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F0158A035C5676D1CB575EFD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -861,12 +769,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0FE096F153916806BF821901 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = LipoCore;
-			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
-			targetProxy = 1244628F7CE80B729618082B /* PBXContainerItemProxy */;
-		};
 		4106CDBAA0BB1DF3BAB41469 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = HelperShared;
@@ -894,12 +796,6 @@
 			name = HelperShared;
 			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
 			targetProxy = BB2613C045DFB4466202FCBB /* PBXContainerItemProxy */;
-		};
-		BDE2282BCB7FFDE544386C1F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = HelperShared;
-			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
-			targetProxy = 1F46AC0805582ECF6118472C /* PBXContainerItemProxy */;
 		};
 		CEFE2056A53CD2FB6DA8D2A9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1585,15 +1481,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		955263A41AE67351001AD4F3 /* Build configuration list for PBXNativeTarget "Helper Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				955263A21AE67351001AD4F3 /* Debug */,
-				955263A31AE67351001AD4F3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		95AAF5600856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Helper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1626,15 +1513,6 @@
 			buildConfigurations = (
 				95E236E71AD526DF00076008 /* Debug */,
 				95E236E81AD526DF00076008 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		95EB7AB01AE777F90066369B /* Build configuration list for PBXNativeTarget "lipo" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				95EB7AB11AE777F90066369B /* Debug */,
-				95EB7AB21AE777F90066369B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
