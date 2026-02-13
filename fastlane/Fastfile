@@ -15,7 +15,12 @@ platform :mac do
 
   desc "Runs all the tests"
   lane :test do
-    run_tests(project: "Monolingual.xcodeproj", scheme: "Monolingual")
+    run_tests(
+      project: "Monolingual.xcodeproj",
+      scheme: "Monolingual",
+      code_signing_identity: "-",
+      xcargs: "CODE_SIGNING_REQUIRED=NO CODE_SIGN_STYLE=Manual"
+    )
   end
 
   desc "Build a new beta version with debug information"
