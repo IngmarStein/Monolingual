@@ -14,6 +14,8 @@ jobs:
         bundle config set deployment 'true'
         bundle config set path ${BUNDLE_PATH:-vendor/bundle}
         bundle install --jobs=3 --retry=3
+    - name: Install SwiftLint
+      run: brew install swiftlint
     - name: Add key
       run: "./scripts/add-key.sh"
       env:

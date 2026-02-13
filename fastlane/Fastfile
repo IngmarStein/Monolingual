@@ -1,3 +1,5 @@
+opt_out_usage
+
 default_platform(:mac)
 
 platform :mac do
@@ -17,7 +19,7 @@ platform :mac do
   end
 
   desc "Build a new beta version with debug information"
-  lane :debug do
+  lane :build_debug do
     build_app(
       project: "Monolingual.xcodeproj",
       scheme: "Monolingual",
@@ -39,7 +41,7 @@ platform :mac do
   end
 
   desc "Notarize the app and DMG"
-  lane :notarize do
+  lane :notarize_artifacts do
     notarize(
       package: "./build/Monolingual.app",
       try_early_stapling: true,
