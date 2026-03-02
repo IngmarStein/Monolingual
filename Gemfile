@@ -2,5 +2,5 @@
 
 source 'https://rubygems.org'
 
-gem 'fastlane', '2.231.1'
+gem 'fastlane', '2.232.2'
 gem 'CFPropertyList', '3.0.8'
