@@ -37,7 +37,7 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 	}
 
 	public override init() {
-		listener = NSXPCListener(machServiceName: "com.github.IngmarStein.Monolingual.Helper")
+		listener = NSXPCListener(machServiceName: HelperService.machServiceName)
 
 		super.init()
 

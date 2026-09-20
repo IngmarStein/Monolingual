@@ -22,6 +22,8 @@ enum HelperInstallationFailure: Error {
 	case legacyInstallationPresent
 	/// A helper from a different version of Monolingual answered instead of the bundled one.
 	case outdatedHelper(String)
+	/// The registered helper did not answer at all.
+	case helperUnreachable
 	/// Registering the daemon failed.
 	case registrationFailed(Error)
 
@@ -33,6 +35,8 @@ enum HelperInstallationFailure: Error {
 			NSLocalizedString("Failed to install helper utility.", comment: "")
 		case .legacyInstallationPresent, .outdatedHelper:
 			NSLocalizedString("An outdated helper utility is still installed.", comment: "")
+		case .helperUnreachable:
+			NSLocalizedString("Monolingual cannot reach its helper utility.", comment: "")
 		}
 	}
 
@@ -46,6 +50,8 @@ enum HelperInstallationFailure: Error {
 			NSLocalizedString("Remove the helper installed by an older version of Monolingual with util/uninstall.sh and try again.", comment: "")
 		case let .outdatedHelper(version):
 			String(format: NSLocalizedString("Monolingual %@ is still installed. Remove it with util/uninstall.sh, then try again.", comment: ""), version)
+		case .helperUnreachable:
+			NSLocalizedString("A helper utility from an older version of Monolingual may still be registered. Restart your Mac and try again.", comment: "")
 		case let .registrationFailed(error):
 			error.localizedDescription
 		}
@@ -67,14 +73,10 @@ enum HelperInstallationFailure: Error {
 /// `SMAppService`, so an administrator allows it in System Settings instead.
 @MainActor
 final class HelperInstaller {
-	static let machServiceName = "com.github.IngmarStein.Monolingual.Helper"
-	static let daemonPlistName = "com.github.IngmarStein.Monolingual.Helper.plist"
+	static let machServiceName = HelperService.machServiceName
+	static let daemonPlistName = HelperService.daemonPlistName
 
-	/// Files left behind by the SMJobBless based versions of Monolingual.
-	private static let legacyPaths = [
-		"/Library/PrivilegedHelperTools/\(machServiceName)",
-		"/Library/LaunchDaemons/\(machServiceName).plist"
-	]
+	private static var legacyPaths: [String] { HelperService.legacyPaths }
 
 	/// The app version whose helper was registered last. Service Management requires the
 	/// daemon to be registered again after its executable or property list has changed.
@@ -157,7 +159,7 @@ final class HelperInstaller {
 
 		logger.notice("Removing helper installed by an older version of Monolingual")
 
-		let connection = NSXPCConnection(machServiceName: Self.machServiceName, options: .privileged)
+		let connection = NSXPCConnection(machServiceName: HelperService.legacyMachServiceName, options: .privileged)
 		connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
 		connection.resume()
 		defer { connection.invalidate() }

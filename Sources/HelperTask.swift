@@ -56,7 +56,7 @@ import Observation
 	/// Returns a proxy for the privileged helper, connecting to it if necessary.
 	private func connectToHelper() -> HelperProtocol? {
 		if helperConnection == nil {
-			let connection = NSXPCConnection(machServiceName: HelperInstaller.machServiceName, options: .privileged)
+			let connection = NSXPCConnection(machServiceName: HelperService.machServiceName, options: .privileged)
 			let interface = NSXPCInterface(with: HelperProtocol.self)
 			interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
 			connection.remoteObjectInterface = interface
@@ -80,10 +80,21 @@ import Observation
 
 	private func runHelper(arguments: HelperRequest) {
 		guard let helper = connectToHelper() else {
+			installationFailure = .helperUnreachable
 			return
 		}
 
+		// A helper that never answers would otherwise leave the app doing nothing at all.
+		let timeout = Task { @MainActor in
+			try? await Task.sleep(for: .seconds(10))
+			guard !Task.isCancelled, !self.isRunning else { return }
+			self.logger.error("Helper did not answer within 10 seconds")
+			self.installationFailure = .helperUnreachable
+		}
+
 		helper.getVersion { version in
+			timeout.cancel()
+
 			// The helper lives inside the app bundle and therefore reports the version of the
 			// app. Anything else means a helper installed by an older version of Monolingual
 			// is still answering on the Mach service.

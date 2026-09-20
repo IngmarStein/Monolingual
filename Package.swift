@@ -22,7 +22,7 @@ let package = Package(
             name: "HelperShared",
             dependencies: ["LipoCore"],
             path: "Helper/Sources",
-            exclude: ["main.swift", "MonolingualHelper-Info.plist", "com.github.IngmarStein.Monolingual.Helper.plist"],
+            exclude: ["main.swift", "MonolingualHelper-Info.plist", "com.github.IngmarStein.Monolingual.PrivilegedHelper.plist"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
@@ -33,7 +33,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
             path: "Helper/Sources",
-            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "com.github.IngmarStein.Monolingual.Helper.plist"],
+            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "com.github.IngmarStein.Monolingual.PrivilegedHelper.plist"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
