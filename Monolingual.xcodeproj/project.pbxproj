@@ -11,7 +11,6 @@
 		272CECED81A1C7EBF7F5639F /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		28D49276ECE073E0C202210C /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
 		31517E9714BA38FE7CC854A3 /* HelperRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD81AD7F5C500872850 /* HelperRequest.swift */; };
-		4F3E63A8FE6C5E0D570D4DED /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
 		7D7BCD5C66589B1085308738 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
 		950D908A277DF88E00478D6C /* HelperTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950D9089277DF88E00478D6C /* HelperTask.swift */; };
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
@@ -35,13 +34,10 @@
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95C2E0342708FCF600ED1D38 /* MonolingualApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C2E0332708FCF600ED1D38 /* MonolingualApp.swift */; };
 		95C2E0362708FF6500ED1D38 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C2E0352708FF6500ED1D38 /* HelpCommands.swift */; };
-		95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
-		95E236F21AD52C7100076008 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236F11AD52C7100076008 /* main.swift */; };
 		95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in Embed Helper */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4D0C414C0000000000000005 /* com.github.IngmarStein.Monolingual.Helper.plist in Copy LaunchDaemon Plist */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.Helper.plist */; };
-		95E236F71AD5356B00076008 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95EEC9AE2702693E00F4EF51 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EEC9AD2702693E00F4EF51 /* MainView.swift */; };
 		9FF99BB35FE3428B0C9C5B49 /* libLipoCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */; };
@@ -195,7 +191,6 @@
 		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95955DFA1A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95955DFE1A041F3300165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/Main.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MonolingualHelperClient.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = Resources/el.lproj/Credits.html; sourceTree = "<group>"; };
@@ -211,11 +206,8 @@
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Resources/it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = LEESMIJ.rtfd; path = Resources/LEESMIJ.rtfd; sourceTree = "<group>"; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = Leggimi.rtfd; path = Resources/Leggimi.rtfd; sourceTree = "<group>"; };
-		95E236DD1AD526DF00076008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		95E236F11AD52C7100076008 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95E8634115D81004004EF9ED /* Monolingual.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Monolingual.entitlements; sourceTree = "<group>"; };
 		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = lipo.swift; path = lipo/lipo.swift; sourceTree = SOURCE_ROOT; };
-		95EB7AAC1AE777F90066369B /* lipo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lipo; sourceTree = BUILT_PRODUCTS_DIR; };
 		95EB7AAE1AE777F90066369B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95EBC3A11BD989F00022BA4A /* ru */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ru; path = Resources/ru.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		95EBC3A21BD98A460022BA4A /* ru */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ru; path = Resources/ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -318,7 +310,6 @@
 				95A130430608F93000D8E30C /* Monolingual.app */,
 				95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */,
 				9552639C1AE67351001AD4F3 /* Helper Tests.xctest */,
-				95EB7AAC1AE777F90066369B /* lipo */,
 				86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */,
 				E64F8749F1B938AA9F67C717 /* libHelperShared.a */,
 			);
@@ -1089,7 +1080,6 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 6.0;
 				WARNING_CFLAGS = (
 					"-Weverything",
@@ -1156,7 +1146,6 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 6.0;
 				WARNING_CFLAGS = (
 					"-Weverything",
@@ -1264,7 +1253,7 @@
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				minimumVersion = 2.10.0;
 			};
 		};
 		958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
@@ -1272,7 +1261,7 @@
 			repositoryURL = "https://github.com/apple/swift-argument-parser";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.0;
+				minimumVersion = 1.8.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
