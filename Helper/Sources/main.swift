@@ -28,20 +28,23 @@ struct Options: ParsableArguments {
 	@Flag(name: .shortAndLong, help: "Don't delete files but move them to the trash.")
 	var trash: Bool = false
 
+	// These empty defaults are required: launchd starts the helper without any arguments,
+	// and ArgumentParser treats an option without a default as required, which would make
+	// the daemon print an error and exit immediately instead of serving requests.
 	@Option(name: .shortAndLong, help: "Include directory.")
-	var include: [String]
+	var include: [String] = []
 
 	@Option(name: [.customShort("x"), .long], help: "Exclude directory.")
-	var exclude: [String]
+	var exclude: [String] = []
 
 	@Option(name: .shortAndLong, help: "Exclude a bundle from processing (e.g. \"com.apple.iPhoto\").")
-	var bundle: [String]
+	var bundle: [String] = []
 
 	@Option(name: .shortAndLong, help: "Name of a file or directory to delete (e.g. \"fr.lproj\").")
-	var delete: [String]
+	var delete: [String] = []
 
 	@Option(name: [.customShort("a"), .long], help: "Remove architecture from universal binary (e.g. \"ppc\").")
-	var thin: [String]
+	var thin: [String] = []
 }
 
 let options = Options.parseOrExit()
