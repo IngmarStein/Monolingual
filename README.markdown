@@ -9,14 +9,13 @@ Monolingual
 
 ## Architecture
 
-Monolingual consists of three parts: the sandboxed Monolingual app, a non-sandboxed XPC service and a privileged helper program.
-All components are written in Swift and communicate with each other using XPC.
+Monolingual consists of two parts: the sandboxed Monolingual app and a privileged helper program that
+is registered as a launch daemon with Service Management. Both are written in Swift and communicate with each other using XPC.
 
 ## Dependencies
 
 Monolingual uses CocoaPods to manage its dependencies. Currently, the following pods are used:
 
-- [SMJobKit](https://github.com/IngmarStein/SMJobKit)
 - [Sparkle](https://github.com/sparkle-project/Sparkle)
 - [Fabric](https://cocoapods.org/pods/Fabric)
 - [Crashlytics](https://cocoapods.org/pods/Crashlytics)

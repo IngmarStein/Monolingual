@@ -68,10 +68,11 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 		reply(version)
 	}
 
-	// see https://devforums.apple.com/message/1004420#1004420
+	/// Removes a helper that an older version of Monolingual installed with SMJobBless.
+	///
+	/// Helpers registered with SMAppService live inside the app bundle and are removed by
+	/// unregistering them, so this only has to clean up after the SMJobBless based versions.
 	@objc public func uninstall() {
-		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["remove", "com.github.IngmarStein.Monolingual.Helper"])
-		// NSTask.launchedTaskWithLaunchPath("/bin/launchctl", arguments: ["unload", "-wF", "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist"])
 		do {
 			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
 			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
@@ -155,7 +156,17 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 
 	// MARK: - NSXPCListenerDelegate
 
+	/// The designated requirement of the Monolingual app, which is the only client that may
+	/// talk to this helper. Launchd used to enforce this through the helper's
+	/// `SMAuthorizedClients`; SMAppService does not, so the helper checks its peer itself.
+	private static let clientRequirement = "anchor apple generic and identifier \"com.github.IngmarStein.Monolingual\" and certificate leaf[subject.OU] = ADVP2P7SJK"
+
 	public func listener(_: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+		guard isTrustedClient(newConnection) else {
+			logger.error("Rejected connection from process \(newConnection.processIdentifier, privacy: .public)")
+			return false
+		}
+
 		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
 		let classes = Set([helperRequestClass])
 		let interface = NSXPCInterface(with: HelperProtocol.self)
@@ -166,6 +177,23 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 		newConnection.resume()
 
 		return true
+	}
+
+	/// Checks that the connecting process is the Monolingual app.
+	private func isTrustedClient(_ connection: NSXPCConnection) -> Bool {
+		var requirement: SecRequirement?
+		guard SecRequirementCreateWithString(Self.clientRequirement as CFString, [], &requirement) == errSecSuccess, let requirement = requirement else {
+			logger.error("Failed to create client requirement")
+			return false
+		}
+
+		let attributes = [kSecGuestAttributePid: connection.processIdentifier] as CFDictionary
+		var client: SecCode?
+		guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &client) == errSecSuccess, let client = client else {
+			return false
+		}
+
+		return SecCodeCheckValidity(client, [], requirement) == errSecSuccess
 	}
 
 	// MARK: -

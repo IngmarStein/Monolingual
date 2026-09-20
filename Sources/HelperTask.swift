@@ -22,97 +22,86 @@ import Observation
 	private var progressResetTimer: Timer?
 	private var progressObserverToken: NSKeyValueObservation?
 	private let logger = Logger()
+	private let installer = HelperInstaller()
 	var text = ""
 	var file = ""
 	var byteCount: Int64 = 0
 	var isRunning = false
-	
+
+	/// Set when the privileged helper is unavailable, for instance because it still has to be
+	/// allowed in System Settings.
+	var installationFailure: HelperInstallationFailure?
+
 	var languages: [LanguageSetting] = []
 	var mode: MainView.MonolingualMode = .languages
 
-	private var cachedXPCServiceConnection: NSXPCConnection?
-	private var xpcServiceConnection: NSXPCConnection {
-		if let connection = cachedXPCServiceConnection {
-			return connection
+	func checkAndRunHelper(arguments: HelperRequest) {
+		Task {
+			do {
+				try await installer.installIfNeeded()
+			} catch let failure as HelperInstallationFailure {
+				logger.error("Helper is unavailable: \(failure.message, privacy: .public)")
+				installationFailure = failure
+				return
+			} catch {
+				logger.error("Helper is unavailable: \(error.localizedDescription, privacy: .public)")
+				installationFailure = .registrationFailed(error)
+				return
+			}
+
+			runHelper(arguments: arguments)
 		}
-		let connection = NSXPCConnection(serviceName: "com.github.IngmarStein.Monolingual.XPCService")
-		connection.remoteObjectInterface = NSXPCInterface(with: XPCServiceProtocol.self)
-		connection.resume()
-		cachedXPCServiceConnection = connection
-		return connection
 	}
 
-	func checkAndRunHelper(arguments: HelperRequest) {
-		let xpcService = xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
-			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
-		} as? XPCServiceProtocol
+	/// Returns a proxy for the privileged helper, connecting to it if necessary.
+	private func connectToHelper() -> HelperProtocol? {
+		if helperConnection == nil {
+			let connection = NSXPCConnection(machServiceName: HelperInstaller.machServiceName, options: .privileged)
+			let interface = NSXPCInterface(with: HelperProtocol.self)
+			interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
+			connection.remoteObjectInterface = interface
+			connection.invalidationHandler = {
+				self.logger.error("XPC connection to helper invalidated.")
+				self.helperConnection = nil
+			}
+			connection.resume()
+			helperConnection = connection
+		}
 
-		if let xpcService = xpcService {
-			xpcService.connect { endpoint -> Void in
-				if let endpoint = endpoint {
-					var performInstallation = false
-					let connection = NSXPCConnection(listenerEndpoint: endpoint)
-					let interface = NSXPCInterface(with: HelperProtocol.self)
-					interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
-					connection.remoteObjectInterface = interface
-					connection.invalidationHandler = {
-						self.logger.error("XPC connection to helper invalidated.")
-						self.helperConnection = nil
-						if performInstallation {
-							self.installHelper { success in
-								if success {
-									DispatchQueue.main.async {
-										self.checkAndRunHelper(arguments: arguments)
-									}
-								}
-							}
-						}
-					}
-					connection.resume()
-					self.helperConnection = connection
+		guard let helper = helperConnection?.remoteObjectProxyWithErrorHandler({ error in
+			self.logger.error("Error connecting to helper: \(error.localizedDescription, privacy: .public)")
+		}) as? HelperProtocol else {
+			logger.error("Helper does not conform to HelperProtocol")
+			return nil
+		}
 
-					if let connection = self.helperConnection {
-						guard let helper = connection.remoteObjectProxyWithErrorHandler({ error in
-							self.logger.error("Error connecting to helper: \(error.localizedDescription, privacy: .public)")
-						}) as? HelperProtocol else {
-							self.logger.error("Helper does not conform to HelperProtocol")
-							return
-						}
+		return helper
+	}
 
-						helper.getVersion { installedVersion in
-							xpcService.bundledHelperVersion { bundledVersion in
-								if installedVersion == bundledVersion {
-									// helper is current
-									DispatchQueue.main.async {
-										self.runHelper(helper, arguments: arguments)
-									}
-								} else {
-									// helper is different version
-									performInstallation = true
-									// this triggers rdar://23143866 (duplicate of rdar://19601397)
-									// helper.uninstall()
-									helper.exit(code: Int(EXIT_SUCCESS))
-									connection.invalidate()
-									xpcService.disconnect()
-								}
-							}
-						}
-					}
-				} else {
-					self.logger.error("Failed to get XPC endpoint.")
-					self.installHelper { success in
-						if success {
-							DispatchQueue.main.async {
-								self.checkAndRunHelper(arguments: arguments)
-							}
-						}
-					}
+	private func runHelper(arguments: HelperRequest) {
+		guard let helper = connectToHelper() else {
+			return
+		}
+
+		helper.getVersion { version in
+			// The helper lives inside the app bundle and therefore reports the version of the
+			// app. Anything else means a helper installed by an older version of Monolingual
+			// is still answering on the Mach service.
+			guard version == HelperInstaller.appVersion else {
+				self.logger.error("Unexpected helper version: \(version, privacy: .public)")
+				DispatchQueue.main.async {
+					self.installationFailure = .outdatedHelper(version)
 				}
+				return
+			}
+
+			DispatchQueue.main.async {
+				self.performRemoval(with: helper, arguments: arguments)
 			}
 		}
 	}
 
-	private func runHelper(_ helper: HelperProtocol, arguments: HelperRequest) {
+	private func performRemoval(with helper: HelperProtocol, arguments: HelperRequest) {
 		ProcessInfo.processInfo.disableSuddenTermination()
 
 		text = "Removing..."
@@ -165,27 +154,6 @@ import Observation
 																				trigger: trigger)
 
 		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-	}
-
-	func installHelper(reply: @escaping @Sendable (Bool) -> Void) {
-		let xpcService = xpcServiceConnection.remoteObjectProxyWithErrorHandler { error -> Void in
-			self.logger.error("XPCService error: \(error.localizedDescription, privacy: .public)")
-		} as? XPCServiceProtocol
-
-		if let xpcService = xpcService {
-			xpcService.installHelperTool { error in
-				if let error = error {
-					DispatchQueue.main.async {
-						// TODO: Show alert in SwiftUI way
-						self.logger.error("Install failed: \(error.localizedDescription)")
-						log.close()
-					}
-					reply(false)
-				} else {
-					reply(true)
-				}
-			}
-		}
 	}
 
 	nonisolated func processed(file: String, size: Int, appName: String?) {

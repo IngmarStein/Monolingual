@@ -410,6 +410,23 @@ struct MainView: View {
 			}
 		}
 		.padding()
+		.alert(helperTask.installationFailure?.title ?? "", isPresented: Binding(
+			get: { helperTask.installationFailure != nil },
+			set: { isPresented in
+				if !isPresented {
+					helperTask.installationFailure = nil
+				}
+			}
+		)) {
+			if helperTask.installationFailure?.canOpenSystemSettings == true {
+				Button("Open System Settings") {
+					HelperInstaller.openSystemSettingsLoginItems()
+				}
+			}
+			Button("OK", role: .cancel) {}
+		} message: {
+			Text(helperTask.installationFailure?.message ?? "")
+		}
 		.task {
 			loadData()
 			// load remote blocklist asynchronously

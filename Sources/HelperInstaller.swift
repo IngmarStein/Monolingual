@@ -1,0 +1,181 @@
+//
+//  HelperInstaller.swift
+//  Monolingual
+//
+//  Copyright © 2026 Ingmar Stein. All rights reserved.
+//
+
+import Foundation
+import OSLog
+import ServiceManagement
+#if canImport(HelperShared)
+import HelperShared
+#endif
+
+/// A reason why the privileged helper is not available.
+enum HelperInstallationFailure: Error {
+	/// The daemon is registered but an administrator has not allowed it in System Settings yet.
+	case requiresApproval
+	/// The launchd property list is missing from the app bundle.
+	case plistNotFound
+	/// A helper installed by an older version of Monolingual is still in place and could not be removed.
+	case legacyInstallationPresent
+	/// A helper from a different version of Monolingual answered instead of the bundled one.
+	case outdatedHelper(String)
+	/// Registering the daemon failed.
+	case registrationFailed(Error)
+
+	var title: String {
+		switch self {
+		case .requiresApproval:
+			NSLocalizedString("Monolingual needs your permission", comment: "")
+		case .plistNotFound, .registrationFailed:
+			NSLocalizedString("Failed to install helper utility.", comment: "")
+		case .legacyInstallationPresent, .outdatedHelper:
+			NSLocalizedString("An outdated helper utility is still installed.", comment: "")
+		}
+	}
+
+	var message: String {
+		switch self {
+		case .requiresApproval:
+			NSLocalizedString("Allow Monolingual to use its helper tool in System Settings › General › Login Items & Extensions, then try again.", comment: "")
+		case .plistNotFound:
+			NSLocalizedString("The Monolingual application bundle is incomplete.", comment: "")
+		case .legacyInstallationPresent:
+			NSLocalizedString("Remove the helper installed by an older version of Monolingual with util/uninstall.sh and try again.", comment: "")
+		case let .outdatedHelper(version):
+			String(format: NSLocalizedString("Monolingual %@ is still installed. Remove it with util/uninstall.sh, then try again.", comment: ""), version)
+		case let .registrationFailed(error):
+			error.localizedDescription
+		}
+	}
+
+	var canOpenSystemSettings: Bool {
+		if case .requiresApproval = self {
+			return true
+		}
+		return false
+	}
+}
+
+/// Registers the privileged helper with Service Management.
+///
+/// Older versions installed the helper with SMJobBless, which copied it to
+/// `/Library/PrivilegedHelperTools` and asked for an administrator password on first use.
+/// The helper now lives inside the app bundle and is registered as a launchd daemon with
+/// `SMAppService`, so an administrator allows it in System Settings instead.
+@MainActor
+final class HelperInstaller {
+	static let machServiceName = "com.github.IngmarStein.Monolingual.Helper"
+	static let daemonPlistName = "com.github.IngmarStein.Monolingual.Helper.plist"
+
+	/// Files left behind by the SMJobBless based versions of Monolingual.
+	private static let legacyPaths = [
+		"/Library/PrivilegedHelperTools/\(machServiceName)",
+		"/Library/LaunchDaemons/\(machServiceName).plist"
+	]
+
+	/// The app version whose helper was registered last. Service Management requires the
+	/// daemon to be registered again after its executable or property list has changed.
+	private static let registeredVersionKey = "RegisteredHelperVersion"
+
+	private let logger = Logger()
+
+	static var legacyInstallationExists: Bool {
+		legacyPaths.contains { FileManager.default.fileExists(atPath: $0) }
+	}
+
+	/// Registers the helper daemon and verifies that it is allowed to run.
+	func installIfNeeded() async throws {
+		try await removeLegacyInstallation()
+
+		let service = SMAppService.daemon(plistName: Self.daemonPlistName)
+		var status = service.status
+
+		if isRegistered(status), let registeredVersion = UserDefaults.standard.string(forKey: Self.registeredVersionKey), registeredVersion != Self.appVersion {
+			// The helper that ships with this version of the app is a different executable,
+			// so the registration has to be renewed.
+			logger.notice("Helper was updated, registering it again")
+			try? await service.unregister()
+			status = service.status
+		}
+
+		if isRegistered(status) {
+			// Another copy of the app may have registered the helper before.
+			UserDefaults.standard.set(Self.appVersion, forKey: Self.registeredVersionKey)
+		} else {
+			do {
+				try service.register()
+			} catch {
+				// A daemon stays unapproved until an administrator allows it in System Settings;
+				// that is reported through the service status rather than as a registration error.
+				guard isRegistered(service.status) else {
+					logger.error("Failed to register helper: \(error.localizedDescription, privacy: .public)")
+					throw HelperInstallationFailure.registrationFailed(error)
+				}
+			}
+			UserDefaults.standard.set(Self.appVersion, forKey: Self.registeredVersionKey)
+			status = service.status
+		}
+
+		switch status {
+		case .enabled:
+			return
+		case .requiresApproval:
+			throw HelperInstallationFailure.requiresApproval
+		case .notRegistered, .notFound:
+			throw HelperInstallationFailure.plistNotFound
+		@unknown default:
+			throw HelperInstallationFailure.plistNotFound
+		}
+	}
+
+	/// Opens the System Settings pane where the helper daemon can be allowed.
+	static func openSystemSettingsLoginItems() {
+		SMAppService.openSystemSettingsLoginItems()
+	}
+
+	private func isRegistered(_ status: SMAppService.Status) -> Bool {
+		status == .enabled || status == .requiresApproval
+	}
+
+	/// The version of the running app, which the bundled helper reports as its own because
+	/// it lives inside the app bundle.
+	static var appVersion: String {
+		Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+	}
+
+	/// Removes a helper installed by a version of Monolingual that used SMJobBless.
+	///
+	/// Such a helper runs as root and claims the same Mach service, so it has to be asked to
+	/// uninstall itself; nothing else can remove files below `/Library` without a password.
+	private func removeLegacyInstallation() async throws {
+		guard Self.legacyInstallationExists else {
+			return
+		}
+
+		logger.notice("Removing helper installed by an older version of Monolingual")
+
+		let connection = NSXPCConnection(machServiceName: Self.machServiceName, options: .privileged)
+		connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
+		connection.resume()
+		defer { connection.invalidate() }
+
+		if let helper = connection.remoteObjectProxyWithErrorHandler({ error in
+			self.logger.error("Failed to contact helper of an older version: \(error.localizedDescription, privacy: .public)")
+		}) as? HelperProtocol {
+			helper.uninstall()
+			helper.exit(code: 0)
+		}
+
+		// Wait for the old daemon to remove its files and exit before registering the new one.
+		for _ in 0 ..< 50 {
+			guard Self.legacyInstallationExists else { return }
+			try? await Task.sleep(for: .milliseconds(100))
+		}
+
+		logger.error("Helper installed by an older version of Monolingual is still present")
+		throw HelperInstallationFailure.legacyInstallationPresent
+	}
+}

@@ -7,11 +7,9 @@ let package = Package(
     products: [
         .executable(name: "Helper", targets: ["Helper"]),
         .executable(name: "lipo", targets: ["lipo"]),
-        .executable(name: "XPCService", targets: ["XPCService"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
-        .package(url: "https://github.com/IngmarStein/SMJobKit", from: "0.0.21"),
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.8.1"),
     ],
     targets: [
@@ -25,7 +23,7 @@ let package = Package(
             name: "HelperShared",
             dependencies: ["LipoCore"],
             path: "Helper/Sources",
-            exclude: ["main.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"],
+            exclude: ["main.swift", "MonolingualHelper-Info.plist", "com.github.IngmarStein.Monolingual.Helper.plist"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
@@ -36,7 +34,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
             path: "Helper/Sources",
-            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "MonolingualHelper-launchd.plist"],
+            exclude: ["Helper.swift", "HelperContext.swift", "HelperProtocol.swift", "HelperRequest.swift", "MonolingualHelper-Info.plist", "com.github.IngmarStein.Monolingual.Helper.plist"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
@@ -44,16 +42,6 @@ let package = Package(
             dependencies: ["LipoCore"],
             path: "lipo",
             exclude: ["lipo.swift"],
-            swiftSettings: [.swiftLanguageMode(.v6)]
-        ),
-        .executableTarget(
-            name: "XPCService",
-            dependencies: [
-                "HelperShared",
-                .product(name: "SMJobKit", package: "SMJobKit")
-            ],
-            path: "XPCService",
-            exclude: ["Info.plist"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(

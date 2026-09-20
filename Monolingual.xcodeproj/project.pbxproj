@@ -38,16 +38,12 @@
 		95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F51C1B3401F29B1C0120C6FA /* Localizable.strings */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
-		95E236E61AD526DF00076008 /* Monolingual.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 95E236DA1AD526DF00076008 /* Monolingual.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		95E236ED1AD526F700076008 /* XPCServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */; };
-		95E236EE1AD526F700076008 /* XPCServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */; };
-		95E236F01AD52C0E00076008 /* XPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236EF1AD52C0E00076008 /* XPCService.swift */; };
 		95E236F21AD52C7100076008 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E236F11AD52C7100076008 /* main.swift */; };
-		95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in Embed Helper */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4D0C414C0000000000000005 /* com.github.IngmarStein.Monolingual.Helper.plist in Copy LaunchDaemon Plist */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.Helper.plist */; };
 		95E236F71AD5356B00076008 /* MonolingualHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95EEC9AE2702693E00F4EF51 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EEC9AD2702693E00F4EF51 /* MainView.swift */; };
-		95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */ = {isa = PBXBuildFile; productRef = 95FCE24222CD355D008A55D3 /* SMJobKit */; };
 		9FF99BB35FE3428B0C9C5B49 /* libLipoCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */; };
 		A4EF1791FED76A1A2E24F76E /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
 		D197DF9BA4D742A5C6624754 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
@@ -58,6 +54,7 @@
 		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; };
 		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; };
 		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; };
+		4D0C414C0000000000000009 /* HelperInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0C414C000000000000000A /* HelperInstaller.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,20 +78,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2DDF1FA6351F0EE7A6268412;
 			remoteInfo = LipoCore;
-		};
-		95E236E41AD526DF00076008 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 95E236D91AD526DF00076008;
-			remoteInfo = XPCService;
-		};
-		95E236F31AD532E400076008 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 95C3C95F0610144300D417BC;
-			remoteInfo = net.sourceforge.MonolingualHelper;
 		};
 		BB2613C045DFB4466202FCBB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -124,6 +107,13 @@
 			remoteGlobalIDString = 2DDF1FA6351F0EE7A6268412;
 			remoteInfo = LipoCore;
 		};
+		4D0C414C0000000000000008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95C3C95F0610144300D417BC;
+			remoteInfo = Helper;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -137,25 +127,26 @@
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95E236EA1AD526DF00076008 /* Embed XPC Services */ = {
+		95E236F51AD5331300076008 /* Embed Helper */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
-			dstSubfolderSpec = 16;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
-				95E236E61AD526DF00076008 /* Monolingual.xpc in Embed XPC Services */,
+				95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in Embed Helper */,
 			);
-			name = "Embed XPC Services";
+			name = "Embed Helper";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95E236F51AD5331300076008 /* CopyFiles */ = {
+		4D0C414C0000000000000006 /* Copy LaunchDaemon Plist */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Contents/Library/LaunchServices;
+			dstPath = Contents/Library/LaunchDaemons;
 			dstSubfolderSpec = 1;
 			files = (
-				95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in CopyFiles */,
+				4D0C414C0000000000000005 /* com.github.IngmarStein.Monolingual.Helper.plist in Copy LaunchDaemon Plist */,
 			);
+			name = "Copy LaunchDaemon Plist";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -198,7 +189,7 @@
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95852A7F1119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Spanish; path = Resources/es.lproj/Credits.html; sourceTree = "<group>"; };
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Resources/es.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-launchd.plist"; path = "Helper/Sources/MonolingualHelper-launchd.plist"; sourceTree = "<group>"; };
+		9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.Helper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Helper/Sources/com.github.IngmarStein.Monolingual.Helper.plist"; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-Info.plist"; path = "Helper/Sources/MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		95955DF81A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = hr; path = Resources/hr.lproj/Credits.html; sourceTree = "<group>"; };
 		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -220,10 +211,7 @@
 		95CB1AFE06E8DDDD00293B60 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Italian; path = Resources/it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = LEESMIJ.rtfd; path = Resources/LEESMIJ.rtfd; sourceTree = "<group>"; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = Leggimi.rtfd; path = Resources/Leggimi.rtfd; sourceTree = "<group>"; };
-		95E236DA1AD526DF00076008 /* Monolingual.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = Monolingual.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		95E236DD1AD526DF00076008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XPCServiceProtocol.swift; sourceTree = "<group>"; };
-		95E236EF1AD52C0E00076008 /* XPCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = XPCService.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		95E236F11AD52C7100076008 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		95E8634115D81004004EF9ED /* Monolingual.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Monolingual.entitlements; sourceTree = "<group>"; };
 		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = lipo.swift; path = lipo/lipo.swift; sourceTree = SOURCE_ROOT; };
@@ -261,6 +249,7 @@
 		F6E6809E1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = nl; path = Resources/nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F6E6809F1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = nl; path = Resources/nl.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F6E680A01AC22DFF00A5CBD8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = nl; path = Resources/nl.lproj/Credits.html; sourceTree = "<group>"; };
+		4D0C414C000000000000000A /* HelperInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelperInstaller.swift; path = Sources/HelperInstaller.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -288,15 +277,6 @@
 				958FCAA824099C2F00048708 /* ArgumentParser in Frameworks */,
 				9FF99BB35FE3428B0C9C5B49 /* libLipoCore.a in Frameworks */,
 				28D49276ECE073E0C202210C /* libHelperShared.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		95E236D71AD526DF00076008 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				95FCE24322CD355D008A55D3 /* SMJobKit in Frameworks */,
-				4F3E63A8FE6C5E0D570D4DED /* libHelperShared.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +317,6 @@
 			children = (
 				95A130430608F93000D8E30C /* Monolingual.app */,
 				95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */,
-				95E236DA1AD526DF00076008 /* Monolingual.xpc */,
 				9552639C1AE67351001AD4F3 /* Helper Tests.xctest */,
 				95EB7AAC1AE777F90066369B /* lipo */,
 				86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */,
@@ -355,7 +334,6 @@
 				9552639D1AE67351001AD4F3 /* Helper Tests */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
-				95E236DB1AD526DF00076008 /* XPCService */,
 			);
 			name = Monolingual;
 			sourceTree = "<group>";
@@ -392,6 +370,7 @@
 			isa = PBXGroup;
 			children = (
 				950D9089277DF88E00478D6C /* HelperTask.swift */,
+				4D0C414C000000000000000A /* HelperInstaller.swift */,
 				95527CE419741A930092C744 /* Log.swift */,
 			);
 			name = Util;
@@ -416,7 +395,7 @@
 				95355AD81AD7F5C500872850 /* HelperRequest.swift */,
 				95355AD21AD7F31200872850 /* main.swift */,
 				9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */,
-				9589976715CAB932008A2593 /* MonolingualHelper-launchd.plist */,
+				9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.Helper.plist */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -460,26 +439,6 @@
 				9558F814061598BA00F6DE23 /* README.rtfd */,
 			);
 			name = Readmes;
-			sourceTree = "<group>";
-		};
-		95E236DB1AD526DF00076008 /* XPCService */ = {
-			isa = PBXGroup;
-			children = (
-				95E236F11AD52C7100076008 /* main.swift */,
-				959CEEAA197140FC00A433C0 /* MonolingualHelperClient.swift */,
-				95E236DC1AD526DF00076008 /* Supporting Files */,
-				95E236EF1AD52C0E00076008 /* XPCService.swift */,
-				95E236EC1AD526F700076008 /* XPCServiceProtocol.swift */,
-			);
-			path = XPCService;
-			sourceTree = "<group>";
-		};
-		95E236DC1AD526DF00076008 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				95E236DD1AD526DF00076008 /* Info.plist */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		95EB7AAD1AE777F90066369B /* lipo */ = {
@@ -536,12 +495,13 @@
 				95A130370608F92F00D8E30C /* Sources */,
 				95A1303E0608F92F00D8E30C /* Frameworks */,
 				95337A221B09EB4200303823 /* Copy Frameworks */,
-				95E236EA1AD526DF00076008 /* Embed XPC Services */,
+				95E236F51AD5331300076008 /* Embed Helper */,
+				4D0C414C0000000000000006 /* Copy LaunchDaemon Plist */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				95E236E51AD526DF00076008 /* PBXTargetDependency */,
+				4D0C414C0000000000000007 /* PBXTargetDependency */,
 				4106CDBAA0BB1DF3BAB41469 /* PBXTargetDependency */,
 			);
 			name = Monolingual;
@@ -572,29 +532,6 @@
 			productName = Helper;
 			productReference = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */;
 			productType = "com.apple.product-type.tool";
-		};
-		95E236D91AD526DF00076008 /* XPCService */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 95E236E91AD526DF00076008 /* Build configuration list for PBXNativeTarget "XPCService" */;
-			buildPhases = (
-				95E236D61AD526DF00076008 /* Sources */,
-				95E236D71AD526DF00076008 /* Frameworks */,
-				95E236D81AD526DF00076008 /* Resources */,
-				95E236F51AD5331300076008 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				95E236F41AD532E400076008 /* PBXTargetDependency */,
-				AA5F3CC0C409C55DA7E60CC4 /* PBXTargetDependency */,
-			);
-			name = XPCService;
-			packageProductDependencies = (
-				95FCE24222CD355D008A55D3 /* SMJobKit */,
-			);
-			productName = XPCService;
-			productReference = 95E236DA1AD526DF00076008 /* Monolingual.xpc */;
-			productType = "com.apple.product-type.xpc-service";
 		};
 		BDD9E8E053EFDA48FE590D82 /* HelperShared */ = {
 			isa = PBXNativeTarget;
@@ -658,12 +595,6 @@
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 					};
-					95E236D91AD526DF00076008 = {
-						CreatedOnToolsVersion = 6.3;
-						DevelopmentTeam = ADVP2P7SJK;
-						LastSwiftMigration = 1020;
-						ProvisioningStyle = Manual;
-					};
 					95EB7AAB1AE777F90066369B = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = ADVP2P7SJK;
@@ -695,7 +626,6 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			packageReferences = (
-				95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */,
 				958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				954BF65E2779F6BE003DE633 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
@@ -705,7 +635,6 @@
 			targets = (
 				95A130250608F92F00D8E30C /* Monolingual */,
 				95C3C95F0610144300D417BC /* Helper */,
-				95E236D91AD526DF00076008 /* XPCService */,
 				2DDF1FA6351F0EE7A6268412 /* LipoCore */,
 				BDD9E8E053EFDA48FE590D82 /* HelperShared */,
 				9552639B1AE67351001AD4F3 /* Helper Tests */,
@@ -729,14 +658,6 @@
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
 				95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */,
 				95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		95E236D81AD526DF00076008 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				95CD5C3E1ADAF765009DBCD0 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -779,7 +700,7 @@
 				950ED2731976AAB600BAC239 /* Root.swift in Sources */,
 				95EEC9AE2702693E00F4EF51 /* MainView.swift in Sources */,
 				951A52DE270114B000EE757C /* ProgressView.swift in Sources */,
-				95E236ED1AD526F700076008 /* XPCServiceProtocol.swift in Sources */,
+				4D0C414C0000000000000009 /* HelperInstaller.swift in Sources */,
 				950D908A277DF88E00478D6C /* HelperTask.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -789,17 +710,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				95355AD31AD7F31200872850 /* main.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		95E236D61AD526DF00076008 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				95E236F71AD5356B00076008 /* MonolingualHelperClient.swift in Sources */,
-				95E236EE1AD526F700076008 /* XPCServiceProtocol.swift in Sources */,
-				95E236F21AD52C7100076008 /* main.swift in Sources */,
-				95E236F01AD52C0E00076008 /* XPCService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -834,16 +744,6 @@
 			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
 			targetProxy = 6BE1CF29155390C7614A154A /* PBXContainerItemProxy */;
 		};
-		95E236E51AD526DF00076008 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 95E236D91AD526DF00076008 /* XPCService */;
-			targetProxy = 95E236E41AD526DF00076008 /* PBXContainerItemProxy */;
-		};
-		95E236F41AD532E400076008 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 95C3C95F0610144300D417BC /* Helper */;
-			targetProxy = 95E236F31AD532E400076008 /* PBXContainerItemProxy */;
-		};
 		AA5F3CC0C409C55DA7E60CC4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = HelperShared;
@@ -873,6 +773,12 @@
 			name = LipoCore;
 			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
 			targetProxy = 4D0C414C0000000000000004 /* PBXContainerItemProxy */;
+		};
+		4D0C414C0000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Helper;
+			target = 95C3C95F0610144300D417BC /* Helper */;
+			targetProxy = 4D0C414C0000000000000008 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1013,10 +919,6 @@
 					__TEXT,
 					__info_plist,
 					"Helper/Sources/MonolingualHelper-Info.plist",
-					"-sectcreate",
-					__TEXT,
-					__launchd_plist,
-					"Helper/Sources/MonolingualHelper-launchd.plist",
 					"$(inherited)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.Helper;
@@ -1050,10 +952,6 @@
 					__TEXT,
 					__info_plist,
 					"Helper/Sources/MonolingualHelper-Info.plist",
-					"-sectcreate",
-					__TEXT,
-					__launchd_plist,
-					"Helper/Sources/MonolingualHelper-launchd.plist",
 					"$(inherited)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.Helper;
@@ -1267,107 +1165,6 @@
 			};
 			name = Release;
 		};
-		95E236E71AD526DF00076008 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = ADVP2P7SJK;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = XPCService/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-					"@loader_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.XPCService;
-				PRODUCT_MODULE_NAME = XPCService;
-				PRODUCT_NAME = Monolingual;
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = singlefile;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
-			};
-			name = Debug;
-		};
-		95E236E81AD526DF00076008 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = ADVP2P7SJK;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = XPCService/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-					"@loader_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.XPCService;
-				PRODUCT_MODULE_NAME = XPCService;
-				PRODUCT_NAME = Monolingual;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 6.0;
-			};
-			name = Release;
-		};
 		D9656C5E6AD8ADA19D049090 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1441,15 +1238,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		95E236E91AD526DF00076008 /* Build configuration list for PBXNativeTarget "XPCService" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				95E236E71AD526DF00076008 /* Debug */,
-				95E236E81AD526DF00076008 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		D175D2B38BD6BFC461A1FA4B /* Build configuration list for PBXNativeTarget "LipoCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1487,14 +1275,6 @@
 				minimumVersion = 0.1.0;
 			};
 		};
-		95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/IngmarStein/SMJobKit.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.21;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1507,11 +1287,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
 			productName = ArgumentParser;
-		};
-		95FCE24222CD355D008A55D3 /* SMJobKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 95FCE24122CD355D008A55D3 /* XCRemoteSwiftPackageReference "SMJobKit" */;
-			productName = SMJobKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

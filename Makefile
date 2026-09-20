@@ -25,8 +25,9 @@ clean:
 release: clean deployment
 	# Check code signature
 	codesign -vvv --deep --strict $(BUILD_DIR)/Monolingual.app
-	# Check SMJobBless code signing setup
-	./SMJobBlessUtil.py check $(BUILD_DIR)/Monolingual.app/Contents/XPCServices/Monolingual.xpc
+	# Check the launch daemon that registers the privileged helper
+	test -f $(BUILD_DIR)/Monolingual.app/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist
+	test -x $(BUILD_DIR)/Monolingual.app/Contents/MacOS/com.github.IngmarStein.Monolingual.Helper
 	# Check app against Gatekeeper system policies
 	spctl --assess --type execute -vv $(BUILD_DIR)/Monolingual.app
 	mkdir -p $(RELEASE_DIR)/build

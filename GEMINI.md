@@ -1,7 +1,7 @@
 # Monolingual Project Context
 
 ## Project Overview
-Monolingual is a macOS utility for removing unnecessary language localization files to reclaim disk space. It is written in Swift and utilizes a modular architecture involving a sandboxed main application, an XPC service, and a privileged helper tool.
+Monolingual is a macOS utility for removing unnecessary language localization files to reclaim disk space. It is written in Swift and utilizes a modular architecture involving a sandboxed main application and a privileged helper tool.
 
 ### Key Technologies
 - **Language:** Swift 5.5
@@ -10,10 +10,9 @@ Monolingual is a macOS utility for removing unnecessary language localization fi
 - **Dependency Management:** Swift Package Manager (SPM), Bundler (for Fastlane)
 
 ## Architecture
-The application is composed of three main components:
-1.  **Monolingual App (Sandboxed):** The user-facing application (Sources: `Sources/`, `Monolingual/`).
-2.  **XPC Service:** Handles communication between the app and the helper (Sources: `XPCService/`).
-3.  **Privileged Helper:** Performs operations requiring elevated privileges, such as file deletion (Sources: `Helper/`).
+The application is composed of two main components:
+1.  **Monolingual App (Sandboxed):** The user-facing application (Sources: `Sources/`). It registers the helper as a launch daemon with `SMAppService` and talks to it directly over XPC.
+2.  **Privileged Helper:** Performs operations requiring elevated privileges, such as file deletion (Sources: `Helper/`). It is an executable inside the app bundle (`Contents/MacOS`), together with its launchd property list in `Contents/Library/LaunchDaemons`.
 
 ## Build & Development
 
@@ -32,12 +31,12 @@ The application is composed of three main components:
 ## Key Directories & Files
 - `Sources/`: Main application source code.
 - `Helper/`: Source code for the privileged helper tool.
-- `XPCService/`: Source code for the XPC service.
 - `lipo/`: Source code for the custom `lipo` tool used for architecture stripping.
 - `fastlane/`: Build automation configuration (using Fastlane Swift).
 - `Makefile`: Entry points for build and release automation.
 - `Package.swift`: Swift Package Manager definition for dependencies.
 
 ## Notes
-- The project uses `SMJobBless` for installing the privileged helper.
-- `SMJobBlessUtil.py` is used to verify the code signing requirements for the helper tool.
+- The privileged helper is registered with `SMAppService` (macOS 13+). An administrator has to allow it in System Settings › General › Login Items & Extensions before it can run.
+- Helpers installed by Monolingual 1.9.0 and earlier (SMJobBless based) are removed on first launch.
+- The helper validates its XPC peers itself, since launchd no longer restricts access to the daemon's Mach service.
