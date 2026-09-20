@@ -23,7 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-26') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'xcode-27') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
       actions: read
@@ -31,7 +31,7 @@ jobs:
       security-events: write
     
     env:
-      DEVELOPER_DIR: ${{ (matrix.language == 'swift' && '/Applications/Xcode_26.2.app/Contents/Developer') || '' }}
+      DEVELOPER_DIR: ${{ (matrix.language == 'swift' && '/Applications/Xcode_27.0.app/Contents/Developer') || '' }}
 
     strategy:
       fail-fast: false
