@@ -14,7 +14,7 @@ CODESIGN_IDENTITY='Developer ID Application: Ingmar Stein (ADVP2P7SJK)'
 all: deployment
 
 development: clean
-	bundle exec fastlane debug
+	bundle exec fastlane build_debug
 
 deployment: clean
 	bundle exec fastlane release
@@ -38,7 +38,7 @@ release: clean deployment
 	ln -s /Applications $(RELEASE_DIR)/build
 	./make-diskimage.sh $(BUILD_DIR)/Monolingual.dmg $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
 	# Notarize app and disk image
-	bundle exec fastlane notarize
+	bundle exec fastlane notarize_artifacts
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.app
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.dmg
 	# Verify DMG code signature

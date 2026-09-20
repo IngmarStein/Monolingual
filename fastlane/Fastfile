@@ -20,24 +20,47 @@ platform :mac do
 
   desc "Build a new beta version with debug information"
   lane :build_debug do
-    build_app(
-      project: "Monolingual.xcodeproj",
-      scheme: "Monolingual",
-      output_directory: "./build",
-      configuration: "Debug"
-    )
+    archive_and_copy(configuration: "Debug")
   end
 
   desc "Build a new release version"
   lane :release do
-    build_app(
-      project: "Monolingual.xcodeproj",
-      scheme: "Monolingual",
-      clean: true,
-      output_directory: "./build",
-      configuration: "Release",
-      export_method: "developer-id"
-    )
+    archive_and_copy(configuration: "Release")
+  end
+
+  # Xcode 27 rejects -exportArchive for Monolingual ("exportOptionsPlist error for key
+  # \"method\" expected one {}": no distribution method is eligible), and fastlane's
+  # build_app always exports. The app is signed with the Developer ID identity and the
+  # hardened runtime while it is built, which is what notarization requires, so the
+  # archive is built with xcodebuild and the app is taken straight out of it.
+  private_lane :archive_and_copy do |options|
+    configuration = options[:configuration]
+    root = File.expand_path("..", __dir__)
+    archive_path = File.join(root, "build/Monolingual.xcarchive")
+    derived_data_path = File.join(root, "build/DerivedData")
+    output_directory = File.join(root, "build")
+
+    FileUtils.rm_rf(archive_path)
+    sh("xcodebuild archive" \
+       " -project #{root}/Monolingual.xcodeproj" \
+       " -scheme Monolingual" \
+       " -configuration #{configuration}" \
+       " -destination platform=macOS" \
+       " -derivedDataPath #{derived_data_path}" \
+       " -archivePath #{archive_path}")
+
+    app = File.join(archive_path, "Products/Applications/Monolingual.app")
+    dsym = File.join(archive_path, "dSYMs/Monolingual.app.dSYM")
+    UI.user_error!("No app in #{archive_path}") unless File.exist?(app)
+
+    FileUtils.rm_rf(File.join(output_directory, "Monolingual.app"))
+    FileUtils.rm_rf(File.join(output_directory, "Monolingual.app.dSYM"))
+    FileUtils.rm_rf(File.join(output_directory, "Monolingual.app.dSYM.zip"))
+    FileUtils.cp_r(app, output_directory)
+    if File.exist?(dsym)
+      FileUtils.cp_r(dsym, output_directory)
+      sh("ditto -c -k --keepParent #{output_directory}/Monolingual.app.dSYM #{output_directory}/Monolingual.app.dSYM.zip")
+    end
   end
 
   desc "Notarize the app and DMG"
