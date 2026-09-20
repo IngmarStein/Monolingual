@@ -68,7 +68,7 @@ struct PreferencesView: View {
 				roots = Root.defaultRoots
 			}
 		}
-		.onChange(of: roots) { newRoots in
+		.onChange(of: roots) { _, newRoots in
 			let dicts = newRoots.map { root in
 				["Path": root.path, "Languages": root.languages, "Architectures": root.architectures]
 			}
