@@ -75,7 +75,7 @@ struct PreferencesView: View {
 			} else {
 				roots = Root.defaultRoots
 			}
-			DispatchQueue.main.async {
+			Task { @MainActor in
 				SettingsWindowAdjuster.adjust()
 			}
 		}
@@ -99,6 +99,7 @@ struct PreferencesView: View {
 /// make the window resizable and drop the app name from its title, keeping whatever
 /// localization the system used.
 enum SettingsWindowAdjuster {
+	@MainActor
 	static func adjust() {
 		let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
 			?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
