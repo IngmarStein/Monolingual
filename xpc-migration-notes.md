@@ -43,6 +43,22 @@ let endpoint = dictionary["progress"].map { XPCEndpoint($0) }   // xpc_object_t 
 `.reply(_:)` are available on the session-accept form, `expectsReply`/`isSync` tell you whether a
 reply is wanted. A client applies its own requirement with `XPCSession.setPeerRequirement(_:)`.
 
+## Progress reporting (smaller than it looks)
+
+`HelperContext` already reports progress explicitly rather than relying on cross-process
+`Progress`: `reportProgress(url:size:)` updates its local `Progress` *and* calls
+`remoteProgress?.processed(file:size:appName:)` on the old `ProgressProtocol` callback. So the
+change is one property and one call site:
+
+- replace `var remoteProgress: ProgressProtocol?` with a closure, e.g.
+  `var reportToClient: ((HelperReply) -> Void)?`, called with `HelperReply.progress(file:size:appName:)`
+- the helper sets that closure to send on the endpoint session
+- **keep** the local `Progress` bookkeeping: `HelperTests` assert on the progress returned by
+  `process(request:progress:reply:)` (`fileCompletedCount`, `totalUnitCount`), so dropping it would
+  break working tests for no reason
+
+`process` then takes `report:` instead of `progress:` (the tests pass `nil`).
+
 ## What is left
 
 1. `Helper.swift`: create the `XPCListener` in `run()` with the requirement, handle messages on a
