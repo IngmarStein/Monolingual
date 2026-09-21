@@ -68,12 +68,14 @@ struct PreferencesView: View {
 			Toggle("Strip debug info when removing architectures", isOn: $strip)
 		}
 		.padding()
-		.background(WindowTitleAdjuster())
 		.onAppear {
 			if let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String: Any]] {
 				roots = pref.map { Root(dictionary: $0) }
 			} else {
 				roots = Root.defaultRoots
+			}
+			DispatchQueue.main.async {
+				WindowTitleAdjuster.dropAppNameFromWindowTitles()
 			}
 		}
 		.onChange(of: roots) { _, newRoots in
@@ -94,20 +96,16 @@ struct PreferencesView: View {
 /// The Settings scene titles its window "<app name>-<Settings>", for example
 /// "Monolingual-Einstellungen". Drop the app name so the window just says "Settings",
 /// keeping whatever localization the system used.
-private struct WindowTitleAdjuster: NSViewRepresentable {
-	func makeNSView(context: Context) -> NSView {
-		NSView()
-	}
-
-	func updateNSView(_ view: NSView, context: Context) {
-		DispatchQueue.main.async {
-			guard let window = view.window else { return }
-			let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
-				?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
-				?? ""
-			for separator in ["-", " "] where !name.isEmpty && window.title.hasPrefix(name + separator) {
+enum WindowTitleAdjuster {
+	static func dropAppNameFromWindowTitles() {
+		let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+			?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+			?? ""
+		guard !name.isEmpty else { return }
+		for window in NSApp.windows {
+			for separator in ["-", " "] where window.title.hasPrefix(name + separator) {
 				window.title = String(window.title.dropFirst(name.count + separator.count))
-				return
+				break
 			}
 		}
 	}
