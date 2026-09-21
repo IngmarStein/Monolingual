@@ -11,7 +11,10 @@
 		272CECED81A1C7EBF7F5639F /* lipo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EB7AA51AE6E52B0066369B /* lipo.swift */; };
 		28D49276ECE073E0C202210C /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
 		31517E9714BA38FE7CC854A3 /* HelperRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD81AD7F5C500872850 /* HelperRequest.swift */; };
+		4D0C414C0000000000000005 /* Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist in Copy LaunchDaemon Plist */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist */; };
+		4D0C414C0000000000000009 /* HelperInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0C414C000000000000000A /* HelperInstaller.swift */; };
 		7D7BCD5C66589B1085308738 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADF1AD806DD00872850 /* Helper.swift */; };
+		91AD1EDA859DF4FD0498B744 /* libLipoCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */; };
 		950D908A277DF88E00478D6C /* HelperTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950D9089277DF88E00478D6C /* HelperTask.swift */; };
 		950ED26C1976AA6400BAC239 /* LanguageSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26B1976AA6400BAC239 /* LanguageSetting.swift */; };
 		950ED26E1976AA6D00BAC239 /* BlocklistEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950ED26D1976AA6D00BAC239 /* BlocklistEntry.swift */; };
@@ -22,6 +25,7 @@
 		9540AC1A26F7C0B400368CC8 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9540AC1926F7C0B400368CC8 /* PreferencesView.swift */; };
 		954BF6602779F6BE003DE633 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 954BF65F2779F6BE003DE633 /* Sparkle */; };
 		954BF661277BB5D7003DE633 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE219741A540092C744 /* AppDelegate.swift */; };
+		955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955263A01AE67351001AD4F3 /* Helper_Tests.swift */; };
 		95527CE519741A930092C744 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95527CE419741A930092C744 /* Log.swift */; };
 		9558F7900615953200F6DE23 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 9558F78F0615953200F6DE23 /* Credits.html */; };
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
@@ -34,62 +38,30 @@
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
 		95C2E0342708FCF600ED1D38 /* MonolingualApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C2E0332708FCF600ED1D38 /* MonolingualApp.swift */; };
 		95C2E0362708FF6500ED1D38 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C2E0352708FF6500ED1D38 /* HelpCommands.swift */; };
+		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; };
+		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; };
+		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
 		95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in Embed Helper */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		4D0C414C0000000000000005 /* com.github.IngmarStein.Monolingual.Helper.plist in Copy LaunchDaemon Plist */ = {isa = PBXBuildFile; fileRef = 9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.Helper.plist */; };
 		95EDCC88062C4264007229A3 /* LisezMoi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95EDCC87062C4264007229A3 /* LisezMoi.rtfd */; };
 		95EEC9AE2702693E00F4EF51 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95EEC9AD2702693E00F4EF51 /* MainView.swift */; };
 		9FF99BB35FE3428B0C9C5B49 /* libLipoCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */; };
 		A4EF1791FED76A1A2E24F76E /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
+		C4622BCC1384C2654165FC6D /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
 		D197DF9BA4D742A5C6624754 /* HelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355AD41AD7F50200872850 /* HelperProtocol.swift */; };
 		D301E54D216C35285B4772C8 /* HelperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95355ADD1AD7FAF900872850 /* HelperContext.swift */; };
-		C4622BCC1384C2654165FC6D /* libHelperShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E64F8749F1B938AA9F67C717 /* libHelperShared.a */; };
-		91AD1EDA859DF4FD0498B744 /* libLipoCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */; };
-		955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955263A01AE67351001AD4F3 /* Helper_Tests.swift */; };
-		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; };
-		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; };
-		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; };
-		4D0C414C0000000000000009 /* HelperInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0C414C000000000000000A /* HelperInstaller.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		361C379273C710CB778EDB45 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BDD9E8E053EFDA48FE590D82;
-			remoteInfo = HelperShared;
-		};
-		653C315ECA95DECABBCAFF81 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BDD9E8E053EFDA48FE590D82;
-			remoteInfo = HelperShared;
-		};
-		6BE1CF29155390C7614A154A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2DDF1FA6351F0EE7A6268412;
-			remoteInfo = LipoCore;
-		};
-		BB2613C045DFB4466202FCBB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BDD9E8E053EFDA48FE590D82;
-			remoteInfo = HelperShared;
-		};
-		D06F4041903477200563DCDD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2DDF1FA6351F0EE7A6268412;
-			remoteInfo = LipoCore;
-		};
 		1F46AC0805582ECF6118472C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BDD9E8E053EFDA48FE590D82;
+			remoteInfo = HelperShared;
+		};
+		361C379273C710CB778EDB45 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
@@ -110,9 +82,41 @@
 			remoteGlobalIDString = 95C3C95F0610144300D417BC;
 			remoteInfo = Helper;
 		};
+		653C315ECA95DECABBCAFF81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BDD9E8E053EFDA48FE590D82;
+			remoteInfo = HelperShared;
+		};
+		6BE1CF29155390C7614A154A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2DDF1FA6351F0EE7A6268412;
+			remoteInfo = LipoCore;
+		};
+		D06F4041903477200563DCDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2DDF1FA6351F0EE7A6268412;
+			remoteInfo = LipoCore;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4D0C414C0000000000000006 /* Copy LaunchDaemon Plist */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LaunchDaemons;
+			dstSubfolderSpec = 1;
+			files = (
+				4D0C414C0000000000000005 /* Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist in Copy LaunchDaemon Plist */,
+			);
+			name = "Copy LaunchDaemon Plist";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95337A221B09EB4200303823 /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -134,22 +138,12 @@
 			name = "Embed Helper";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4D0C414C0000000000000006 /* Copy LaunchDaemon Plist */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Contents/Library/LaunchDaemons;
-			dstSubfolderSpec = 1;
-			files = (
-				4D0C414C0000000000000005 /* com.github.IngmarStein.Monolingual.Helper.plist in Copy LaunchDaemon Plist */,
-			);
-			name = "Copy LaunchDaemon Plist";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = English; path = Resources/en.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		2BCD7FCA097D043900FE7723 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Italian; path = Resources/it.lproj/Credits.html; sourceTree = "<group>"; };
+		4D0C414C000000000000000A /* HelperInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelperInstaller.swift; path = Sources/HelperInstaller.swift; sourceTree = "<group>"; };
 		86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libLipoCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		950217331AD16E7600907A24 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = ro; path = Resources/ro.lproj/Credits.html; sourceTree = "<group>"; };
 		950217341AD16F8D00907A24 /* ro */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = ro; path = Resources/ro.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -185,7 +179,7 @@
 		95852A7D1119CD8F00B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		95852A7F1119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Spanish; path = Resources/es.lproj/Credits.html; sourceTree = "<group>"; };
 		95852A801119CDA400B54346 /* Spanish */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = Spanish; path = Resources/es.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.PrivilegedHelper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist"; sourceTree = "<group>"; };
+		9589976715CAB932008A2593 /* Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist; sourceTree = "<group>"; };
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-Info.plist"; path = "Helper/Sources/MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		95955DF81A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = hr; path = Resources/hr.lproj/Credits.html; sourceTree = "<group>"; };
 		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
@@ -241,7 +235,6 @@
 		F6E6809E1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = nl; path = Resources/nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F6E6809F1AC22DFE00A5CBD8 /* nl */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = nl; path = Resources/nl.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		F6E680A01AC22DFF00A5CBD8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = nl; path = Resources/nl.lproj/Credits.html; sourceTree = "<group>"; };
-		4D0C414C000000000000000A /* HelperInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelperInstaller.swift; path = Sources/HelperInstaller.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -250,6 +243,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				230062EBFEA5445221ADB7EC /* libLipoCore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		955263991AE67351001AD4F3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4622BCC1384C2654165FC6D /* libHelperShared.a in Frameworks */,
+				91AD1EDA859DF4FD0498B744 /* libLipoCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,15 +278,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		955263991AE67351001AD4F3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C4622BCC1384C2654165FC6D /* libHelperShared.a in Frameworks */,
-				91AD1EDA859DF4FD0498B744 /* libLipoCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,7 +309,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA = {
+		29B97314FDCFA39411CA2CEA /* Monolingual */ = {
 			isa = PBXGroup;
 			children = (
 				080E96DDFE201D6D7F000001 /* Sources */,
@@ -386,7 +379,7 @@
 				95355AD81AD7F5C500872850 /* HelperRequest.swift */,
 				95355AD21AD7F31200872850 /* main.swift */,
 				9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */,
-				9589976715CAB932008A2593 /* com.github.IngmarStein.Monolingual.PrivilegedHelper.plist */,
+				9589976715CAB932008A2593 /* Helper/Sources/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -478,6 +471,25 @@
 			productReference = 86E914EED0B9E5E7CBDAE99F /* libLipoCore.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		9552639B1AE67351001AD4F3 /* Helper Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 955263A41AE67351001AD4F3 /* Build configuration list for PBXNativeTarget "Helper Tests" */;
+			buildPhases = (
+				955263981AE67351001AD4F3 /* Sources */,
+				955263991AE67351001AD4F3 /* Frameworks */,
+				9552639A1AE67351001AD4F3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BDE2282BCB7FFDE544386C1F /* PBXTargetDependency */,
+				4D0C414C0000000000000003 /* PBXTargetDependency */,
+			);
+			name = "Helper Tests";
+			productName = "Helper Tests";
+			productReference = 9552639C1AE67351001AD4F3 /* Helper Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		95A130250608F92F00D8E30C /* Monolingual */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 95AAF5640856C2DC007CEE36 /* Build configuration list for PBXNativeTarget "Monolingual" */;
@@ -542,25 +554,6 @@
 			productReference = E64F8749F1B938AA9F67C717 /* libHelperShared.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		9552639B1AE67351001AD4F3 /* Helper Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 955263A41AE67351001AD4F3 /* Build configuration list for PBXNativeTarget "Helper Tests" */;
-			buildPhases = (
-				955263981AE67351001AD4F3 /* Sources */,
-				955263991AE67351001AD4F3 /* Frameworks */,
-				9552639A1AE67351001AD4F3 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BDE2282BCB7FFDE544386C1F /* PBXTargetDependency */,
-				4D0C414C0000000000000003 /* PBXTargetDependency */,
-			);
-			name = "Helper Tests";
-			productName = "Helper Tests";
-			productReference = 9552639C1AE67351001AD4F3 /* Helper Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -584,11 +577,6 @@
 					95C3C95F0610144300D417BC = {
 						DevelopmentTeam = ADVP2P7SJK;
 						LastSwiftMigration = 1020;
-						ProvisioningStyle = Manual;
-					};
-					95EB7AAB1AE777F90066369B = {
-						CreatedOnToolsVersion = 6.3.1;
-						DevelopmentTeam = ADVP2P7SJK;
 						ProvisioningStyle = Manual;
 					};
 				};
@@ -615,7 +603,7 @@
 				ru,
 				sk,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* Monolingual */;
 			packageReferences = (
 				958FCAA624099C2F00048708 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				954BF65E2779F6BE003DE633 /* XCRemoteSwiftPackageReference "Sparkle" */,
@@ -634,6 +622,16 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9552639A1AE67351001AD4F3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95CA05381B93680E000ABDCE /* hello1 in Resources */,
+				95CA05391B93680E000ABDCE /* hello2 in Resources */,
+				95CA053A1B93680E000ABDCE /* hello3 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		95A1302C0608F92F00D8E30C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -652,16 +650,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9552639A1AE67351001AD4F3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				95CA05381B93680E000ABDCE /* hello1 in Resources */,
-				95CA05391B93680E000ABDCE /* hello2 in Resources */,
-				95CA053A1B93680E000ABDCE /* hello3 in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -673,6 +661,14 @@
 				31517E9714BA38FE7CC854A3 /* HelperRequest.swift in Sources */,
 				7D7BCD5C66589B1085308738 /* Helper.swift in Sources */,
 				D301E54D216C35285B4772C8 /* HelperContext.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		955263981AE67351001AD4F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -712,14 +708,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		955263981AE67351001AD4F3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				955263A11AE67351001AD4F3 /* Helper_Tests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -728,36 +716,6 @@
 			name = HelperShared;
 			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
 			targetProxy = 361C379273C710CB778EDB45 /* PBXContainerItemProxy */;
-		};
-		5BBCC54D783905ED0B031A05 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = LipoCore;
-			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
-			targetProxy = 6BE1CF29155390C7614A154A /* PBXContainerItemProxy */;
-		};
-		AA5F3CC0C409C55DA7E60CC4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = HelperShared;
-			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
-			targetProxy = BB2613C045DFB4466202FCBB /* PBXContainerItemProxy */;
-		};
-		CEFE2056A53CD2FB6DA8D2A9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = HelperShared;
-			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
-			targetProxy = 653C315ECA95DECABBCAFF81 /* PBXContainerItemProxy */;
-		};
-		E4B90D5DBFE5806C1C442E18 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = LipoCore;
-			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
-			targetProxy = D06F4041903477200563DCDD /* PBXContainerItemProxy */;
-		};
-		BDE2282BCB7FFDE544386C1F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = HelperShared;
-			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
-			targetProxy = 1F46AC0805582ECF6118472C /* PBXContainerItemProxy */;
 		};
 		4D0C414C0000000000000003 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -770,6 +728,30 @@
 			name = Helper;
 			target = 95C3C95F0610144300D417BC /* Helper */;
 			targetProxy = 4D0C414C0000000000000008 /* PBXContainerItemProxy */;
+		};
+		5BBCC54D783905ED0B031A05 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LipoCore;
+			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
+			targetProxy = 6BE1CF29155390C7614A154A /* PBXContainerItemProxy */;
+		};
+		BDE2282BCB7FFDE544386C1F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HelperShared;
+			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
+			targetProxy = 1F46AC0805582ECF6118472C /* PBXContainerItemProxy */;
+		};
+		CEFE2056A53CD2FB6DA8D2A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HelperShared;
+			target = BDD9E8E053EFDA48FE590D82 /* HelperShared */;
+			targetProxy = 653C315ECA95DECABBCAFF81 /* PBXContainerItemProxy */;
+		};
+		E4B90D5DBFE5806C1C442E18 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LipoCore;
+			target = 2DDF1FA6351F0EE7A6268412 /* LipoCore */;
+			targetProxy = D06F4041903477200563DCDD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -888,6 +870,30 @@
 			};
 			name = Release;
 		};
+		955263A21AE67351001AD4F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = Helper/Tests/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.HelperTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		955263A31AE67351001AD4F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = Helper/Tests/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.HelperTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
 		95AAF5610856C2DC007CEE36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -979,7 +985,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual;
 				PRODUCT_NAME = Monolingual;
 				SWIFT_COMPILATION_MODE = singlefile;
@@ -1016,7 +1022,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual;
 				PRODUCT_NAME = Monolingual;
 				SWIFT_VERSION = 6.0;
@@ -1028,7 +1034,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
+				EXCLUDED_ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1092,7 +1098,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
+				EXCLUDED_ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1164,30 +1170,6 @@
 			};
 			name = Release;
 		};
-		955263A21AE67351001AD4F3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				INFOPLIST_FILE = "Helper/Tests/Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.HelperTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = singlefile;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
-			};
-			name = Debug;
-		};
-		955263A31AE67351001AD4F3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				INFOPLIST_FILE = "Helper/Tests/Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.IngmarStein.Monolingual.HelperTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 6.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1196,6 +1178,15 @@
 			buildConfigurations = (
 				D9656C5E6AD8ADA19D049090 /* Release */,
 				0E632C2DD2E78CA83480732E /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		955263A41AE67351001AD4F3 /* Build configuration list for PBXNativeTarget "Helper Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				955263A21AE67351001AD4F3 /* Debug */,
+				955263A31AE67351001AD4F3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1232,15 +1223,6 @@
 			buildConfigurations = (
 				2ACC2EC7E53F54510C30E113 /* Release */,
 				23A7C55DF743A4452C174150 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		955263A41AE67351001AD4F3 /* Build configuration list for PBXNativeTarget "Helper Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				955263A21AE67351001AD4F3 /* Debug */,
-				955263A31AE67351001AD4F3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
