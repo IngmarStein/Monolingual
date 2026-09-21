@@ -20,19 +20,20 @@ struct PreferencesView: View {
 		VStack(alignment: .leading) {
 			GroupBox("Directories") {
 				Table(roots, selection: $selection, sortOrder: $sortOrder) {
-					TableColumn("Lang") { root in
+					TableColumn("Languages") { root in
 						if let i = roots.firstIndex(where: { $0.id == root.id }) {
 							Toggle(isOn: $roots[i].languages) {}.toggleStyle(.checkbox)
 						}
 					}
-					.width(48)
-					TableColumn("Arch") { root in
+					.width(min: 100, ideal: 110)
+					TableColumn("Architectures") { root in
 						if let i = roots.firstIndex(where: { $0.id == root.id }) {
 							Toggle(isOn: $roots[i].architectures) {}.toggleStyle(.checkbox)
 						}
 					}
-					.width(48)
+					.width(min: 120, ideal: 130)
 					TableColumn("Path", value: \.path)
+						.width(min: 220, ideal: 320)
 				}
 				// Enough room for the directories, and the table grows when the window is
 				// made larger instead of leaving empty rows below them.
@@ -75,7 +76,7 @@ struct PreferencesView: View {
 				roots = Root.defaultRoots
 			}
 			DispatchQueue.main.async {
-				WindowTitleAdjuster.dropAppNameFromWindowTitles()
+				SettingsWindowAdjuster.adjust()
 			}
 		}
 		.onChange(of: roots) { _, newRoots in
@@ -93,16 +94,20 @@ struct PreferencesView: View {
 	}
 }
 
-/// The Settings scene titles its window "<app name>-<Settings>", for example
-/// "Monolingual-Einstellungen". Drop the app name so the window just says "Settings",
-/// keeping whatever localization the system used.
-enum WindowTitleAdjuster {
-	static func dropAppNameFromWindowTitles() {
+/// The Settings scene gives its window a fixed size and titles it "<app name>-<Settings>",
+/// for example "Monolingual-Einstellungen". SwiftUI's own modifiers do not change that, so
+/// make the window resizable and drop the app name from its title, keeping whatever
+/// localization the system used.
+enum SettingsWindowAdjuster {
+	static func adjust() {
 		let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
 			?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
 			?? ""
-		guard !name.isEmpty else { return }
 		for window in NSApp.windows {
+			if !window.styleMask.contains(.resizable) {
+				window.styleMask.insert(.resizable)
+			}
+			guard !name.isEmpty else { continue }
 			for separator in ["-", " "] where window.title.hasPrefix(name + separator) {
 				window.title = String(window.title.dropFirst(name.count + separator.count))
 				break
