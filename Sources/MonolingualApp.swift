@@ -33,5 +33,7 @@ struct MonolingualApp: App {
 		Settings {
 			PreferencesView()
 		}
+		// The settings window starts at the size of its contents but can be resized.
+		.windowResizability(.contentMinSize)
 	}
 }

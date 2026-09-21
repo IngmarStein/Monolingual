@@ -351,6 +351,9 @@ struct MainView: View {
 						}
 					}
 				}
+				// The heading above already says what the single column is for, and the
+				// header row would just be a redundant bar.
+				.tableColumnHeaders(.hidden)
 				HStack {
 					Spacer()
 					Button("Remove …") {
@@ -396,6 +399,7 @@ struct MainView: View {
 						}
 					}
 				}
+				.tableColumnHeaders(.hidden)
 				HStack {
 					Text("Current architecture: \(currentArchitecture)")
 					Spacer()

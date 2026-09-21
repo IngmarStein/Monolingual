@@ -20,16 +20,23 @@ struct PreferencesView: View {
 		VStack(alignment: .leading) {
 			GroupBox("Directories") {
 				Table(roots, selection: $selection, sortOrder: $sortOrder) {
-					TableColumn("Languages") { root in
-						let i = roots.firstIndex(of: root)!
-						Toggle(isOn: $roots[i].languages) {}.toggleStyle(.checkbox)
-					}.width(20.0)
-					TableColumn("Architectures") { root in
-						let i = roots.firstIndex(of: root)!
-						Toggle(isOn: $roots[i].architectures) {}.toggleStyle(.checkbox)
-					}.width(20.0)
+					TableColumn("Lang") { root in
+						if let i = roots.firstIndex(where: { $0.id == root.id }) {
+							Toggle(isOn: $roots[i].languages) {}.toggleStyle(.checkbox)
+						}
+					}
+					.width(48)
+					TableColumn("Arch") { root in
+						if let i = roots.firstIndex(where: { $0.id == root.id }) {
+							Toggle(isOn: $roots[i].architectures) {}.toggleStyle(.checkbox)
+						}
+					}
+					.width(48)
 					TableColumn("Path", value: \.path)
 				}
+				// Enough room for the directories, and the table grows when the window is
+				// made larger instead of leaving empty rows below them.
+				.frame(minHeight: tableHeight, maxHeight: .infinity)
 				HStack {
 					Button("+") {
 						let oPanel = NSOpenPanel()
@@ -61,6 +68,7 @@ struct PreferencesView: View {
 			Toggle("Strip debug info when removing architectures", isOn: $strip)
 		}
 		.padding()
+		.background(WindowTitleAdjuster())
 		.onAppear {
 			if let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String: Any]] {
 				roots = pref.map { Root(dictionary: $0) }
@@ -73,6 +81,34 @@ struct PreferencesView: View {
 				["Path": root.path, "Languages": root.languages, "Architectures": root.architectures]
 			}
 			UserDefaults.standard.set(dicts, forKey: "Roots")
+		}
+	}
+
+	/// Minimum height of the table: the window is sized to the directories, but can be made
+	/// larger.
+	private var tableHeight: CGFloat {
+		min(CGFloat(roots.count) * 24 + 32, 240)
+	}
+}
+
+/// The Settings scene titles its window "<app name>-<Settings>", for example
+/// "Monolingual-Einstellungen". Drop the app name so the window just says "Settings",
+/// keeping whatever localization the system used.
+private struct WindowTitleAdjuster: NSViewRepresentable {
+	func makeNSView(context: Context) -> NSView {
+		NSView()
+	}
+
+	func updateNSView(_ view: NSView, context: Context) {
+		DispatchQueue.main.async {
+			guard let window = view.window else { return }
+			let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+				?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+				?? ""
+			for separator in ["-", " "] where !name.isEmpty && window.title.hasPrefix(name + separator) {
+				window.title = String(window.title.dropFirst(name.count + separator.count))
+				return
+			}
 		}
 	}
 }
