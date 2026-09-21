@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import XPC
 
 public extension ProgressUserInfoKey {
 	static let appName = ProgressUserInfoKey("MonolingualAppName")
 	static let sizeDifference = ProgressUserInfoKey("MonolingualSizeDifference")
 }
 
-/// Names and paths of the privileged helper, shared by the app and the helper itself.
+/// Names and identities of the privileged helper, shared by the app and the helper itself.
 public enum HelperService {
 	/// The Mach service the helper serves and the app connects to.
 	public static let machServiceName = "com.github.IngmarStein.Monolingual.PrivilegedHelper"
@@ -21,32 +22,53 @@ public enum HelperService {
 	/// Name of the launchd property list inside the app bundle.
 	public static let daemonPlistName = "com.github.IngmarStein.Monolingual.PrivilegedHelper.plist"
 
-	/// The Mach service served by helpers that older versions installed with SMJobBless.
+	/// The signing identifier of the app. XPC only accepts sessions from code that is signed by
+	/// the same team and carries this identifier.
+	public static let appSigningIdentifier = "com.github.IngmarStein.Monolingual"
+
+	/// The signing identifier of the helper.
+	public static let helperSigningIdentifier = "com.github.IngmarStein.Monolingual.Helper"
+
+	/// What the helper requires of its clients: the Monolingual app, signed by the same team.
 	///
-	/// It deliberately differs from `machServiceName`: a job left over in
-	/// `/Library/LaunchDaemons` keeps the Mach service of its own name, and launchd prefers it
-	/// over a daemon registered with SMAppService. Those helpers are only contacted once, to
-	/// remove them.
-	public static let legacyMachServiceName = "com.github.IngmarStein.Monolingual.Helper"
+	/// This replaces the pid-based check the `NSXPCConnection` version needed, and unlike that one
+	/// it is enforced by XPC itself, for every session, without a race.
+	public static var appPeerRequirement: XPCPeerRequirement {
+		.isFromSameTeam(andMatchesSigningIdentifier: appSigningIdentifier)
+	}
 
-	/// Files left behind by the SMJobBless based versions of Monolingual.
-	public static let legacyPaths = [
-		"/Library/PrivilegedHelperTools/\(legacyMachServiceName)",
-		"/Library/LaunchDaemons/\(legacyMachServiceName).plist"
-	]
+	/// What the app requires of the helper it talks to.
+	public static var helperPeerRequirement: XPCPeerRequirement {
+		.isFromSameTeam(andMatchesSigningIdentifier: helperSigningIdentifier)
+	}
 }
 
-@objc public protocol HelperProtocol {
-	func connect(_ reply: @escaping (NSXPCListenerEndpoint) -> Void)
-	func getVersion(_ reply: @escaping (String) -> Void)
-	func uninstall()
-	func exit(code: Int)
-	@discardableResult func process(request: HelperRequest, progress: ProgressProtocol?, reply: @escaping (Int) -> Void) -> Progress
+/// What the app asks the helper to do. Sent as JSON in an XPC dictionary.
+public enum HelperMessage: Codable, Sendable, Equatable {
+	/// Report the version of the app bundle the helper belongs to.
+	case version
+	/// Carry out a request; progress and the result arrive on the endpoint sent with it.
+	case process
+	case uninstall
+	case exit(Int)
 }
 
-// This shouldn't be necessary, but the cross-process Progress support seems to
-// be broken as of macOS 10.14.
-// See https://github.com/IngmarStein/Monolingual/issues/151
-@objc public protocol ProgressProtocol {
-	func processed(file: String, size: Int, appName: String?)
+/// What the helper sends back.
+public enum HelperReply: Codable, Sendable, Equatable {
+	case version(String)
+	case progress(file: String, size: Int, appName: String?)
+	case finished(exitCode: Int)
+	/// The request has been accepted; the result follows as a `finished` reply.
+	case accepted
+}
+
+/// Keys of the XPC dictionaries the two sides exchange.
+///
+/// A message travels as its JSON representation in `payload`, because XPC values and `Codable`
+/// values are different worlds: the endpoint for progress and results is an XPC value, so it goes
+/// in a key of its own.
+public enum HelperMessageKey {
+	public static let kind = "kind"
+	public static let payload = "payload"
+	public static let progress = "progress"
 }
