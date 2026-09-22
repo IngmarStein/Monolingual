@@ -26,7 +26,7 @@ release: clean deployment
 	# Check code signature
 	codesign -vvv --deep --strict $(BUILD_DIR)/Monolingual.app
 	# Check the launch daemon that registers the privileged helper
-	test -f $(BUILD_DIR)/Monolingual.app/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist
+	test -f $(BUILD_DIR)/Monolingual.app/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist
 	test -x $(BUILD_DIR)/Monolingual.app/Contents/MacOS/com.github.IngmarStein.Monolingual.Helper
 	# Check app against Gatekeeper system policies
 	spctl --assess --type execute -vv $(BUILD_DIR)/Monolingual.app

@@ -83,7 +83,7 @@ import HelperShared
 	}
 
 	func testRemoveLocalizations() {
-		let request = HelperRequest()
+		var request = HelperRequest()
 		request.dryRun = false
 		request.uid = getuid()
 		request.trash = false
@@ -95,7 +95,7 @@ import HelperShared
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		let progress = helper.process(request: request, progress: nil) { exitCode -> Void in
+		let progress = helper.process(request: request, report: nil) { exitCode -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -137,7 +137,7 @@ import HelperShared
 	}
 
 	func testRemoveArchitectures() {
-		let request = HelperRequest()
+		var request = HelperRequest()
 		request.dryRun = false
 		request.uid = getuid()
 		request.trash = false
@@ -156,7 +156,7 @@ import HelperShared
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		let progress = helper.process(request: request, progress: nil) { exitCode -> Void in
+		let progress = helper.process(request: request, report: nil) { exitCode -> Void in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -186,5 +186,81 @@ import HelperShared
 		XCTAssert(progress.completedUnitCount == Int64(20480), "should have removed 20480 bytes")
 		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] == nil, "should not have an app name")
 		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as! Int == 8192, "should have removed 8k bytes")
+	}
+
+	/// The app and the helper exchange messages as JSON payloads in an XPC dictionary, and the
+	/// helper reports progress and the result on an endpoint the app sends it. Reaching a
+	/// running daemon takes an administrator's approval, but the transport itself can be
+	/// exercised here, with a listener standing in for the app.
+	func testWireRoundTrip() throws {
+		var request = HelperRequest()
+		request.dryRun = true
+		request.trash = true
+		request.uid = 501
+		request.includes = ["/Applications", "/Library"]
+		request.excludes = ["/Library/Logs"]
+		request.directories = ["fr.lproj", "de.lproj"]
+		request.bundleBlocklist = ["com.test.blocked"]
+		request.thin = ["i386"]
+
+		let replies: NSLock = NSLock()
+		var received: [HelperReply] = []
+		var requests: [HelperMessage] = []
+		let reports = expectation(description: "progress, result and the request arrived")
+		reports.expectedFulfillmentCount = 5
+
+		let listener = XPCListener { incoming in
+			incoming.accept { (dictionary: XPCDictionary) -> XPCDictionary? in
+				if let reply = try? HelperWire.message(HelperReply.self, in: dictionary) {
+					replies.lock()
+					received.append(reply)
+					replies.unlock()
+					reports.fulfill()
+					return nil
+				}
+				if let message = try? HelperWire.message(HelperMessage.self, in: dictionary) {
+					replies.lock()
+					requests.append(message)
+					replies.unlock()
+					reports.fulfill()
+					return try? HelperWire.dictionary(for: HelperReply.accepted)
+				}
+				// An endpoint, which carries no message of its own.
+				reports.fulfill()
+				return nil
+			}
+		}
+
+		// What the helper does with the endpoint the app sends it.
+		let session = try XPCSession(endpoint: listener.endpoint)
+		defer { session.cancel(reason: "test finished") }
+
+		try session.send(message: HelperWire.dictionary(carrying: listener.endpoint))
+		try session.send(message: HelperWire.dictionary(for: HelperMessage.version))
+		try session.send(message: HelperWire.dictionary(for: HelperMessage.exit(0)))
+		try session.send(message: HelperWire.dictionary(for: HelperReply.progress(file: "/Applications/Foo.app/Contents/Resources/fr.lproj", size: 4096, appName: "Foo")))
+		try session.send(message: HelperWire.dictionary(for: HelperReply.finished(exitCode: 0)))
+
+		// The request is what the helper is asked to do, so it has to survive the trip whole.
+		let carried = try HelperWire.dictionary(for: HelperMessage.process(request))
+		let decoded = try HelperWire.message(HelperMessage.self, in: carried)
+		XCTAssertEqual(decoded, .process(request))
+
+		waitForExpectations(timeout: TimeInterval(5.0)) { error in
+			if let error = error {
+				XCTFail("Expectation failed with error: \(error)")
+			}
+		}
+
+		replies.lock()
+		let gotReplies = received
+		let gotRequests = requests
+		replies.unlock()
+
+		XCTAssertEqual(gotRequests, [.version, .exit(0)], "the messages the app sends should arrive")
+		XCTAssertEqual(gotReplies, [
+			.progress(file: "/Applications/Foo.app/Contents/Resources/fr.lproj", size: 4096, appName: "Foo"),
+			.finished(exitCode: 0)
+		], "the replies the helper sends should arrive")
 	}
 }

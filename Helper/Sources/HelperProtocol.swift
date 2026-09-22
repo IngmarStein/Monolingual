@@ -48,8 +48,8 @@ public enum HelperMessage: Codable, Sendable, Equatable {
 	/// Report the version of the app bundle the helper belongs to.
 	case version
 	/// Carry out a request; progress and the result arrive on the endpoint sent with it.
-	case process
-	case uninstall
+	case process(HelperRequest)
+	/// Stop the current request and exit with this status.
 	case exit(Int)
 }
 
@@ -63,12 +63,84 @@ public enum HelperReply: Codable, Sendable, Equatable {
 }
 
 /// Keys of the XPC dictionaries the two sides exchange.
-///
-/// A message travels as its JSON representation in `payload`, because XPC values and `Codable`
-/// values are different worlds: the endpoint for progress and results is an XPC value, so it goes
-/// in a key of its own.
 public enum HelperMessageKey {
-	public static let kind = "kind"
+	/// The message, as JSON.
 	public static let payload = "payload"
+	/// The endpoint the helper reports progress and the result on.
 	public static let progress = "progress"
+}
+
+/// A message that could not be read out of the dictionary it arrived in.
+public enum HelperWireError: LocalizedError {
+	/// The dictionary carried no message.
+	case missingPayload
+
+	public var errorDescription: String? {
+		switch self {
+		case .missingPayload:
+			"The XPC dictionary carried no payload."
+		}
+	}
+}
+
+/// Turns messages into the XPC dictionaries they travel in, and back.
+///
+/// The payload is JSON in `payload`, because XPC values and `Codable` values are different
+/// worlds: `XPCDictionary` has no accessor for `Data`, so the bytes go in and come out through
+/// the underlying C dictionary. The endpoint for progress and results is an XPC value, and
+/// `XPCSession.send` requires all values of a dictionary to have the same type — which is why
+/// `["payload": data, "progress": endpoint]` does not compile and the two travel as two
+/// messages.
+public enum HelperWire {
+	/// The dictionary a message travels in.
+	public static func dictionary(for message: some Encodable) throws -> XPCDictionary {
+		let dictionary = XPCDictionary()
+		dictionary.setData(try JSONEncoder().encode(message), forKey: HelperMessageKey.payload)
+		return dictionary
+	}
+
+	/// The dictionary an endpoint travels in.
+	public static func dictionary(carrying endpoint: XPCEndpoint) -> XPCDictionary {
+		var dictionary = XPCDictionary()
+		dictionary[HelperMessageKey.progress] = endpoint
+		return dictionary
+	}
+
+	/// The message carried in `dictionary`.
+	public static func message<T: Decodable>(_ type: T.Type = T.self, in dictionary: XPCDictionary) throws -> T {
+		guard let data = dictionary.data(forKey: HelperMessageKey.payload) else {
+			throw HelperWireError.missingPayload
+		}
+		return try JSONDecoder().decode(type, from: data)
+	}
+
+	/// The endpoint carried in `dictionary`, if this dictionary carries one.
+	public static func endpoint(in dictionary: XPCDictionary) -> XPCEndpoint? {
+		dictionary[HelperMessageKey.progress]
+	}
+}
+
+public extension XPCDictionary {
+	/// Stores `data` under `key`.
+	///
+	/// `XPCDictionary`'s subscript is typed for scalars, strings, dictionaries, arrays and
+	/// endpoints, but not for `Data`, so this reaches for the C call the subscript is built on.
+	func setData(_ data: Data, forKey key: String) {
+		withUnsafeUnderlyingDictionary { underlying in
+			data.withUnsafeBytes { bytes in
+				xpc_dictionary_set_data(underlying, key, bytes.baseAddress, bytes.count)
+			}
+		}
+	}
+
+	/// The data stored under `key`.
+	func data(forKey key: String) -> Data? {
+		withUnsafeUnderlyingDictionary { underlying in
+			var length = 0
+			guard let bytes = xpc_dictionary_get_data(underlying, key, &length) else {
+				return nil
+			}
+			return Data(bytes: bytes, count: length)
+		}
+	}
 }

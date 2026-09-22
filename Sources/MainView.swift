@@ -85,7 +85,7 @@ struct MainView: View {
 			// start things off if we have something to remove!
 			let roots = roots
 
-			let request = HelperRequest()
+			var request = HelperRequest()
 			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
 			request.bundleBlocklist = Set<String>(blocklist!.filter(\.architectures).map(\.bundle))
 			request.includes = roots.filter(\.architectures).map(\.path)
@@ -191,7 +191,7 @@ struct MainView: View {
 		if rCount > 0 {
 			// start things off if we have something to remove!
 
-			let request = HelperRequest()
+			var request = HelperRequest()
 			request.trash = UserDefaults.standard.bool(forKey: "Trash")
 			request.uid = getuid()
 			request.bundleBlocklist = Set<String>(bl)

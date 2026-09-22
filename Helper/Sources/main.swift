@@ -64,7 +64,7 @@ if options.version {
 if options.include.isEmpty {
 	helper.run()
 } else {
-	let request = HelperRequest()
+	var request = HelperRequest()
 	request.dryRun = options.dryRun
 	request.doStrip = options.strip
 	request.trash = options.trash
@@ -73,7 +73,7 @@ if options.include.isEmpty {
 	request.bundleBlocklist = Set<String>(options.bundle)
 	request.directories = Set<String>(options.delete)
 	request.thin = options.thin
-	helper.process(request: request, progress: nil) { result -> Void in
+	helper.process(request: request, report: nil) { result -> Void in
 		exit(Int32(result))
 	}
 	RunLoop.current.run()

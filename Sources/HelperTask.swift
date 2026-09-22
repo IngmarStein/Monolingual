@@ -10,17 +10,19 @@ import Foundation
 import AppKit
 import UserNotifications
 import OSLog
+import XPC
 #if canImport(HelperShared)
 import HelperShared
 #endif
 
 import Observation
 
-@MainActor @Observable class HelperTask: ProgressProtocol {
-	private var helperConnection: NSXPCConnection?
-	private var progress: Progress?
+@MainActor @Observable class HelperTask {
+	/// The session to the privileged helper.
+	private var session: XPCSession?
+	/// The listener the helper reports progress and the result on.
+	private var progressListener: XPCListener?
 	private var progressResetTimer: Timer?
-	private var progressObserverToken: NSKeyValueObservation?
 	private let logger = Logger()
 	private let installer = HelperInstaller()
 	var text = ""
@@ -49,37 +51,124 @@ import Observation
 				return
 			}
 
-			runHelper(arguments: arguments)
+			await runHelper(arguments: arguments)
 		}
 	}
 
-	/// Returns a proxy for the privileged helper, connecting to it if necessary.
-	private func connectToHelper() -> HelperProtocol? {
-		if helperConnection == nil {
-			let connection = NSXPCConnection(machServiceName: HelperService.machServiceName, options: .privileged)
-			let interface = NSXPCInterface(with: HelperProtocol.self)
-			interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(HelperProtocol.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
-			connection.remoteObjectInterface = interface
-			connection.invalidationHandler = {
-				self.logger.error("XPC connection to helper invalidated.")
-				self.helperConnection = nil
-			}
-			connection.resume()
-			helperConnection = connection
-		}
+	// MARK: - Talking to the helper
 
-		guard let helper = helperConnection?.remoteObjectProxyWithErrorHandler({ error in
-			self.logger.error("Error connecting to helper: \(error.localizedDescription, privacy: .public)")
-		}) as? HelperProtocol else {
-			logger.error("Helper does not conform to HelperProtocol")
+	/// Sends a message and waits for the helper's reply, or returns nil if it does not answer.
+	private func request(_ message: HelperMessage) async -> HelperReply? {
+		guard let session else {
 			return nil
 		}
 
-		return helper
+		do {
+			let reply: HelperReply = try await withCheckedThrowingContinuation { continuation in
+				do {
+					try session.send(message: HelperWire.dictionary(for: message)) { result in
+						switch result {
+						case let .success(dictionary):
+							continuation.resume(with: Result { try HelperWire.message(HelperReply.self, in: dictionary) })
+						case let .failure(error):
+							continuation.resume(throwing: error)
+						}
+					}
+				} catch {
+					continuation.resume(throwing: error)
+				}
+			}
+			return reply
+		} catch {
+			logger.error("The helper did not answer: \(error.localizedDescription, privacy: .public)")
+			return nil
+		}
 	}
 
-	private func runHelper(arguments: HelperRequest) {
-		guard let helper = connectToHelper() else {
+	/// Sends a message the helper does not answer.
+	private func send(_ message: HelperMessage) {
+		guard let session else {
+			return
+		}
+
+		do {
+			try session.send(message: HelperWire.dictionary(for: message))
+		} catch {
+			logger.error("Could not send a message to the helper: \(error.localizedDescription, privacy: .public)")
+		}
+	}
+
+	/// Opens the connection to the helper, which XPC only accepts from the helper this app
+	/// ships with.
+	private func connectToHelper() -> Bool {
+		// Anything left over from an earlier attempt is closed first: XPC crashes when an
+		// active session is released without being cancelled.
+		closeConnection()
+
+		do {
+			// The requirement is settled before the session is activated — XPC only accepts it
+			// on a session that is not active yet — so there is no `activate()` to call here.
+			session = try XPCSession(machService: HelperService.machServiceName,
+			                         options: .privileged,
+			                         requirement: HelperService.helperPeerRequirement,
+			                         cancellationHandler: { [weak self] error in
+				Task { @MainActor in
+					self?.connectionDidEnd(error)
+				}
+			})
+
+			return true
+		} catch {
+			logger.error("Could not connect to the helper: \(error.localizedDescription, privacy: .public)")
+			return false
+		}
+	}
+
+	/// Opens the listener the helper reports progress and the result on.
+	private func openProgressListener() -> XPCListener {
+		// An anonymous listener listens as soon as it is created, and releasing one is safe;
+		// there is no `activate()` to call, and calling one would be a misuse crash.
+		XPCListener { request in
+			request.accept { (dictionary: XPCDictionary) -> XPCDictionary? in
+				guard let reply = try? HelperWire.message(HelperReply.self, in: dictionary) else {
+					return nil
+				}
+				Task { @MainActor in
+					self.receive(reply)
+				}
+				return nil
+			}
+		}
+	}
+
+	/// Closes both connections. Clearing the session first keeps the cancellation handler from
+	/// reporting a connection we closed ourselves.
+	private func closeConnection() {
+		let session = self.session
+		self.session = nil
+		progressListener?.cancel()
+		progressListener = nil
+		session?.cancel(reason: "finished")
+	}
+
+	/// The helper is gone.
+	private func connectionDidEnd(_ error: XPCRichError) {
+		guard session != nil else {
+			return
+		}
+
+		logger.error("Lost the connection to the helper: \(String(describing: error), privacy: .public)")
+		session = nil
+		if isRunning {
+			// It went away mid-removal, so there is no result left to wait for.
+			progressDidEnd(completed: false)
+		}
+	}
+
+	// MARK: - Running a request
+
+	private func runHelper(arguments: HelperRequest) async {
+		guard connectToHelper() else {
 			installationFailure = .helperUnreachable
 			return
 		}
@@ -90,159 +179,128 @@ import Observation
 			guard !Task.isCancelled, !self.isRunning else { return }
 			self.logger.error("Helper did not answer within 10 seconds")
 			self.installationFailure = .helperUnreachable
+			// Cancelling lets the request that is still waiting give up, rather than hanging
+			// on a helper that never answers.
+			self.closeConnection()
+		}
+		defer { timeout.cancel() }
+
+		let reply = await request(.version)
+
+		// The helper lives inside the app bundle and therefore reports the version of the
+		// app. Anything else means a helper installed by an older version of Monolingual
+		// is still answering on the Mach service.
+		guard case let .version(helperVersion)? = reply else {
+			installationFailure = .helperUnreachable
+			return
+		}
+		guard helperVersion == HelperInstaller.appVersion else {
+			logger.error("Unexpected helper version: \(helperVersion, privacy: .public)")
+			installationFailure = .outdatedHelper(helperVersion)
+			return
 		}
 
-		helper.getVersion { version in
-			timeout.cancel()
-
-			// The helper lives inside the app bundle and therefore reports the version of the
-			// app. Anything else means a helper installed by an older version of Monolingual
-			// is still answering on the Mach service.
-			guard version == HelperInstaller.appVersion else {
-				self.logger.error("Unexpected helper version: \(version, privacy: .public)")
-				DispatchQueue.main.async {
-					self.installationFailure = .outdatedHelper(version)
-				}
-				return
-			}
-
-			DispatchQueue.main.async {
-				self.performRemoval(with: helper, arguments: arguments)
-			}
-		}
+		await performRemoval(arguments: arguments)
 	}
 
-	private func performRemoval(with helper: HelperProtocol, arguments: HelperRequest) {
-		ProcessInfo.processInfo.disableSuddenTermination()
+	private func performRemoval(arguments: HelperRequest) async {
+		guard let session else {
+			installationFailure = .helperUnreachable
+			return
+		}
+		let listener = openProgressListener()
+		progressListener = listener
 
+		byteCount = 0
 		text = "Removing..."
 		file = ""
-
-		let helperProgress = Progress(totalUnitCount: -1)
-		helperProgress.becomeCurrent(withPendingUnitCount: -1)
-		progressObserverToken = helperProgress.observe(\.completedUnitCount) { progress, _ in
-			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
-				Task { @MainActor in
-					self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
-				}
-			}
-		}
-
-		// DEBUG
-		// arguments.dryRun = true
-
-		helper.process(request: arguments, progress: self) { exitCode in
-			self.logger.info("helper finished with exit code: \(exitCode, privacy: .public)")
-			helper.exit(code: exitCode)
-			if exitCode == Int(EXIT_SUCCESS) {
-				DispatchQueue.main.async {
-					self.progressDidEnd(completed: true)
-				}
-			}
-		}
-
-		helperProgress.resignCurrent()
-		progress = helperProgress
-
-		progressObserverToken = helperProgress.observe(\.completedUnitCount) { progress, _ in
-			if let url = progress.fileURL, let size = progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int {
-				Task { @MainActor in
-					self.processProgress(file: url, size: size, appName: progress.userInfo[ProgressUserInfoKey.appName] as? String)
-				}
-			}
-		}
-
 		isRunning = true
+		ProcessInfo.processInfo.disableSuddenTermination()
 
-		let content = UNMutableNotificationContent()
-		content.title = NSLocalizedString("Monolingual started", comment: "")
-		content.body = NSLocalizedString("Started removing files", comment: "")
+		do {
+			// The endpoint and the request travel as two messages: `XPCSession.send` requires
+			// all values of a dictionary to have the same type.
+			try session.send(message: HelperWire.dictionary(carrying: listener.endpoint))
+		} catch {
+			logger.error("Could not send the progress endpoint: \(error.localizedDescription, privacy: .public)")
+			installationFailure = .helperUnreachable
+			progressDidEnd(completed: false)
+			return
+		}
 
-		let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
-		let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
-		let request = UNNotificationRequest(identifier: UUID().uuidString,
-																				content: content,
-																				trigger: trigger)
+		let reply = await request(.process(arguments))
+		guard case .accepted? = reply else {
+			logger.error("The helper did not accept the request")
+			installationFailure = .helperUnreachable
+			progressDidEnd(completed: false)
+			return
+		}
 
-		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+		notify(title: NSLocalizedString("Monolingual started", comment: ""),
+		       body: NSLocalizedString("Started removing files", comment: ""))
 	}
 
-	nonisolated func processed(file: String, size: Int, appName: String?) {
-		Task { @MainActor in
-			if let progress = self.progress {
-				let count = progress.userInfo[.fileCompletedCountKey] as? Int ?? 0
-				progress.setUserInfoObject(count + 1, forKey: .fileCompletedCountKey)
-				progress.setUserInfoObject(URL(fileURLWithPath: file, isDirectory: false), forKey: .fileURLKey)
-				progress.setUserInfoObject(size, forKey: ProgressUserInfoKey.sizeDifference)
-				if let appName = appName {
-					progress.setUserInfoObject(appName, forKey: ProgressUserInfoKey.appName)
-				}
-				progress.completedUnitCount += Int64(size)
-
-				// show the file progress even if it has zero bytes
-				if size == 0 {
-					// progress.willChangeValue(forKey: #keyPath(Progress.completedUnitCount))
-					// progress.didChangeValue(forKey: #keyPath(Progress.completedUnitCount))
-				}
-			}
+	/// Handles a reply that arrives over the progress connection.
+	private func receive(_ reply: HelperReply) {
+		switch reply {
+		case let .progress(file, size, appName):
+			byteCount += Int64(size)
+			processProgress(file: URL(fileURLWithPath: file, isDirectory: false), size: size, appName: appName)
+		case let .finished(exitCode):
+			logger.info("Helper finished with exit code: \(exitCode, privacy: .public)")
+			logger.info("Files removed. Space saved: \(self.byteCount)")
+			progressDidEnd(completed: exitCode == Int(EXIT_SUCCESS))
+		case .version, .accepted:
+			// Those answer a request directly, and are handled where it is sent.
+			logger.error("Unexpected reply on the progress connection")
 		}
+	}
+
+	/// Ends the run and shuts the helper down.
+	private func progressDidEnd(completed: Bool) {
+		isRunning = false
+		progressResetTimer?.invalidate()
+		progressResetTimer = nil
+
+		// Exiting is also what stops a removal that is still running, so cancel with a code
+		// the helper reads as "stop here".
+		send(.exit(completed ? Int(EXIT_SUCCESS) : Int(EXIT_FAILURE)))
+
+		closeConnection()
+
+		if completed {
+			// TODO: Show completion alert
+			notify(title: NSLocalizedString("Monolingual finished", comment: ""),
+			       body: NSLocalizedString("Finished removing files", comment: ""))
+		}
+
+		log.close()
+
+		ProcessInfo.processInfo.enableSuddenTermination()
 	}
 
 	public func cancel() {
 		text = "Canceling operation..."
 		file = ""
 
+		// TODO: Show cancellation alert
+		logger.info("Cancelled. Space saved: \(self.byteCount)")
+
 		progressDidEnd(completed: false)
 	}
 
-	private func progressDidEnd(completed: Bool) {
-		guard let progress = progress else { return }
+	private func notify(title: String, body: String) {
+		let content = UNMutableNotificationContent()
+		content.title = title
+		content.body = body
 
-		isRunning = false
-		progressResetTimer?.invalidate()
-		progressResetTimer = nil
+		let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
+		let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
+		let request = UNNotificationRequest(identifier: UUID().uuidString,
+		                                    content: content,
+		                                    trigger: trigger)
 
-		byteCount = max(progress.completedUnitCount, 0)
-		progressObserverToken?.invalidate()
-		self.progress = nil
-
-		if !completed {
-			// cancel the current progress which tells the helper to stop
-			progress.cancel()
-			logger.debug("Closing progress connection")
-
-			if let helper = helperConnection?.remoteObjectProxy as? HelperProtocol {
-				helper.exit(code: Int(EXIT_FAILURE))
-			}
-
-			// TODO: Show cancellation alert
-			logger.info("Cancelled. Space saved: \(self.byteCount)")
-		} else {
-			// TODO: Show completion alert
-			logger.info("Files removed. Space saved: \(self.byteCount)")
-
-			let content = UNMutableNotificationContent()
-			content.title = NSLocalizedString("Monolingual finished", comment: "")
-			content.body = NSLocalizedString("Finished removing files", comment: "")
-
-			let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
-			let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
-			let request = UNNotificationRequest(identifier: UUID().uuidString,
-																					content: content,
-																					trigger: trigger)
-
-			UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-		}
-
-		if let connection = helperConnection {
-			logger.info("Closing connection to helper")
-			connection.invalidate()
-			helperConnection = nil
-		}
-
-		log.close()
-
-		ProcessInfo.processInfo.enableSuddenTermination()
+		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
 	}
 
 	private func processProgress(file: URL, size: Int, appName: String?) {

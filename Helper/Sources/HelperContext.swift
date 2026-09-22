@@ -11,7 +11,8 @@ import OSLog
 
 final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 	var request: HelperRequest
-	var remoteProgress: ProgressProtocol?
+	/// Reports progress to the app, which is on the other side of the XPC connection.
+	var reportToClient: ((HelperReply) -> Void)?
 	var progress: Progress?
 	private var fileBlocklist = Set<URL>()
 	let fileManager = FileManager()
@@ -159,9 +160,7 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 			}
 		}
 
-		if let progress = remoteProgress {
-			progress.processed(file: url.path, size: size, appName: appName)
-		}
+		reportToClient?(.progress(file: url.path, size: size, appName: appName))
 	}
 
 	func remove(_ url: URL) {

@@ -10,6 +10,7 @@ import Foundation
 import MachO.fat
 import MachO.loader
 import OSLog
+import XPC
 #if canImport(LipoCore)
 import LipoCore
 #endif
@@ -24,11 +25,22 @@ extension URL {
 	}
 }
 
-public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unchecked Sendable {
-	private var listener: NSXPCListener
+public final class Helper: @unchecked Sendable {
+	/// The queue messages are handled on. The work itself runs on `workerQueue` instead, so a
+	/// second message — the app cancelling — is still handled while a removal is running.
+	/// Sessions inherit this queue, which is what keeps everything below it serialized.
+	private let messageQueue = DispatchQueue(label: "com.github.IngmarStein.Monolingual.Helper.messages")
+	private let workerQueue = OperationQueue()
+	private var listener: XPCListener?
+	/// The session the app opened. Held on to, because the session lives only as long as this
+	/// reference does.
+	private var clientSession: XPCSession?
+	/// The app's listener, which progress and the result are reported on.
+	private var progressSession: XPCSession?
+	/// The bookkeeping of the running request, so that the app can still cancel it.
+	private var currentProgress: Progress?
 	private var timer: Timer?
 	private let timeoutInterval = TimeInterval(30.0)
-	private let workerQueue = OperationQueue()
 	private var isRootless = true
 	private let logger = Logger()
 
@@ -36,12 +48,7 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 		Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
 	}
 
-	public override init() {
-		listener = NSXPCListener(machServiceName: HelperService.machServiceName)
-
-		super.init()
-
-		listener.delegate = self
+	public init() {
 		workerQueue.maxConcurrentOperationCount = 1
 		isRootless = checkRootless()
 		logger.debug("isRootless=\(self.isRootless ? "true" : "false", privacy: .public)")
@@ -50,70 +57,86 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 	public func run() {
 		logger.info("MonolingualHelper \(self.version, privacy: .public) started")
 
-		listener.resume()
-		timer = Timer.scheduledTimer(timeInterval: timeoutInterval, target: self, selector: #selector(Helper.timeout(_:)), userInfo: nil, repeats: false)
+		do {
+			// XPC checks the peer against this requirement before a session is handed over,
+			// for every session — no pid to look up, and no window to reuse one in.
+			//
+			// A listener listens as soon as it is created; there is no `activate()` to call
+			// here, and calling one would be an API misuse crash.
+			listener = try XPCListener(service: HelperService.machServiceName,
+			                           targetQueue: messageQueue,
+			                           requirement: HelperService.appPeerRequirement) { [self] request in
+				accept(request)
+			}
+		} catch {
+			logger.error("Failed to serve \(HelperService.machServiceName, privacy: .public): \(error.localizedDescription, privacy: .public)")
+			Darwin.exit(EXIT_FAILURE)
+		}
+
+		timer = Timer.scheduledTimer(withTimeInterval: timeoutInterval, repeats: false) { [self] _ in
+			logger.info("timeout while waiting for request")
+			exit(code: Int(EXIT_SUCCESS))
+		}
 		RunLoop.current.run()
-	}
-
-	@objc func timeout(_: Timer) {
-		logger.info("timeout while waiting for request")
-		exit(code: Int(EXIT_SUCCESS))
-	}
-
-	@objc public func connect(_ reply: @escaping (NSXPCListenerEndpoint) -> Void) {
-		reply(listener.endpoint)
-	}
-
-	@objc public func getVersion(_ reply: @escaping (String) -> Void) {
-		reply(version)
 	}
 
 	/// Removes a helper that an older version of Monolingual installed with SMJobBless.
 	///
 	/// Helpers registered with SMAppService live inside the app bundle and are removed by
 	/// unregistering them, so this only has to clean up after the SMJobBless based versions.
-	@objc public func uninstall() {
+	public func uninstall() {
 		do {
 			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
 			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
 		} catch {}
 	}
 
-	@objc public func exit(code: Int) {
+	/// Stops the running request and exits with `code`.
+	public func exit(code: Int) {
 		logger.info("exiting with exit status \(code, privacy: .public)")
+		// Anything but success means the app cancelled, so the removal stops at the next file
+		// instead of working through the whole tree first.
+		currentProgress?.cancel()
 		workerQueue.waitUntilAllOperationsAreFinished()
 		Darwin.exit(Int32(code))
 	}
 
-	@discardableResult @objc public func process(request: HelperRequest, progress remoteProgress: ProgressProtocol?, reply: @escaping (Int) -> Void) -> Progress {
+	@discardableResult public func process(request: HelperRequest, report: ((HelperReply) -> Void)?, reply: @escaping (Int) -> Void) -> Progress {
 		timer?.invalidate()
+
+		// check if /usr/bin/strip is present
+		var request = request
+		request.doStrip = request.doStrip && FileManager.default.fileExists(atPath: "/usr/bin/strip")
 
 		let context = HelperContext(request, rootless: isRootless)
 
-		logger.debug("Received request: \(request, privacy: .public)")
+		logger.debug("Received request: \(String(describing: request), privacy: .public)")
 
-		// https://developer.apple.com/library/content/releasenotes/Foundation/RN-Foundation-v10.10/index.html#10_10NSXPC
-		// Progress must not be indeterminate - otherwise no KVO notifications are fired
-		// see rdar://33140109
+		// Progress is no longer shared across processes: this object only tallies what was
+		// removed, which is what the tests check and what the helper reports as messages.
+		// `totalUnitCount` starts at one rather than being indeterminate so that its counts
+		// always add up.
 		let progress = Progress(totalUnitCount: 1)
 		progress.completedUnitCount = 0
 		progress.cancellationHandler = {
 			self.logger.info("Stopping MonolingualHelper")
 		}
 		context.progress = progress
-		context.remoteProgress = remoteProgress
-
-		// check if /usr/bin/strip is present
-		request.doStrip = request.doStrip && context.fileManager.fileExists(atPath: "/usr/bin/strip")
+		context.reportToClient = report
+		currentProgress = progress
 
 		struct SendableReply: @unchecked Sendable {
 			let reply: (Int) -> Void
 		}
 		let sendableReply = SendableReply(reply: reply)
 
+		// The request is a value: settling `doStrip` before this point means the operation can
+		// capture it as a constant instead of sharing a mutable one.
+		let pending = request
+
 		workerQueue.addOperation {
 			// delete regular files
-			if let files = request.files {
+			if let files = pending.files {
 				for file in files {
 					if progress.isCancelled {
 						break
@@ -122,11 +145,11 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 				}
 			}
 
-			let roots = request.includes?.map { URL(fileURLWithPath: $0, isDirectory: true) }
+			let roots = pending.includes?.map { URL(fileURLWithPath: $0, isDirectory: true) }
 
 			if let roots = roots {
 				// recursively delete directories
-				if let directories = request.directories, !directories.isEmpty {
+				if let directories = pending.directories, !directories.isEmpty {
 					for root in roots {
 						if progress.isCancelled {
 							break
@@ -137,7 +160,7 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 			}
 
 			// thin fat binaries
-			if let archs = request.thin, let roots = roots, !archs.isEmpty {
+			if let archs = pending.thin, let roots = roots, !archs.isEmpty {
 				if let lipo = Lipo(archs: archs) {
 					for root in roots {
 						if progress.isCancelled {
@@ -154,46 +177,98 @@ public final class Helper: NSObject, NSXPCListenerDelegate, HelperProtocol, @unc
 		return progress
 	}
 
-	// MARK: - NSXPCListenerDelegate
+	// MARK: - Serving the app
 
-	/// The designated requirement of the Monolingual app, which is the only client that may
-	/// talk to this helper. Launchd used to enforce this through the helper's
-	/// `SMAuthorizedClients`; SMAppService does not, so the helper checks its peer itself.
-	private static let clientRequirement = "anchor apple generic and identifier \"com.github.IngmarStein.Monolingual\" and certificate leaf[subject.OU] = ADVP2P7SJK"
-
-	public func listener(_: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
-		guard isTrustedClient(newConnection) else {
-			logger.error("Rejected connection from process \(newConnection.processIdentifier, privacy: .public)")
-			return false
+	/// Serves a session the app opened.
+	private func accept(_ request: XPCListener.IncomingSessionRequest) -> XPCListener.IncomingSessionRequest.Decision {
+		let (decision, session) = request.accept { [self] dictionary in
+			handle(dictionary)
 		}
-
-		let helperRequestClass = HelperRequest.self as AnyObject as! NSObject
-		let classes = Set([helperRequestClass])
-		let interface = NSXPCInterface(with: HelperProtocol.self)
-		interface.setClasses(classes, for: #selector(Helper.process(request:progress:reply:)), argumentIndex: 0, ofReply: false)
-		interface.setInterface(NSXPCInterface(with: ProgressProtocol.self), for: #selector(Helper.process(request:progress:reply:)), argumentIndex: 1, ofReply: false)
-		newConnection.exportedInterface = interface
-		newConnection.exportedObject = self
-		newConnection.resume()
-
-		return true
+		// XPC crashes if a session is released while it is active, so the previous one is
+		// cancelled before it is let go — the app opens a new one for every removal.
+		clientSession?.cancel(reason: "another session arrived")
+		clientSession = session
+		return decision
 	}
 
-	/// Checks that the connecting process is the Monolingual app.
-	private func isTrustedClient(_ connection: NSXPCConnection) -> Bool {
-		var requirement: SecRequirement?
-		guard SecRequirementCreateWithString(Self.clientRequirement as CFString, [], &requirement) == errSecSuccess, let requirement = requirement else {
-			logger.error("Failed to create client requirement")
-			return false
+	/// Handles one message from the app and returns the reply to send, if the app waits for one.
+	private func handle(_ dictionary: XPCDictionary) -> XPCDictionary? {
+		// The app sends the endpoint for progress and the result on its own, before the request
+		// those belong to. It does not wait for an answer.
+		if let endpoint = HelperWire.endpoint(in: dictionary) {
+			openProgressConnection(to: endpoint)
+			return nil
 		}
 
-		let attributes = [kSecGuestAttributePid: connection.processIdentifier] as CFDictionary
-		var client: SecCode?
-		guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &client) == errSecSuccess, let client = client else {
-			return false
+		guard let message = try? HelperWire.message(HelperMessage.self, in: dictionary) else {
+			logger.error("Ignoring an XPC message without a payload")
+			return nil
 		}
 
-		return SecCodeCheckValidity(client, [], requirement) == errSecSuccess
+		switch message {
+		case .version:
+			return reply(.version(version))
+		case let .process(request):
+			// The removal runs on the worker queue, so answer before starting it.
+			start(request)
+			return reply(.accepted)
+		case let .exit(code):
+			exit(code: code)
+			return nil
+		}
+	}
+
+	/// Opens the connection the app's endpoint stands for, to report progress and the result on.
+	private func openProgressConnection(to endpoint: XPCEndpoint) {
+		// XPC crashes if a session is released while it is active: the one from a previous
+		// removal is cancelled before it is replaced.
+		progressSession?.cancel(reason: "another request arrived")
+		progressSession = nil
+
+		do {
+			// A peer requirement can only be attached to a session that is not active yet, so
+			// the session is created inactive and activated after. Sessions created from the
+			// listener do not inherit its requirement, hence attaching one here as well.
+			let session = try XPCSession(endpoint: endpoint, options: .inactive)
+			session.setPeerRequirement(HelperService.appPeerRequirement)
+			try session.activate()
+			progressSession = session
+		} catch {
+			logger.error("Failed to open the connection to the app: \(error.localizedDescription, privacy: .public)")
+		}
+	}
+
+	/// Carries out `request`, reporting progress and the result to the app.
+	private func start(_ request: HelperRequest) {
+		// Read here, on the message queue, so that the reports capture the session rather than
+		// reaching for it from the worker queue later.
+		let session = progressSession
+		let reportProgress: (HelperReply) -> Void = { [self] reply in
+			self.report(reply, on: session)
+		}
+		let reportResult: (Int) -> Void = { [self] exitCode in
+			self.report(.finished(exitCode: exitCode), on: session)
+		}
+
+		process(request: request, report: reportProgress, reply: reportResult)
+	}
+
+	private func report(_ reply: HelperReply, on session: XPCSession?) {
+		guard let session = session else { return }
+		do {
+			try session.send(message: HelperWire.dictionary(for: reply))
+		} catch {
+			logger.error("Failed to report to the app: \(error.localizedDescription, privacy: .public)")
+		}
+	}
+
+	private func reply(_ reply: HelperReply) -> XPCDictionary? {
+		do {
+			return try HelperWire.dictionary(for: reply)
+		} catch {
+			logger.error("Failed to encode a reply: \(error.localizedDescription, privacy: .public)")
+			return nil
+		}
 	}
 
 	// MARK: -

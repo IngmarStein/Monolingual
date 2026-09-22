@@ -18,8 +18,6 @@ enum HelperInstallationFailure: Error {
 	case requiresApproval
 	/// The launchd property list is missing from the app bundle.
 	case plistNotFound
-	/// A helper installed by an older version of Monolingual is still in place and could not be removed.
-	case legacyInstallationPresent
 	/// A helper from a different version of Monolingual answered instead of the bundled one.
 	case outdatedHelper(String)
 	/// The registered helper did not answer at all.
@@ -33,7 +31,7 @@ enum HelperInstallationFailure: Error {
 			NSLocalizedString("Monolingual needs your permission", comment: "")
 		case .plistNotFound, .registrationFailed:
 			NSLocalizedString("Failed to install helper utility.", comment: "")
-		case .legacyInstallationPresent, .outdatedHelper:
+		case .outdatedHelper:
 			NSLocalizedString("An outdated helper utility is still installed.", comment: "")
 		case .helperUnreachable:
 			NSLocalizedString("Monolingual cannot reach its helper utility.", comment: "")
@@ -46,8 +44,6 @@ enum HelperInstallationFailure: Error {
 			NSLocalizedString("Allow Monolingual to use its helper tool in System Settings › General › Login Items & Extensions, then try again.", comment: "")
 		case .plistNotFound:
 			NSLocalizedString("The Monolingual application bundle is incomplete.", comment: "")
-		case .legacyInstallationPresent:
-			NSLocalizedString("Remove the helper installed by an older version of Monolingual with util/uninstall.sh and try again.", comment: "")
 		case let .outdatedHelper(version):
 			String(format: NSLocalizedString("Monolingual %@ is still installed. Remove it with util/uninstall.sh, then try again.", comment: ""), version)
 		case .helperUnreachable:
@@ -70,13 +66,13 @@ enum HelperInstallationFailure: Error {
 /// Older versions installed the helper with SMJobBless, which copied it to
 /// `/Library/PrivilegedHelperTools` and asked for an administrator password on first use.
 /// The helper now lives inside the app bundle and is registered as a launchd daemon with
-/// `SMAppService`, so an administrator allows it in System Settings instead.
+/// `SMAppService`, so an administrator allows it in System Settings instead. A helper left
+/// behind by the older versions is not touched: it serves a Mach service of its own name, so it
+/// does not get in the way, and `util/uninstall.sh` removes it.
 @MainActor
 final class HelperInstaller {
 	static let machServiceName = HelperService.machServiceName
 	static let daemonPlistName = HelperService.daemonPlistName
-
-	private static var legacyPaths: [String] { HelperService.legacyPaths }
 
 	/// The app version whose helper was registered last. Service Management requires the
 	/// daemon to be registered again after its executable or property list has changed.
@@ -84,14 +80,8 @@ final class HelperInstaller {
 
 	private let logger = Logger()
 
-	static var legacyInstallationExists: Bool {
-		legacyPaths.contains { FileManager.default.fileExists(atPath: $0) }
-	}
-
 	/// Registers the helper daemon and verifies that it is allowed to run.
 	func installIfNeeded() async throws {
-		try await removeLegacyInstallation()
-
 		let service = SMAppService.daemon(plistName: Self.daemonPlistName)
 		var status = service.status
 
@@ -146,38 +136,5 @@ final class HelperInstaller {
 	/// it lives inside the app bundle.
 	static var appVersion: String {
 		Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-	}
-
-	/// Removes a helper installed by a version of Monolingual that used SMJobBless.
-	///
-	/// Such a helper runs as root and claims the same Mach service, so it has to be asked to
-	/// uninstall itself; nothing else can remove files below `/Library` without a password.
-	private func removeLegacyInstallation() async throws {
-		guard Self.legacyInstallationExists else {
-			return
-		}
-
-		logger.notice("Removing helper installed by an older version of Monolingual")
-
-		let connection = NSXPCConnection(machServiceName: HelperService.legacyMachServiceName, options: .privileged)
-		connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
-		connection.resume()
-		defer { connection.invalidate() }
-
-		if let helper = connection.remoteObjectProxyWithErrorHandler({ error in
-			self.logger.error("Failed to contact helper of an older version: \(error.localizedDescription, privacy: .public)")
-		}) as? HelperProtocol {
-			helper.uninstall()
-			helper.exit(code: 0)
-		}
-
-		// Wait for the old daemon to remove its files and exit before registering the new one.
-		for _ in 0 ..< 50 {
-			guard Self.legacyInstallationExists else { return }
-			try? await Task.sleep(for: .milliseconds(100))
-		}
-
-		logger.error("Helper installed by an older version of Monolingual is still present")
-		throw HelperInstallationFailure.legacyInstallationPresent
 	}
 }
