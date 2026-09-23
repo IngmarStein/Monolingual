@@ -1,6 +1,12 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "+": {
+      "shouldTranslate": false
+    },
+    "-": {
+      "shouldTranslate": false
+    },
     "A helper utility from an older version of Monolingual may still be registered. Restart your Mac and try again.": {
       "localizations": {
         "de": {
@@ -402,7 +408,6 @@
       }
     },
     "Are you sure you want to remove these languages?": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -509,7 +514,6 @@
       }
     },
     "Automatically check for updates": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -610,7 +614,6 @@
       }
     },
     "Cancel": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -717,7 +720,6 @@
       }
     },
     "Canceling operation...": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -824,7 +826,6 @@
       }
     },
     "Check for Updates…": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -925,7 +926,6 @@
       }
     },
     "Continue": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1138,7 +1138,6 @@
       }
     },
     "Directories": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1239,7 +1238,6 @@
       }
     },
     "Donate": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1446,7 +1444,6 @@
       }
     },
     "Files removed.": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1659,7 +1656,6 @@
       }
     },
     "LICENSE.txt": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1960,7 +1956,6 @@
       }
     },
     "Monolingual Website": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -2267,7 +2262,6 @@
       }
     },
     "Monolingual is stopping without making any changes.": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -2580,7 +2574,6 @@
       }
     },
     "Move language files to Trash": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -2680,8 +2673,113 @@
         }
       }
     },
+    "OK": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Εντάξει"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تأیید"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U redu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ОК"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamam"
+          }
+        }
+      }
+    },
     "Open System Settings": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -2782,7 +2880,6 @@
       }
     },
     "Path": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3089,7 +3186,6 @@
       }
     },
     "Remove architecture": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3190,7 +3286,6 @@
       }
     },
     "Remove language": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3290,108 +3385,7 @@
         }
       }
     },
-    "Remove the helper installed by an older version of Monolingual with util/uninstall.sh and try again.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entferne das von einer älteren Version installierte Hilfsprogramm mit util/uninstall.sh und versuche es erneut."
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Αφαιρέστε το βοηθητικό πρόγραμμα παλαιότερης έκδοσης του Monolingual με το util/uninstall.sh και δοκιμάστε ξανά."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Elimina la herramienta auxiliar instalada por una versión anterior de Monolingual con util/uninstall.sh y vuelve a intentarlo."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ابزار کمکی نصب‌شده توسط نسخه‌ای قدیمی‌تر Monolingual را با util/uninstall.sh حذف کنید و دوباره تلاش کنید."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimez l’outil d’assistance installé par une version antérieure de Monolingual avec util/uninstall.sh, puis réessayez."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uklonite pomoćni alat koji je instalirala starija verzija Monolinguala s util/uninstall.sh pa pokušajte ponovno."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rimuovi l’utilità di supporto installata da una versione precedente di Monolingual con util/uninstall.sh, poi riprova."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "以前のバージョンの Monolingual がインストールしたヘルパーツールを util/uninstall.sh で削除してから再試行してください。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이전 버전 Monolingual이 설치한 도우미 도구를 util/uninstall.sh로 제거한 후 다시 시도하십시오."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verwijder het hulpmiddel van een oudere versie van Monolingual met util/uninstall.sh en probeer het opnieuw."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usuń narzędzie pomocnicze zainstalowane przez starszą wersję Monolingual za pomocą util/uninstall.sh i spróbuj ponownie."
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Elimină utilitarul ajutător instalat de o versiune mai veche de Monolingual cu util/uninstall.sh, apoi încearcă din nou."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Удалите вспомогательное средство, установленное предыдущей версией Monolingual, с помощью util/uninstall.sh и повторите попытку."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odstráňte pomocný nástroj nainštalovaný staršou verziou Monolingualu pomocou util/uninstall.sh a skúste znova."
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ta bort hjälpprogrammet som installerades av en äldre version av Monolingual med util/uninstall.sh och försök igen."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Monolingual'ın eski bir sürümünün yüklediği yardımcı aracı util/uninstall.sh ile kaldırıp tekrar deneyin."
-          }
-        }
-      }
-    },
     "Remove …": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3598,7 +3592,6 @@
       }
     },
     "Removing all architectures will make macOS inoperable.": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -4331,7 +4324,6 @@
       }
     },
     "Standard": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -4537,115 +4529,7 @@
         }
       }
     },
-    "Stop": {
-      "extractionState": "stale",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stopp"
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Στοπ"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Detener"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "توقف"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prekini"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "中止"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "중단"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Przerwij"
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стоп"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stopp"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dur"
-          }
-        }
-      }
-    },
     "Strip debug info when removing architectures": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -4846,7 +4730,6 @@
       }
     },
     "You cancelled the removal. Some files were erased, some were not.": {
-      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -5165,7 +5048,7 @@
       }
     },
     "locale_md": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
