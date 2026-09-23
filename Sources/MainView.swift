@@ -38,7 +38,7 @@ struct MainView: View {
 	@State private var showingProgressView = false
 	@State private var showingAllArchitecturesAlert = false
 
-	@State private var blocklist: [BlocklistEntry]?
+	@State private var blocklist: [BlocklistEntry] = []
 
 	@State private var mode: MonolingualMode = .languages
 	@State private var helperTask = HelperTask()
@@ -87,7 +87,7 @@ struct MainView: View {
 
 			var request = HelperRequest()
 			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
-			request.bundleBlocklist = Set<String>(blocklist!.filter(\.architectures).map(\.bundle))
+			request.bundleBlocklist = Set<String>(blocklist.filter(\.architectures).map(\.bundle))
 			request.includes = roots.filter(\.architectures).map(\.path)
 			request.excludes = roots.filter { !$0.architectures }.map(\.path) + sipProtectedLocations
 			request.thin = archs
@@ -156,7 +156,7 @@ struct MainView: View {
 
 		let includes = roots.filter(\.languages).map(\.path)
 		let excludes = roots.filter { !$0.languages }.map(\.path) + sipProtectedLocations
-		let bl = blocklist!.filter(\.languages).map(\.bundle)
+		let bl = blocklist.filter(\.languages).map(\.bundle)
 
 		for item in bl {
 			logger.info("Blocklisting \(item, privacy: .public)")
@@ -318,7 +318,7 @@ struct MainView: View {
 		// load blocklist from asset catalog
 		if let blocklist = NSDataAsset(name: "blocklist") {
 			let decoder = PropertyListDecoder()
-			self.blocklist = try? decoder.decode([BlocklistEntry].self, from: blocklist.data)
+			self.blocklist = (try? decoder.decode([BlocklistEntry].self, from: blocklist.data)) ?? []
 		}
 		/*
 		 self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { [weak self] notification in
@@ -433,11 +433,15 @@ struct MainView: View {
 		}
 		.task {
 			loadData()
-			// load remote blocklist asynchronously
+			// Load the remote blocklist asynchronously. It must only ever replace the
+			// blocklist from the asset catalog with something that actually decoded:
+			// the URL below answers with a 404 and an HTML body now, which reset the
+			// blocklist to nil and crashed the next removal.
 			if let blocklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blocklist.plist"),
-			   let (data, _) = try? await URLSession.shared.data(from: blocklistURL) {
-				let decoder = PropertyListDecoder()
-				self.blocklist = try? decoder.decode([BlocklistEntry].self, from: data)
+			   let (data, response) = try? await URLSession.shared.data(from: blocklistURL),
+			   (response as? HTTPURLResponse)?.statusCode == 200,
+			   let entries = try? PropertyListDecoder().decode([BlocklistEntry].self, from: data) {
+				blocklist = entries
 			}
 		}
 	}
