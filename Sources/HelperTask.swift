@@ -212,7 +212,7 @@ import Observation
 		progressListener = listener
 
 		byteCount = 0
-		text = "Removing..."
+		text = NSLocalizedString("Removing...", comment: "")
 		file = ""
 		isRunning = true
 		ProcessInfo.processInfo.disableSuddenTermination()
@@ -280,7 +280,7 @@ import Observation
 	}
 
 	public func cancel() {
-		text = "Canceling operation..."
+		text = NSLocalizedString("Canceling operation...", comment: "")
 		file = ""
 
 		// TODO: Show cancellation alert
