@@ -10,15 +10,32 @@ Monolingual
 ## Architecture
 
 Monolingual consists of two parts: the sandboxed Monolingual app and a privileged helper program that
-is registered as a launch daemon with Service Management. Both are written in Swift and communicate with each other using XPC.
+is registered as a launch daemon with Service Management (`SMAppService`). Both are written in Swift and
+communicate with each other using XPC.
+
+An administrator has to allow the helper in System Settings › General › Login Items & Extensions
+before it can run.
 
 ## Dependencies
 
-Monolingual uses CocoaPods to manage its dependencies. Currently, the following pods are used:
+Monolingual uses Swift Package Manager to manage its dependencies. Currently, the following packages
+are used:
 
-- [Sparkle](https://github.com/sparkle-project/Sparkle)
-- [Fabric](https://cocoapods.org/pods/Fabric)
-- [Crashlytics](https://cocoapods.org/pods/Crashlytics)
+- [Sparkle](https://github.com/sparkle-project/Sparkle) — app updates
+- [swift-argument-parser](https://github.com/apple/swift-argument-parser) — argument parsing for the
+  bundled `lipo` tool
+
+## Building
+
+- Install dependencies: `bundle install`
+- Build (Debug): `make development`
+- Build (Release): `make deployment`
+- Release packaging (signing, notarization, disk image): `make release`
+- Run the tests: `xcodebuild -scheme "Helper Tests" -destination 'platform=macOS' test`
+
+The project uses [SwiftLint](https://github.com/realm/SwiftLint) and
+[SwiftFormat](https://github.com/nicklockwood/SwiftFormat); their configurations are checked in as
+`.swiftlint.yml` and `.swiftformat`.
 
 ## Contributors
 
@@ -52,11 +69,8 @@ GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
 
 ## Developers
 
-Monolingual is written in Swift 5.0 and requires Xcode 11.0 or above.
+Monolingual is written in Swift 6 and requires Xcode 27.0 or above.
 
 ## Status
 
 ![GitHub Build Status](https://github.com/IngmarStein/Monolingual/workflows/fastlane/badge.svg)
-[![Travis Build Status](https://img.shields.io/travis/IngmarStein/Monolingual.svg)](https://travis-ci.org/IngmarStein/Monolingual)
-[![Azure Build Status](https://dev.azure.com/ingmarstein/monolingual/_apis/build/status/IngmarStein.Monolingual)](https://dev.azure.com/ingmarstein/monolingual/_build/latest?definitionId=1)
-[![Maintainability](https://api.codeclimate.com/v1/badges/4dbc05bd46eef3208edf/maintainability)](https://codeclimate.com/github/IngmarStein/Monolingual/maintainability)
