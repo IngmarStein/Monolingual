@@ -52,7 +52,6 @@ public func == (lhs: fat_arch_64, rhs: fat_arch_64) -> Bool {
 	lhs.cputype == rhs.cputype && cpuSubtypeWithMask(lhs.cpusubtype) == cpuSubtypeWithMask(rhs.cpusubtype)
 }
 
-// swiftlint:disable comma
 private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "any", cputype: CPU_TYPE_ANY, cpusubtype: CPU_SUBTYPE_MULTIPLE),
 	ArchFlag(name: "little", cputype: CPU_TYPE_ANY, cpusubtype: CPU_SUBTYPE_LITTLE_ENDIAN),
@@ -113,10 +112,8 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "armv7m", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V7M),
 	ArchFlag(name: "armv7em", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V7EM),
 	ArchFlag(name: "armv8m", cputype: CPU_TYPE_ARM, cpusubtype: CPU_SUBTYPE_ARM_V8M_MAIN),
-	ArchFlag(name: "arm64v8", cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64_V8),
-	ArchFlag(name: "arm64_32", cputype: CPU_TYPE_ARM64_32, cpusubtype: CPU_SUBTYPE_ARM64_32_V8),
+	ArchFlag(name: "arm64_32", cputype: CPU_TYPE_ARM64_32, cpusubtype: CPU_SUBTYPE_ARM64_32_V8)
 ]
-// swiftlint:enable comma
 
 private func getArchFromFlag(_ name: String) -> ArchFlag? {
 	for flag in archFlags where flag.name == name {
@@ -128,19 +125,11 @@ private func getArchFromFlag(_ name: String) -> ArchFlag? {
 /*
  * rnd() rounds v to a multiple of r.
  */
-#if swift(>=4.0)
-	private func rnd<T: BinaryInteger>(v: T, r: T) -> T {
-		let r2 = r - 1
-		let v2 = v + r2
-		return v2 & ~r2
-	}
-#else
-	private func rnd<T: Integer>(v: T, r: T) -> T {
-		let r2 = r - 1
-		let v2 = v + r2
-		return v2 & ~r2
-	}
-#endif
+private func rnd<T: BinaryInteger>(v: T, r: T) -> T {
+	let r2 = r - 1
+	let v2 = v + r2
+	return v2 & ~r2
+}
 
 private func cpuSubtypeWithMask(_ subtype: cpu_subtype_t) -> cpu_subtype_t {
 	subtype & cpuSubtypeMask

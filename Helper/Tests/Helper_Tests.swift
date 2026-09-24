@@ -95,7 +95,7 @@ import HelperShared
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		let progress = helper.process(request: request, report: nil) { exitCode -> Void in
+		let progress = helper.process(request: request, report: nil) { exitCode in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -113,7 +113,7 @@ import HelperShared
 			helperExpectation.fulfill()
 		}
 
-		waitForExpectations(timeout: TimeInterval(5.0)) { error -> Void in
+		waitForExpectations(timeout: TimeInterval(5.0)) { error in
 			if let error = error {
 				XCTFail("Expectation failed with error: \(error)")
 			}
@@ -122,8 +122,8 @@ import HelperShared
 		XCTAssert(progress.fileCompletedCount == 1, "should have processed 1 file")
 		XCTAssert(progress.totalUnitCount == Int64(4097), "totalUnitCount should be 4097")
 		XCTAssert(progress.completedUnitCount == Int64(4096), "completedUnitCount should be 4096")
-		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] as! String == "test", "app name should be 'test'")
-		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as! Int == 4096, "last process file should have changed by 4k bytes")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] as? String == "test", "app name should be 'test'")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int == 4096, "last process file should have changed by 4k bytes")
 	}
 
 	nonisolated private func assertFileSize(path: URL, expectedSize: Int, message: String) {
@@ -156,7 +156,7 @@ import HelperShared
 		let helperExpectation = expectation(description: "Asynchronous helper processing")
 
 		let helper = Helper()
-		let progress = helper.process(request: request, report: nil) { exitCode -> Void in
+		let progress = helper.process(request: request, report: nil) { exitCode in
 			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
 
 			let fileManager = FileManager.default
@@ -175,7 +175,7 @@ import HelperShared
 			helperExpectation.fulfill()
 		}
 
-		waitForExpectations(timeout: TimeInterval(5.0)) { error -> Void in
+		waitForExpectations(timeout: TimeInterval(5.0)) { error in
 			if let error = error {
 				XCTFail("Expectation failed with error: \(error)")
 			}
@@ -185,7 +185,7 @@ import HelperShared
 		XCTAssert(progress.totalUnitCount == Int64(20481), "totalUnitCount should be the size difference plus 1")
 		XCTAssert(progress.completedUnitCount == Int64(20480), "should have removed 20480 bytes")
 		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] == nil, "should not have an app name")
-		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as! Int == 8192, "should have removed 8k bytes")
+		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int == 8192, "should have removed 8k bytes")
 	}
 
 	/// The app and the helper exchange messages as JSON payloads in an XPC dictionary, and the

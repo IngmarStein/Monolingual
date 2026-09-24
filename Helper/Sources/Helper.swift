@@ -45,7 +45,7 @@ public final class Helper: @unchecked Sendable {
 	private let logger = Logger()
 
 	public var version: String {
-		Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String
+		Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "vUNKNOWN"
 	}
 
 	public init() {
@@ -73,11 +73,32 @@ public final class Helper: @unchecked Sendable {
 			Darwin.exit(EXIT_FAILURE)
 		}
 
-		timer = Timer.scheduledTimer(withTimeInterval: timeoutInterval, repeats: false) { [self] _ in
-			logger.info("timeout while waiting for request")
-			exit(code: Int(EXIT_SUCCESS))
-		}
+		startIdleTimer()
 		RunLoop.current.run()
+	}
+
+	/// Starts the timeout that exits the daemon when it has nothing to do.
+	///
+	/// The timer belongs on the main run loop, which is the one `run()` keeps running: on the
+	/// message queue — where requests arrive — a timer would be added to a run loop nobody runs.
+	private func startIdleTimer() {
+		DispatchQueue.main.async { [self] in
+			timer?.invalidate()
+			let timer = Timer(timeInterval: timeoutInterval, repeats: false) { [self] _ in
+				logger.info("timeout while waiting for request")
+				exit(code: Int(EXIT_SUCCESS))
+			}
+			RunLoop.main.add(timer, forMode: .common)
+			self.timer = timer
+		}
+	}
+
+	/// Stops the timeout while a request is being served.
+	private func stopIdleTimer() {
+		DispatchQueue.main.async { [self] in
+			timer?.invalidate()
+			timer = nil
+		}
 	}
 
 	/// Removes a helper that an older version of Monolingual installed with SMJobBless.
@@ -102,7 +123,7 @@ public final class Helper: @unchecked Sendable {
 	}
 
 	@discardableResult public func process(request: HelperRequest, report: ((HelperReply) -> Void)?, reply: @escaping (Int) -> Void) -> Progress {
-		timer?.invalidate()
+		stopIdleTimer()
 
 		// check if /usr/bin/strip is present
 		var request = request
@@ -147,20 +168,18 @@ public final class Helper: @unchecked Sendable {
 
 			let roots = pending.includes?.map { URL(fileURLWithPath: $0, isDirectory: true) }
 
-			if let roots = roots {
-				// recursively delete directories
-				if let directories = pending.directories, !directories.isEmpty {
-					for root in roots {
-						if progress.isCancelled {
-							break
-						}
-						self.processDirectory(root, context: context)
+			// recursively delete directories
+			if let roots, let directories = pending.directories, !directories.isEmpty {
+				for root in roots {
+					if progress.isCancelled {
+						break
 					}
+					self.processDirectory(root, context: context)
 				}
 			}
 
 			// thin fat binaries
-			if let archs = pending.thin, let roots = roots, !archs.isEmpty {
+			if let archs = pending.thin, let roots, !archs.isEmpty {
 				if let lipo = Lipo(archs: archs) {
 					for root in roots {
 						if progress.isCancelled {
@@ -172,6 +191,10 @@ public final class Helper: @unchecked Sendable {
 			}
 
 			sendableReply.reply(progress.isCancelled ? Int(EXIT_FAILURE) : Int(EXIT_SUCCESS))
+
+			// The daemon goes back to timing itself out, which is also what takes it down when
+			// the app never asks it to exit.
+			self.startIdleTimer()
 		}
 
 		return progress
@@ -349,7 +372,7 @@ public final class Helper: @unchecked Sendable {
 
 					let data = try Data(contentsOf: theURL, options: [.alwaysMapped, .uncached])
 					if data.count >= MemoryLayout<UInt32>.size {
-						data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Void in
+						data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
 							let magic = pointer.load(as: UInt32.self)
 							let isFatMagic = magic == FAT_MAGIC || magic == FAT_CIGAM || magic == FAT_MAGIC_64 || magic == FAT_CIGAM_64
 							if isFatMagic {
@@ -409,11 +432,10 @@ public final class Helper: @unchecked Sendable {
 					logger.error("/usr/bin/strip failed with exit status \(process.terminationStatus, privacy: .public)")
 				}
 
-				let newAttributes = [
-					FileAttributeKey.ownerAccountID: attributes[FileAttributeKey.ownerAccountID]!,
-					FileAttributeKey.groupOwnerAccountID: attributes[FileAttributeKey.groupOwnerAccountID]!,
-					FileAttributeKey.posixPermissions: attributes[FileAttributeKey.posixPermissions]!,
-				]
+				// Whatever of these the file system reports: `strip` rewrote the file, so its
+				// ownership and mode are restored from what it had before.
+				let restoredKeys: Set<FileAttributeKey> = [.ownerAccountID, .groupOwnerAccountID, .posixPermissions]
+				let newAttributes = attributes.filter { restoredKeys.contains($0.key) }
 
 				do {
 					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)

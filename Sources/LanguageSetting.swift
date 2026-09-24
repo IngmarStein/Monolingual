@@ -13,7 +13,7 @@ struct LanguageSetting: Identifiable, Equatable {
 	var enabled: Bool
 	let folders: [String]
 	let displayName: String
-	
+
 	init(enabled: Bool, folders: [String], displayName: String) {
 		self.id = UUID()
 		self.enabled = enabled

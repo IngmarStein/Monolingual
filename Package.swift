@@ -6,10 +6,10 @@ let package = Package(
     platforms: [.macOS(.v26)],
     products: [
         .executable(name: "Helper", targets: ["Helper"]),
-        .executable(name: "lipo", targets: ["lipo"]),
+        .executable(name: "lipo", targets: ["lipo"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2")
     ],
     targets: [
         .target(

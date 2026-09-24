@@ -41,15 +41,16 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 	}
 
 	func isExcluded(_ url: URL) -> Bool {
-		if let excludes = request.excludes {
-			let path = url.path
-			for exclude in excludes {
-				if path.hasPrefix(exclude) {
-					return true
-				}
-			}
+		guard let excludes = request.excludes else {
+			return false
 		}
-		return false
+
+		let path = url.path
+		return excludes.contains { exclude in
+			// Excluding a directory excludes what is below it, and nothing else: comparing
+			// plain prefixes would let "/bin" exclude "/binary" as well.
+			path == exclude || path.hasPrefix(exclude.hasSuffix("/") ? exclude : exclude + "/")
+		}
 	}
 
 	func excludeDirectory(_ url: URL) {
@@ -122,8 +123,7 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 					var displayName: String?
 					if let localization = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: Locale.preferredLanguages).first,
 					   let infoPlistStringsURL = bundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: localization),
-					   let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String]
-					{
+					   let strings = NSDictionary(contentsOf: infoPlistStringsURL) as? [String: String] {
 						displayName = strings["CFBundleDisplayName"]
 					}
 					if displayName == nil {

@@ -73,7 +73,7 @@ if options.include.isEmpty {
 	request.bundleBlocklist = Set<String>(options.bundle)
 	request.directories = Set<String>(options.delete)
 	request.thin = options.thin
-	helper.process(request: request, report: nil) { result -> Void in
+	helper.process(request: request, report: nil) { result in
 		exit(Int32(result))
 	}
 	RunLoop.current.run()
