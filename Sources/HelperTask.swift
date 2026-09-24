@@ -18,6 +18,19 @@ import HelperShared
 import Observation
 
 @MainActor @Observable class HelperTask {
+	/// How a removal ended, for the alert that reports it.
+	enum Outcome {
+		case completed
+		case cancelled
+	}
+
+	/// What a run removes. The progress messages are worded for it: a removal of languages
+	/// names the language a file belongs to, stripping architectures does not.
+	enum Removal {
+		case languages([LanguageSetting])
+		case architectures
+	}
+
 	/// The session to the privileged helper.
 	private var session: XPCSession?
 	/// The listener the helper reports progress and the result on.
@@ -25,19 +38,31 @@ import Observation
 	private var progressResetTimer: Timer?
 	private let logger = Logger()
 	private let installer = HelperInstaller()
+	/// Asking for permission to notify is a prompt, so it is left for the first notification.
+	private var askedForNotificationPermission = false
 	var text = ""
 	var file = ""
 	var byteCount: Int64 = 0
 	var isRunning = false
+	/// Set once a removal is over, and cleared when the user acknowledges the alert it brings up.
+	var outcome: Outcome?
 
 	/// Set when the privileged helper is unavailable, for instance because it still has to be
 	/// allowed in System Settings.
 	var installationFailure: HelperInstallationFailure?
 
-	var languages: [LanguageSetting] = []
-	var mode: MainView.MonolingualMode = .languages
+	/// What the running removal is removing.
+	private var removal: Removal = .languages([])
 
-	func checkAndRunHelper(arguments: HelperRequest) {
+	/// Starts a removal. `removal` says what it covers, which is what its progress messages are
+	/// worded for.
+	func checkAndRunHelper(arguments: HelperRequest, removal: Removal) {
+		self.removal = removal
+
+		// Anything the previous removal reported is acknowledged by now, and a leftover
+		// outcome would present its alert again over this run.
+		outcome = nil
+
 		Task {
 			do {
 				try await installer.installIfNeeded()
@@ -128,13 +153,13 @@ import Observation
 	private func openProgressListener() -> XPCListener {
 		// An anonymous listener listens as soon as it is created, and releasing one is safe;
 		// there is no `activate()` to call, and calling one would be a misuse crash.
-		XPCListener { request in
+		XPCListener { [weak self] request in
 			request.accept { (dictionary: XPCDictionary) -> XPCDictionary? in
 				guard let reply = try? HelperWire.message(HelperReply.self, in: dictionary) else {
 					return nil
 				}
 				Task { @MainActor in
-					self.receive(reply)
+					self?.receive(reply)
 				}
 				return nil
 			}
@@ -151,18 +176,24 @@ import Observation
 		session?.cancel(reason: "finished")
 	}
 
-	/// The helper is gone.
+	/// The session to the helper ended. A helper that has finished a removal exits, and that is
+	/// what ends the session, so this is how every run ends; only a connection that goes away
+	/// while a removal is running is a failure.
 	private func connectionDidEnd(_ error: XPCRichError) {
 		guard session != nil else {
 			return
 		}
+		session = nil
+
+		guard isRunning else {
+			logger.debug("The helper exited: \(String(describing: error), privacy: .public)")
+			return
+		}
 
 		logger.error("Lost the connection to the helper: \(String(describing: error), privacy: .public)")
-		session = nil
-		if isRunning {
-			// It went away mid-removal, so there is no result left to wait for.
-			progressDidEnd(completed: false)
-		}
+		// It went away mid-removal, so there is no result left to wait for.
+		installationFailure = .helperUnreachable
+		progressDidEnd(outcome: nil)
 	}
 
 	// MARK: - Running a request
@@ -224,7 +255,7 @@ import Observation
 		} catch {
 			logger.error("Could not send the progress endpoint: \(error.localizedDescription, privacy: .public)")
 			installationFailure = .helperUnreachable
-			progressDidEnd(completed: false)
+			progressDidEnd(outcome: nil)
 			return
 		}
 
@@ -232,7 +263,7 @@ import Observation
 		guard case .accepted? = reply else {
 			logger.error("The helper did not accept the request")
 			installationFailure = .helperUnreachable
-			progressDidEnd(completed: false)
+			progressDidEnd(outcome: nil)
 			return
 		}
 
@@ -249,27 +280,44 @@ import Observation
 		case let .finished(exitCode):
 			logger.info("Helper finished with exit code: \(exitCode, privacy: .public)")
 			logger.info("Files removed. Space saved: \(self.byteCount)")
-			progressDidEnd(completed: exitCode == Int(EXIT_SUCCESS))
+			progressDidEnd(outcome: exitCode == Int(EXIT_SUCCESS) ? .completed : .cancelled)
 		case .version, .accepted:
 			// Those answer a request directly, and are handled where it is sent.
 			logger.error("Unexpected reply on the progress connection")
 		}
 	}
 
-	/// Ends the run and shuts the helper down.
-	private func progressDidEnd(completed: Bool) {
+	/// Ends the run and shuts the helper down. `outcome` is nil for a run that failed for a
+	/// reason already reported through `installationFailure`, which brings up its own alert.
+	private func progressDidEnd(outcome: Outcome?) {
+		guard isRunning else {
+			return
+		}
+
 		isRunning = false
 		progressResetTimer?.invalidate()
 		progressResetTimer = nil
 
-		// Exiting is also what stops a removal that is still running, so cancel with a code
-		// the helper reads as "stop here".
-		send(.exit(completed ? Int(EXIT_SUCCESS) : Int(EXIT_FAILURE)))
+		// The listener has done its job, but the session is deliberately left open: exiting is
+		// also what stops a removal that is still running, so the message has to reach the
+		// helper before the connection goes away. The helper exits on it, and that is what ends
+		// the session.
+		progressListener?.cancel()
+		progressListener = nil
+		send(.exit(outcome == .completed ? Int(EXIT_SUCCESS) : Int(EXIT_FAILURE)))
 
-		closeConnection()
+		// A helper that does not get around to exiting must not keep the session alive, so it
+		// is closed anyway after a while — unless a newer run has replaced it by then.
+		let endingSession = session
+		Task {
+			try? await Task.sleep(for: .seconds(10))
+			guard session === endingSession else { return }
+			closeConnection()
+		}
 
-		if completed {
-			// TODO: Show completion alert
+		self.outcome = outcome
+
+		if outcome == .completed {
 			notify(title: NSLocalizedString("Monolingual finished", comment: ""),
 			       body: NSLocalizedString("Finished removing files", comment: ""))
 		}
@@ -283,13 +331,13 @@ import Observation
 		text = NSLocalizedString("Canceling operation...", comment: "")
 		file = ""
 
-		// TODO: Show cancellation alert
 		logger.info("Cancelled. Space saved: \(self.byteCount)")
 
-		progressDidEnd(completed: false)
+		progressDidEnd(outcome: .cancelled)
 	}
 
 	private func notify(title: String, body: String) {
+		let center = UNUserNotificationCenter.current()
 		let content = UNMutableNotificationContent()
 		content.title = title
 		content.body = body
@@ -300,34 +348,51 @@ import Observation
 		                                    content: content,
 		                                    trigger: trigger)
 
-		UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+		// The system drops a notification the user has not allowed, and asking for that
+		// permission is a prompt — so it is asked for on the first notification, which is
+		// the one a removal starting posts.
+		Task {
+			if !askedForNotificationPermission {
+				askedForNotificationPermission = true
+				do {
+					guard try await center.requestAuthorization(options: [.alert, .sound]) else {
+						logger.info("Not showing a notification: Monolingual is not allowed to notify")
+						return
+					}
+				} catch {
+					logger.error("Could not ask for permission to notify: \(error.localizedDescription, privacy: .public)")
+					return
+				}
+			}
+
+			do {
+				try await center.add(request)
+			} catch {
+				logger.error("Could not show a notification: \(error.localizedDescription, privacy: .public)")
+			}
+		}
 	}
 
 	private func processProgress(file: URL, size: Int, appName: String?) {
 		log.message("\(file.path): \(size)\n")
 
 		let message: String
-		if mode == .architectures {
+		switch removal {
+		case .architectures:
 			message = NSLocalizedString("Removing architecture from universal binary", comment: "")
-		} else {
-			// parse file name
-			var lang: String?
+		case let .languages(languages):
+			// A file belongs to a language when one of its path components is a folder that
+			// language owns.
+			let displayName = languages.first { language in
+				file.pathComponents.contains { language.folders.contains($0) }
+			}?.displayName
 
-			if mode == .languages {
-				for pathComponent in file.pathComponents where (pathComponent as NSString).pathExtension == "lproj" {
-					for language in self.languages {
-						if language.folders.contains(pathComponent) {
-							lang = language.displayName
-							break
-						}
-					}
-				}
-			}
-			if let app = appName, let lang = lang {
-				message = String(format: NSLocalizedString("Removing language %@ from %@…", comment: ""), lang, app)
-			} else if let lang = lang {
-				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), lang)
-			} else {
+			switch (displayName, appName) {
+			case let (displayName?, app?):
+				message = String(format: NSLocalizedString("Removing language %@ from %@…", comment: ""), displayName, app)
+			case let (displayName?, nil):
+				message = String(format: NSLocalizedString("Removing language %@…", comment: ""), displayName)
+			default:
 				message = String(format: NSLocalizedString("Removing %@…", comment: ""), file.absoluteString)
 			}
 		}

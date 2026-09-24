@@ -9,16 +9,24 @@
 import SwiftUI
 
 struct ProgressView: View {
-	@State private var showingCancelledAlert = false
-	@State private var showingCompletedAlert = false
 	let task: HelperTask
 	@Environment(\.dismiss) var dismiss
 
-	private let byteCountFormatter: Formatter = {
-		let formatter = ByteCountFormatter()
-		formatter.countStyle = .file
-		return formatter
-	}()
+	/// The space a removal freed, in the style the Finder uses.
+	private var spaceSaved: String {
+		ByteCountFormatter.string(fromByteCount: task.byteCount, countStyle: .file)
+	}
+
+	/// Reports how the removal ended. Acknowledging the alert clears the outcome, which is
+	/// also what takes this sheet down.
+	private func alert(_ outcome: HelperTask.Outcome) -> Binding<Bool> {
+		Binding(get: { task.outcome == outcome },
+		        set: { isPresented in
+			if !isPresented {
+				task.outcome = nil
+			}
+		})
+	}
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 10) {
@@ -35,17 +43,15 @@ struct ProgressView: View {
 			}
 		}
 		.padding()
-		.alert("You cancelled the removal. Some files were erased, some were not.", isPresented: $showingCancelledAlert) {
-			// alertStyle = .informational
+		.alert("You cancelled the removal. Some files were erased, some were not.", isPresented: alert(.cancelled)) {
 			Button("OK", role: .cancel) { dismiss() }
 		} message: {
-			Text("Space saved: \(byteCountFormatter.string(for: task.byteCount)!)")
+			Text("Space saved: \(spaceSaved)")
 		}
-		.alert("Files removed.", isPresented: $showingCompletedAlert) {
-			// alertStyle = .informational
+		.alert("Files removed.", isPresented: alert(.completed)) {
 			Button("OK", role: .cancel) { dismiss() }
 		} message: {
-			Text("Space saved: \(byteCountFormatter.string(for: task.byteCount)!)")
+			Text("Space saved: \(spaceSaved)")
 		}
 	}
 }

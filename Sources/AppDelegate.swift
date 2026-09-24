@@ -6,11 +6,15 @@
 //
 //
 
-import Cocoa
+import AppKit
+import UserNotifications
 
-let processApplicationNotification = NSNotification.Name(rawValue: "ProcessApplicationNotification")
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+	/// The bundle the user opened with Monolingual, if any. A removal then covers only that
+	/// bundle. It is kept here rather than posted as a notification: opening a bundle can
+	/// launch the app, and this runs before the window exists to hear one.
+	private(set) var openedApplication: Root?
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
 	// validate values stored in NSUserDefaults and reset to default if necessary
 	private func validateDefaults() {
 		let defaults = UserDefaults.standard
@@ -35,6 +39,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 		UserDefaults.standard.register(defaults: defaultDict)
 
 		validateDefaults()
+
+		// Without a delegate the system keeps a notification to itself while the app is
+		// frontmost, which is where the user is when a removal finishes.
+		UNUserNotificationCenter.current().delegate = self
 	}
 
 	func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
@@ -42,25 +50,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func application(_: NSApplication, openFile filename: String) -> Bool {
-		let dict: [String: Any] = ["Path": filename, "Language": true, "Architectures": true]
-
-		NotificationCenter.default.post(name: processApplicationNotification, object: self, userInfo: dict)
+		openedApplication = Root(path: filename, languages: true, architectures: true)
 
 		return true
 	}
 
-	// MARK: - Actions
+	// MARK: - UNUserNotificationCenterDelegate
 
-	@IBAction func documentationBundler(_ sender: NSMenuItem) {
-		let docURL = Bundle.main.url(forResource: sender.title, withExtension: nil)
-		NSWorkspace.shared.open(docURL!)
-	}
-
-	@IBAction func openWebsite(_: AnyObject) {
-		NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual")!)
-	}
-
-	@IBAction func donate(_: AnyObject) {
-		NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual/donate.html")!)
+	func userNotificationCenter(_: UNUserNotificationCenter, willPresent _: UNNotification) async -> UNNotificationPresentationOptions {
+		[.banner]
 	}
 }

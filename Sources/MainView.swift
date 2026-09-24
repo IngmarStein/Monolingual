@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AppKit
 import OSLog
 #if canImport(HelperShared)
 import HelperShared
@@ -17,11 +18,6 @@ func mach_task_self() -> mach_port_t {
 }
 
 struct MainView: View {
-	enum MonolingualMode: Int {
-		case languages = 0
-		case architectures
-	}
-
 	struct ArchitectureInfo {
 		let name: String
 		let displayName: String
@@ -35,22 +31,20 @@ struct MainView: View {
 	@State private var showingRemoveLanguagesAlert = false
 	@State private var showingUnchangedAlert = false
 	@State private var showingEnglishAlert = false
-	@State private var showingProgressView = false
 	@State private var showingAllArchitecturesAlert = false
 
 	@State private var blocklist: [BlocklistEntry] = []
 
-	@State private var mode: MonolingualMode = .languages
 	@State private var helperTask = HelperTask()
-	@State private var processApplication: Root?
-	@State private var processApplicationObserver: NSObjectProtocol?
 
 	private let sipProtectedLocations = ["/System", "/bin"]
 
 	private let logger = Logger()
 
 	private var roots: [Root] {
-		if let application = self.processApplication {
+		// A bundle the user opened with Monolingual is the only root, so that a removal
+		// started from it covers nothing else.
+		if let application = (NSApp.delegate as? AppDelegate)?.openedApplication {
 			return [application]
 		} else {
 			if let pref = UserDefaults.standard.array(forKey: "Roots") as? [[String: AnyObject]] {
@@ -61,9 +55,20 @@ struct MainView: View {
 		}
 	}
 
-	func removeArchitectures() {
-		mode = .architectures
+	/// A removal keeps the progress sheet up for as long as it runs, and the alert that
+	/// reports how it ended stays on it until the user acknowledges it. A removal that
+	/// failed for a reason the app reports itself leaves both off, which takes the sheet
+	/// down on its own.
+	private var isShowingProgress: Binding<Bool> {
+		Binding(get: { helperTask.isRunning || helperTask.outcome != nil },
+		        set: { isPresented in
+			if !isPresented {
+				helperTask.outcome = nil
+			}
+		})
+	}
 
+	func removeArchitectures() {
 		log.open()
 
 		let version = (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "vUNKNOWN"
@@ -102,7 +107,7 @@ struct MainView: View {
 				logger.info("Excluding root \(exclude, privacy: .public)")
 			}
 
-			helperTask.checkAndRunHelper(arguments: request)
+			helperTask.checkAndRunHelper(arguments: request, removal: .architectures)
 		} else {
 			log.close()
 		}
@@ -145,8 +150,6 @@ struct MainView: View {
 	}
 
 	private func removeLanguages() {
-		mode = .languages
-
 		log.open()
 		let version = (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "vUNKNOWN"
 		log.message("Monolingual \(version) started\n")
@@ -199,7 +202,7 @@ struct MainView: View {
 			request.excludes = excludes
 			request.directories = folders
 
-			helperTask.checkAndRunHelper(arguments: request)
+			helperTask.checkAndRunHelper(arguments: request, removal: .languages(languages))
 		} else {
 			log.close()
 		}
@@ -251,7 +254,6 @@ struct MainView: View {
 			return setting
 		}.sorted { $0.displayName < $1.displayName }
 
-		// swiftlint:disable comma
 		let archs = [
 			ArchitectureInfo(name: "arm", displayName: "ARM", cpuType: CPU_TYPE_ARM, cpuSubtype: CPU_SUBTYPE_ARM_ALL),
 			ArchitectureInfo(name: "arm64", displayName: "ARM64", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64_ALL),
@@ -266,9 +268,8 @@ struct MainView: View {
 			ArchitectureInfo(name: "ppc970-64", displayName: "PowerPC G5 64-bit", cpuType: CPU_TYPE_POWERPC64, cpuSubtype: CPU_SUBTYPE_POWERPC_970),
 			ArchitectureInfo(name: "x86", displayName: "Intel 32-bit", cpuType: CPU_TYPE_X86, cpuSubtype: CPU_SUBTYPE_X86_ALL),
 			ArchitectureInfo(name: "x86_64", displayName: "Intel 64-bit", cpuType: CPU_TYPE_X86_64, cpuSubtype: CPU_SUBTYPE_X86_64_ALL),
-			ArchitectureInfo(name: "x86_64h", displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64, cpuSubtype: CPU_SUBTYPE_X86_64_H),
+			ArchitectureInfo(name: "x86_64h", displayName: "Intel 64-bit (Haswell)", cpuType: CPU_TYPE_X86_64, cpuSubtype: CPU_SUBTYPE_X86_64_H)
 		]
-		// swiftlint:enable comma
 
 		var infoCount = mach_msg_type_number_t(MemoryLayout<host_basic_info_data_t>.size / MemoryLayout<integer_t>.size) // HOST_BASIC_INFO_COUNT
 		let hostInfoPointer = host_basic_info_t.allocate(capacity: 1)
@@ -320,23 +321,7 @@ struct MainView: View {
 			let decoder = PropertyListDecoder()
 			self.blocklist = (try? decoder.decode([BlocklistEntry].self, from: blocklist.data)) ?? []
 		}
-		/*
-		 self.processApplicationObserver = NotificationCenter.default.addObserver(forName: processApplicationNotification, object: nil, queue: nil) { [weak self] notification in
-		 if let dictionary = notification.userInfo {
-		 self?.processApplication = Root(dictionary: dictionary)
-		 }
-		 }
-		 */
 	}
-
-	/*
-	deinit {
-		if let observer = self.processApplicationObserver {
-			NotificationCenter.default.removeObserver(observer)
-		}
-		xpcServiceConnection.invalidate()
-	}
-	 */
 
 	var body: some View {
 		TabView {
@@ -360,28 +345,13 @@ struct MainView: View {
 						// Display a warning first
 						showingRemoveLanguagesAlert = true
 					}
-					.sheet(isPresented: $showingProgressView) {
-						ProgressView(task: helperTask)
-					}
 					.alert("Are you sure you want to remove these languages?", isPresented: $showingRemoveLanguagesAlert) {
-						//alertStyle = .warning
 						Button("Cancel", role: .cancel) {}
 						Button("Continue", role: .destructive) {
 							checkAndRemove()
 						}
 					} message: {
 						Text("You will not be able to restore them without reinstalling macOS.")
-					}
-					.alert("Monolingual is stopping without making any changes.", isPresented: $showingUnchangedAlert) {
-						Button("OK", role: .cancel) {}
-					} message: {
-						Text("Your OS has not been modified.")
-					}
-					.alert("Removing all architectures will make macOS inoperable.", isPresented: $showingAllArchitecturesAlert) {
-						Button("OK", role: .cancel) {}
-					} message: {
-						// alertStyle = .informational
-						Text("Please keep at least one architecture and try again.")
 					}
 				}.padding()
 			}
@@ -414,6 +384,25 @@ struct MainView: View {
 			}
 		}
 		.padding()
+		// Attached here rather than to the button that starts a removal, so that the sheet
+		// reports a removal from either tab. The architecture tab has no confirmation alert
+		// of its own, but it does produce an outcome like any other run.
+		.sheet(isPresented: isShowingProgress) {
+			ProgressView(task: helperTask)
+		}
+		// Neither of these is about the languages tab alone: a removal that covers nothing and
+		// a removal of every architecture are both decided across tabs, so they present on top
+		// of whichever one the user is on.
+		.alert("Monolingual is stopping without making any changes.", isPresented: $showingUnchangedAlert) {
+			Button("OK", role: .cancel) {}
+		} message: {
+			Text("Your OS has not been modified.")
+		}
+		.alert("Removing all architectures will make macOS inoperable.", isPresented: $showingAllArchitecturesAlert) {
+			Button("OK", role: .cancel) {}
+		} message: {
+			Text("Please keep at least one architecture and try again.")
+		}
 		.alert(helperTask.installationFailure?.title ?? "", isPresented: Binding(
 			get: { helperTask.installationFailure != nil },
 			set: { isPresented in
