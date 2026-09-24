@@ -6,7 +6,7 @@ Monolingual is a macOS utility for removing unnecessary language localization fi
 ### Key Technologies
 - **Language:** Swift 6 (Swift 6 language mode), deployment target macOS 26
 - **UI Framework:** SwiftUI & AppKit
-- **Build System:** Xcode (`.xcodeproj`), Fastlane (Swift)
+- **Build System:** Xcode (`.xcodeproj`), Fastlane (Ruby)
 - **Dependency Management:** Swift Package Manager (SPM), Bundler (for Fastlane)
 - **Dependencies:** Sparkle (updates), swift-argument-parser (for the `lipo` tool)
 
@@ -37,7 +37,7 @@ The application is composed of two main components:
 - `Sources/`: Main application source code.
 - `Helper/`: Source code for the privileged helper tool.
 - `lipo/`: Source code for the custom `lipo` tool used for architecture stripping.
-- `fastlane/`: Build automation configuration (using Fastlane Swift).
+- `fastlane/`: Build automation configuration (using Fastlane, configured in `Fastfile`).
 - `Makefile`: Entry points for build and release automation.
 - `Package.swift`: Swift Package Manager definition for dependencies.
 
