@@ -4,7 +4,7 @@
 Monolingual is a macOS utility for removing unnecessary language localization files to reclaim disk space. It is written in Swift and utilizes a modular architecture involving a sandboxed main application and a privileged helper tool.
 
 ### Key Technologies
-- **Language:** Swift 6 (Swift 6 language mode), deployment target macOS 26
+- **Language:** Swift 6 (Swift 6 language mode), app deployment target macOS 27 (the helper and `lipo` target macOS 26)
 - **UI Framework:** SwiftUI & AppKit
 - **Build System:** Xcode (`.xcodeproj`), Fastlane (Ruby)
 - **Dependency Management:** Swift Package Manager (SPM), Bundler (for Fastlane)
@@ -18,7 +18,7 @@ The application is composed of two main components:
 ## Build & Development
 
 ### Prerequisites
-- Xcode 27+ (the project targets macOS 26)
+- Xcode 27+ (the app targets macOS 27, its helper macOS 26)
 - Ruby & Bundler
 - Python 3 (for helper scripts)
 
