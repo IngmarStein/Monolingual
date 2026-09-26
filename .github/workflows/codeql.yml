@@ -59,6 +59,19 @@ jobs:
         # queries: security-extended,security-and-quality
 
 
+    # Xcode evaluates package manifests under /usr/bin/sandbox-exec. The CodeQL tracer
+    # relocates that platform binary before spawning it (`relocator
+    # --must-retain-slice-with-arch`, which shells out to /usr/bin/lipo), and on macOS 27
+    # it only carries arm64e slices, which lipo cannot thin to arm64. The relocated copy is
+    # then not runnable and posix_spawn fails with "Bad CPU type in executable (86)", which
+    # aborts the autobuild while it resolves package dependencies.
+    # Turning the manifest sandbox off keeps the traced build from spawning that binary.
+    - name: Disable SwiftPM manifest sandbox
+      if: matrix.language == 'swift'
+      run: |
+        defaults write -g IDEPackageSupportDisableManifestSandbox -bool YES
+        defaults write com.apple.dt.xcodebuild IDEPackageSupportDisableManifestSandbox -bool YES
+
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
