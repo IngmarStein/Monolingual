@@ -46,11 +46,30 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v7
 
+    # Evaluating Package.swift spawns the package manifest under /usr/bin/sandbox-exec. The CodeQL
+    # tracer relocates platform binaries before spawning them (`relocator
+    # --must-retain-slice-with-arch`, which shells out to /usr/bin/lipo), and macOS 27's
+    # sandbox-exec only carries arm64e slices, which lipo cannot thin to arm64. The relocated copy
+    # is not runnable and posix_spawn fails with "Bad CPU type in executable (86)", which aborts
+    # the build while it loads the package graph.
+    # Resolving the package dependencies here — before CodeQL instruments the job — fills SwiftPM's
+    # manifest cache, so the traced build below reads the evaluated manifests back instead of
+    # spawning the manifest sandbox again.
+    - name: Resolve package dependencies
+      if: matrix.language == 'swift'
+      run: |
+        xcodebuild -project Monolingual.xcodeproj -scheme Monolingual \
+          -destination 'platform=macOS' \
+          -resolvePackageDependencies
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4.38.1
       with:
         languages: ${{ matrix.language }}
+        # Swift is compiled, so it is built below; javascript and ruby are analyzed from
+        # source alone and need no build.
+        build-mode: ${{ matrix.language == 'swift' && 'manual' || 'none' }}
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -58,34 +77,18 @@ jobs:
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-
-    # Xcode evaluates package manifests under /usr/bin/sandbox-exec. The CodeQL tracer
-    # relocates that platform binary before spawning it (`relocator
-    # --must-retain-slice-with-arch`, which shells out to /usr/bin/lipo), and on macOS 27
-    # it only carries arm64e slices, which lipo cannot thin to arm64. The relocated copy is
-    # then not runnable and posix_spawn fails with "Bad CPU type in executable (86)", which
-    # aborts the autobuild while it resolves package dependencies.
-    # Turning the manifest sandbox off keeps the traced build from spawning that binary.
-    - name: Disable SwiftPM manifest sandbox
+    # CodeQL's autobuild builds `xcodebuild -target Monolingual`, and building a target
+    # directly never resolves the package dependencies, so the Helper target fails with
+    # "no such module 'ArgumentParser'". Build the scheme instead.
+    - name: Build
       if: matrix.language == 'swift'
       run: |
-        defaults write -g IDEPackageSupportDisableManifestSandbox -bool YES
-        defaults write com.apple.dt.xcodebuild IDEPackageSupportDisableManifestSandbox -bool YES
-
-    # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v4.38.1
-
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-
-    #   If the Autobuild fails above, remove it and uncomment the following three lines.
-    #   modify them (or add more) to build your code if your project, please refer to the EXAMPLE below for guidance.
-
-    # - run: |
-    #     echo "Run, Build Application using script"
-    #     ./location_of_script_within_repo/buildscript.sh
+        xcodebuild -project Monolingual.xcodeproj -scheme Monolingual \
+          -destination 'platform=macOS' \
+          CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+          COMPILATION_CACHE_ENABLE_CACHING=NO SWIFT_ENABLE_COMPILE_CACHE=NO \
+          SWIFT_USE_INTEGRATED_DRIVER=NO \
+          build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4.38.1
