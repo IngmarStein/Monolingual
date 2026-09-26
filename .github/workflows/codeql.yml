@@ -77,7 +77,6 @@ jobs:
           -scheme Monolingual \
           -destination "generic/platform=macOS" \
           -IDEPackageSupportDisableManifestSandbox=1 \
-          OTHER_SWIFT_FLAGS='$(inherited) -disable-sandbox' \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
           COMPILATION_CACHE_ENABLE_CACHING=NO \
