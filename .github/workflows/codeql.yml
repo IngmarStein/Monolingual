@@ -62,7 +62,26 @@ jobs:
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
+      if: matrix.language != 'swift'
       uses: github/codeql-action/autobuild@v4.38.1
+
+    - name: Build Monolingual
+      if: matrix.language == 'swift'
+      shell: bash
+      # Work around CodeQL's build tracer on macOS 27: SwiftPM manifest evaluation
+      # spawns /usr/bin/sandbox-exec, which currently fails under tracing with
+      # "Bad CPU type in executable (86)" on the xcode-27 runner.
+      run: |
+        xcodebuild build \
+          -project Monolingual.xcodeproj \
+          -scheme Monolingual \
+          -destination "generic/platform=macOS" \
+          -IDEPackageSupportDisableManifestSandbox=1 \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          COMPILATION_CACHE_ENABLE_CACHING=NO \
+          SWIFT_ENABLE_COMPILE_CACHE=NO \
+          SWIFT_USE_INTEGRATED_DRIVER=NO
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
