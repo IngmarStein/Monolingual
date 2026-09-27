@@ -9,7 +9,7 @@ SOURCE_DIR=$(TOP)
 BUILD_DIR=$(TOP)/build
 CODESIGN_IDENTITY='Developer ID Application: Ingmar Stein (ADVP2P7SJK)'
 
-.PHONY: all release development deployment archive clean
+.PHONY: all release development deployment clean
 
 all: deployment
 

@@ -4,8 +4,9 @@
 # Usage: make-diskimage <image_file>
 #                       <src_folder>
 #                       <volume_name>
-#                       <applescript>
-#                       <eula_resource_file>
+#                       <codesign_identity>
+#                       [applescript]
+#                       [eula_resource_file]
 
 set -e;
 
@@ -28,8 +29,18 @@ hdiutil create -srcfolder "$SRC_FOLDER" -nocrossdev -volname "$VOLUME_NAME" -fs 
 
 # mount it
 echo "mounting disk image"
-MOUNT_DIR=/Volumes/$VOLUME_NAME
-DEV_NAME=$(hdiutil attach -readwrite -noverify -noautoopen "$DMG_TEMP_NAME" | grep -E '^/dev/' | sed 1q | awk '{print $1}')
+ATTACH_OUTPUT=$(hdiutil attach -readwrite -noverify -noautoopen "$DMG_TEMP_NAME")
+DEV_NAME=$(echo "$ATTACH_OUTPUT" | grep -E '^/dev/' | sed 1q | awk '{print $1}')
+# The mount point comes from the attach output rather than from $VOLUME_NAME: a volume of that
+# name may already be mounted, in which case this one is attached as "<name> 1" and a path built
+# from $VOLUME_NAME would name — and then chmod — the volume that was already there. The first
+# line naming a device is the whole disk and carries no mount point, so the line that has one is
+# the one to read.
+MOUNT_DIR=$(echo "$ATTACH_OUTPUT" | awk -F'\t' '$1 ~ /^\/dev\// && $3 != "" { print $3; exit }')
+if [ -z "$MOUNT_DIR" ]; then
+	echo "$DMG_TEMP_NAME was not mounted" >&2
+	exit 1
+fi
 
 # run applescript
 if [ -n "${APPLESCRIPT}" ] && [ "${APPLESCRIPT}" != "-null-" ]; then

@@ -12,3 +12,9 @@ updates:
     interval: daily
     time: "11:00"
   open-pull-requests-limit: 10
+- package-ecosystem: swift
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
