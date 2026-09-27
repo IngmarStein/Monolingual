@@ -312,10 +312,13 @@ public class Lipo {
 				let fatArchsRawPointer = UnsafeRawBufferPointer(rebasing: buffer.dropFirst(MemoryLayout<fat_header>.size))
 				let fatArchsPointer = fatArchsRawPointer.bindMemory(to: fat_arch.self)
 				let fatArchsCount = Int(fatHeader.nfat_arch)
-				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer.baseAddress!, count: fatArchsCount)).map { self.fatArchFromFile($0) }
+				let fatArchs = Array(UnsafeBufferPointer<fat_arch>(start: fatArchsPointer.baseAddress, count: fatArchsCount)).map { self.fatArchFromFile($0) }
 				var fatArchSet = Set<ArchKey>()
 				for fatArch in fatArchs {
-					if Int(fatArch.offset + fatArch.size) > size {
+					// Both are read out of the file, so the sum is not formed: it overflows — and
+					// traps — on a crafted fat_arch, and the helper processes files it does not own.
+					// Subtracting instead cannot overflow, given the first comparison.
+					if UInt64(fatArch.offset) > UInt64(size) || UInt64(fatArch.size) > UInt64(size) - UInt64(fatArch.offset) {
 						logger.error("truncated or malformed fat file (offset plus size of cputype (\(fatArch.cputype, privacy: .public) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public) extends past the end of the file) \(self.fileName, privacy: .public)")
 						return false
 					}
@@ -359,10 +362,13 @@ public class Lipo {
 				let fatArchsRawPointer = UnsafeRawBufferPointer(rebasing: buffer.dropFirst(MemoryLayout<fat_header>.size))
 				let fatArchsPointer = fatArchsRawPointer.bindMemory(to: fat_arch_64.self)
 				let fatArchsCount = Int(fatHeader.nfat_arch)
-				let fatArchs = Array(UnsafeBufferPointer<fat_arch_64>(start: fatArchsPointer.baseAddress!, count: fatArchsCount)).map { self.fatArch64FromFile($0) }
+				let fatArchs = Array(UnsafeBufferPointer<fat_arch_64>(start: fatArchsPointer.baseAddress, count: fatArchsCount)).map { self.fatArch64FromFile($0) }
 				var fatArchSet = Set<ArchKey>()
 				for fatArch in fatArchs {
-					if Int(fatArch.offset + fatArch.size) > size {
+					// Both are read out of the file, so the sum is not formed: it overflows — and
+					// traps — on a crafted fat_arch, and the helper processes files it does not own.
+					// Subtracting instead cannot overflow, given the first comparison.
+					if UInt64(fatArch.offset) > UInt64(size) || UInt64(fatArch.size) > UInt64(size) - UInt64(fatArch.offset) {
 						logger.error("truncated or malformed fat file (offset plus size of cputype (\(fatArch.cputype, privacy: .public)) cpusubtype (\(cpuSubtypeWithMask(fatArch.cpusubtype), privacy: .public)) extends past the end of the file) \(self.fileName, privacy: .public)")
 						return false
 					}
@@ -402,14 +408,29 @@ public class Lipo {
 	 * createFat() creates a fat output file from the thin files.
 	 */
 	private func createFat(newsize: inout Int) -> Bool {
-		let temporaryFile = "\(fileName!).lipo"
-
-		let fd = open(temporaryFile, O_WRONLY | O_CREAT | O_TRUNC, 0o700)
+		// The output is written next to the file it replaces, so that the replace below stays on
+		// one volume. `mkstemp` picks the name and creates the file exclusively, without following
+		// a symbolic link: the helper runs as root over directories a user can write to, where a
+		// predictable name — or a link planted at it — would otherwise redirect the write.
+		var template = Array("\(fileName!).lipo.XXXXXX".utf8CString)
+		let fd = mkstemp(&template)
 		if fd == -1 {
-			logger.error("can't create temporary output file: \(temporaryFile, privacy: .public)")
+			logger.error("can't create temporary output file next to \(self.fileName, privacy: .public)")
 			return false
 		}
+		let temporaryFile = template.withUnsafeBufferPointer { buffer in
+			String(cString: buffer.baseAddress!)
+		}
 		let fileHandle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+
+		// None of the failures below cleans up after itself, and a half-written file left inside
+		// an app bundle is worse than the failure that came with it.
+		var didReplace = false
+		defer {
+			if !didReplace {
+				try? FileManager.default.removeItem(atPath: temporaryFile)
+			}
+		}
 
 		// sort the files by alignment to save space in the output file
 		if thinFiles.count > 1 {
@@ -593,9 +614,9 @@ public class Lipo {
 		let inputURL = URL(fileURLWithPath: fileName, isDirectory: false)
 		do {
 			try FileManager.default.replaceItem(at: inputURL, withItemAt: temporaryURL, backupItemName: nil, options: [], resultingItemURL: nil)
+			didReplace = true
 		} catch {
 			logger.error("can't move temporary file: '\(temporaryFile, privacy: .public)' to file '\(self.fileName, privacy: .public)': \(error.localizedDescription)")
-			try? FileManager.default.removeItem(at: temporaryURL)
 			return false
 		}
 
