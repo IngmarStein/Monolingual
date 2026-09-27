@@ -5,6 +5,9 @@
     * MonolingualHelper-Info.plist
     * InfoPlist.strings
     * Makefile
+    * the screenshot in each `Resources/*.rtfd` help bundle: rename
+      `Monolingual-<version>-<lang>.png` and update the `\NeXTGraphic` reference to it in that
+      bundle's `TXT.rtf`
 2. Add changelog to readmes
 3. Set `FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD`
 4. `make release`

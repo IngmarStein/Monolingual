@@ -20,15 +20,15 @@ The application is composed of two main components:
 ### Prerequisites
 - Xcode 27+ (the app targets macOS 27, its helper macOS 26)
 - Ruby & Bundler
-- Python 3 (for helper scripts)
 
 ### Commands
 - **Install Dependencies:** `bundle install`
 - **Build (Debug):** `make development` (executes `bundle exec fastlane build_debug`)
 - **Build (Release):** `make deployment` (executes `bundle exec fastlane release`)
-- **Release Packaging:** `make release` (Handles signing, notarization, and DMG creation)
-- **Tests:** `xcodebuild -scheme "Helper Tests" -destination 'platform=macOS' test`
-  (notarization is exercised by `bundle exec fastlane notarize_artifacts`)
+- **Release Packaging:** `make release` (Handles signing, notarization, and DMG creation; notarization
+  is exercised by `bundle exec fastlane notarize_artifacts`)
+- **Tests:** `swift test`, or `xcodebuild -scheme Helper -destination 'platform=macOS' test`
+  (the `Helper` scheme's test action runs the `Helper Tests` target).
 - **Linting/Formatting:** The project includes `.swiftlint.yml` and `.swiftformat` configurations. Ensure these tools are run to maintain code style.
 - Building the `Helper` target directly (`xcodebuild -target Helper`) fails dependency scanning
   for SPM's ArgumentParser; build the schemes instead (`-scheme Helper`, `-scheme Monolingual`).
