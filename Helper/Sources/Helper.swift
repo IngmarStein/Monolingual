@@ -44,8 +44,22 @@ public final class Helper: @unchecked Sendable {
 	private var isRootless = true
 	private let logger = Logger()
 
+	/// The version of the Monolingual whose helper this is.
+	///
+	/// The helper is an executable in `Contents/MacOS` of the app bundle. For such an executable
+	/// `Bundle.main` names the enclosing `.app` but answers `object(forInfoDictionaryKey:)` from
+	/// the info dictionary compiled into the executable, which would make the app and its helper
+	/// carry a version each — two hardcoded strings that a release has to bump together. The
+	/// app's info dictionary is what the app compares against, so it is read here, and the
+	/// version of the helper itself is only the fallback for running the binary on its own.
 	public var version: String {
-		Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "vUNKNOWN"
+		let appPlist = Bundle.main.bundleURL.appending(path: "Contents/Info.plist")
+		if let data = try? Data(contentsOf: appPlist),
+		   let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
+		   let version = plist[kCFBundleVersionKey as String] as? String {
+			return version
+		}
+		return Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "vUNKNOWN"
 	}
 
 	public init() {
@@ -119,7 +133,9 @@ public final class Helper: @unchecked Sendable {
 		// instead of working through the whole tree first.
 		currentProgress?.cancel()
 		workerQueue.waitUntilAllOperationsAreFinished()
-		Darwin.exit(Int32(code))
+		// `code` arrives over XPC: `Int32(_:)` would trap on a value out of range, and trapping
+		// here would take the daemon down mid-removal instead of exiting cleanly.
+		Darwin.exit(Int32(clamping: code))
 	}
 
 	@discardableResult public func process(request: HelperRequest, report: ((HelperReply) -> Void)?, reply: @escaping (Int) -> Void) -> Progress {
@@ -156,16 +172,6 @@ public final class Helper: @unchecked Sendable {
 		let pending = request
 
 		workerQueue.addOperation {
-			// delete regular files
-			if let files = pending.files {
-				for file in files {
-					if progress.isCancelled {
-						break
-					}
-					context.remove(URL(fileURLWithPath: file, isDirectory: false))
-				}
-			}
-
 			let roots = pending.includes?.map { URL(fileURLWithPath: $0, isDirectory: true) }
 
 			// recursively delete directories

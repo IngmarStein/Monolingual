@@ -21,7 +21,6 @@ public struct HelperRequest: Codable, Sendable, Equatable {
 	public var excludes: [String]?
 	public var bundleBlocklist: Set<String>?
 	public var directories: Set<String>?
-	public var files: [String]?
 	public var thin: [String]?
 
 	public init() {}

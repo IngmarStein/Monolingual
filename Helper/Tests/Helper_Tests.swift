@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import os
 import XCTest
 #if canImport(HelperShared)
 import HelperShared
@@ -28,7 +29,7 @@ import HelperShared
 	nonisolated private func createTestApp(name: String, bundleIdentifier: String) {
 		do {
 			let appDir = testDir.appendingPathComponent("\(name).app")
-			let localizableStringsData = Data(base64Encoded: "dGVzdA==", options: [])!
+			let localizableStringsData = Data("test".utf8)
 			let infoPlist = ["CFBundleIdentifier": bundleIdentifier] as NSDictionary
 			let fileManager = FileManager.default
 
@@ -203,25 +204,22 @@ import HelperShared
 		request.bundleBlocklist = ["com.test.blocked"]
 		request.thin = ["i386"]
 
-		let replies: NSLock = NSLock()
-		var received: [HelperReply] = []
-		var requests: [HelperMessage] = []
 		let reports = expectation(description: "progress, result and the request arrived")
 		reports.expectedFulfillmentCount = 5
+
+		// What the listener collects arrives on XPC's queue, so it is held in a lock rather than
+		// in variables the test body would be reaching into from another thread.
+		let collected = OSAllocatedUnfairLock(initialState: (replies: [HelperReply](), requests: [HelperMessage]()))
 
 		let listener = XPCListener { incoming in
 			incoming.accept { (dictionary: XPCDictionary) -> XPCDictionary? in
 				if let reply = try? HelperWire.message(HelperReply.self, in: dictionary) {
-					replies.lock()
-					received.append(reply)
-					replies.unlock()
+					collected.withLock { $0.replies.append(reply) }
 					reports.fulfill()
 					return nil
 				}
 				if let message = try? HelperWire.message(HelperMessage.self, in: dictionary) {
-					replies.lock()
-					requests.append(message)
-					replies.unlock()
+					collected.withLock { $0.requests.append(message) }
 					reports.fulfill()
 					return try? HelperWire.dictionary(for: HelperReply.accepted)
 				}
@@ -252,13 +250,10 @@ import HelperShared
 			}
 		}
 
-		replies.lock()
-		let gotReplies = received
-		let gotRequests = requests
-		replies.unlock()
+		let got = collected.withLock { $0 }
 
-		XCTAssertEqual(gotRequests, [.version, .exit(0)], "the messages the app sends should arrive")
-		XCTAssertEqual(gotReplies, [
+		XCTAssertEqual(got.requests, [.version, .exit(0)], "the messages the app sends should arrive")
+		XCTAssertEqual(got.replies, [
 			.progress(file: "/Applications/Foo.app/Contents/Resources/fr.lproj", size: 4096, appName: "Foo"),
 			.finished(exitCode: 0)
 		], "the replies the helper sends should arrive")

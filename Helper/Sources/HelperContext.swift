@@ -176,6 +176,11 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 
 			var fileSize: [URL: Int] = [:]
 
+			// Nothing is changed while the tree is being walked: the walk can end in the early
+			// return below, and attributes already set would stay set on a directory that is never
+			// trashed — leaving a system directory owned by the user.
+			var reown: [(url: URL, attributes: [FileAttributeKey: Any])] = []
+
 			// check if any file below `url` has been blocked and record sizes
 			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey], options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
@@ -198,9 +203,13 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 						} else {
 							attributes = [.ownerAccountID: request.uid]
 						}
-						try fileManager.setAttributes(attributes, ofItemAtPath: theURL.path)
+						reown.append((theURL, attributes))
 					} catch {}
 				}
+			}
+
+			for (theURL, attributes) in reown {
+				try? fileManager.setAttributes(attributes, ofItemAtPath: theURL.path)
 			}
 
 			let parent = url.deletingLastPathComponent()
@@ -221,7 +230,7 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 				success = true
 			} catch let error1 {
 				error = error1
-				logger.error("Could not move \(url.absoluteString, privacy: .public) to trash: \(error!.localizedDescription, privacy: .public)")
+				logger.error("Could not move \(url.absoluteString, privacy: .public) to trash: \(error1.localizedDescription, privacy: .public)")
 				success = false
 			}
 			seteuid(0)
@@ -252,12 +261,11 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 				try fileManager.removeItem(at: url)
 			} catch let error1 {
 				error = error1
-				if let error = error as NSError? {
-					if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain, underlyingError.code == Int(ENOTEMPTY) {
-						// ignore non-empty directories (they might contain blocklisted files and cannot be removed)
-					} else {
-						logger.error("Error removing '\(url.path, privacy: .public)': \(error, privacy: .public)")
-					}
+				let nsError = error1 as NSError
+				if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError, underlyingError.domain == NSPOSIXErrorDomain, underlyingError.code == Int(ENOTEMPTY) {
+					// ignore non-empty directories (they might contain blocklisted files and cannot be removed)
+				} else {
+					logger.error("Error removing '\(url.path, privacy: .public)': \(nsError, privacy: .public)")
 				}
 			}
 		}
