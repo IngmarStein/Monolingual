@@ -14,7 +14,9 @@ struct PreferencesView: View {
 	@State private var selection: Root.ID?
 	@AppStorage("Trash") var trash: Bool = false
 	@AppStorage("Strip") var strip: Bool = false
-	@AppStorage("SUEnableAutomaticChecks") var automaticChecks: Bool = false
+	// Sparkle falls back to `SUEnableAutomaticChecks` in the Info.plist while the default has
+	// never been written, and that one is set: the toggle has to start out matching it.
+	@AppStorage("SUEnableAutomaticChecks") var automaticChecks: Bool = true
 
 	var body: some View {
 		VStack(alignment: .leading) {

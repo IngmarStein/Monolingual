@@ -227,6 +227,10 @@ import Observation
 		}
 		guard helperVersion == HelperInstaller.appVersion else {
 			logger.error("Unexpected helper version: \(helperVersion, privacy: .public)")
+			// The daemon is running the helper of another copy of Monolingual, so this app's own
+			// registration did not take. Forgetting the recorded version makes the next attempt
+			// register the daemon again instead of concluding there is nothing left to do.
+			HelperInstaller.forgetRegisteredVersion()
 			installationFailure = .outdatedHelper(helperVersion)
 			return
 		}
@@ -342,11 +346,12 @@ import Observation
 		content.title = title
 		content.body = body
 
-		let now = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second, .timeZone], from: Date())
-		let trigger = UNCalendarNotificationTrigger(dateMatching: now, repeats: false)
+		// A trigger listing every component of the current date never matches again, so the
+		// system would drop the notification without ever showing it. A nil trigger is how a
+		// notification is delivered right away.
 		let request = UNNotificationRequest(identifier: UUID().uuidString,
 		                                    content: content,
-		                                    trigger: trigger)
+		                                    trigger: nil)
 
 		// The system drops a notification the user has not allowed, and asking for that
 		// permission is a prompt — so it is asked for on the first notification, which is

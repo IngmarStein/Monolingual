@@ -30,7 +30,6 @@ struct MainView: View {
 	@State private var currentArchitecture = "unknown"
 	@State private var showingRemoveLanguagesAlert = false
 	@State private var showingUnchangedAlert = false
-	@State private var showingEnglishAlert = false
 	@State private var showingAllArchitecturesAlert = false
 
 	@State private var blocklist: [BlocklistEntry] = []
@@ -83,38 +82,45 @@ struct MainView: View {
 		log.message("\nModified files:\n")
 
 		let numArchs = archs.count
-		if numArchs == architectures.count {
+		if numArchs == 0 {
+			// Asking to remove nothing is answered the same way as a removal that turns out to
+			// have nothing to do: say so instead of doing nothing at all.
+			showingUnchangedAlert = true
+			log.close()
+		} else if numArchs == architectures.count {
 			showingAllArchitecturesAlert = true
 			log.close()
-		} else if numArchs > 0 {
+		} else {
 			// start things off if we have something to remove!
 			let roots = roots
 
-			var request = HelperRequest()
-			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
-			request.bundleBlocklist = Set<String>(blocklist.filter(\.architectures).map(\.bundle))
-			request.includes = roots.filter(\.architectures).map(\.path)
-			request.excludes = roots.filter { !$0.architectures }.map(\.path) + sipProtectedLocations
-			request.thin = archs
+			let includes = roots.filter(\.architectures).map(\.path)
+			let excludes = roots.filter { !$0.architectures }.map(\.path) + sipProtectedLocations
+			let bl = Set<String>(blocklist.filter(\.architectures).map(\.bundle))
 
-			for item in request.bundleBlocklist! {
+			for item in bl {
 				logger.info("Blocking \(item, privacy: .public)")
 			}
-			for include in request.includes! {
+			for include in includes {
 				logger.info("Adding root \(include, privacy: .public)")
 			}
-			for exclude in request.excludes! {
+			for exclude in excludes {
 				logger.info("Excluding root \(exclude, privacy: .public)")
 			}
 
+			var request = HelperRequest()
+			request.doStrip = UserDefaults.standard.bool(forKey: "Strip")
+			request.bundleBlocklist = bl
+			request.includes = includes
+			request.excludes = excludes
+			request.thin = archs
+
 			helperTask.checkAndRunHelper(arguments: request, removal: .architectures)
-		} else {
-			log.close()
 		}
 	}
 
 	private func checkAndRemove() {
-		if checkRoots(), checkLanguages() {
+		if checkRoots() {
 			removeLanguages()
 		}
 	}
@@ -132,21 +138,6 @@ struct MainView: View {
 		}
 
 		return languageEnabled
-	}
-
-	private func checkLanguages() -> Bool {
-		var englishChecked = false
-		for language in languages where language.enabled && language.folders[0] == "en.lproj" {
-			englishChecked = true
-			break
-		}
-
-		if englishChecked {
-			// Display a warning
-			showingEnglishAlert = true
-		}
-
-		return !englishChecked
 	}
 
 	private func removeLanguages() {
@@ -204,6 +195,9 @@ struct MainView: View {
 
 			helperTask.checkAndRunHelper(arguments: request, removal: .languages(languages))
 		} else {
+			// Same as on the architectures tab: nothing selected is reported rather than
+			// passing for a run that did something.
+			showingUnchangedAlert = true
 			log.close()
 		}
 	}
@@ -273,6 +267,9 @@ struct MainView: View {
 
 		var infoCount = mach_msg_type_number_t(MemoryLayout<host_basic_info_data_t>.size / MemoryLayout<integer_t>.size) // HOST_BASIC_INFO_COUNT
 		let hostInfoPointer = host_basic_info_t.allocate(capacity: 1)
+		// `allocate` hands back uninitialized memory, and it is `host_info` that fills it in, so a
+		// call that fails would leave the read below reading whatever happened to be there.
+		hostInfoPointer.initialize(to: host_basic_info_data_t())
 		let myMachHostSelf = mach_host_self()
 		let ret = hostInfoPointer.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) { pointer in
 				host_info(myMachHostSelf, HOST_BASIC_INFO, pointer, &infoCount)
@@ -285,8 +282,8 @@ struct MainView: View {
 			// fix host_info
 			var x8664: Int = 0
 			var x8664Size = Int(MemoryLayout<Int>.size)
-			let ret = sysctlbyname("hw.optional.x86_64", &x8664, &x8664Size, nil, 0)
-			if ret == 0 {
+			let sysctlResult = sysctlbyname("hw.optional.x86_64", &x8664, &x8664Size, nil, 0)
+			if sysctlResult == 0 {
 				if x8664 != 0 {
 					hostInfo = host_basic_info_data_t(
 						max_cpus: hostInfo.max_cpus,
@@ -332,6 +329,11 @@ struct MainView: View {
 						if let index = languages.firstIndex(where: { $0.id == setting.id }) {
 							Toggle(setting.displayName, isOn: $languages[index].enabled)
 								.toggleStyle(.checkbox)
+								// English is never removable: the system needs it, and its
+								// removal is one of the ways an installation gets broken beyond
+								// repair (see the "never remove the English language files"
+								// entry in the help). Variants such as "U.S. English" are not
+								// matched here and stay removable.
 								.disabled(setting.folders.contains("en.lproj"))
 						}
 					}
@@ -422,18 +424,29 @@ struct MainView: View {
 		}
 		.task {
 			loadData()
-			// Load the remote blocklist asynchronously. It must only ever replace the
-			// blocklist from the asset catalog with something that actually decoded:
-			// the URL below answers with a 404 and an HTML body now, which reset the
-			// blocklist to nil and crashed the next removal.
-			if let blocklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blocklist.plist"),
-			   let (data, response) = try? await URLSession.shared.data(from: blocklistURL),
-			   (response as? HTTPURLResponse)?.statusCode == 200,
-			   let entries = try? PropertyListDecoder().decode([BlocklistEntry].self, from: data) {
+			// Load the remote blocklist asynchronously, and only ever let it replace the
+			// blocklist from the asset catalog. The URL below answered with a 404 and an HTML
+			// body at one point, which reset the blocklist to nil and crashed the next removal.
+			//
+			// It is the list of bundles the privileged helper refuses to touch, so losing it
+			// means losing that protection rather than a list going stale: a truncated body, an
+			// empty list, or a redirect to somewhere other than the published URL all leave the
+			// bundled blocklist in place.
+			if let (data, response) = try? await URLSession.shared.data(from: Self.blocklistURL),
+			   let http = response as? HTTPURLResponse,
+			   http.statusCode == 200,
+			   http.url?.scheme == "https",
+			   http.url?.host == Self.blocklistHost,
+			   data.count < 1_000_000,
+			   let entries = try? PropertyListDecoder().decode([BlocklistEntry].self, from: data),
+			   !entries.isEmpty {
 				blocklist = entries
 			}
 		}
 	}
+
+	private static let blocklistURL = URL(string: "https://ingmarstein.github.io/Monolingual/blocklist.plist")!
+	private static let blocklistHost = "ingmarstein.github.io"
 }
 
 struct MainView_Previews: PreviewProvider {

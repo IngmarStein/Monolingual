@@ -71,7 +71,6 @@ enum HelperInstallationFailure: Error {
 /// does not get in the way, and `util/uninstall.sh` removes it.
 @MainActor
 final class HelperInstaller {
-	static let machServiceName = HelperService.machServiceName
 	static let daemonPlistName = HelperService.daemonPlistName
 
 	/// The app version whose helper was registered last. Service Management requires the
@@ -85,18 +84,17 @@ final class HelperInstaller {
 		let service = SMAppService.daemon(plistName: Self.daemonPlistName)
 		var status = service.status
 
-		if isRegistered(status), let registeredVersion = UserDefaults.standard.string(forKey: Self.registeredVersionKey), registeredVersion != Self.appVersion {
+		if isRegistered(status), UserDefaults.standard.string(forKey: Self.registeredVersionKey) != Self.appVersion {
 			// The helper that ships with this version of the app is a different executable,
-			// so the registration has to be renewed.
+			// so the registration has to be renewed. A version that was never recorded counts
+			// as a different one: the registration may be older, and it is only by registering
+			// again that this app can be sure the daemon runs the helper from its bundle.
 			logger.notice("Helper was updated, registering it again")
 			try? await service.unregister()
 			status = service.status
 		}
 
-		if isRegistered(status) {
-			// Another copy of the app may have registered the helper before.
-			UserDefaults.standard.set(Self.appVersion, forKey: Self.registeredVersionKey)
-		} else {
+		if !isRegistered(status) {
 			do {
 				try service.register()
 			} catch {
@@ -126,6 +124,16 @@ final class HelperInstaller {
 	/// Opens the System Settings pane where the helper daemon can be allowed.
 	static func openSystemSettingsLoginItems() {
 		SMAppService.openSystemSettingsLoginItems()
+	}
+
+	/// Forgets which app version registered the helper.
+	///
+	/// Called when the daemon turns out to be running a helper other than the one in this app
+	/// bundle: the recorded version says the registration is this version's, which is exactly
+	/// what keeps it from being renewed. Dropping the record makes the next attempt register
+	/// the daemon again, which is the only way to get the bundled helper answering.
+	static func forgetRegisteredVersion() {
+		UserDefaults.standard.removeObject(forKey: registeredVersionKey)
 	}
 
 	private func isRegistered(_ status: SMAppService.Status) -> Bool {

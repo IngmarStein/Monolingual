@@ -28,6 +28,10 @@ final class Log {
 	let dateFormatter = ISO8601DateFormatter()
 
 	func open() {
+		// Opening a log that is already open would drop the stream that is being written to,
+		// leaking its file descriptor and splitting one run's entries over two handles.
+		guard logFile == nil else { return }
+
 		logFile = OutputStream(url: logFileURL, append: true)
 		logFile?.open()
 	}

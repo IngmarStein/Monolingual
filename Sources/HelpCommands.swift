@@ -12,19 +12,34 @@ struct HelpCommands: Commands {
 	var body: some Commands {
 		CommandGroup(before: .help) {
 			Button("README.rtfd") {
-				let docURL = Bundle.main.url(forResource: NSLocalizedString("README.rtfd", comment: ""), withExtension: nil)
-				NSWorkspace.shared.open(docURL!)
+				open(bundleResource: NSLocalizedString("README.rtfd", comment: ""))
 			}
 			Button("LICENSE.txt") {
-				let docURL = Bundle.main.url(forResource: "LICENSE", withExtension: "txt")
-				NSWorkspace.shared.open(docURL!)
+				open(bundleResource: "LICENSE.txt")
 			}
 			Button("Donate") {
-				NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual/donate.html")!)
+				open(url: "https://ingmarstein.github.io/Monolingual/donate.html")
 			}
 			Button("Monolingual Website") {
-				NSWorkspace.shared.open(URL(string: "https://ingmarstein.github.io/Monolingual")!)
+				open(url: "https://ingmarstein.github.io/Monolingual")
 			}
 		}
+	}
+
+	/// Opens a document from the app bundle.
+	///
+	/// The help document is named per language by the strings file, so a translation that names
+	/// one the bundle does not carry — or a copy stripped of its resources — would be a trap if
+	/// the lookup were unwrapped.
+	private func open(bundleResource name: String) {
+		let resource = (name as NSString).deletingPathExtension
+		let ext = (name as NSString).pathExtension
+		guard let url = Bundle.main.url(forResource: resource, withExtension: ext) else { return }
+		NSWorkspace.shared.open(url)
+	}
+
+	private func open(url: String) {
+		guard let url = URL(string: url) else { return }
+		NSWorkspace.shared.open(url)
 	}
 }

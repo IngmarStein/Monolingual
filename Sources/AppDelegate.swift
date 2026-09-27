@@ -19,16 +19,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 	private func validateDefaults() {
 		let defaults = UserDefaults.standard
 
+		// A root is only usable if it carries all three of the keys the app reads back, so a
+		// stored array that is missing or holds anything else is replaced by the default roots.
+		// An empty array is a user who removed every row on purpose, and is left alone.
 		let roots = defaults.array(forKey: "Roots")
-		if roots == nil || roots!.firstIndex(where: { root -> Bool in
-			if let rootDictionary = root as? NSDictionary {
-				return rootDictionary.object(forKey: "Path") == nil
-					|| rootDictionary.object(forKey: "Languages") == nil
-					|| rootDictionary.object(forKey: "Architectures") == nil
-			} else {
-				return true
-			}
-		}) != nil {
+		let usable = roots?.allSatisfy { root in
+			guard let root = root as? NSDictionary else { return false }
+			return root.object(forKey: "Path") != nil
+				&& root.object(forKey: "Languages") != nil
+				&& root.object(forKey: "Architectures") != nil
+		} ?? false
+
+		if !usable {
 			defaults.set(Root.defaults as NSArray, forKey: "Roots")
 		}
 	}
