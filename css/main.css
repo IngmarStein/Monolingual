@@ -1,182 +1,479 @@
+/* Monolingual website stylesheet */
+
+:root
+{
+	/* The light palette is the palette: a browser that does not understand the two rules
+	   below still draws the whole page, rather than one with no colour left in it. */
+	color-scheme: light dark;
+
+	--page: #fff;
+	--text: #1d1d1f;
+	--muted: #666;
+	--heading-1: #556677;
+	--heading-2: #445566;
+	--link: #223366;
+	--link-hover: #7788bb;
+	--panel: #eee;
+	--border: #bbb;
+	--border-soft: #eee;
+	--tab: #ccc;
+	--code-bg: #ffb;
+	--code-border: #ee7;
+
+	/* The arrow shown after links that leave the site. It is a mask rather than
+	   an image so that it takes the colour of the link, and it is inlined rather
+	   than referenced because a mask image is fetched by a browser process that
+	   cannot read a page's directory when the page is opened from the file
+	   system. The arrow is white: that is the one colour which is opaque under
+	   both kinds of mask a browser may apply, alpha and luminance. */
+	--external-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Cpath fill='%23fff' d='M38.288 10.297l1.414 1.415-14.99 14.99-1.414-1.414z'/%3E%3Cpath fill='%23fff' d='M40 20h-2v-8h-8v-2h10zm-5 18H15c-1.7 0-3-1.3-3-3V15c0-1.7 1.3-3 3-3h11v2H15c-.6 0-1 .4-1 1v20c0 .6.4 1 1 1h20c.6 0 1-.4 1-1V24h2v11c0 1.7-1.3 3-3 3z'/%3E%3C/svg%3E");
+}
+
+/* The dark palette, for a system that asks for it and for a visitor who asked for it. The
+   values are the ones above, darkened, and they are written out once per trigger — keep
+   the two copies in step. A visitor's choice wins over the system: the media query is
+   skipped as soon as the page carries a choice of its own. */
+@media (prefers-color-scheme: dark)
+{
+	:root:not([data-theme="light"])
+	{
+		--page: #1c1c1e;
+		--text: #e8e8ea;
+		--muted: #98989d;
+		--heading-1: #a9bed6;
+		--heading-2: #93a9c1;
+		--link: #8ab4f8;
+		--link-hover: #c3d5ff;
+		--panel: #262629;
+		--border: #3a3a3d;
+		--border-soft: #333336;
+		--tab: #2c2c2f;
+		--code-bg: #2b2b1c;
+		--code-border: #4a4a28;
+	}
+}
+
+/* The choice the switch stores, which the page carries as an attribute before it is drawn.
+   It also sets the colour scheme, so that scrollbars and form controls follow it. */
+:root[data-theme="light"]
+{
+	color-scheme: light;
+}
+
+:root[data-theme="dark"]
+{
+	color-scheme: dark;
+
+	--page: #1c1c1e;
+	--text: #e8e8ea;
+	--muted: #98989d;
+	--heading-1: #a9bed6;
+	--heading-2: #93a9c1;
+	--link: #8ab4f8;
+	--link-hover: #c3d5ff;
+	--panel: #262629;
+	--border: #3a3a3d;
+	--border-soft: #333336;
+	--tab: #2c2c2f;
+	--code-bg: #2b2b1c;
+	--code-border: #4a4a28;
+}
+
 html
 {
 	margin: 0;
 	padding: 0;
-	font-family: -apple-system, "Helvetica Neue", "Helvetica", "Lucida Grande", Verdana, sans-serif;
+	font-family: system-ui, -apple-system, "Helvetica Neue", Helvetica, "Lucida Grande", Verdana, sans-serif;
 	font-size: 11pt;
-}
-img
-{
-	border: 0;
-}
-a.external
-{
-	padding-right: 16px;
-	background: transparent url(../images/external.svg) no-repeat center right;
-}
-a:link,
-a:visited
-{
-	color: #236;
-}
-a:hover,
-a:active
-{
-	color: #78b;
-}
-p,dd
-{
 	line-height: 1.5;
 }
+
 body
 {
 	margin: 0;
-	padding-top: 36px;
-	background: #fff url(../images/allflags.png) repeat-x 0 0;
+	background-color: var(--page);
+	color: var(--text);
 }
-/* IE needs 1px more?? */
-* html body
+
+img
 {
-	padding-top: 37px;
+	border: 0;
+	max-width: 100%;
+	height: auto;
 }
+
+/* The flag strip is 64px tall and fades to black at its bottom edge; only
+   the top 36px are shown so that it ends cleanly above the page content. */
+.flagbar
+{
+	height: 36px;
+	background: url(../images/allflags.png) repeat-x 0 0;
+	background-size: auto 64px;
+}
+
+a:link,
+a:visited
+{
+	color: var(--link);
+}
+
+a:hover,
+a:active
+{
+	color: var(--link-hover);
+}
+
+:focus-visible
+{
+	outline: 2px solid var(--link);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* Marks links that leave the site. The arrow is masked so that it takes the
+   colour of the link (and of the colour scheme) instead of being baked in. It
+   is an inline box rather than an inline-block: only that way can a long link
+   wrap without leaving the arrow alone on the next line. */
+a.external::after
+{
+	content: "";
+	display: inline;
+	padding: 0 .7em 0 .25em;
+	background-color: currentColor;
+	-webkit-mask: var(--external-icon) no-repeat center / contain;
+	mask: var(--external-icon) no-repeat center / contain;
+}
+
+.skip-link
+{
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	padding: .5em 1em;
+	background-color: var(--page);
+	color: var(--link);
+	z-index: 1;
+}
+
+.skip-link:focus
+{
+	left: 0;
+}
+
+p
+{
+	margin: 1em 0;
+}
+
+p, dd
+{
+	line-height: 1.5;
+}
+
 pre
 {
-	border: 2px solid #ee7;
-	background-color: #ffb;
+	border: 2px solid var(--code-border);
+	background-color: var(--code-bg);
 	padding: 1em;
+	overflow-x: auto;
 }
-div#main
+
+code, pre
 {
-	position: relative;
-	clear: both;
-	background-color: #fff;
-	padding: 20px 30px 80px 30px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: .95em;
 }
+
+.site-header
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: .5rem 2rem;
+	max-width: 62rem;
+	margin: 0 auto;
+	padding: 1.5rem 2rem 0;
+}
+
+/* The light/dark/system switch. Three radio buttons rather than a scripted button, so
+   that the keyboard and a screen reader get the grouping and the current choice for
+   free; the script only stores the choice and puts the attribute on the page. */
+.theme-switch
+{
+	display: flex;
+	margin: 0;
+	padding: 0;
+	border: 2px solid var(--border);
+	border-radius: 4px;
+	background-color: var(--tab);
+	overflow: hidden;
+}
+
+.theme-switch legend,
+.theme-switch input
+{
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.theme-switch label
+{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1em;
+	height: 1.9em;
+	cursor: pointer;
+	color: var(--muted);
+}
+
+.theme-switch label + label
+{
+	border-left: 1px solid var(--border);
+}
+
+.theme-switch label:hover
+{
+	background-color: var(--page);
+	color: var(--text);
+}
+
+.theme-switch label:has(input:checked)
+{
+	background-color: var(--page);
+}
+
+/* The icon is coloured through the input itself as well, because a browser without :has()
+   still marks which of the three is the chosen one. */
+.theme-switch input:checked + svg
+{
+	color: var(--link);
+}
+
+.theme-switch svg
+{
+	width: 1.05em;
+	height: 1.05em;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.6;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.theme-switch input:focus-visible + svg
+{
+	outline: 2px solid var(--link);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
 ul#navbar
 {
-	display: block;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .25rem;
 	margin: 0;
-	margin-left: 30px;
-	padding: 0 !important;
+	padding: 0;
+	list-style: none;
 }
-/*ul#navbar>li*/
-/* IE doesn't understand child selectors (>) :( */
+
 ul#navbar li
 {
-	margin: 0;
-	margin-right: 4px;
-	display: block;
-	float: left;
-	font-size: 11pt;
-	background-color: #ccc;
-	border: 2px solid #bbb;
+	background-color: var(--tab);
+	border: 2px solid var(--border);
 	border-bottom: none;
+	border-radius: 4px 4px 0 0;
 }
-/* ul#navbar>li:hover, */
-/* ul#navbar>li.here */
+
 ul#navbar li:hover,
 ul#navbar li.here
 {
-	background-color: #fff;
-	border-color: #eee;
+	background-color: var(--page);
+	border-color: var(--border-soft);
 }
-/* ul#navbar>li a */
+
 ul#navbar li a
 {
 	display: block;
-	padding: 4px 1em;
-	color: #000;
-	text-decoration: none !important;
+	padding: .25em 1em;
+	color: var(--text);
+	text-decoration: none;
 }
+
+main
+{
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 16.25rem;
+	grid-gap: 1.5rem 2rem;
+	align-items: start;
+	max-width: 62rem;
+	margin: 0 auto;
+	padding: 1.25rem 2rem 5rem;
+	background-color: var(--page);
+}
+
 h1
 {
-	color: #567;
+	color: var(--heading-1);
+	margin: 0 0 .5rem;
 }
-p#download
-{
-	text-align: center;
-}
-div#sidebar {
-	float: right;
-	border: 2px solid #bbb;
-	background-color: #eee;
-	margin: 1em 0 1em 1em;
-	padding: 0 1em;
-}
-div#sidebar dt {
-	margin: 0;
-	text-align: left;
-	margin-left: 0px;
-	font-weight: bold;
-}
-div#sidebar dd {
-	margin: 0px;
-}
-div#sidebar ul {
-	padding: 0px;
-}
-div#sidebar ul li {
-	list-style-type: none;
-	margin-top: 1px;
-}
-dl.faq dd {
-	margin-left: 0px;
-}
+
 h2, h3
 {
-	color: #456;
-	padding-bottom: 10px;
+	color: var(--heading-2);
+	margin: 1.75em 0 .4em;
 }
-div#sidebar h3
-{
-	border-bottom: 2px solid #bbb;
-}
-*+h2, *+h3 {
-	margin-top: 2em;
-}
+
 h2
 {
-	font-size: 14pt;
+	font-size: 1.27em;
 }
+
 h3
 {
-	font-size: 12pt;
+	font-size: 1.09em;
 }
-img.link {
-	border: 0;
-	color: black;
-	background-color: white;
+
+h1 + h2, h2 + h3
+{
+	margin-top: .75em;
 }
-div.screenshot {
+
+#sidebar
+{
+	border: 2px solid var(--border);
+	background-color: var(--panel);
+	border-radius: 4px;
+	padding: .25em 1em .75em;
+}
+
+#sidebar h3
+{
+	border-bottom: 2px solid var(--border);
+	padding-bottom: .5em;
+	margin-top: 1em;
+}
+
+#sidebar ul
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#sidebar li
+{
+	margin-top: .25em;
+}
+
+#sidebar li.support
+{
+	margin-top: .75em;
+}
+
+#download
+{
+	display: grid;
+	justify-items: center;
+	gap: .35rem;
+	margin: .75em 0 1em;
 	text-align: center;
-	margin: auto;
-	width: 541px;
-	height: 563px;
 }
-a.download {
+
+a.download
+{
 	text-decoration: none;
 }
-a.html5badge {
+
+.screenshot
+{
+	text-align: center;
+}
+
+.screenshot img
+{
+	width: 100%;
+	max-width: 546px;
+}
+
+ul.donate
+{
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem 2rem;
+	margin: 1.5rem 0;
+	padding: 0;
+	list-style: none;
+}
+
+ul.donate a
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .35rem;
 	text-decoration: none;
 }
-div#compliance
+
+dl.faq
 {
-	text-align: right;
+	margin: 1em 0;
 }
-/* IE treats absolute in a fashion of his own, */
-/* so let's fall back to a static, right-aligned div */
-* html div#compliance
-{
-	position: static;
-	text-align: right;
-}
+
 dl.faq dt
 {
-	color: #666;
+	margin-top: 1.25em;
+	color: var(--muted);
 }
-dl.faq dt:first-letter,
-dl.faq dd:first-letter
+
+dl.faq dt::first-letter,
+dl.faq dd::first-letter
 {
 	font-weight: bold;
-	font-size: 12pt;
+	font-size: 1.09em;
+}
+
+dl.faq dd
+{
+	margin: .25em 0 0;
+}
+
+.site-footer
+{
+	max-width: 62rem;
+	margin: 0 auto;
+	padding: 1.25rem 2rem 4rem;
+	border-top: 1px solid var(--border-soft);
+	color: var(--muted);
+	font-size: .95em;
+}
+
+@media (max-width: 47.5rem)
+{
+	.site-header,
+	main,
+	.site-footer
+	{
+		padding-left: 1.25rem;
+		padding-right: 1.25rem;
+	}
+
+	main
+	{
+		grid-template-columns: minmax(0, 1fr);
+		padding-bottom: 3rem;
+	}
+
+	.site-footer
+	{
+		padding-bottom: 2.5rem;
+	}
 }

@@ -1,0 +1,19 @@
+{% assign version = site.data.versions.first.version %}
+{% assign download_url = site.github_download_url | replace: 'VERSION', version | append: '.dmg' %}
+			<aside id="sidebar">
+				<h3>Download</h3>
+				<div id="download">
+					<a class="download" href="{{ download_url }}">
+						<img src="{{ "images/Monolingual_64.png" | prepend: site.baseurl }}" width="64" height="64" srcset="{{ "images/Monolingual_128.png" | prepend: site.baseurl }} 2x" alt="Download Monolingual">
+					</a>
+					<a href="{{ download_url }}">Version {{ version }}</a>
+				</div>
+
+				<h3>Links</h3>
+					<ul>
+						<li><a href="{{ site.github_url }}">GitHub page</a></li>
+						<li><a href="{{ site.github_url | append: '/releases' }}">All Downloads</a></li>
+
+						<li class="support"><a href="donate.html"><img src="{{ "images/support.svg" | prepend: site.baseurl }}" width="203" height="49" alt="Support this project"></a></li>
+					</ul>
+			</aside>

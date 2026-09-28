@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
   {% include head.html %}
 
     <body>
 
+    <div class="flagbar" aria-hidden="true"></div>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
     {% include header.html %}
 
-	<div id="main">
+	<main id="main">
+      <div class="content">
       {{ content }}
-    </div>
+      </div>
+
+      {% include sidebar.html %}
+    </main>
 
     {% include footer.html %}
 

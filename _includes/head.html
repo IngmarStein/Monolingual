@@ -1,13 +1,63 @@
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
-    <meta name="viewport" content="width=device-width">
+    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }} — {{ site.tagline }}{% endif %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <meta name="description" content="{{ site.description }}">
-    <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
-	<meta name="keywords" content="Monolingual, cleanup, language, Mac OS X, OS X, macOS, disk space, universal binary, architectures">
-	<meta name="author" content="Ingmar Stein, Claudio Procida">
-	<meta name="robots" content="all">
+    <meta name="keywords" content="Monolingual, cleanup, language, Mac OS X, OS X, macOS, disk space, universal binary, architectures">
+    <meta name="author" content="Ingmar Stein, Claudio Procida">
+    <meta name="robots" content="all">
+    {%- assign page_path = page.url | replace:'index.html','' | remove_first:'/' -%}
+    <link rel="canonical" href="{{ page_path | prepend: site.baseurl | prepend: site.url }}">
+    <link rel="icon" href="{{ "images/Monolingual_64.png" | prepend: site.baseurl }}">
+    <link rel="apple-touch-icon" href="{{ "images/Monolingual_128.png" | prepend: site.baseurl }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site.title }}">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta property="og:description" content="{{ site.description }}">
+    <meta property="og:url" content="{{ page_path | prepend: site.baseurl | prepend: site.url }}">
+    <meta property="og:image" content="{{ "images/Monolingual-2.0.0-en_2x.png" | prepend: site.baseurl | prepend: site.url }}">
+    <meta property="og:image:width" content="1092">
+    <meta property="og:image:height" content="909">
     <link rel="stylesheet" href="{{ "css/main.css" | prepend: site.baseurl }}">
-	<script type="text/javascript" src="{{ "monolingual.js" | prepend: site.baseurl }}"></script>
+    <script>
+      // Runs in the head, before the first paint, so a stored choice is in place before
+      // anything is drawn and the other scheme never flashes up first. It is inline
+      // because a separate file would be fetched late enough to let that happen.
+      (function () {
+        var root = document.documentElement;
+        try {
+          var choice = localStorage.getItem("theme");
+          if (choice === "light" || choice === "dark") {
+            root.dataset.theme = choice;
+          }
+        } catch (e) {
+          // Storage can be unavailable (private browsing, a page opened from the file
+          // system). The page then follows the system setting, which is the default.
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+          var group = document.querySelector(".theme-switch");
+          if (!group) {
+            return;
+          }
+          var input = group.querySelector('input[value="' + (root.dataset.theme || "system") + '"]');
+          if (input) {
+            input.checked = true;
+          }
+          group.addEventListener("change", function (event) {
+            var value = event.target.value;
+            if (value === "system") {
+              delete root.dataset.theme;
+            } else {
+              root.dataset.theme = value;
+            }
+            try {
+              localStorage.setItem("theme", value);
+            } catch (e) {
+              // The choice then lasts for this page only.
+            }
+          });
+        });
+      })();
+    </script>
 </head>

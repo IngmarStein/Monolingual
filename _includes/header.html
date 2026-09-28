@@ -1,15 +1,17 @@
 <header class="site-header">
 
-  <nav class="site-nav">
+  <nav class="site-nav" aria-label="Main">
 	<ul id="navbar">
-		<li{% if page.name == "index.html" %} class="here"{% endif %}><a href="index.html">Home</a></li>
+		<li{% if page.name == "index.html" %} class="here"{% endif %}><a href="index.html"{% if page.name == "index.html" %} aria-current="page"{% endif %}>Home</a></li>
 		<li><a href="{{ site.github_url }}">Development</a></li>
 		<li><a href="{{ site.github_url | append: '/releases' }}">Downloads</a></li>
-		<li{% if page.name == "changelog.html" %} class="here"{% endif %}><a href="changelog.html">Changelog</a></li>
-		<li{% if page.name == "credits.html" %} class="here"{% endif %}><a href="credits.html">Credits</a></li>
-		<li{% if page.name == "donate.html" %} class="here"{% endif %}><a href="donate.html">Donate</a></li>
-		<li{% if page.name == "faq.html" %} class="here"{% endif %}><a href="faq.html"><abbr title="Frequently Asked Questions">FAQ</abbr></a></li>
+		<li{% if page.name == "changelog.html" %} class="here"{% endif %}><a href="changelog.html"{% if page.name == "changelog.html" %} aria-current="page"{% endif %}>Changelog</a></li>
+		<li{% if page.name == "credits.html" %} class="here"{% endif %}><a href="credits.html"{% if page.name == "credits.html" %} aria-current="page"{% endif %}>Credits</a></li>
+		<li{% if page.name == "donate.html" %} class="here"{% endif %}><a href="donate.html"{% if page.name == "donate.html" %} aria-current="page"{% endif %}>Donate</a></li>
+		<li{% if page.name == "faq.html" %} class="here"{% endif %}><a href="faq.html"{% if page.name == "faq.html" %} aria-current="page"{% endif %}><abbr title="Frequently Asked Questions">FAQ</abbr></a></li>
 	</ul>
   </nav>
+
+{% include theme-switch.html %}
 
 </header>

@@ -1,31 +1,10 @@
 ---
 ---
-		<div id="sidebar">
-			<h3>Download</h3>
-			<p id="download">
-				<a class="download" href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}" download="Monolingual-{{ site.data.versions.first.version }}.dmg">
-					<picture>
-						<img src="images/Monolingual_64.png" width="64" height="64" srcset="images/Monolingual_64.png, images/Monolingual_128.png 2x" alt="Download Monolingual">
-					</picture>
-				</a>
-				<br />
-				<a href="{{ site.github_download_url | replace: 'VERSION', site.data.versions.first.version | append: '.dmg' }}" download="Monolingual-{{ site.data.versions.first.version }}.dmg">Version {{ site.data.versions.first.version }}</a>
-			</p>
-
-			<h3>Links</h3>
-				<ul>
-					<li><a href="{{ site.github_url }}">GitHub page</a></li>
-					<li><a href="{{ site.github_url | append: '/releases' }}">All Downloads</a></li>
-
-					<li><br /><a href="donate.html"><img src="images/support.svg" width="203" height="49" class="link" alt="Support this project" /></a></li>
-				</ul>
-		</div>
-
 		<h1>Monolingual</h1>
 		<p>
 			Monolingual is a program for removing unnecessary language resources from macOS,
 			in order to reclaim several hundred megabytes of disk space.
-			It requires a 64-bit capable Intel-based Mac and at least macOS 10.13 (High Sierra).
+			It requires a Mac with Apple silicon and at least macOS 27.
 		</p>
 		<p>
 			I don&apos;t know about you, but I use my computer in only one (human) language &#8212; English.
@@ -35,6 +14,8 @@
 			space for more useful things&#8230; like international mp3 files, email or whatever you like.
 		</p>
 		<p>
+			<a href="{{ site.github_download_url | replace: 'VERSION', '1.9.0' | append: '.dmg' }}">Version 1.9.0</a> is the last version for macOS 11 (Big Sur) through macOS 26.
+			<a href="{{ site.github_download_url | replace: 'VERSION', '1.8.2' | append: '.dmg' }}">Version 1.8.2</a> is the last version for macOS 10.13 (High Sierra) through macOS 10.15 (Catalina).
 			<a href="{{ site.github_download_url | replace: 'VERSION', '1.7.8' | append: '.dmg' }}">Version 1.7.8</a> is the last version for OS X 10.12 (Sierra).
 			<a href="{{ site.github_download_url | replace: 'VERSION', '1.7.3' | append: '.dmg' }}">Version 1.7.3</a> is the last version for OS X 10.11 (El Capitan).
 			<a href="{{ site.github_download_url | replace: 'VERSION', '1.6.7' | append: '.dmg' }}">Version 1.6.7</a> is the last version for OS X 10.10 (Yosemite).
@@ -45,7 +26,5 @@
 
 		<h2>Screenshot</h2>
 		<div class="screenshot">
-			<picture>
-				<img src="images/Monolingual-1.6.7-en.png" srcset="images/Monolingual-1.6.7-en.png, images/Monolingual-1.6.7-en_2x.png 2x" alt="Monolingual screenshot">
-			</picture>
+			<img src="images/Monolingual-2.0.0-en.png" srcset="images/Monolingual-2.0.0-en_2x.png 2x" width="546" height="454" alt="The Monolingual main window">
 		</div>
