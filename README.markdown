@@ -5,7 +5,7 @@ Monolingual
 
 ## Screenshot
 
-<img src="http://ingmarstein.github.io/Monolingual/images/Monolingual-1.6.7-en.png">
+<img src="Resources/README.rtfd/Monolingual-2.0.0-en.png" width="546" alt="The Monolingual main window">
 
 ## Architecture
 
