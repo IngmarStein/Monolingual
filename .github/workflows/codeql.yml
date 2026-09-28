@@ -64,13 +64,17 @@ jobs:
     # CodeQL instruments this step by way of a tracer injected through DYLD_INSERT_LIBRARIES. That
     # tracer relocates the platform binaries it spawns, thinning them with /usr/bin/lipo on the way,
     # and macOS 27's /usr/bin/sandbox-exec carries only arm64e slices, which lipo cannot thin to
-    # arm64. The relocated copy therefore does not run, and evaluating Package.swift — which Xcode
-    # does under sandbox-exec — ends in `posix_spawn error: Bad CPU type in executable (86)` and
-    # aborts the build while it loads the package graph, leaving CodeQL without a database.
-    # IDEPackageSupportDisableManifestSandbox is the SwiftPM default that keeps Xcode from running
-    # manifest evaluation under the sandbox; passing it here confines that to this job.
-    # Resolving the dependencies ahead of time, before the tracer is in place, does not avoid the
-    # spawn: SwiftPM evaluates the manifests under the sandbox whether or not its cache is warm.
+    # arm64. The relocated copy therefore does not run, and every spawn that goes through it ends in
+    # "Bad CPU type in executable". Two of them are in the way here:
+    #
+    #   - Xcode evaluates Package.swift under sandbox-exec. IDEPackageSupportDisableManifestSandbox
+    #     is the SwiftPM default that turns that off. Resolving the dependencies ahead of time,
+    #     before the tracer is in place, does not help: SwiftPM evaluates the manifests under the
+    #     sandbox whether or not its cache is warm.
+    #   - swift-frontend runs the macro plugin server under sandbox-exec as well, so the macros the
+    #     SwiftUI views use never expand and those files do not compile. The compiler flag that stops
+    #     it is only reachable through OTHER_SWIFT_FLAGS; $(inherited) keeps the project's own flags
+    #     and the package targets are given it too.
     #
     # CodeQL's autobuild builds `xcodebuild -target Monolingual`, and building a target directly
     # never resolves the package dependencies, so the Helper target fails with "no such module
@@ -81,6 +85,7 @@ jobs:
         xcodebuild -project Monolingual.xcodeproj -scheme Monolingual \
           -destination 'platform=macOS' \
           -IDEPackageSupportDisableManifestSandbox=1 \
+          OTHER_SWIFT_FLAGS='$(inherited) -disable-sandbox' \
           CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
           COMPILATION_CACHE_ENABLE_CACHING=NO SWIFT_ENABLE_COMPILE_CACHE=NO \
           SWIFT_USE_INTEGRATED_DRIVER=NO \
