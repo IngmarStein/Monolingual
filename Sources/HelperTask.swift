@@ -219,23 +219,56 @@ import Observation
 		let reply = await request(.version)
 
 		// The helper lives inside the app bundle and therefore reports the version of the
-		// app. Anything else means a helper installed by an older version of Monolingual
-		// is still answering on the Mach service.
+		// app. Anything else means another copy of Monolingual registered its helper under
+		// the same name, or that a helper installed by an older version is still answering.
+		// Registering this bundle's helper is what puts that right, so it is tried once here
+		// rather than reported: only a helper that keeps answering with another version is
+		// worth an alert.
 		guard case let .version(helperVersion)? = reply else {
 			installationFailure = .helperUnreachable
 			return
 		}
-		guard helperVersion == HelperInstaller.appVersion else {
-			logger.error("Unexpected helper version: \(helperVersion, privacy: .public)")
-			// The daemon is running the helper of another copy of Monolingual, so this app's own
-			// registration did not take. Forgetting the recorded version makes the next attempt
-			// register the daemon again instead of concluding there is nothing left to do.
-			HelperInstaller.forgetRegisteredVersion()
-			installationFailure = .outdatedHelper(helperVersion)
+		if helperVersion != HelperInstaller.appVersion, let failure = await registerOwnHelper(replacing: helperVersion) {
+			// A helper the timeout gave up on is already reported as unreachable, which is
+			// what went wrong; only a failure of the attempt itself is still to be reported.
+			installationFailure = installationFailure ?? failure
 			return
 		}
 
 		await performRemoval(arguments: arguments)
+	}
+
+	/// Registers the helper in this app bundle in place of the one that answered with `version`,
+	/// and asks the service once more which helper it is running. Returns the failure to report,
+	/// or nil when the service now answers with this bundle's helper.
+	private func registerOwnHelper(replacing version: String) async -> HelperInstallationFailure? {
+		logger.notice("The helper reports version \(version, privacy: .public); registering the one in this bundle")
+
+		// What is recorded says the registration is this version's, which is what keeps
+		// `installIfNeeded` from renewing it. Forgetting it is what makes it register the
+		// daemon again — the only way to get the bundled helper answering.
+		HelperInstaller.forgetRegisteredVersion()
+		closeConnection()
+
+		do {
+			try await installer.installIfNeeded()
+		} catch let failure as HelperInstallationFailure {
+			// Registering this bundle's helper is a registration of its own as far as the
+			// system is concerned, so it can end up waiting for the administrator's approval
+			// just like the first one did.
+			return failure
+		} catch {
+			return .registrationFailed(error)
+		}
+
+		guard connectToHelper(), case let .version(registered)? = await request(.version) else {
+			return .helperUnreachable
+		}
+		guard registered == HelperInstaller.appVersion else {
+			logger.error("The helper still reports version \(registered, privacy: .public)")
+			return .outdatedHelper(registered)
+		}
+		return nil
 	}
 
 	private func performRemoval(arguments: HelperRequest) async {
