@@ -5,7 +5,7 @@
 #                       <src_folder>
 #                       <volume_name>
 #                       <codesign_identity>
-#                       [applescript]
+#                       [applescript]  run with the mount point as its argument
 
 set -e;
 
@@ -46,7 +46,7 @@ fi
 # run applescript
 if [ -n "${APPLESCRIPT}" ] && [ "${APPLESCRIPT}" != "-null-" ]; then
 	echo "running ${APPLESCRIPT}"
-	/usr/bin/osascript "$APPLESCRIPT"
+	/usr/bin/osascript "$APPLESCRIPT" "${MOUNT_DIR}"
 fi
 
 # make sure it's not world writeable
