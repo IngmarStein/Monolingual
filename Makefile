@@ -28,8 +28,6 @@ release: clean deployment
 	# Check the launch daemon that registers the privileged helper
 	test -f $(BUILD_DIR)/Monolingual.app/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist
 	test -x $(BUILD_DIR)/Monolingual.app/Contents/MacOS/com.github.IngmarStein.Monolingual.Helper
-	# Check app against Gatekeeper system policies
-	spctl --assess --type execute -vv $(BUILD_DIR)/Monolingual.app
 	mkdir -p $(RELEASE_DIR)/build
 	cp -R $(BUILD_DIR)/Monolingual.app.dSYM.zip $(RELEASE_DIR)
 	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
@@ -41,6 +39,9 @@ release: clean deployment
 	bundle exec fastlane notarize_artifacts
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.app
 	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.dmg
+	# Check app against Gatekeeper system policies, which only accept an app once
+	# the notarization ticket has been stapled to it
+	spctl --assess --type execute -vv $(BUILD_DIR)/Monolingual.app
 	# Verify DMG code signature
 	spctl --assess --type open --context context:primary-signature -vv $(BUILD_DIR)/Monolingual.dmg
 	# Verify notarization
