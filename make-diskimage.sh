@@ -53,13 +53,6 @@ fi
 echo "fixing permissions"
 chmod -Rf go-w "${MOUNT_DIR}" || true
 
-# make the top window open itself on mount:
-if [ -x /usr/local/bin/openUp ]; then
-	/usr/local/bin/openUp "${MOUNT_DIR}"
-elif [ -x ~/bin/openUp ]; then
-	~/bin/openUp "${MOUNT_DIR}"
-fi
-
 # unmount
 echo "unmounting disk image"
 diskutil eject "$DEV_NAME"
