@@ -1,0 +1,145 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  # Dry run: build, sign, notarize, staple and package on a GitHub-hosted
+  # runner, then upload the artifacts instead of creating a release. A dispatch
+  # never publishes, so a release cannot be cut by accident. To retry a tag that
+  # already exists, re-run the failed run from the Actions UI — that keeps the
+  # original push event.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # GitHub's xcode-27 image (macOS 27, arm64) carries Xcode 27 — see
+    # scripts/select-xcode.sh. The runner is ephemeral, so every credential
+    # arrives as a secret and dies with it: the Developer ID certificate is
+    # imported into a throwaway keychain. No provisioning profile is needed —
+    # the app and its helper carry no restricted entitlements.
+    runs-on: xcode-27
+    # Notarization takes minutes; a stuck disk image script (the Finder layout
+    # in dmg.js drives a GUI) should not sit here for the 6 hour default.
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Cache SPM dependencies
+        uses: actions/cache@v6
+        with:
+          path: build/DerivedData/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Select Xcode 27+
+        run: |
+          DEVELOPER_DIR="$(scripts/select-xcode.sh)"
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
+
+      - name: Check the version against the tag
+        run: |
+          # Info.plist is the only place the version lives; the workflow never
+          # rewrites it, so a tag that does not match what was committed fails
+          # here instead of shipping an app whose version is a surprise.
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Info.plist)
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            if [ "$VERSION" != "$TAG_VERSION" ]; then
+              echo "Error: Info.plist says $VERSION, the tag says $TAG_VERSION."
+              echo "Bump Info.plist (and Helper/Sources/MonolingualHelper-Info.plist)"
+              echo "on main, then tag that commit."
+              exit 1
+            fi
+          else
+            echo "    dry run, no tag to check against"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "    version: $VERSION"
+
+      - name: Import the Developer ID certificate
+        env:
+          DEVELOPER_ID_CERT: ${{ secrets.DEVELOPER_ID_CERT }}
+          DEVELOPER_ID_PASSWORD: ${{ secrets.DEVELOPER_ID_PASSWORD }}
+        run: |
+          if [ -z "$DEVELOPER_ID_CERT" ]; then
+            echo "Error: the DEVELOPER_ID_CERT secret is empty."
+            echo "Set it, and DEVELOPER_ID_PASSWORD, from the Developer ID"
+            echo "Application identity in the login keychain — see the"
+            echo "Releases section of AGENTS.md: the .p12 holds that one"
+            echo "identity and its chain, not the keychain's other keys."
+            exit 1
+          fi
+          # Throwaway keychain: the image's login keychain has a password we
+          # don't know, and set-key-partition-list wants the *keychain*
+          # password.
+          KEYCHAIN="$RUNNER_TEMP/monolingual-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 16)"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          printf '%s' "$DEVELOPER_ID_CERT" | base64 -d > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$DEVELOPER_ID_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          # Without a partition list entry codesign blocks on a UI prompt and
+          # the job hangs until it times out.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          # shellcheck disable=SC2046  # the existing keychains are separate arguments
+          security list-keychains -d user -s "$KEYCHAIN" \
+            $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security find-identity -v -p basic | grep "Developer ID"
+
+      - name: Build, notarize and package
+        env:
+          NOTARY_KEY: ${{ secrets.NOTARY_KEY }}
+          NOTARY_KEY_ID: ${{ vars.NOTARY_KEY_ID }}
+          NOTARY_ISSUER: ${{ vars.NOTARY_ISSUER }}
+          SPARKLE_ED_KEY: ${{ secrets.SPARKLE_ED_KEY }}
+          CODESIGN_IDENTITY: ${{ vars.DEVELOPER_ID }}
+        run: |
+          # All four are needed: notarytool takes an App Store Connect API key
+          # (not an Apple ID password, which cannot be used unattended), and
+          # Sparkle's EdDSA key signs the update feed. An empty
+          # CODESIGN_IDENTITY is fine — release.sh falls back to the identity
+          # the project signs with.
+          for NAME in NOTARY_KEY NOTARY_KEY_ID NOTARY_ISSUER SPARKLE_ED_KEY; do
+            if [ -z "${!NAME}" ]; then
+              echo "Error: $NAME is empty. See AGENTS.md for what each one holds."
+              exit 1
+            fi
+          done
+          NOTARY_KEY_PATH="$RUNNER_TEMP/notary.p8"
+          printf '%s\n' "$NOTARY_KEY" > "$NOTARY_KEY_PATH"
+          trap 'rm -f "$NOTARY_KEY_PATH"' EXIT
+          export NOTARY_KEY_PATH
+          ./scripts/release.sh
+
+      - name: Upload the dry-run artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: Monolingual-${{ env.VERSION }}-${{ github.run_number }}
+          path: release-${{ env.VERSION }}/
+          if-no-files-found: error
+
+      - name: Create the release
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+            --repo="${GITHUB_REPOSITORY}" \
+            --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+            --generate-notes \
+            "release-${VERSION}/Monolingual-${VERSION}.dmg" \
+            "release-${VERSION}/Monolingual-${VERSION}.zip" \
+            "release-${VERSION}/Monolingual.app.dSYM.zip" \
+            "release-${VERSION}/appcast.xml"
