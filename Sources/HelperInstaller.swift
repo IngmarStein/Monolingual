@@ -96,7 +96,7 @@ final class HelperInstaller {
 
 		if !isRegistered(status) {
 			do {
-				try service.register()
+				try await register(service)
 			} catch {
 				// A daemon stays unapproved until an administrator allows it in System Settings;
 				// that is reported through the service status rather than as a registration error.
@@ -119,6 +119,41 @@ final class HelperInstaller {
 		@unknown default:
 			throw HelperInstallationFailure.plistNotFound
 		}
+	}
+
+	/// How long to wait after a refused registration before trying it again.
+	///
+	/// The waits follow the one attempt that is made right away and add up to under four seconds,
+	/// which is the order of time the helper that was unregistered takes to be gone.
+	private static let registrationRetryDelays: [Duration] = [.milliseconds(250), .milliseconds(500), .seconds(1), .seconds(2)]
+
+	/// Registers the daemon, trying again while the system refuses it.
+	///
+	/// Renewing a registration means unregistering the daemon first, and Service Management does
+	/// not wait for the helper that was running to be reaped. Registering the daemon again right
+	/// away is therefore refused — with `Operation not permitted`, because the job being replaced
+	/// is still on its way out — while the very same call goes through a moment later, which is
+	/// why the refusal is retried here instead of reported. The error the caller is left with is
+	/// the one the last attempt ran into.
+	private func register(_ service: SMAppService) async throws {
+		for delay in Self.registrationRetryDelays {
+			// A registration that went through all the same is not one to try again: a daemon
+			// that is waiting for an administrator to allow it reports the error and the status
+			// together, and the status is what the caller goes by.
+			guard !isRegistered(service.status) else {
+				return
+			}
+
+			do {
+				try service.register()
+				return
+			} catch {
+				logger.notice("Registering the helper was refused: \(error.localizedDescription, privacy: .public)")
+				try? await Task.sleep(for: delay)
+			}
+		}
+
+		try service.register()
 	}
 
 	/// Opens the System Settings pane where the helper daemon can be allowed.

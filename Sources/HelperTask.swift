@@ -199,7 +199,21 @@ import Observation
 	// MARK: - Running a request
 
 	private func runHelper(arguments: HelperRequest) async {
-		guard connectToHelper() else {
+		if !connectToHelper() {
+			// A registration goes stale when the app it was made from is rebuilt or moved: Service
+			// Management keeps reporting the daemon as registered, but there is no helper behind
+			// the service any more, and connecting to it fails. Registering the daemon again is
+			// what brings the helper in this bundle back, so it is tried once here rather than
+			// reported.
+			if let failure = await registerOwnHelper(replacing: nil) {
+				installationFailure = failure
+				return
+			}
+		}
+
+		// Either attempt above leaves its own session in place, so the removal runs on the
+		// connection that was just established.
+		guard session != nil else {
 			installationFailure = .helperUnreachable
 			return
 		}
@@ -239,10 +253,15 @@ import Observation
 	}
 
 	/// Registers the helper in this app bundle in place of the one that answered with `version`,
-	/// and asks the service once more which helper it is running. Returns the failure to report,
-	/// or nil when the service now answers with this bundle's helper.
-	private func registerOwnHelper(replacing version: String) async -> HelperInstallationFailure? {
-		logger.notice("The helper reports version \(version, privacy: .public); registering the one in this bundle")
+	/// or of a registration that has no helper behind it when `version` is nil, and asks the
+	/// service once more which helper it is running. Returns the failure to report, or nil when
+	/// the service now answers with this bundle's helper.
+	private func registerOwnHelper(replacing version: String?) async -> HelperInstallationFailure? {
+		if let version {
+			logger.notice("The helper reports version \(version, privacy: .public); registering the one in this bundle")
+		} else {
+			logger.notice("The registered helper does not answer; registering the one in this bundle")
+		}
 
 		// What is recorded says the registration is this version's, which is what keeps
 		// `installIfNeeded` from renewing it. Forgetting it is what makes it register the
