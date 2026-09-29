@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get install -y shellcheck
+          shellcheck make-diskimage.sh scripts/*.sh util/*.sh
+
+      - name: SwiftLint
+        run: |
+          # Not --strict: HelperContext.swift carries a TODO that is a real
+          # caveat about reporting progress, not a lint nit to silence.
+          docker run --rm -v "$PWD:/code" ghcr.io/realm/swiftlint:latest lint --quiet
+
+  build-and-test:
+    # Needs Xcode 27+ for the Swift 6 toolchain and the macOS 27 SDK. The image
+    # is a public preview, so expect queueing and the occasional flake. See
+    # scripts/select-xcode.sh.
+    runs-on: xcode-27
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Cache SPM dependencies
+        uses: actions/cache@v6
+        with:
+          path: |
+            build/DerivedData/SourcePackages
+            .build
+          key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Select Xcode 27+
+        run: |
+          DEVELOPER_DIR="$(scripts/select-xcode.sh)"
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          # A pull request from a fork has no Developer ID certificate, and none
+          # is needed here: signatures are only produced and verified by the
+          # release workflow.
+          xcodebuild -project Monolingual.xcodeproj -scheme Monolingual \
+            -configuration Release -destination 'platform=macOS' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Test
+        run: swift test
