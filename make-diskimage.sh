@@ -6,7 +6,6 @@
 #                       <volume_name>
 #                       <codesign_identity>
 #                       [applescript]
-#                       [eula_resource_file]
 
 set -e;
 
@@ -18,9 +17,8 @@ SRC_FOLDER=$(cd "$2" > /dev/null; pwd)
 VOLUME_NAME=$3
 CODESIGN_IDENTITY=$4
 
-# optional arguments
+# optional argument
 APPLESCRIPT=$5
-EULA_RSRC=$6
 
 # Create the image. Laying out the window below is done with the Finder, which needs a volume it
 # can write to, so this one is created as a sparse, writable image and compressed below, once
@@ -72,15 +70,6 @@ echo "compressing disk image"
 rm -f "${DMG_DIR}/${DMG_NAME}"
 diskutil image create from "$DMG_TEMP_NAME" "${DMG_DIR}/${DMG_NAME}" --format ULMO
 rm -f "$DMG_TEMP_NAME"
-
-# adding EULA resources. Unflattening is the one step here that hdiutil still has to do: the
-# replacement has no equivalent for it.
-if [ -n "${EULA_RSRC}" ] && [ "${EULA_RSRC}" != "-null-" ]; then
-	echo "adding EULA resources"
-	hdiutil unflatten "${DMG_DIR}/${DMG_NAME}"
-	xcrun ResMerger -a "${EULA_RSRC}" -o "${DMG_DIR}/${DMG_NAME}"
-	hdiutil flatten "${DMG_DIR}/${DMG_NAME}"
-fi
 
 # sign image
 codesign -s "${CODESIGN_IDENTITY}" "${DMG_DIR}/${DMG_NAME}"
