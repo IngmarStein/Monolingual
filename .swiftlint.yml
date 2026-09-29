@@ -16,6 +16,11 @@ force_cast: warning
 force_try: warning
 excluded:
   - .build
+  # The build directory holds Xcode's derived data, including the checked out dependencies.
+  - build
+  # The release directory holds a copy of the app and a link to /Applications, and linting it
+  # makes SwiftLint walk into everything that is installed.
+  - release*
   - Pods
   - Externals
   - fastlane
