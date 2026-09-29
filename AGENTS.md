@@ -51,6 +51,11 @@ The release workflow takes these secrets and variables:
 | `DEVELOPER_ID` | variable | optional; the codesigning identity, if not the project's default |
 
 No provisioning profile is needed: the app and its helper carry no restricted entitlements.
+`DEVELOPER_ID_CERT` has to hold that one identity and its chain, nothing else:
+`security export -t identities` exports every identity and certificate in the keychain, which is
+both past GitHub's 48 KB secret limit and a pile of private keys CI has no use for. Import the
+export into a scratch keychain, delete the other identities and certificates, keep `Developer ID
+Certification Authority` and `Apple Root CA`, and export that — about 3 KB, 4.3 KB in base64.
 Sparkle's EdDSA key is exported from the login keychain with the `generate_keys -x` that ships
 next to it in the Sparkle package artifacts; the same directory's `sign_update` is what
 `scripts/release.sh` signs the appcast with, so the tool and the framework cannot drift apart.
