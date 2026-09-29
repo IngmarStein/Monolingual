@@ -1,56 +1,21 @@
 TOP=$(shell pwd)
-RELEASE_VERSION=2.0.0
-RELEASE_DIR=$(TOP)/release-$(RELEASE_VERSION)
-RELEASE_NAME=Monolingual-$(RELEASE_VERSION)
-RELEASE_FILE=$(RELEASE_DIR)/$(RELEASE_NAME).dmg
-RELEASE_ZIPFILE=$(RELEASE_NAME).zip
-RELEASE_ZIP=$(RELEASE_DIR)/$(RELEASE_ZIPFILE)
-SOURCE_DIR=$(TOP)
-BUILD_DIR=$(TOP)/build
-CODESIGN_IDENTITY='Developer ID Application: Ingmar Stein (ADVP2P7SJK)'
 
 .PHONY: all release development deployment clean
 
 all: deployment
 
+# Debug build
 development: clean
-	bundle exec fastlane build_debug
+	./scripts/build.sh Debug
 
+# Release build
 deployment: clean
-	bundle exec fastlane release
+	./scripts/build.sh Release
+
+# Build, notarize and package a release. scripts/release.sh takes the version
+# from Info.plist, so bump that before tagging; it writes release-<version>.
+release: clean
+	./scripts/release.sh
 
 clean:
-	-rm -rf $(BUILD_DIR) $(RELEASE_DIR)
-
-release: clean deployment
-	# Check code signature
-	codesign -vvv --deep --strict $(BUILD_DIR)/Monolingual.app
-	# Check the launch daemon that registers the privileged helper
-	test -f $(BUILD_DIR)/Monolingual.app/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist
-	test -x $(BUILD_DIR)/Monolingual.app/Contents/MacOS/com.github.IngmarStein.Monolingual.Helper
-	mkdir -p $(RELEASE_DIR)/build
-	cp -R $(BUILD_DIR)/Monolingual.app.dSYM.zip $(RELEASE_DIR)
-	cp -R $(BUILD_DIR)/Monolingual.app $(BUILD_DIR)/Monolingual.app/Contents/Resources/*.rtfd $(BUILD_DIR)/Monolingual.app/Contents/Resources/LICENSE.txt $(RELEASE_DIR)/build
-	mkdir -p $(RELEASE_DIR)/build/.dmg-resources
-	tiffutil -cathidpicheck $(SOURCE_DIR)/dmg-bg.png $(SOURCE_DIR)/dmg-bg@2x.png -out $(RELEASE_DIR)/build/.dmg-resources/dmg-bg.tiff
-	ln -s /Applications $(RELEASE_DIR)/build
-	./make-diskimage.sh $(BUILD_DIR)/Monolingual.dmg $(RELEASE_DIR)/build Monolingual $(CODESIGN_IDENTITY) dmg.js
-	# Notarize app and disk image
-	bundle exec fastlane notarize_artifacts
-	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.app
-	xcrun stapler validate --verbose $(BUILD_DIR)/Monolingual.dmg
-	# Check app against Gatekeeper system policies, which only accept an app once
-	# the notarization ticket has been stapled to it
-	spctl --assess --type execute -vv $(BUILD_DIR)/Monolingual.app
-	# Verify DMG code signature
-	spctl --assess --type open --context context:primary-signature -vv $(BUILD_DIR)/Monolingual.dmg
-	# Verify notarization
-	codesign -vvvv -R="notarized" --check-notarization $(BUILD_DIR)/Monolingual.dmg
-	/usr/bin/ditto -c -k --keepParent $(BUILD_DIR)/Monolingual.app $(RELEASE_ZIP)
-	mv $(BUILD_DIR)/Monolingual.dmg $(RELEASE_FILE)
-	sed -e "s/%VERSION%/$(RELEASE_VERSION)/g" \
-		-e "s/%PUBDATE%/$$(LC_ALL=C date +"%a, %d %b %G %T %z")/g" \
-		-e "s/%FILENAME%/$(RELEASE_ZIPFILE)/g" \
-		-e "s@%SIGNATURE%@$$(./sign_update $(RELEASE_ZIP))@g" \
-		appcast.xml.tmpl > $(RELEASE_DIR)/appcast.xml
-	rm -rf $(RELEASE_DIR)/build
+	-rm -rf $(TOP)/build
