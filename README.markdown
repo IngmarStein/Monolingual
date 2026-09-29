@@ -27,7 +27,6 @@ are used:
 
 ## Building
 
-- Install dependencies: `bundle install`
 - Build (Debug): `make development`
 - Build (Release): `make deployment`
 - Release packaging (signing, notarization, disk image): `make release`
@@ -76,4 +75,4 @@ build it. The privileged helper targets macOS 26.
 
 ## Status
 
-![GitHub Build Status](https://github.com/IngmarStein/Monolingual/workflows/fastlane/badge.svg)
+![GitHub Build Status](https://github.com/IngmarStein/Monolingual/workflows/ci.yml/badge.svg)
