@@ -22,14 +22,17 @@ CODESIGN_IDENTITY=$4
 APPLESCRIPT=$5
 EULA_RSRC=$6
 
-# Create the image
+# Create the image. Laying out the window below is done with the Finder, which needs a volume it
+# can write to, so this one is created as a sparse, writable image and compressed below, once
+# there is nothing left to write. Only APFS volumes are on offer here; the file system of the
+# image is not something the app inside it can tell.
 echo "creating disk image"
 rm -f "$DMG_TEMP_NAME"
-hdiutil create -srcfolder "$SRC_FOLDER" -nocrossdev -volname "$VOLUME_NAME" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW "$DMG_TEMP_NAME"
+diskutil image create from "$SRC_FOLDER" "$DMG_TEMP_NAME" --format ASIF --volumeName "$VOLUME_NAME"
 
 # mount it
 echo "mounting disk image"
-ATTACH_OUTPUT=$(hdiutil attach -readwrite -noverify -noautoopen "$DMG_TEMP_NAME")
+ATTACH_OUTPUT=$(diskutil image attach "$DMG_TEMP_NAME")
 DEV_NAME=$(echo "$ATTACH_OUTPUT" | grep -E '^/dev/' | sed 1q | awk '{print $1}')
 # The mount point comes from the attach output rather than from $VOLUME_NAME: a volume of that
 # name may already be mounted, in which case this one is attached as "<name> 1" and a path built
@@ -61,14 +64,17 @@ fi
 
 # unmount
 echo "unmounting disk image"
-hdiutil detach "$DEV_NAME"
+diskutil eject "$DEV_NAME"
 
-# compress image
+# compress image. Nothing writes to the image after this, so it goes out read-only, in the format
+# that compresses best, which is lzma.
 echo "compressing disk image"
-hdiutil convert "$DMG_TEMP_NAME" -format UDBZ -o "${DMG_DIR}/${DMG_NAME}"
+rm -f "${DMG_DIR}/${DMG_NAME}"
+diskutil image create from "$DMG_TEMP_NAME" "${DMG_DIR}/${DMG_NAME}" --format ULMO
 rm -f "$DMG_TEMP_NAME"
 
-# adding EULA resources
+# adding EULA resources. Unflattening is the one step here that hdiutil still has to do: the
+# replacement has no equivalent for it.
 if [ -n "${EULA_RSRC}" ] && [ "${EULA_RSRC}" != "-null-" ]; then
 	echo "adding EULA resources"
 	hdiutil unflatten "${DMG_DIR}/${DMG_NAME}"
