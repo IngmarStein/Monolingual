@@ -34,6 +34,36 @@ RELEASE_ZIP="$RELEASE_DIR/$RELEASE_NAME.zip"
 
 echo "==> Checking the build..."
 codesign --verify --deep --strict --verbose=2 "$APP"
+# --verify is happy with an ad-hoc signature as long as its seal is intact, so
+# it passes on nested code that notarization rejects: notarytool wants a
+# Developer ID certificate and a secure timestamp on every executable in the
+# bundle, the ones a framework carries included. Checking that here costs a
+# second and saves a submission.
+TEAM=$(codesign -dv --verbose=4 "$APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')
+if [ -z "$TEAM" ]; then
+    echo "Error: $APP is not signed by a team." >&2
+    exit 1
+fi
+BAD=0
+while IFS= read -r -d '' FILE; do
+    case "$(file -b "$FILE")" in
+        Mach-O*) ;;
+        *) continue ;;
+    esac
+    DETAILS=$(codesign -dv --verbose=4 "$FILE" 2>&1 || true)
+    case "$DETAILS" in
+        *"TeamIdentifier=$TEAM"*) ;;
+        *) echo "Error: $FILE is not signed by $TEAM." >&2; BAD=1; continue ;;
+    esac
+    case "$DETAILS" in
+        *Timestamp=*) ;;
+        *) echo "Error: $FILE has no secure timestamp." >&2; BAD=1 ;;
+    esac
+done < <(find "$APP" -type f -print0)
+if [ "$BAD" -ne 0 ]; then
+    echo "Error: notarization would reject $APP." >&2
+    exit 1
+fi
 # The launch daemon registers the privileged helper. A release without it
 # installs an app that can't remove anything.
 test -f "$APP/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist"

@@ -36,18 +36,31 @@ for artifact in "$@"; do
     name=$(basename "$artifact")
     echo "==> Notarizing $name..."
     log=$(mktemp)
-    # notarytool exits 0 even for a rejected submission, so the verdict in its
-    # output is what decides. It stays in the log either way.
-    if run_notarytool submit "$artifact" --wait --timeout "$NOTARY_TIMEOUT" 2>&1 | tee "$log" | grep -q "status: Accepted"; then
-        rm -f "$log"
+    verdict=$(mktemp)
+    # The verdict in the output decides, not the exit status: notarytool exits
+    # 0 for a rejected submission too, and pipefail would turn any non-zero
+    # status into a failed release.
+    status=0
+    run_notarytool submit "$artifact" --wait --timeout "$NOTARY_TIMEOUT" 2>&1 | tee "$log" || status=$?
+    # Read the verdict out of the file rather than the pipe, and match the
+    # indented line notarytool ends on. "status: Accepted" also appears in the
+    # progress line it keeps overwriting while it waits, and a grep -q that
+    # matched there would leave early, kill tee with SIGPIPE and have pipefail
+    # report an accepted submission as a failed one.
+    tr '\r' '\n' < "$log" > "$verdict"
+    if grep -q '^[[:space:]]*status: Accepted' "$verdict"; then
+        rm -f "$log" "$verdict"
         continue
     fi
     echo "Error: $name was not notarized." >&2
-    submission=$(awk '/^[[:space:]]*id: /{print $2; exit}' "$log")
+    if [ "$status" -ne 0 ]; then
+        echo "notarytool exited with status $status." >&2
+    fi
+    submission=$(awk '/^[[:space:]]*id: /{print $2; exit}' "$verdict")
     if [ -n "$submission" ]; then
         echo "--- Notarization log for $submission ---" >&2
         run_notarytool log "$submission" >&2 || true
     fi
-    rm -f "$log"
+    rm -f "$log" "$verdict"
     exit 1
 done

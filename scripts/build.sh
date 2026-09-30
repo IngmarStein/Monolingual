@@ -41,6 +41,40 @@ echo "==> Collecting the app and its symbols..."
 rm -rf "$BUILD_DIR/Monolingual.app" "$BUILD_DIR/Monolingual.app.dSYM" "$BUILD_DIR/Monolingual.app.dSYM.zip"
 cp -R "$ARCHIVE/Products/Applications/Monolingual.app" "$BUILD_DIR/"
 cp -R "$ARCHIVE/dSYMs/Monolingual.app.dSYM" "$BUILD_DIR/"
+
+APP="$BUILD_DIR/Monolingual.app"
+IDENTITY=$(codesign -dv --verbose=4 "$APP" 2>&1 | sed -n 's/^Authority=//p' | head -1)
+
+if [ -n "$IDENTITY" ]; then
+    # Xcode signs the Sparkle framework as it embeds it, but not the code
+    # inside it: Sparkle ships Autoupdate, Updater.app and the two XPC services
+    # ad-hoc signed, and archiving leaves them that way, which notarization
+    # rejects twice over ("not signed with a valid Developer ID certificate" and
+    # "does not include a secure timestamp"). Sparkle documents signing these
+    # by hand for builds that don't go through Xcode's export step, which this
+    # one doesn't, and warns against --deep: it signs nested code without the
+    # order the seals need. Each nested item is signed before the framework and
+    # the framework before the app, whose seal covers both.
+    #
+    # --preserve-metadata keeps the entitlements each item was built with --
+    # Autoupdate loses com.apple.application-identifier without it -- and the
+    # app keeps the sandbox and the exceptions it talks to the helper through.
+    echo "==> Signing the code inside Sparkle with $IDENTITY..."
+    SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+    for NESTED in \
+        "$SPARKLE/Versions/B/XPCServices/Installer.xpc" \
+        "$SPARKLE/Versions/B/XPCServices/Downloader.xpc" \
+        "$SPARKLE/Versions/B/Updater.app" \
+        "$SPARKLE/Versions/B/Autoupdate"; do
+        codesign --force --options runtime --timestamp \
+            --preserve-metadata=entitlements,requirements --sign "$IDENTITY" "$NESTED"
+    done
+    codesign --force --options runtime --timestamp --sign "$IDENTITY" "$SPARKLE"
+    codesign --force --options runtime --timestamp \
+        --preserve-metadata=entitlements,requirements --sign "$IDENTITY" "$APP"
+else
+    echo "Warning: $APP is not signed by an authority; leaving it as archived." >&2
+fi
 /usr/bin/ditto -c -k --keepParent "$BUILD_DIR/Monolingual.app.dSYM" "$BUILD_DIR/Monolingual.app.dSYM.zip"
 
 VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$BUILD_DIR/Monolingual.app/Contents/Info.plist")
