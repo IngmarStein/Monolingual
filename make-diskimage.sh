@@ -55,7 +55,21 @@ chmod -Rf go-w "${MOUNT_DIR}" || true
 
 # unmount
 echo "unmounting disk image"
-diskutil eject "$DEV_NAME"
+# The Finder has just laid the window out and written the volume's .DS_Store, and
+# it, Spotlight and fseventsd can still be holding the volume when the eject gets
+# there. That fails the eject outright — it did on a CI runner, on the first try —
+# so wait for them rather than forcing it: a forced detach of a volume that is
+# still being written to leaves it dirty, and the image below is made from it.
+TRIES=0
+until diskutil eject "$DEV_NAME"; do
+	TRIES=$((TRIES + 1))
+	if [ "$TRIES" -ge 10 ]; then
+		echo "Error: $DEV_NAME could not be unmounted" >&2
+		exit 1
+	fi
+	echo "  $DEV_NAME is still in use, retrying..."
+	sleep 2
+done
 
 # compress image. Nothing writes to the image after this, so it goes out read-only, in the format
 # that compresses best, which is lzma.
