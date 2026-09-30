@@ -17,6 +17,24 @@ import HelperShared
 
 import Observation
 
+/// Receives what the helper reports on the listener `HelperTask` opens.
+///
+/// The point of it is the session the listener accepts: `XPCPeerHandler` is the only form of
+/// `accept` that hands one out while it is still inactive, and an inactive session is the only
+/// one a peer requirement can be attached to. Everything else is the handler the listener
+/// registered, verbatim.
+private struct ProgressPeerHandler: XPCPeerHandler {
+	typealias Input = XPCDictionary
+	typealias Output = XPCDictionary
+
+	let receive: @Sendable (XPCDictionary) -> Void
+
+	func handleIncomingRequest(_ dictionary: XPCDictionary) -> XPCDictionary? {
+		receive(dictionary)
+		return nil
+	}
+}
+
 @MainActor @Observable class HelperTask {
 	/// How a removal ended, for the alert that reports it.
 	enum Outcome {
@@ -153,15 +171,22 @@ import Observation
 	private func openProgressListener() -> XPCListener {
 		// An anonymous listener listens as soon as it is created, and releasing one is safe;
 		// there is no `activate()` to call, and calling one would be a misuse crash.
+		//
+		// Only the helper this app ships with may report on it. An anonymous listener takes no
+		// requirement of its own — the only initializer that has one is for a service — and a
+		// requirement can only be attached to a session that is not active yet, so it goes on the
+		// session the listener accepts, which is what `accept`'s handler form is for.
 		XPCListener { [weak self] request in
-			request.accept { (dictionary: XPCDictionary) -> XPCDictionary? in
-				guard let reply = try? HelperWire.message(HelperReply.self, in: dictionary) else {
-					return nil
+			request.accept { session in
+				session.setPeerRequirement(HelperService.helperPeerRequirement)
+				return ProgressPeerHandler { dictionary in
+					guard let reply = try? HelperWire.message(HelperReply.self, in: dictionary) else {
+						return
+					}
+					Task { @MainActor in
+						self?.receive(reply)
+					}
 				}
-				Task { @MainActor in
-					self?.receive(reply)
-				}
-				return nil
 			}
 		}
 	}
