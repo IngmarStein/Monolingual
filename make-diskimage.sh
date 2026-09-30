@@ -53,6 +53,19 @@ fi
 echo "fixing permissions"
 chmod -Rf go-w "${MOUNT_DIR}" || true
 
+# The image is created writable because the Finder has to lay the window out, and
+# the system's indexers take that as an invitation: fseventsd keeps an event log
+# on every volume it can write to, and Spotlight a store, both of which would ship
+# inside the disk image — the event log did, in 2.0.0's first dry runs. Nothing
+# writes to the volume from here on, so removing them now removes them for good.
+echo "removing the indexers' data"
+rm -rf "${MOUNT_DIR}/.fseventsd" "${MOUNT_DIR}/.Spotlight-V100" || true
+for LEFTOVER in .fseventsd .Spotlight-V100; do
+	if [ -e "${MOUNT_DIR}/${LEFTOVER}" ]; then
+		echo "Warning: ${MOUNT_DIR}/${LEFTOVER} came back; the disk image will carry it." >&2
+	fi
+done
+
 # unmount
 echo "unmounting disk image"
 # The Finder has just laid the window out and written the volume's .DS_Store, and
