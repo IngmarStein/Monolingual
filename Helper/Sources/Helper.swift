@@ -129,8 +129,10 @@ public final class Helper: @unchecked Sendable {
 	/// Stops the running request and exits with `code`.
 	public func exit(code: Int) {
 		logger.info("exiting with exit status \(code, privacy: .public)")
-		// Anything but success means the app cancelled, so the removal stops at the next file
-		// instead of working through the whole tree first.
+		// Anything but success means the app cancelled. The removal then stops at the next place it
+		// looks — before the next root, and before the next entry of a directory being walked —
+		// rather than working through the whole tree first. A subtree already handed to
+		// `removeItem` is not interrupted, so this can wait for a while yet.
 		currentProgress?.cancel()
 		workerQueue.waitUntilAllOperationsAreFinished()
 		// `code` arrives over XPC: `Int32(_:)` would trap on a value out of range, and trapping
@@ -341,11 +343,17 @@ public final class Helper: @unchecked Sendable {
 	}
 
 	func processDirectory(_ url: URL, context: HelperContext) {
-		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey]) { theURL, dirEnumerator in
+		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey, .isSymbolicLinkKey]) { theURL, dirEnumerator in
 			do {
-				let resourceValues = try theURL.resourceValues(forKeys: [.isDirectoryKey])
+				let resourceValues = try theURL.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
 
-				if let isDirectory = resourceValues.isDirectory, isDirectory {
+				// A symbolic link is never removed, whatever it resolves to. `remove` runs as root
+				// and the ownership it sets follows a link, so an entry merely *named* like a
+				// localization would otherwise hand its target to the user. Nothing here relies on
+				// that today — Foundation reports a link as neither a directory nor a regular file,
+				// which is what an entry has to be to get this far — but the check is what keeps it
+				// true if that changes.
+				if let isDirectory = resourceValues.isDirectory, isDirectory, resourceValues.isSymbolicLink != true {
 					let lastComponent = theURL.lastPathComponent
 					if let directories = context.request.directories {
 						if directories.contains(lastComponent) {
@@ -368,10 +376,12 @@ public final class Helper: @unchecked Sendable {
 	}
 
 	func thinDirectory(_ url: URL, context: HelperContext, lipo: Lipo) {
-		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey, .isRegularFileKey, .isExecutableKey, .isApplicationKey]) { theURL, _ in
+		iterateDirectory(url, context: context, prefetchedProperties: [.isDirectoryKey, .isRegularFileKey, .isExecutableKey, .isApplicationKey, .isSymbolicLinkKey]) { theURL, _ in
 			do {
-				let resourceValues = try theURL.resourceValues(forKeys: [.isRegularFileKey, .isExecutableKey, .isApplicationKey])
-				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable, isRegularFile, !context.isFileBlocklisted(theURL) {
+				let resourceValues = try theURL.resourceValues(forKeys: [.isRegularFileKey, .isExecutableKey, .isApplicationKey, .isSymbolicLinkKey])
+				// A link is not a file to rewrite, and both `strip` and the `lipo` write path follow
+				// it: a symbolic link named like an executable would have its target rewritten.
+				if let isExecutable = resourceValues.isExecutable, let isRegularFile = resourceValues.isRegularFile, isExecutable, isRegularFile, resourceValues.isSymbolicLink != true, !context.isFileBlocklisted(theURL) {
 					if theURL.pathExtension == "class" {
 						return
 					}

@@ -26,18 +26,30 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 		super.init()
 
 		// exclude the user's trash directory
-		seteuid(request.uid)
+		setEffectiveUser(request.uid)
 		for trashURL in fileManager.urls(for: .trashDirectory, in: [.userDomainMask]) {
 			excludeDirectory(trashURL)
 		}
 
 		// exclude root's trash directory
-		seteuid(0)
+		setEffectiveUser(0)
 		for trashURL in fileManager.urls(for: .trashDirectory, in: [.userDomainMask]) {
 			excludeDirectory(trashURL)
 		}
 
 		fileManager.delegate = self
+	}
+
+	/// Switches the process to `uid`, which is what a file has to be owned by to be moved to that
+	/// user's trash.
+	///
+	/// `seteuid` is process-wide — every thread changes with it — so a failure here is not local to
+	/// the caller: the daemon would go on running as the wrong user, and moving files to the trash
+	/// would fail at the end of a removal that reported nothing wrong.
+	private func setEffectiveUser(_ uid: uid_t) {
+		if seteuid(uid) != 0 {
+			logger.error("Failed to change to uid \(uid, privacy: .public): \(String(cString: strerror(errno)), privacy: .public)")
+		}
 	}
 
 	func isExcluded(_ url: URL) -> Bool {
@@ -212,19 +224,29 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 				try? fileManager.setAttributes(attributes, ofItemAtPath: theURL.path)
 			}
 
+			// The parent has to be writable for the entry to be moved out of it, which means
+			// changing the ownership of a directory the user did not ask to change. That is only
+			// done when the parent is a real directory: `setAttributes` follows a terminal symbolic
+			// link, so a root that is itself a link would otherwise hand the link's target — a
+			// system directory, say — to the user. The restore below is skipped with it, since
+			// there is nothing to restore.
 			let parent = url.deletingLastPathComponent()
-			let parentAttributes = try? fileManager.attributesOfItem(atPath: parent.path)
+			let parentValues = try? parent.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+			let parentIsRealDirectory = parentValues?.isDirectory == true && parentValues?.isSymbolicLink != true
+			let parentAttributes = parentIsRealDirectory ? try? fileManager.attributesOfItem(atPath: parent.path) : nil
 
 			do {
 				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: url.path)
-				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: parent.path)
+				if parentIsRealDirectory {
+					try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: parent.path)
+				}
 			} catch {
 				logger.error("failed to set owner: \(error.localizedDescription, privacy: .public)")
 			}
 
 			// try to move the file to the user's trash
 			var success = false
-			seteuid(request.uid)
+			setEffectiveUser(request.uid)
 			do {
 				try fileManager.trashItem(at: url, resultingItemURL: &dstURL)
 				success = true
@@ -233,7 +255,7 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 				logger.error("Could not move \(url.absoluteString, privacy: .public) to trash: \(error1.localizedDescription, privacy: .public)")
 				success = false
 			}
-			seteuid(0)
+			setEffectiveUser(0)
 			if !success {
 				do {
 					// move the file to root's trash
