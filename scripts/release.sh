@@ -7,7 +7,8 @@
 # Bumps nothing: the version is whatever Info.plist says, which is the version
 # the release workflow checks the tag against. Writes into release-<version>/:
 #
-#   Monolingual-<version>.dmg     disk image, notarized and stapled
+#   Monolingual-<version>.dmg     disk image, notarized and stapled, holding a
+#                                 stapled copy of the app
 #   Monolingual-<version>.zip     app bundle, notarized and stapled
 #   Monolingual.app.dSYM.zip      debug symbols
 #   appcast.xml                   Sparkle feed for the zip
@@ -69,12 +70,36 @@ fi
 test -f "$APP/Contents/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.PrivilegedHelper.plist"
 test -x "$APP/Contents/MacOS/com.github.IngmarStein.Monolingual.Helper"
 
+echo "==> Notarizing the app..."
+# notarytool takes an archive, not a bundle, so the app is zipped for the
+# submission and the zip thrown away again; the app itself is what gets
+# stapled below and packaged for Sparkle.
+NOTARY_ZIP="$BUILD_DIR/Monolingual-notarize.zip"
+rm -f "$NOTARY_ZIP"
+/usr/bin/ditto -c -k --rsrc --keepParent "$APP" "$NOTARY_ZIP"
+./scripts/notarize.sh "$NOTARY_ZIP"
+rm -f "$NOTARY_ZIP"
+
+echo "==> Stapling the app..."
+# Before the disk image is built, not after. Stapler writes the ticket into the
+# bundle, and once the image has been compressed and signed the copy inside it
+# is out of reach; stapling the image afterwards puts a ticket on the image, not
+# on the app it carries. An image built first therefore ships an app whose
+# notarization Gatekeeper has to look up online, which is what 2.0.0 shipped.
+xcrun stapler staple "$APP"
+xcrun stapler validate --verbose "$APP"
+
 echo "==> Staging the disk image contents..."
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR/build/.dmg-resources"
 # The symbols are for the release directory, not for the disk image: whoever
 # has the app has the debug symbols for it, and nothing else needs them.
 cp -R "$BUILD_DIR/Monolingual.app.dSYM.zip" "$RELEASE_DIR"
+# The copy below is what the disk image is built from, so the app has to be
+# stapled by the time it is made. Checking it here rather than relying on the
+# order above keeps a later edit from quietly putting an unstapled app into the
+# image again.
+xcrun stapler validate "$APP" >/dev/null
 cp -R "$APP" "$APP/Contents/Resources"/*.rtfd "$APP/Contents/Resources/LICENSE.txt" \
     "$RELEASE_DIR/build"
 tiffutil -cathidpicheck "$TOP/dmg-bg.png" "$TOP/dmg-bg@2x.png" \
@@ -84,19 +109,10 @@ ln -s /Applications "$RELEASE_DIR/build"
 echo "==> Creating the disk image..."
 ./make-diskimage.sh "$DMG" "$RELEASE_DIR/build" Monolingual "$CODESIGN_IDENTITY" dmg.js
 
-echo "==> Notarizing..."
-# notarytool takes an archive, not a bundle, so the app is zipped for the
-# submission and the zip thrown away again; the app itself is what gets
-# stapled below and packaged for Sparkle.
-NOTARY_ZIP="$BUILD_DIR/Monolingual-notarize.zip"
-rm -f "$NOTARY_ZIP"
-/usr/bin/ditto -c -k --rsrc --keepParent "$APP" "$NOTARY_ZIP"
-./scripts/notarize.sh "$NOTARY_ZIP" "$DMG"
-rm -f "$NOTARY_ZIP"
+echo "==> Notarizing the disk image..."
+./scripts/notarize.sh "$DMG"
 
-echo "==> Stapling..."
-xcrun stapler staple "$APP"
-xcrun stapler validate --verbose "$APP"
+echo "==> Stapling the disk image..."
 xcrun stapler staple "$DMG"
 xcrun stapler validate --verbose "$DMG"
 
