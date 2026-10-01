@@ -1,3 +1,20 @@
+- version: 2.0.0
+  release: 2026-10-01
+  changes:
+    - First release since 1.8.2. Requires an Apple silicon Mac and macOS 27
+    - Rewritten in Swift 6 with a SwiftUI interface
+    - A removal reports what it is doing and can be cancelled, and Monolingual notifies you when it has finished
+    - "The English language files can no longer be selected: removing them breaks a macOS installation beyond repair"
+    - The privileged helper is installed with SMAppService and checks that its callers are Monolingual
+    - Symbolic links are no longer followed when removing files or architectures
+    - Added the Turkish localization; all 16 translations are complete
+    - Fixed a crash when the blocklist could not be downloaded
+  sparkle:
+    edSignature: "69Bg0ah0f/g9tKNUYn+ilHHvpn5rJEz1UntSLPkEh7kqLC7nbF57EWLlspOEbA5czztVLgzKLqxfIuY002pVBw=="
+    filesize: 3535278
+    file: zip
+  minimum: '27.0'
+
 - version: 1.8.2
   release: 2018-02-10
   changes:

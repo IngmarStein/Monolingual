@@ -32,7 +32,13 @@ layout: null
 			{% endif %}
 			<pubDate>{{ entry.release | date_to_xmlschema }}</pubDate>
 			{% if entry.sparkle %}
-			<enclosure url="{{ site.github_download_url | replace: 'VERSION', entry.version | append: '.tar.bz2' | xml_escape }}" sparkle:version="{{ entry.version | string | xml_escape }}" length="{{ entry.sparkle.filesize | string | xml_escape }}" type="application/octet-stream" sparkle:dsaSignature="{{ entry.sparkle.dsa | string | xml_escape }}" sparkle:md5sum="{{ entry.sparkle.md5 | string | xml_escape }}" />
+			{% assign extension = entry.sparkle.file | default: 'tar.bz2' %}
+			{% assign url = site.github_download_url | replace: 'VERSION', entry.version | append: '.' | append: extension %}
+			{% if entry.sparkle.edSignature %}
+			<enclosure url="{{ url | xml_escape }}" sparkle:version="{{ entry.version | string | xml_escape }}" length="{{ entry.sparkle.filesize | string | xml_escape }}" type="application/octet-stream" sparkle:edSignature="{{ entry.sparkle.edSignature | xml_escape }}" />
+			{% else %}
+			<enclosure url="{{ url | xml_escape }}" sparkle:version="{{ entry.version | string | xml_escape }}" length="{{ entry.sparkle.filesize | string | xml_escape }}" type="application/octet-stream" sparkle:dsaSignature="{{ entry.sparkle.dsa | string | xml_escape }}" sparkle:md5sum="{{ entry.sparkle.md5 | string | xml_escape }}" />
+			{% endif %}
 			{% else %}
 			<sparkle:version>{{ entry.version | xml_escape }}</sparkle:version>
 			<link>{{ site.github_version_url | append: entry.version | strip | xml_escape }}</link>
