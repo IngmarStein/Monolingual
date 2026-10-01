@@ -14,20 +14,20 @@ A tool for removing unneeded language localization files\
 \
 This program is free software; you can redistribute it and/or modify\
 it under the terms of the GNU General Public License as published by\
-the Free Software Foundation; either version 2 of the License, or\
+the Free Software Foundation; either version 3 of the License, or\
 (at your option) any later version.\
 \
 This program is distributed in the hope that it will be useful,\
 but WITHOUT ANY WARRANTY; without even the implied warranty of\
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\
-GNU General Public License (COPYING) for more details.\
+GNU General Public License (LICENSE.txt) for more details.\
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 
 \f0\b \cf0 1) Why:
 \f1\b0 \
 \
-I don't know about you, but I use my computer in only one (human) language \'97 English. And I'm willing to bet that you do too, albeit perhaps not English. So why do you have 160 - 200 MB of localization files for the OS X operating system filling up your hard drive?\
+I don't know about you, but I use my computer in only one (human) language \'97 English. And I'm willing to bet that you do too, albeit perhaps not English. So why do you have 160 - 200 MB of localization files for macOS filling up your hard drive?\
 \
 Enter Monolingual \'97 a handy utility for reclaiming your space for more useful things\'85 like international mp3 files, email or whatever you like.\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\partightenfactor0
@@ -47,15 +47,15 @@ When Monolingual starts, you will be asked to choose the languages you wish to r
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 \cf0 {{\NeXTGraphic Monolingual-2.0.0-en.png \width10920 \height9090 \noorient \appleattachmentpadding0 \appleembedtype0 \appleaqc
-}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+}ï¿½}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 \cf0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\partightenfactor0
 \cf0 \
 Once you have selected the ones you wish to delete, press the "Remove" button.\
 \
-Unless you are logged in as "root", you will be asked to enter your administrator password.\
+Removing files needs administrator rights, which a privileged helper provides. The first time you remove something, macOS asks you to allow it: open System Settings, go to General > Login Items & Extensions and switch Monolingual on.\
 \
-You will then receive a warning to make sure you REALLY WANT TO DELETE the localizations files. Once you remove them, the only way to get them back is to reinstall Mac OS X.\
+You will then receive a warning to make sure you REALLY WANT TO DELETE the localizations files. Once you remove them, the only way to get them back is to reinstall macOS.\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 \cf0 \
 That's it; pretty easy, huh?\
@@ -67,18 +67,18 @@ That's it; pretty easy, huh?\
 \f1\b0 \
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\partightenfactor0
-\cf0 Q. Monolingual made my OS X installation unusable.\
+\cf0 Q. Monolingual made my macOS installation unusable.\
 \
-A. Chances are that you have accidently removed the English language files. Some language packs are only a subset of other language packs (for example "U.S. English" is a subset of "English"), so you will have an incomplete OS X installation if you remove "English" but not "U.S. English". In general, you should 
+A. Chances are that you have accidently removed the English language files. Some language packs are only a subset of other language packs (for example "U.S. English" is a subset of "English"), so you will have an incomplete macOS installation if you remove "English" but not "U.S. English". In general, you should 
 \f0\b never remove the English language files
 \f1\b0  unless you know what you are doing. \
 \
 \
-Q. Should I remove the non-Intel architectures on my Intel based Mac?\
+Q. Should I remove the architectures my Mac does not need?\
 \
-A. You can use Monolingual to remove non-Intel architectures for your installed applications (even if some of the applications are PowerPC-only; Monolingual is smart enough not to remove PPC forks if those are the only ones in the universal binary). However, you should 
-\f0\b not strip the System frameworks if you want to use Rosetta
-\f1\b0 . Rosetta needs the PowerPC code for all frameworks used by the emulated application and if it can't find it, you may see messages such as the following in the console:\
+A. On an Apple silicon Mac, the architecture an application does not need is the Intel (x86_64) code, and Monolingual can remove it. However, you should 
+\f0\b not strip the System frameworks if you still run Intel applications under Rosetta
+\f1\b0 . Rosetta needs the Intel code in the frameworks those applications use and if it can't find it, you may see messages such as the following in the console:\
 	/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa:\
 	mach-o, but wrong architecture\
 \
@@ -90,7 +90,7 @@ A. Most likely, you deleted the keyboard layout for your default input language.
 \
 Q. Monolingual doesn't remember my preferences of which languages to remove.\
 \
-A. Monolingual by default removes those languages that are not listed in System Preferences / International / Languages.\
+A. Monolingual by default removes those languages that are not listed in System Settings > General > Language & Region.\
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\partightenfactor0
 \cf0 \
@@ -109,7 +109,7 @@ A. Adobe's newer applications have a self-heal feature which checks for the exis
 \
 Q. How is Monolingual distributed?\
 \
-A. Monolingual is distributed under the GNU Public License, which is included as the file LICENSE.txt, and is also available (as is this README) via the Monolingual "Help" menu. If your copy of Monolingual did not include it, you may find it at {\field{\*\fldinst{HYPERLINK "http://www.gnu.org/copyleft/gpl.txt"}}{\fldrslt \cf2 \ul \ulc2 http://www.gnu.org/copyleft/gpl.txt}}.\
+A. Monolingual is distributed under the GNU General Public License, which is included as the file LICENSE.txt, and is also available (as is this README) via the Monolingual "Help" menu. If your copy of Monolingual did not include it, you may find it at {\field{\*\fldinst{HYPERLINK "http://www.gnu.org/copyleft/gpl.txt"}}{\fldrslt \cf2 \ul \ulc2 http://www.gnu.org/copyleft/gpl.txt}}.\
 \
 \
 Q. Where can I download the latest version of Monolingual?\
