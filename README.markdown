@@ -7,6 +7,18 @@ Monolingual
 
 <img src="Resources/README.rtfd/Monolingual-2.0.0-en.png" width="546" alt="The Monolingual main window">
 
+## What's new in 2.0.1
+
+A patch release for 2.0.
+
+- **Thinning a very large universal binary no longer crashes.** The architecture offsets of a fat
+  file are added in 64 bits, and a file whose slices would not fit a 32-bit header is refused
+  instead of trapping.
+- **The disk image installs without a network.** The app inside it had no notarization ticket
+  stapled to it — only the zip did — so Gatekeeper had to ask Apple about the app before it would
+  run, which fails on a Mac that is offline or behind a restrictive network. The app is now stapled
+  before the disk image is built.
+
 ## What's new in 2.0
 
 2.0 is the first release since 1.8.2 and requires macOS 27 on an Apple silicon Mac.
