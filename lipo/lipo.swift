@@ -344,7 +344,11 @@ public class Lipo {
 				} else {
 					// create a thin file struct for each arch in the fat file
 					thinFiles = fatArchs.map { fatArch in
-						let data = self.inputData.subdata(in: Int(fatArch.offset) ..< Int(fatArch.offset + fatArch.size))
+						// The two fields are read out of the file as 32-bit values, so the sum is
+						// formed in 64 bits: adding them in place overflows — and traps — on a fat
+						// file larger than 4 GiB, which the checks above allow. The upper bound is
+						// the file's size, so the result fits in an Int.
+						let data = self.inputData.subdata(in: Int(fatArch.offset) ..< Int(UInt64(fatArch.offset) + UInt64(fatArch.size)))
 						return ThinFile(data: data, cputype: fatArch.cputype, cpusubtype: fatArch.cpusubtype, offset: UInt64(fatArch.offset), size: UInt64(fatArch.size), align: fatArch.align)
 					}
 				}
@@ -465,6 +469,16 @@ public class Lipo {
 				let result = ThinFile(data: thinFile.data, cputype: thinFile.cputype, cpusubtype: thinFile.cpusubtype, offset: UInt64(offset), size: thinFile.size, align: thinFile.align)
 				offset += thinFile.size
 				return result
+			}
+
+			// Those offsets go back into 32-bit fields below when the input was a 32-bit fat file.
+			// The checks in processInputFile bound each slice by the file's size, not their sum, so
+			// the layout of a file that is over 4 GiB — of two slices pointing at the same bytes,
+			// say — can land past what the field holds, and the conversion would trap rather than
+			// fail on a file the helper does not own.
+			if !fat64Flag, thinFiles.contains(where: { $0.offset + $0.size > UInt64(UInt32.max) }) {
+				logger.error("fat file is too large for a 32-bit fat header \(self.fileName, privacy: .public)")
+				return false
 			}
 
 			do {
