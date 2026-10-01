@@ -20,7 +20,40 @@
 		<meta name="robots" content="anchors">
 	</head>
 	<body>
-<!-- changelog goes here -->
+		<h2>Monolingual 2.0</h2>
+		<p>The first release since 1.8.2. Monolingual now requires macOS 27 and an Apple silicon Mac.</p>
+
+		<h3>The app</h3>
+		<ul>
+			<li>Rewritten in Swift 6 with a SwiftUI interface.</li>
+			<li>A removal now reports what it is doing in a sheet — the file it is working on and the space freed so far — and can be cancelled.</li>
+			<li>Monolingual notifies you when a removal has finished, with the space it saved.</li>
+			<li>The English language files can no longer be selected: removing them breaks a macOS installation beyond repair, so the entry stays disabled.</li>
+		</ul>
+
+		<h3>The privileged helper</h3>
+		<ul>
+			<li>Installed with Service Management instead of the deprecated <code>SMJobBless</code>. Approve it once in System Settings › General › Login Items &amp; Extensions.</li>
+			<li>The app and the helper now use the Swift XPC API, and the helper checks that the process talking to it is the Monolingual app.</li>
+			<li>Symbolic links are no longer followed when removing language files or thinning architectures.</li>
+		</ul>
+
+		<h3>Localization</h3>
+		<ul>
+			<li>Added Turkish.</li>
+			<li>All 16 translations are complete. They now live in a String Catalog, so no string can go stale.</li>
+		</ul>
+
+		<h3>Fixed</h3>
+		<ul>
+			<li>A blocklist download that failed could leave Monolingual without a blocklist, which made the next removal crash.</li>
+		</ul>
+
+		<h3>Also</h3>
+		<ul>
+			<li>Updates are signed with Sparkle 2 and EdDSA, and the app is notarized.</li>
+			<li>A new app icon.</li>
+		</ul>
 	</body>
 </html>
 ]]></description>

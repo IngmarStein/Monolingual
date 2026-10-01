@@ -7,6 +7,27 @@ Monolingual
 
 <img src="Resources/README.rtfd/Monolingual-2.0.0-en.png" width="546" alt="The Monolingual main window">
 
+## What's new in 2.0
+
+2.0 is the first release since 1.8.2 and requires macOS 27 on an Apple silicon Mac.
+
+- **A new interface.** Monolingual is rewritten in Swift 6 with a SwiftUI interface. The English
+  language files can no longer be selected for removal — deleting them breaks a macOS installation
+  beyond repair.
+- **Removals you can watch, and stop.** A removal reports what it is doing in a sheet, showing the
+  file it is working on and the space freed so far, and can be cancelled. A notification tells you
+  when it is done, with the space it saved.
+- **A different helper.** The privileged helper is registered with Service Management
+  (`SMAppService`) instead of the deprecated `SMJobBless`; approve it once under System Settings ›
+  General › Login Items & Extensions. It verifies that the processes talking to it are Monolingual,
+  and it no longer follows symbolic links.
+- **Updates you can trust.** Monolingual uses Sparkle 2 with EdDSA-signed updates, and the app is
+  notarized.
+- **Better translations.** Turkish is new since 1.8.2, and all 16 translations are complete, kept in
+  a String Catalog so that no string can go stale.
+- **Fixed.** A blocklist download that failed used to leave the blocklist empty, which crashed the
+  next removal.
+
 ## Architecture
 
 Monolingual consists of two parts: the sandboxed Monolingual app and a privileged helper program that

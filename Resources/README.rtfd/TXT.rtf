@@ -130,11 +130,16 @@ A.  You can request the addition of a feature by going to {\field{\*\fldinst{HYP
 Q.  What's new in this version?\
 \
 Version 2.0.0\
-- Now requires macOS 27\
-- Now requires an Apple silicon Mac\
+- First release since 1.8.2\
+- Now requires macOS 27 on an Apple silicon Mac\
 - Rewritten in Swift 6 with a modern SwiftUI interface\
+- The English language files can no longer be selected: removing them breaks a macOS installation beyond repair\
+- A removal now shows its progress in a sheet, reports the space it saved and can be cancelled\
+- Monolingual notifies you when a removal has finished\
 - The privileged helper is now installed with SMAppService; manage it in System Settings under General > Login Items & Extensions\
-- A removal now shows its progress in a sheet and can be cancelled\
+- The app and the helper now use the Swift XPC API, and the helper checks that its callers are Monolingual\
+- Symbolic links are no longer followed when removing files or architectures\
+- Added the Turkish localization and completed all translations\
 - Fixed a crash when the blocklist could not be downloaded\
 \
 Version 1.8.2\
