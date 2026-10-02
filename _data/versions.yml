@@ -1,3 +1,24 @@
+- version: 2.0.1
+  release: 2026-10-02
+  changes:
+    - >
+      <strong>Monolingual can remove files again.</strong> A bug prevented the privileged helper
+      that does the removing from being installed.
+    - >
+      <strong>Existing settings start over.</strong> Preferences lived in the sandbox container,
+      which an unsandboxed app cannot read, so the folders to thin fall back to
+      <code>/Applications</code> and <code>/Library</code>. A folder you added yourself has to be
+      added again.
+    - Thinning a very large universal binary no longer crashes.
+    - >
+      The app inside the disk image is stapled as well as the zip, so the disk image installs on a
+      Mac that is offline or behind a restrictive network.
+  sparkle:
+    edSignature: PtMmNW+7lbrMkLuuUh7cPUQeW39gbxORhuL/H6K/1IhKOrkBJwkdBbsdp+UFM/3kD/AVoCDjYZyv5xYXicrhBw==
+    filesize: 3537253
+    file: zip
+  minimum: '27.0'
+
 - version: 1.8.2
   release: 2018-02-10
   changes:
