@@ -404,6 +404,26 @@ a.download
 	max-width: 546px;
 }
 
+/* The older releases are a lookup list rather than prose: the version is read
+   first and the system it is the last for follows it. */
+ul.versions
+{
+	margin: 1em 0;
+	padding-left: 1.5em;
+}
+
+ul.versions li + li
+{
+	margin-top: .4em;
+}
+
+/* A version number split over two lines ("Version" / "1.8.2") reads as two
+   entries in a list like this one. */
+ul.versions a
+{
+	white-space: nowrap;
+}
+
 ul.donate
 {
 	display: flex;
