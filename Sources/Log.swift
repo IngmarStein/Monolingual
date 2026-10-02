@@ -9,8 +9,9 @@
 import Foundation
 
 final class Log {
-	// use the real (non-sandboxed) directory $HOME/Library/Logs for the log file as long as we have the temporary exception com.apple.security.temporary-exception.files.home-relative-path.read-write.
-	// FileManager.homeDirectoryForCurrentUser points to $HOME/Library/Containers/com.github.IngmarStein.Monolingual/Data
+	// The log belongs with the user's other logs, in the real $HOME/Library/Logs. Ask the
+	// password database rather than FileManager, which reports the app's container directory
+	// whenever the app is sandboxed.
 	static var realHomeDirectory: String {
 		if let pw = getpwuid(getuid()) {
 			return String(cString: pw.pointee.pw_dir)

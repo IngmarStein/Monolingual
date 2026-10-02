@@ -1,7 +1,7 @@
 # Monolingual Project Context
 
 ## Project Overview
-Monolingual is a macOS utility for removing unnecessary language localization files to reclaim disk space. It is written in Swift and utilizes a modular architecture involving a sandboxed main application and a privileged helper tool.
+Monolingual is a macOS utility for removing unnecessary language localization files to reclaim disk space. It is written in Swift and utilizes a modular architecture involving a main application and a privileged helper tool.
 
 ### Key Technologies
 - **Language:** Swift 6 (Swift 6 language mode), app deployment target macOS 27 (the helper and `lipo` target macOS 26)
@@ -12,7 +12,7 @@ Monolingual is a macOS utility for removing unnecessary language localization fi
 
 ## Architecture
 The application is composed of two main components:
-1.  **Monolingual App (Sandboxed):** The user-facing application (Sources: `Sources/`). It registers the helper as a launch daemon with `SMAppService` and talks to it directly over XPC.
+1.  **Monolingual App:** The user-facing application (Sources: `Sources/`). It registers the helper as a launch daemon with `SMAppService` and talks to it directly over XPC. It is **not** sandboxed: macOS 27 refuses to register an unsandboxed launch daemon from a sandboxed app (`SMAppService target executable must be sandboxed because the app is sandboxed`), and sandboxing the helper is not an option for a tool that deletes files anywhere on disk. The app *was* sandboxed, from 2015 through 2.0.0, via `Monolingual.entitlements`; removing the sandbox is what makes 2.0.1 work. `SMJobBless`, which `SMAppService` replaced, had no such requirement — it trusted the client on code signature alone — so the entitlement and the helper install coexisted for a decade without anyone noticing the coupling.
 2.  **Privileged Helper:** Performs operations requiring elevated privileges, such as file deletion (Sources: `Helper/`). It is an executable inside the app bundle (`Contents/MacOS`), together with its launchd property list in `Contents/Library/LaunchDaemons`.
 
 ## Build & Development
