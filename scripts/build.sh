@@ -6,8 +6,14 @@
 #
 # Produces, in build/:
 #   Monolingual.app             the app, signed with a Developer ID identity
-#   Monolingual.app.dSYM.zip    debug symbols
+#   Monolingual.app.dSYM.zip    debug symbols (Release only; see below)
 #   Monolingual.xcarchive       the archive the app was exported from
+#
+# Release builds with DEBUG_INFORMATION_FORMAT = dwarf-with-dsym and Debug with
+# plain dwarf, so a Debug archive holds no dSYM for the app itself -- only those
+# of Sparkle's prebuilt components -- and there is nothing to collect. The dSYM
+# handling below is conditional for that reason: make development has to work
+# without one.
 #
 # The signing identity and the team are build settings in the project, so a
 # Developer ID Application certificate for team ADVP2P7SJK has to be in the
@@ -39,7 +45,9 @@ xcodebuild archive \
 
 echo "==> Collecting the app and its symbols..."
 rm -rf "$BUILD_DIR/Monolingual.app" "$BUILD_DIR/Monolingual.app.dSYM" "$BUILD_DIR/Monolingual.app.dSYM.zip"
-cp -R "$ARCHIVE/dSYMs/Monolingual.app.dSYM" "$BUILD_DIR/"
+if [ -d "$ARCHIVE/dSYMs/Monolingual.app.dSYM" ]; then
+    cp -R "$ARCHIVE/dSYMs/Monolingual.app.dSYM" "$BUILD_DIR/"
+fi
 
 ARCHIVED="$ARCHIVE/Products/Applications/Monolingual.app"
 APP="$BUILD_DIR/Monolingual.app"
@@ -102,7 +110,9 @@ else
     echo "Warning: $ARCHIVED is not signed by an authority; leaving it as archived." >&2
     cp -R "$ARCHIVED" "$BUILD_DIR/"
 fi
-/usr/bin/ditto -c -k --keepParent "$BUILD_DIR/Monolingual.app.dSYM" "$BUILD_DIR/Monolingual.app.dSYM.zip"
+if [ -d "$BUILD_DIR/Monolingual.app.dSYM" ]; then
+    /usr/bin/ditto -c -k --keepParent "$BUILD_DIR/Monolingual.app.dSYM" "$BUILD_DIR/Monolingual.app.dSYM.zip"
+fi
 
 VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist")
 echo "==> Done: build/Monolingual.app $VERSION"
