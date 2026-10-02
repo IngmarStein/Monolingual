@@ -11,6 +11,17 @@ Monolingual
 
 A patch release for 2.0.
 
+- **Monolingual can remove files again.** 2.0 asked macOS for something it does not allow, so the
+  privileged helper that does the removing was never installed and the app could not free a single
+  byte. macOS 27 refuses to register an unsandboxed launch daemon from a sandboxed app —
+  `SMAppService target executable must be sandboxed because the app is sandboxed` — and Monolingual
+  was on both sides of that rule at once: the app had been sandboxed since 2015, and the helper has
+  to run unconfined because it deletes files anywhere on disk. `SMJobBless`, which 2.0 replaced with
+  `SMAppService`, had no such requirement, which is why the two coexisted for a decade without
+  anyone noticing. The app is no longer sandboxed.
+- **Existing settings start over.** Preferences lived in the sandbox container, which an unsandboxed
+  app cannot read, so the folders to thin fall back to `/Applications` and `/Library`. If you had
+  added a folder of your own, add it again under Preferences.
 - **Thinning a very large universal binary no longer crashes.** The architecture offsets of a fat
   file are added in 64 bits, and a file whose slices would not fit a 32-bit header is refused
   instead of trapping.
@@ -42,7 +53,7 @@ A patch release for 2.0.
 
 ## Architecture
 
-Monolingual consists of two parts: the sandboxed Monolingual app and a privileged helper program that
+Monolingual consists of two parts: the Monolingual app and a privileged helper program that
 is registered as a launch daemon with Service Management (`SMAppService`). Both are written in Swift and
 communicate with each other using XPC.
 

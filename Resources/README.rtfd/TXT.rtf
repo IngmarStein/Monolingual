@@ -130,6 +130,8 @@ A.  You can request the addition of a feature by going to {\field{\*\fldinst{HYP
 Q.  What's new in this version?\
 \
 Version 2.0.1\
+- Monolingual can remove files again: macOS 27 does not let a sandboxed app install a privileged helper that is not sandboxed, so the helper that does the removing was never installed. The app is no longer sandboxed\
+- Existing settings start over: they live in the sandbox container, which an app without a sandbox cannot read, so the folders to thin fall back to /Applications and /Library\
 - Fixed a crash when thinning a very large universal binary\
 - The app inside the disk image now carries its notarization ticket, so Monolingual installs from it without a network connection\
 \
