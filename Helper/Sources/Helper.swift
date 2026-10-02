@@ -115,17 +115,6 @@ public final class Helper: @unchecked Sendable {
 		}
 	}
 
-	/// Removes a helper that an older version of Monolingual installed with SMJobBless.
-	///
-	/// Helpers registered with SMAppService live inside the app bundle and are removed by
-	/// unregistering them, so this only has to clean up after the SMJobBless based versions.
-	public func uninstall() {
-		do {
-			try FileManager.default.removeItem(atPath: "/Library/PrivilegedHelperTools/com.github.IngmarStein.Monolingual.Helper")
-			try FileManager.default.removeItem(atPath: "/Library/LaunchDaemons/com.github.IngmarStein.Monolingual.Helper.plist")
-		} catch {}
-	}
-
 	/// Stops the running request and exits with `code`.
 	public func exit(code: Int) {
 		logger.info("exiting with exit status \(code, privacy: .public)")

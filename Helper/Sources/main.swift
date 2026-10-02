@@ -13,9 +13,6 @@ import HelperShared
 #endif
 
 struct Options: ParsableArguments {
-	@Flag(name: .shortAndLong, help: "Uninstall helper.")
-	var uninstall: Bool = false
-
 	@Flag(name: .shortAndLong, help: "Print version and exit.")
 	var version: Bool = false
 
@@ -50,11 +47,6 @@ struct Options: ParsableArguments {
 let options = Options.parseOrExit()
 
 let helper = Helper()
-
-if options.uninstall {
-	helper.uninstall()
-	exit(EXIT_SUCCESS)
-}
 
 if options.version {
 	print("MonolingualHelper version \(helper.version)")
