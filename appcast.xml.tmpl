@@ -20,13 +20,15 @@
 		<meta name="robots" content="anchors">
 	</head>
 	<body>
-		<h2>Monolingual 2.0.1</h2>
-		<p>A patch release. The app itself is unchanged apart from the two fixes below; the rest of
-		this note describes 2.0, the first release since 1.8.2, which requires macOS 27 on an Apple
-		silicon Mac.</p>
+		<h2>Monolingual %VERSION%</h2>
+		<p>A patch release. 2.0 could not remove anything — that is fixed here, first below. The rest
+		of this note describes 2.0, the first release since 1.8.2, which requires macOS 27 on an
+		Apple silicon Mac.</p>
 
 		<h3>Fixed in 2.0.1</h3>
 		<ul>
+			<li><strong>Monolingual can remove files again.</strong> 2.0 asked macOS for something it does not allow, so the privileged helper that does the removing was never installed. macOS 27 refuses to register an unsandboxed launch daemon from a sandboxed app, and Monolingual was on both sides of that rule at once: the app had been sandboxed since 2015, and the helper has to run unconfined because it deletes files anywhere on disk. The app is no longer sandboxed.</li>
+			<li><strong>Preferences start over.</strong> They lived in the sandbox container, which an unsandboxed app cannot read, so the folders to thin fall back to <code>/Applications</code> and <code>/Library</code>. If you had added a folder of your own, add it again under Preferences.</li>
 			<li>Thinning an unusually large universal binary could crash Monolingual. The architecture offsets of a fat file are now added in 64 bits, and a file whose slices would not fit a 32-bit header is refused instead of trapping.</li>
 			<li>The app inside the disk image had no notarization ticket stapled to it — only the zip did — so Gatekeeper had to ask Apple about the app before it would run, which fails on a Mac that is offline or behind a restrictive network. The app is now stapled before the disk image is built.</li>
 		</ul>
