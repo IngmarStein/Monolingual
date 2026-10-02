@@ -62,6 +62,33 @@ next to it in the Sparkle package artifacts; the same directory's `sign_update` 
 A `workflow_dispatch` run builds, signs, notarizes and packages without publishing, and uploads
 the artifacts — use it to check a release before tagging.
 
+Two things a release has to be written into by hand, beyond the version numbers themselves.
+
+**The changelog.** `README.markdown` carries a "What's new in `<version>`" section, and so do the
+five help files in `Resources/*.rtfd/TXT.rtf` — `README` (English), `LEESMIJ` (Dutch), `Leggimi`
+(Italian), `Lies-mich` (German) and `LisezMoi` (French). Those are what the Help menu shows and
+what `release.sh` copies into the disk image. They are RTF, not text: the document is
+`ansicpg1252`, a paragraph break is a lone backslash followed by a newline, and anything outside
+ASCII is written as a `\'xx` escape (the German file spells "Oberfläche" as `Oberfl\'e4che`).
+Check a change with `textutil -convert txt -stdout` rather than by reading the markup. Only the
+German changelog is actually translated; the Dutch, Italian and French files keep their bullets in
+English, and the screenshot each one embeds is named after the version whose window it shows.
+
+**The Sparkle feed.** `scripts/release.sh` writes an `appcast.xml` for the zip, but that only ever
+becomes a release asset; nothing publishes it. The feed the app actually polls is
+`SUFeedURL=https://ingmarstein.github.io/Monolingual/appcast.xml`, served from the `gh-pages`
+branch, and it has no workflow behind it. That branch is a Jekyll site: the `appcast.xml` there is
+a template that renders one `<item>` per `minimum` group from `_data/versions.yml`, taking
+`limit:1` — so a release is a YAML entry added **at the top** of that file, because an entry
+placed lower loses its group to the one above it and is never offered. The entry needs the
+`edSignature` and `filesize` that `release.sh` computed, both readable from
+`release-<version>/appcast.xml`; the download URL is built from `github_download_url` in
+`_config.yml`, so it follows the version rather than being written out.
+
+This feed is the only channel that reaches an existing installation, which matters more than it
+looks: Sparkle compares `sparkle:version` against the running `CFBundleVersion`, so re-releasing a
+version that is already out reaches nobody who already has it.
+
 ## Key Directories & Files
 - `Sources/`: Main application source code.
 - `Helper/`: Source code for the privileged helper tool.
