@@ -243,7 +243,11 @@ struct MainView: View {
 			} else if let displayName = systemLocale.localizedString(forIdentifier: localeIdentifier) {
 				folders.append("\(displayName).lproj")
 			}
-			let displayName = currentLocale.localizedString(forIdentifier: localeIdentifier) ?? NSLocalizedString("locale_\(localeIdentifier)", comment: "")
+			// Deliberately not NSLocalizedString: the key is assembled at runtime, and the
+			// string extractor warns about a key it cannot resolve. The handful of these
+			// that are needed (locale_md, for one) are kept by hand in Localizable.xcstrings.
+			let key = "locale_" + localeIdentifier
+			let displayName = currentLocale.localizedString(forIdentifier: localeIdentifier) ?? Bundle.main.localizedString(forKey: key, value: nil, table: nil)
 			let setting = LanguageSetting(enabled: !userLanguages.contains(localeIdentifier), folders: folders, displayName: displayName)
 			return setting
 		}.sorted { $0.displayName < $1.displayName }
