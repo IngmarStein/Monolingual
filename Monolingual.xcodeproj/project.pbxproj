@@ -32,6 +32,7 @@
 		9558F815061598BA00F6DE23 /* Lies-mich.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F813061598BA00F6DE23 /* Lies-mich.rtfd */; };
 		9558F816061598BA00F6DE23 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 9558F814061598BA00F6DE23 /* README.rtfd */; };
 		958FCAA824099C2F00048708 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 958FCAA724099C2F00048708 /* ArgumentParser */; };
+		9599C33F30711F9200713546 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 9599C33E30711F9200713546 /* AppIcon.icon */; };
 		95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 95B70C491AD2715500801026 /* LICENSE.txt */; };
 		95B9D1811769CF3A0072A7E0 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B9D1801769CF3A0072A7E0 /* Media.xcassets */; };
@@ -177,6 +178,7 @@
 		9589976D15CABA80008A2593 /* MonolingualHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MonolingualHelper-Info.plist"; path = "Helper/Sources/MonolingualHelper-Info.plist"; sourceTree = "<group>"; };
 		95955DF81A041F1100165C3E /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = hr; path = Resources/hr.lproj/Credits.html; sourceTree = "<group>"; };
 		95955DF91A041F1100165C3E /* hr */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = hr; path = Resources/hr.lproj/InfoPlist.strings; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
+		9599C33E30711F9200713546 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = AppIcon.icon; path = Resources/AppIcon.icon; sourceTree = "<group>"; };
 		95A130420608F92F00D8E30C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		95A130430608F93000D8E30C /* Monolingual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monolingual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95A75A8118FC6C8100BD2E36 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = el; path = Resources/el.lproj/Credits.html; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9599C33E30711F9200713546 /* AppIcon.icon */,
 				9558F78F0615953200F6DE23 /* Credits.html */,
 				95A130420608F92F00D8E30C /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
@@ -610,6 +613,7 @@
 				4D0C414C000000000000000C /* Localizable.xcstrings in Resources */,
 				95B70C4A1AD2715600801026 /* LICENSE.txt in Resources */,
 				9558F816061598BA00F6DE23 /* README.rtfd in Resources */,
+				9599C33F30711F9200713546 /* AppIcon.icon in Resources */,
 				95A1302E0608F92F00D8E30C /* InfoPlist.strings in Resources */,
 				95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */,
 				9558F7900615953200F6DE23 /* Credits.html in Resources */,
@@ -901,6 +905,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -916,6 +921,8 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Monolingual;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -936,6 +943,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -951,6 +959,8 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Monolingual;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

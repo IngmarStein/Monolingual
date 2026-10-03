@@ -1,0 +1,123 @@
+{
+  "features" : [
+    "specular-location"
+  ],
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.46491,0.70791,0.85503,1.00000",
+      "display-p3:0.28560,0.54511,0.77546,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "hidden" : false,
+      "layers" : [
+        {
+          "image-name" : "FLAGS OUTSIDE.png",
+          "name" : "FLAGS OUTSIDE"
+        }
+      ],
+      "name" : "FLAGS OUTSIDE",
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.5
+      },
+      "specular" : false,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.3
+      }
+    },
+    {
+      "hidden" : false,
+      "layers" : [
+        {
+          "image-name" : "FLAGS.png",
+          "name" : "FLAGS"
+        }
+      ],
+      "name" : "FLAGS INSIDE",
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 1
+      },
+      "specular" : "inside",
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0
+      }
+    },
+    {
+      "blur-material" : null,
+      "hidden" : false,
+      "layers" : [
+        {
+          "image-name" : "TRASH.png",
+          "name" : "TRASH"
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "TRASH",
+      "refractivity" : {
+        "depth" : 0,
+        "enabled" : false,
+        "strength" : 0.5
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 1.62
+      },
+      "specular" : "inside",
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.3
+      }
+    },
+    {
+      "hidden-specializations" : [
+        {
+          "value" : false
+        },
+        {
+          "idiom" : "square",
+          "value" : false
+        }
+      ],
+      "layers" : [
+        {
+          "image-name" : "LUEUR.png",
+          "name" : "LUEUR"
+        }
+      ],
+      "name" : "LIGHT",
+      "opacity" : 0.72,
+      "position-specializations" : [
+        {
+          "idiom" : "square",
+          "value" : {
+            "scale" : 0.85,
+            "translation-in-points" : [
+              0,
+              -235
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.5
+      },
+      "specular" : false,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.3
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
