@@ -27,6 +27,9 @@ struct MainView: View {
 
 	@State private var languages: [LanguageSetting] = []
 	@State private var architectures: [ArchitectureSetting] = []
+	@State private var languageFilter = ""
+	@State private var architectureFilter = ""
+	@FocusState private var isFilterFocused: Bool
 	@State private var currentArchitecture = "unknown"
 	@State private var showingRemoveLanguagesAlert = false
 	@State private var showingUnchangedAlert = false
@@ -65,6 +68,25 @@ struct MainView: View {
 				helperTask.outcome = nil
 			}
 		})
+	}
+
+	/// The rows the filter leaves visible. A filter only ever hides rows: what is checked
+	/// stays checked, and a removal still covers the whole list.
+	private func filtered<T>(_ items: [T], by query: String, named name: (T) -> String) -> [T] {
+		// A stray space is easy to leave behind when pasting, and it matches nothing.
+		let query = query.trimmingCharacters(in: .whitespaces)
+		guard !query.isEmpty else { return items }
+		// `localizedStandardContains` is the comparison the Finder uses: case- and
+		// diacritic-insensitive, and aware of the user's locale.
+		return items.filter { name($0).localizedStandardContains(query) }
+	}
+
+	private var filteredLanguages: [LanguageSetting] {
+		filtered(languages, by: languageFilter) { $0.displayName }
+	}
+
+	private var filteredArchitectures: [ArchitectureSetting] {
+		filtered(architectures, by: architectureFilter) { $0.displayName }
 	}
 
 	func removeArchitectures() {
@@ -328,8 +350,11 @@ struct MainView: View {
 		TabView {
 			VStack(alignment: .leading) {
 				Text("Select the items you wish to remove:")
-				Table(languages) {
+				Table(filteredLanguages) {
 					TableColumn("Remove language") { setting in
+						// Looked up in the unfiltered list: the filter hides rows, it does not
+						// renumber them, and a toggle has to keep writing through to the setting
+						// it belongs to.
 						if let index = languages.firstIndex(where: { $0.id == setting.id }) {
 							Toggle(setting.displayName, isOn: $languages[index].enabled)
 								.toggleStyle(.checkbox)
@@ -345,6 +370,11 @@ struct MainView: View {
 				// The heading above already says what the single column is for, and the
 				// header row would just be a redundant bar.
 				.tableColumnHeaders(.hidden)
+				.overlay {
+					if filteredLanguages.isEmpty {
+						Text("No matches").foregroundStyle(.secondary)
+					}
+				}
 				HStack {
 					Spacer()
 					Button("Remove …") {
@@ -362,12 +392,17 @@ struct MainView: View {
 				}.padding()
 			}
 			.padding()
+			// A search field per tab, so that each one filters the list its tab shows. The
+			// placement puts it in the title bar beside the tab picker; the default gives it a
+			// row of its own under the tabs, which costs the list a row's height.
+			.searchable(text: $languageFilter, placement: .toolbar)
+			.searchFocused($isFilterFocused)
 			.tabItem {
 				Text("Languages")
 			}
 			VStack(alignment: .leading) {
 				Text("Select the items you wish to remove:")
-				Table(architectures) {
+				Table(filteredArchitectures) {
 					TableColumn("Remove architecture") { setting in
 						if let index = architectures.firstIndex(where: { $0.id == setting.id }) {
 							Toggle(setting.displayName, isOn: $architectures[index].enabled)
@@ -376,6 +411,11 @@ struct MainView: View {
 					}
 				}
 				.tableColumnHeaders(.hidden)
+				.overlay {
+					if filteredArchitectures.isEmpty {
+						Text("No matches").foregroundStyle(.secondary)
+					}
+				}
 				HStack {
 					Text("Current architecture: \(currentArchitecture)")
 					Spacer()
@@ -385,6 +425,8 @@ struct MainView: View {
 				}.padding()
 			}
 			.padding()
+			.searchable(text: $architectureFilter, placement: .toolbar)
+			.searchFocused($isFilterFocused)
 			.tabItem {
 				Text("Architectures")
 			}
@@ -427,6 +469,10 @@ struct MainView: View {
 			Text(helperTask.installationFailure?.message ?? "")
 		}
 		.task {
+			// The window opens with the search field ready for typing, which is the behavior
+			// the list had before 2.0 and the reason the filter is here at all: open the app,
+			// type a language, watch it narrow.
+			isFilterFocused = true
 			loadData()
 			// Load the remote blocklist asynchronously, and only ever let it replace the
 			// blocklist from the asset catalog. The URL below answered with a 404 and an HTML
