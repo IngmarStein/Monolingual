@@ -5,7 +5,20 @@ Monolingual
 
 ## Screenshot
 
-<img src="Resources/README.rtfd/Monolingual-2.0.0-en.png" width="546" alt="The Monolingual main window">
+<img src="Resources/README.rtfd/Monolingual-2.0.2-en.png" width="752" alt="The Monolingual main window">
+
+## What's new in 2.0.2
+
+A small release for 2.0: a new icon, one more language, and a search field for the two lists.
+
+- **A new app icon.**
+- **Simplified Chinese is new, and all 17 translations are complete.**
+- **The language and architecture lists can be narrowed by typing.** A search field in the title
+  bar filters the list of the tab you are on, which gives the language list back the behavior it
+  had in 1.8.2: open the app, type "Eng", and it narrows to the English variants as you type. The
+  field holds the keyboard focus as the window opens, and a list that matches nothing says so.
+  What is checked stays checked, and a removal still covers the whole list, whether or not it is
+  on screen.
 
 ## What's new in 2.0.1
 
@@ -90,23 +103,27 @@ J. Schrier
 
 ### Localization
 
-- Croatian localization by Alen Bajo
-- Dutch localization by Tobias T.
+- Croatian localization by Alen Bajo ([@abajo](https://github.com/abajo))
+- Dutch localization by Tobias T. ([@Eitot](https://github.com/Eitot))
+- Farsi localization by [@paymon23](https://github.com/paymon23)
 - French localization by François Besoli
 - German localization by Alex Thurley
 - Greek localization by Ευριπίδης Αργυρόπουλος
 - Italian localization by Claudio Procida
 - Japanese localization by Takehiko Hatatani
-- Korean localization by Woosuk Park
-- Polish localization by Mariusz Ostrowski
-- Romanian localization by Eugen Mihalache
-- Slovak localization by Richard Gráčik
-- Spanish localization by Fran Ramírez
-- Swedish localization by Joel Arvidsson
-- Turkish localization by Hasan Beder
+- Korean localization by Woosuk Park ([@readingsnail](https://github.com/readingsnail))
+- Polish localization by Mariusz Ostrowski ([@mariuszostrowski](https://github.com/mariuszostrowski))
+- Romanian localization by Eugen Mihalache ([@eugeniums](https://github.com/eugeniums))
+- Russian localization by [@DotTheI](https://github.com/DotTheI) and Kirill Sokolov ([@mbs0ft](https://github.com/mbs0ft))
+- Simplified Chinese localization by 李子木 ([@drlcl](https://github.com/drlcl))
+- Slovak localization by Richard Gráčik ([@TheMorc](https://github.com/TheMorc))
+- Spanish localization by Fran Ramírez, updated by Darío Hereñú ([@kant](https://github.com/kant))
+- Swedish localization by Joel Arvidsson ([@oblador](https://github.com/oblador))
+- Turkish localization by Hasan Beder ([@hasanbeder](https://github.com/hasanbeder))
 
 ### Artwork
-Icon by Matt Davey
+Original icon by Matt Davey
+New icon in 2.0.2 by [@fingers-piano](https://github.com/fingers-piano)
 
 ## License
 
