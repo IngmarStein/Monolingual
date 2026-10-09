@@ -432,6 +432,12 @@ struct MainView: View {
 			}
 		}
 		.padding()
+		// The search field lives in the toolbar, which quietly drops it once the window is too
+		// narrow to hold it beside the tab picker: it does not go to the overflow menu, and ⌘F
+		// does nothing while it is gone, so a window narrower than this would have no filter at
+		// all. English needs the most room of the 17 localizations — 620 points is where its
+		// field appears — and the rest sit at 560 to 600.
+		.frame(minWidth: 640)
 		// Attached here rather than to the button that starts a removal, so that the sheet
 		// reports a removal from either tab. The architecture tab has no confirmation alert
 		// of its own, but it does produce an outcome like any other run.
