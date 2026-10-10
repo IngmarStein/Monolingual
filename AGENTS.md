@@ -64,7 +64,7 @@ next to it in the Sparkle package artifacts; the same directory's `sign_update` 
 A `workflow_dispatch` run builds, signs, notarizes and packages without publishing, and uploads
 the artifacts — use it to check a release before tagging.
 
-Two things a release has to be written into by hand, beyond the version numbers themselves.
+Three things a release has to be written into by hand, beyond the version numbers themselves.
 
 **The changelog.** `README.markdown` carries a "What's new in `<version>`" section, and so do the
 five help files in `Resources/*.rtfd/TXT.rtf` — `README` (English), `LEESMIJ` (Dutch), `Leggimi`
@@ -75,6 +75,30 @@ ASCII is written as a `\'xx` escape (the German file spells "Oberfläche" as `Ob
 Check a change with `textutil -convert txt -stdout` rather than by reading the markup. Only the
 German changelog is actually translated; the Dutch, Italian and French files keep their bullets in
 English, and the screenshot each one embeds is named after the version whose window it shows.
+
+**The screenshots.** Each help file embeds one and `README.markdown` points at the English one, so
+a release renames all five and deletes the old ones — the name is in the `\NeXTGraphic` line of
+`TXT.rtf` and in the README's `<img src=…>`. Take them a language at a time, with the window in
+that language: `open -a Monolingual.app --args -AppleLanguages "(de)"`.
+
+The help draws an image at half its pixel size — `\width` and `\height` are twips and equal the
+pixel size times ten, and the README's `width` attribute is half the pixel width — so both have to
+be recomputed from whatever the new captures measure, the window size deciding the pixels. It
+cannot go below 640 points wide without the search field dropping out of the toolbar, which is
+what fixes the smallest window worth photographing. `screencapture -l<window number>` takes the
+picture, with `-o` left off because the shadow is part of it; the number comes from
+`CGWindowListCopyWindowInfo`, or `screencapture -w` picks a window by clicking on it.
+
+Two things go wrong. The window only draws its shadow, and its coloured traffic lights, while it
+is the key window, and anything can take the focus back between activating the app and taking the
+picture — including the person using the Mac. So measure what came out instead of trusting the
+activation: the opaque part of the capture begins 112 pixels in from the left edge when the window
+is active and 46 when it is not. `open -a <app>` and `System Events`' `set frontmost` are equally
+reliable; the retry, not the incantation, is what makes this work. And these images are light
+while the Mac is not necessarily: neither the `-AppleInterfaceStyle Light` launch argument nor an
+`AppleInterfaceStyle` default in the app's own domain does anything, so it takes a temporary
+`NSApp.appearance = NSAppearance(named: .aqua)` in `applicationDidFinishLaunching`, which has to
+come back out again.
 
 **The Sparkle feed.** `scripts/release.sh` writes an `appcast.xml` for the zip, but that only ever
 becomes a release asset; nothing publishes it. The feed the app actually polls is
