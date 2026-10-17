@@ -66,6 +66,9 @@ private let archFlags: [ArchFlag] = [
 	ArchFlag(name: "arm64", cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64_ALL),
 	ArchFlag(name: "arm64v8", cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64_V8),
 	ArchFlag(name: "arm64e", cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E),
+	// The hardware-checked pointer arithmetic slice, a sibling of arm64e rather than a
+	// replacement: a fat file can hold both, and removing one leaves the other.
+	ArchFlag(name: "arm64e.x1", cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E_X1),
 	/* specific architecture implementations */
 	ArchFlag(name: "ppc970-64", cputype: CPU_TYPE_POWERPC64, cpusubtype: CPU_SUBTYPE_POWERPC_970),
 

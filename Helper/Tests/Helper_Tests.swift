@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import MachO
 import os
 import XCTest
 #if canImport(HelperShared)
@@ -187,6 +188,97 @@ import HelperShared
 		XCTAssert(progress.completedUnitCount == Int64(20480), "should have removed 20480 bytes")
 		XCTAssert(progress.userInfo[ProgressUserInfoKey.appName] == nil, "should not have an app name")
 		XCTAssert(progress.userInfo[ProgressUserInfoKey.sizeDifference] as? Int == 8192, "should have removed 8k bytes")
+	}
+
+	/// A Mach-O slice, as the header of a file names it: the subtype is masked down to the bits
+	/// that identify the architecture, the rest carry feature flags such as the ptrauth version.
+	private struct Slice: Hashable {
+		var cputype: cpu_type_t
+		var cpusubtype: cpu_subtype_t
+	}
+
+	/// The slices of a fat or thin Mach-O file, read out of the header here rather than asking
+	/// the code under test, which would let a wrong answer describe itself as the right one.
+	nonisolated private func slices(of url: URL) -> [Slice] {
+		guard let data = try? Data(contentsOf: url), data.count >= 8 else {
+			XCTFail("Could not read '\(url.path)'")
+			return []
+		}
+		return data.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) -> [Slice] in
+			// A fat header is big-endian throughout, a thin Mach-O on these machines little-endian.
+			func slice(at base: Int, bigEndian: Bool) -> Slice {
+				func field(_ offset: Int) -> UInt32 {
+					let value = buffer.load(fromByteOffset: offset, as: UInt32.self)
+					return bigEndian ? UInt32(bigEndian: value) : value
+				}
+				return Slice(cputype: cpu_type_t(bitPattern: field(base)),
+				             cpusubtype: cpu_subtype_t(bitPattern: field(base + 4)) & 0xFF_FFFF)
+			}
+			let magic = UInt32(bigEndian: buffer.load(fromByteOffset: 0, as: UInt32.self))
+			// The fat header counts its slices and each fat_arch is 20 bytes, 32 for the 64-bit form.
+			if magic == FAT_MAGIC || magic == FAT_MAGIC_64 {
+				let count = Int(UInt32(bigEndian: buffer.load(fromByteOffset: 4, as: UInt32.self)))
+				let stride = magic == FAT_MAGIC ? 20 : 32
+				return (0 ..< count).compactMap { index -> Slice? in
+					let base = 8 + index * stride
+					return base + 8 <= buffer.count ? slice(at: base, bigEndian: true) : nil
+				}
+			}
+			if buffer.load(fromByteOffset: 0, as: UInt32.self) == MH_MAGIC_64 {
+				return [slice(at: 4, bigEndian: false)]
+			}
+			return []
+		}
+	}
+
+	/// Runs a removal of the named architectures over a directory and waits for the helper to
+	/// finish with it.
+	private func thin(_ archs: [String], in directory: URL) {
+		var request = HelperRequest()
+		request.dryRun = false
+		request.uid = getuid()
+		request.trash = false
+		request.includes = [directory.path]
+		request.thin = archs
+
+		let helperExpectation = expectation(description: "helper thins \(archs.joined(separator: " "))")
+		let helper = Helper()
+		helper.process(request: request, report: nil) { exitCode in
+			XCTAssert(exitCode == 0, "Helper should return with exit code 0")
+			helperExpectation.fulfill()
+		}
+		wait(for: [helperExpectation], timeout: TimeInterval(5.0))
+	}
+
+	/// `arm64e.x1` is a second pointer-authenticated slice — subtype 12 against arm64e's 2 — and a
+	/// fat file can hold both. Neither name may match the other's slice, and removing the Intel
+	/// slice must leave both of them alone. The fixture is `util/hello.c` built as
+	/// `clang -O2 -arch x86_64 -arch arm64e -arch arm64e.x1 -o hello4 hello.c`.
+	func testRemoveArm64eX1() {
+		let directory = testDir.appendingPathComponent("arm64e")
+		let hello4 = directory.appendingPathComponent("hello4")
+		do {
+			try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+			try FileManager.default.copyItem(at: utilDir.appendingPathComponent("hello4"), to: hello4)
+		} catch {
+			XCTFail("Could not copy test data: \(error)")
+			return
+		}
+
+		XCTAssertEqual(slices(of: hello4), [
+			Slice(cputype: CPU_TYPE_X86_64, cpusubtype: CPU_SUBTYPE_X86_64_ALL),
+			Slice(cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E),
+			Slice(cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E_X1)
+		])
+
+		thin(["x86_64"], in: directory)
+		XCTAssertEqual(Set(slices(of: hello4)), [
+			Slice(cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E),
+			Slice(cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E_X1)
+		], "removing x86_64 should have left both arm slices")
+
+		thin(["arm64e.x1"], in: directory)
+		XCTAssertEqual(slices(of: hello4), [Slice(cputype: CPU_TYPE_ARM64, cpusubtype: CPU_SUBTYPE_ARM64E)], "removing arm64e.x1 should have left the thin arm64e slice")
 	}
 
 	/// The app and the helper exchange messages as JSON payloads in an XPC dictionary, and the

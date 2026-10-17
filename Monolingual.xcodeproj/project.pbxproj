@@ -41,6 +41,7 @@
 		95CA05381B93680E000ABDCE /* hello1 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05351B93680E000ABDCE /* hello1 */; };
 		95CA05391B93680E000ABDCE /* hello2 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05361B93680E000ABDCE /* hello2 */; };
 		95CA053A1B93680E000ABDCE /* hello3 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA05371B93680E000ABDCE /* hello3 */; };
+		95CA053C1B93680E000ABDCE /* hello4 in Resources */ = {isa = PBXBuildFile; fileRef = 95CA053D1B93680E000ABDCE /* hello4 */; };
 		95CEEA4E1ACD94210043CEDC /* LEESMIJ.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */; };
 		95D7A922098D48B700DCE08D /* Leggimi.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 95D7A921098D48B700DCE08D /* Leggimi.rtfd */; };
 		95E236F61AD5332800076008 /* com.github.IngmarStein.Monolingual.Helper in Embed Helper */ = {isa = PBXBuildFile; fileRef = 95C3C9600610144300D417BC /* com.github.IngmarStein.Monolingual.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -190,6 +191,7 @@
 		95CA05351B93680E000ABDCE /* hello1 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello1; path = util/hello1; sourceTree = SOURCE_ROOT; };
 		95CA05361B93680E000ABDCE /* hello2 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello2; path = util/hello2; sourceTree = SOURCE_ROOT; };
 		95CA05371B93680E000ABDCE /* hello3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello3; path = util/hello3; sourceTree = SOURCE_ROOT; };
+		95CA053D1B93680E000ABDCE /* hello4 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = hello4; path = util/hello4; sourceTree = SOURCE_ROOT; };
 		95CEEA4D1ACD94210043CEDC /* LEESMIJ.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = LEESMIJ.rtfd; path = Resources/LEESMIJ.rtfd; sourceTree = "<group>"; };
 		95D7A921098D48B700DCE08D /* Leggimi.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = Leggimi.rtfd; path = Resources/Leggimi.rtfd; sourceTree = "<group>"; };
 		95EB7AA51AE6E52B0066369B /* lipo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = lipo.swift; path = lipo/lipo.swift; sourceTree = SOURCE_ROOT; };
@@ -382,6 +384,7 @@
 				95CA05351B93680E000ABDCE /* hello1 */,
 				95CA05361B93680E000ABDCE /* hello2 */,
 				95CA05371B93680E000ABDCE /* hello3 */,
+				95CA053D1B93680E000ABDCE /* hello4 */,
 			);
 			name = "Test Data";
 			sourceTree = "<group>";
@@ -604,6 +607,7 @@
 				95CA05381B93680E000ABDCE /* hello1 in Resources */,
 				95CA05391B93680E000ABDCE /* hello2 in Resources */,
 				95CA053A1B93680E000ABDCE /* hello3 in Resources */,
+				95CA053C1B93680E000ABDCE /* hello4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

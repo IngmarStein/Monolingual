@@ -51,7 +51,8 @@ let package = Package(
             resources: [
                 .copy("Resources/hello1"),
                 .copy("Resources/hello2"),
-                .copy("Resources/hello3")
+                .copy("Resources/hello3"),
+                .copy("Resources/hello4")
             ],
             swiftSettings: [.swiftLanguageMode(.v6)]
         )

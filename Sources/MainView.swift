@@ -279,6 +279,9 @@ struct MainView: View {
 			ArchitectureInfo(name: "arm64", displayName: "ARM64", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64_ALL),
 			ArchitectureInfo(name: "arm64v8", displayName: "ARM64v8", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64_V8),
 			ArchitectureInfo(name: "arm64e", displayName: "ARM64E", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64E),
+			// Reports its own subtype on the Macs that support it, so without a row of its own
+			// the current architecture there would be "unknown".
+			ArchitectureInfo(name: "arm64e.x1", displayName: "ARM64E.x1", cpuType: CPU_TYPE_ARM64, cpuSubtype: CPU_SUBTYPE_ARM64E_X1),
 			ArchitectureInfo(name: "ppc", displayName: "PowerPC", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_ALL),
 			ArchitectureInfo(name: "ppc750", displayName: "PowerPC G3", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_750),
 			ArchitectureInfo(name: "ppc7400", displayName: "PowerPC G4", cpuType: CPU_TYPE_POWERPC, cpuSubtype: CPU_SUBTYPE_POWERPC_7400),
