@@ -29,9 +29,6 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    
-    env:
-      DEVELOPER_DIR: ${{ (matrix.language == 'swift' && '/Applications/Xcode_27.0.app/Contents/Developer') || '' }}
 
     strategy:
       fail-fast: false
@@ -46,6 +43,15 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
+
+    # The image's default Xcode is not necessarily the newest it carries, and
+    # this project needs 27.2+ — see scripts/select-xcode.sh. It has to be set
+    # before the build below, and before init so the tracer picks it up too.
+    - name: Select Xcode 27.2+
+      if: matrix.language == 'swift'
+      run: |
+        DEVELOPER_DIR="$(scripts/select-xcode.sh)"
+        echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL

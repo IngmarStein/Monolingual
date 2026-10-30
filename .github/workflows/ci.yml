@@ -27,9 +27,16 @@ jobs:
           docker run --rm -v "$PWD:/code" ghcr.io/realm/swiftlint:latest lint --quiet
 
   build-and-test:
-    # Needs Xcode 27+ for the Swift 6 toolchain and the macOS 27 SDK. The image
-    # is a public preview, so expect queueing and the occasional flake. See
-    # scripts/select-xcode.sh.
+    # Needs Xcode 27.2+: 27 for the Swift 6 toolchain and the macOS 27 SDK,
+    # 27.2 because that is the release the JSON project file (project.xcproj)
+    # belongs to. The image is a public preview, so expect queueing and the
+    # occasional flake.
+    #
+    # The image does not default to the newest Xcode it carries — as of image
+    # 20261026.0314.1 it defaults to 27.1 and also carries 27.2 — so the
+    # toolchain is picked explicitly rather than inherited. See
+    # scripts/select-xcode.sh, which enforces the 27.2 floor and prints the
+    # newest install that meets it.
     runs-on: xcode-27
 
     steps:
@@ -44,8 +51,10 @@ jobs:
           key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
 
-      - name: Select Xcode 27+
+      - name: Select Xcode 27.2+
         run: |
+          # DEVELOPER_DIR also decides which toolchain `swift test` below
+          # runs with, since swift goes through xcrun.
           DEVELOPER_DIR="$(scripts/select-xcode.sh)"
           echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
 

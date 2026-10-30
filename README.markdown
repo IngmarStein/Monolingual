@@ -131,7 +131,7 @@ GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
 
 ## Developers
 
-Monolingual is written in Swift 6 and requires macOS 27 on Apple silicon, with Xcode 27.0 or above to
+Monolingual is written in Swift 6 and requires macOS 27 on Apple silicon, with Xcode 27.2 or above to
 build it.
 
 ## Status

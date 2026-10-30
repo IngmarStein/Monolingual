@@ -25,7 +25,8 @@ cd "$(dirname "$0")/.."
 
 CONFIGURATION="${1:-Release}"
 
-# Xcode 27 is the floor: the app deploys to macOS 27.
+# Xcode 27.2 is the floor: the app deploys to macOS 27, and the project file is
+# the JSON format 27.2 made the default. select-xcode.sh enforces it.
 DEVELOPER_DIR="$(scripts/select-xcode.sh)"
 export DEVELOPER_DIR
 

@@ -20,8 +20,12 @@ The application is composed of two main components:
 ## Build & Development
 
 ### Prerequisites
-- Xcode 27+ (the app and the helper it carries both target macOS 27). `scripts/select-xcode.sh` picks a
-  suitable Xcode from `/Applications` and is what the build uses.
+- Xcode 27.2+ — 27 for the SDK the app and the helper it carries both target (macOS 27), 27.2
+  because the project configuration file is the JSON `project.xcproj` that 27.2 made the default.
+  `scripts/select-xcode.sh` picks the newest Xcode in `/Applications` that meets that floor and is
+  what the build, the release scripts and every workflow use; it prints a Developer directory, so
+  `export DEVELOPER_DIR="$(scripts/select-xcode.sh)"` is how you put one in the environment by hand.
+  The CI images do not default to the newest Xcode they carry, which is why they select it too.
 
 ### Commands
 - **Build (Debug):** `make development` (executes `scripts/build.sh Debug`)

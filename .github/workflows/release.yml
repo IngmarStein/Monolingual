@@ -15,11 +15,14 @@ permissions:
 
 jobs:
   release:
-    # GitHub's xcode-27 image (macOS 27, arm64) carries Xcode 27 — see
-    # scripts/select-xcode.sh. The runner is ephemeral, so every credential
-    # arrives as a secret and dies with it: the Developer ID certificate is
-    # imported into a throwaway keychain. No provisioning profile is needed —
-    # the app and its helper carry no restricted entitlements.
+    # GitHub's xcode-27 image (macOS 27, arm64) carries Xcode 27.2, but does not
+    # default to it, so the toolchain is picked explicitly below — see
+    # scripts/select-xcode.sh. A release is built with the same toolchain as CI
+    # and as `make release` locally. The runner is ephemeral, so every
+    # credential arrives as a secret and dies with it: the Developer ID
+    # certificate is imported into a throwaway keychain. No provisioning
+    # profile is needed — the app and its helper carry no restricted
+    # entitlements.
     runs-on: xcode-27
     # Notarization takes minutes; a stuck disk image script (the Finder layout
     # in dmg.js drives a GUI) should not sit here for the 6 hour default.
@@ -35,7 +38,7 @@ jobs:
           key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
 
-      - name: Select Xcode 27+
+      - name: Select Xcode 27.2+
         run: |
           DEVELOPER_DIR="$(scripts/select-xcode.sh)"
           echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"

@@ -2,10 +2,19 @@
 #
 # Pick an Xcode toolchain for building Monolingual.
 #
-# Monolingual needs Xcode 27 or later (the app deploys to macOS 27), while the
-# default Xcode is not necessarily the newest installed one and the default
-# location is not guaranteed to be the newest. Select by the version each
-# bundle reports, never by filename.
+# Monolingual needs Xcode 27.2 or later. 27 is the floor the app deploys to
+# (macOS 27); 27.2 is the release that made the JSON project file
+# (project.xcproj) the default format, which is the format this project is
+# committed in. Earlier 27.x can read that file, but opening the project with
+# the release the format belongs to means Xcode and the repository agree on
+# what is written back.
+#
+# Override the floor with $MIN_XCODE_VERSION (e.g. 27.0 to build with an older
+# 27.x toolchain).
+#
+# The default Xcode is not necessarily the newest installed one, and its
+# location is not guaranteed to be the newest either. Select by the version
+# each bundle reports, never by filename.
 #
 # Precedence:
 #   1. $DEVELOPER_DIR, if it satisfies the minimum (used verbatim)
@@ -22,7 +31,7 @@
 
 set -euo pipefail
 
-MIN_MAJOR="${MIN_XCODE_MAJOR:-27}"
+MIN_VERSION="${MIN_XCODE_VERSION:-27.2}"
 
 # Version reported by an .app bundle, or empty if it can't be run.
 xcode_version() {
@@ -32,16 +41,21 @@ xcode_version() {
     printf '%s' "${out##* }"
 }
 
+# True when $1 is at least $MIN_VERSION. sort -V so 27.10 is newer than 27.2.
+at_least_minimum() {
+    [ "$(printf '%s\n%s\n' "$MIN_VERSION" "$1" | sort -V | head -1)" = "$MIN_VERSION" ]
+}
+
 # Version of an .app bundle if it satisfies the minimum, otherwise nothing.
 supported_version() {
-    local version major
+    local version
     version=$(xcode_version "$1")
     [ -n "$version" ] || return 0
-    major="${version%%.*}"
-    case "$major" in
-        ''|*[!0-9]*) return 0 ;;
+    case "$version" in
+        [0-9]*) ;;
+        *) return 0 ;;
     esac
-    if [ "$major" -ge "$MIN_MAJOR" ]; then
+    if at_least_minimum "$version"; then
         printf '%s' "$version"
     fi
 }
@@ -52,7 +66,7 @@ newest_supported() {
     for app in "$@"; do
         version=$(supported_version "$app")
         if [ -z "$version" ]; then
-            echo "    skipping $app (not Xcode $MIN_MAJOR+)" >&2
+            echo "    skipping $app (not Xcode $MIN_VERSION+)" >&2
             continue
         fi
         if [ -z "$best_version" ] ||
@@ -75,7 +89,7 @@ if [ -n "${DEVELOPER_DIR:-}" ]; then
         printf '%s\n' "$app/Contents/Developer"
         exit 0
     fi
-    echo "    ignoring \$DEVELOPER_DIR=$DEVELOPER_DIR (not Xcode $MIN_MAJOR+)" >&2
+    echo "    ignoring \$DEVELOPER_DIR=$DEVELOPER_DIR (not Xcode $MIN_VERSION+)" >&2
 fi
 
 # 2. Collect installs, keeping betas aside as a fallback. The active
@@ -113,13 +127,13 @@ if [ "${#stable[@]}" -gt 0 ]; then
     picked=$(newest_supported "${stable[@]}")
 fi
 if [ -z "$picked" ] && [ "${#beta[@]}" -gt 0 ]; then
-    echo "    no stable Xcode $MIN_MAJOR+ installed, falling back to beta" >&2
+    echo "    no stable Xcode $MIN_VERSION+ installed, falling back to beta" >&2
     picked=$(newest_supported "${beta[@]}")
 fi
 
 if [ -z "$picked" ]; then
-    echo "Error: no Xcode $MIN_MAJOR or later found." >&2
-    echo "Install Xcode $MIN_MAJOR from the App Store, or point \$DEVELOPER_DIR at one." >&2
+    echo "Error: no Xcode $MIN_VERSION or later found." >&2
+    echo "Install Xcode $MIN_VERSION from the App Store, or point \$DEVELOPER_DIR at one." >&2
     exit 1
 fi
 
