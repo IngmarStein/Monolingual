@@ -70,12 +70,21 @@ the artifacts — use it to check a release before tagging.
 
 Three things a release has to be written into by hand, beyond the version numbers themselves.
 
-**The changelog.** `README.markdown` carries a "What's new in `<version>`" section, and so do the
+**The changelog.** It lives in four places, and a release has to be written into all of them. Three
+are in this repository: `README.markdown`, which carries a "What's new in `<version>`" section; the
 five help files in `Resources/*.rtfd/TXT.rtf` — `README` (English), `LEESMIJ` (Dutch), `Leggimi`
-(Italian), `Lies-mich` (German) and `LisezMoi` (French). Those are what the Help menu shows and
-what `release.sh` copies into the disk image. They are RTF, not text: the document is
-`ansicpg1252`, a paragraph break is a lone backslash followed by a newline, and anything outside
-ASCII is written as a `\'xx` escape (the German file spells "Oberfläche" as `Oberfl\'e4che`).
+(Italian), `Lies-mich` (German) and `LisezMoi` (French); and `appcast.xml.tmpl`, which `release.sh`
+renders into the release's `appcast.xml` and uploads as an asset. The fourth is the `_data/versions.yml`
+entry on `gh-pages`, which is what the update dialog actually shows — see *The Sparkle feed* below.
+
+`appcast.xml.tmpl` is the one that gets forgotten: it is not named in the script's output, it is not
+what the Help menu shows, and leaving it behind ships the previous release's notes under the new
+version's heading. The release workflow now fails if it does not mention the version being tagged.
+
+The README and the help files are what the Help menu shows and what `release.sh` copies into the
+disk image. They are RTF, not text: the document is `ansicpg1252`, a paragraph break is a lone
+backslash followed by a newline, and anything outside ASCII is written as a `\'xx` escape (the
+German file spells "Oberfläche" as `Oberfl\'e4che`).
 Check a change with `textutil -convert txt -stdout` rather than by reading the markup. Only the
 German changelog is actually translated; the Dutch, Italian and French files keep their bullets in
 English, and the screenshot each one embeds is named after the version whose window it shows.

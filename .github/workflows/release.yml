@@ -63,6 +63,27 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "    version: $VERSION"
 
+      - name: Check the release notes against the version
+        run: |
+          # The changelog lives in four places, and only three are in this
+          # repository: the README, the five help files, and appcast.xml.tmpl,
+          # which release.sh renders into the release's appcast.xml and uploads
+          # as an asset. (The fourth, the versions data on gh-pages, is the feed
+          # the app polls; it is written after the release.)
+          #
+          # The template is the one that gets forgotten, because nothing else
+          # reads it: 2.0.3 shipped the 2.0.2 notes under its own heading. This
+          # check runs before the build, so a release with stale notes fails in
+          # seconds rather than after notarization.
+          if ! grep -qF "$VERSION" appcast.xml.tmpl; then
+            echo "Error: appcast.xml.tmpl does not mention $VERSION."
+            echo "Write the release notes into it, as a section headed"
+            echo "\"New in $VERSION\" or \"Fixed in $VERSION\", before tagging:"
+            echo "release.sh renders this file into release-$VERSION/appcast.xml."
+            exit 1
+          fi
+          echo "    appcast.xml.tmpl mentions $VERSION"
+
       - name: Import the Developer ID certificate
         env:
           DEVELOPER_ID_CERT: ${{ secrets.DEVELOPER_ID_CERT }}
