@@ -21,10 +21,22 @@
 	</head>
 	<body>
 		<h2>Monolingual %VERSION%</h2>
-		<p>A small release for 2.0: a new icon, one more language, and a search field for the two
-		lists — first below. After it come the notes for 2.0.1, which fixed the release that could
-		not remove anything, and for 2.0, the first release since 1.8.2, which requires macOS 27 on
+		<p>A security release, first below. After it come the notes for 2.0.2, which brought a new
+		icon, Simplified Chinese and a search field; for 2.0.1, which fixed the release that could
+		not remove anything; and for 2.0, the first release since 1.8.2, which requires macOS 27 on
 		an Apple silicon Mac.</p>
+
+		<h3>Fixed in 2.0.3</h3>
+		<ul>
+			<li><strong>Moving language files to Trash no longer follows a symbolic link.</strong>
+			Before a localization directory was moved, the helper handed it and everything below it
+			to the user the app runs as, so that the user could empty the trash afterwards. It did
+			that by path, and looking a path up follows a link at the end of it: a link placed inside
+			the directory changed the ownership of its target, and since the helper runs as root, that
+			target could be a file only root may write. The ownership is now changed through
+			descriptors opened without following, and a link is skipped rather than resolved. Thanks
+			to h1ghl1kh7 for reporting this.</li>
+		</ul>
 
 		<h3>New in 2.0.2</h3>
 		<ul>
