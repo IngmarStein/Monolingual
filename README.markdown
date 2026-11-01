@@ -7,6 +7,18 @@ Monolingual
 
 <img src="Resources/README.rtfd/Monolingual-2.0.2-en.png" width="752" alt="The Monolingual main window">
 
+## What's new in 2.0.3
+
+A security release.
+
+- **Moving language files to Trash no longer follows a symbolic link.** Before a localization
+  directory was moved, the helper handed it and everything below it to the user the app runs as,
+  so that the user could empty the trash afterwards. It did that by path, and looking a path up
+  follows a link at the end of it: a link placed inside the directory changed the ownership of its
+  target, and since the helper runs as root, that target could be a file only root may write. The
+  ownership is now changed through descriptors opened without following, and a link is skipped
+  rather than resolved. Thanks to h1ghl1kh7 for reporting this. (GHSA-9gmw-jhrw-g8wf)
+
 ## What's new in 2.0.2
 
 A small release for 2.0: a new icon, one more language, and a search field for the two lists.
