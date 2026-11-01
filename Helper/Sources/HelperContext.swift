@@ -191,10 +191,9 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 			// Nothing is changed while the tree is being walked: the walk can end in the early
 			// return below, and attributes already set would stay set on a directory that is never
 			// trashed — leaving a system directory owned by the user.
-			var reown: [(url: URL, attributes: [FileAttributeKey: Any])] = []
 
 			// check if any file below `url` has been blocked and record sizes
-			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey], options: [], errorHandler: nil) {
+			if let dirEnumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey], options: [], errorHandler: nil) {
 				for entry in dirEnumerator {
 					guard let theURL = entry as? URL else { continue }
 					if isFileBlocklisted(theURL) {
@@ -202,46 +201,33 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 					}
 
 					do {
-						let resourceValues = try theURL.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey])
+						let resourceValues = try theURL.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
 						if let size = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize {
 							fileSize[theURL] = size
 						}
-
-						// change owner so that it can be moved to the user's trash
-						// see https://github.com/IngmarStein/Monolingual/issues/110
-						let attributes: [FileAttributeKey: Any]
-						if let isDirectory = resourceValues.isDirectory, isDirectory {
-							attributes = [.ownerAccountID: request.uid, .posixPermissions: S_IRWXU]
-						} else {
-							attributes = [.ownerAccountID: request.uid]
-						}
-						reown.append((theURL, attributes))
 					} catch {}
 				}
 			}
 
-			for (theURL, attributes) in reown {
-				try? fileManager.setAttributes(attributes, ofItemAtPath: theURL.path)
-			}
+			// change owner so that it can be moved to the user's trash
+			// see https://github.com/IngmarStein/Monolingual/issues/110
+			reown(url, uid: request.uid)
 
 			// The parent has to be writable for the entry to be moved out of it, which means
 			// changing the ownership of a directory the user did not ask to change. That is only
-			// done when the parent is a real directory: `setAttributes` follows a terminal symbolic
-			// link, so a root that is itself a link would otherwise hand the link's target — a
-			// system directory, say — to the user. The restore below is skipped with it, since
-			// there is nothing to restore.
+			// done when the parent is a real directory, and the descriptor is opened without
+			// following a link, so a root that is itself a link does not hand the link's target — a
+			// system directory, say — to the user. The attributes are read from, and put back
+			// through, that same descriptor, so the restore reaches the directory that was changed
+			// even if the path is replaced meanwhile. The restore is skipped when there is no
+			// directory to restore, since there is then nothing that was changed.
 			let parent = url.deletingLastPathComponent()
-			let parentValues = try? parent.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
-			let parentIsRealDirectory = parentValues?.isDirectory == true && parentValues?.isSymbolicLink != true
-			let parentAttributes = parentIsRealDirectory ? try? fileManager.attributesOfItem(atPath: parent.path) : nil
-
-			do {
-				try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: url.path)
-				if parentIsRealDirectory {
-					try fileManager.setAttributes([.ownerAccountID: request.uid, .posixPermissions: S_IRWXU], ofItemAtPath: parent.path)
-				}
-			} catch {
-				logger.error("failed to set owner: \(error.localizedDescription, privacy: .public)")
+			let parentDescriptor = open(parent.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW)
+			defer { if parentDescriptor >= 0 { close(parentDescriptor) } }
+			var parentStatus = stat()
+			let parentIsRealDirectory = parentDescriptor >= 0 && fstat(parentDescriptor, &parentStatus) == 0
+			if parentIsRealDirectory {
+				setOwner(parentDescriptor, uid: request.uid, path: parent.path)
 			}
 
 			// try to move the file to the user's trash
@@ -267,8 +253,13 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 				}
 			}
 
-			if let parentAttributes = parentAttributes {
-				try? fileManager.setAttributes(parentAttributes, ofItemAtPath: parent.path)
+			if parentIsRealDirectory {
+				if fchown(parentDescriptor, parentStatus.st_uid, parentStatus.st_gid) != 0 {
+					logger.error("Could not restore the owner of '\(parent.path, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+				}
+				if fchmod(parentDescriptor, parentStatus.st_mode & 0o7777) != 0 {
+					logger.error("Could not restore the permissions of '\(parent.path, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+				}
 			}
 
 			if success {
@@ -288,6 +279,94 @@ final class HelperContext: NSObject, FileManagerDelegate, @unchecked Sendable {
 					// ignore non-empty directories (they might contain blocklisted files and cannot be removed)
 				} else {
 					logger.error("Error removing '\(url.path, privacy: .public)': \(nsError, privacy: .public)")
+				}
+			}
+		}
+	}
+
+	/// The deepest the ownership walk descends. Every level costs a descriptor and a stack frame,
+	/// and a localization directory is a handful of levels deep: a tree built to be deeper than
+	/// this is not one worth risking the daemon's stack on.
+	private static let maximumDepth = 64
+
+	/// Hands `descriptor` to `uid` and makes it writable by them, which is what a directory needs
+	/// to be for what it holds to be moved out of it into the user's trash.
+	private func setOwner(_ descriptor: Int32, uid: uid_t, path: String) {
+		if fchown(descriptor, uid, uid_t.max) != 0 {
+			logger.error("Could not change the owner of '\(path, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+		}
+		if fchmod(descriptor, S_IRWXU) != 0 {
+			logger.error("Could not change the permissions of '\(path, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+		}
+	}
+
+	/// Changes the owner of `directory` and of everything below it to `uid`, never following a
+	/// symbolic link.
+	///
+	/// The helper runs as root and the tree belongs to the user, so anything the walk above saw can
+	/// be replaced before it is acted on. Every level is therefore opened with `O_NOFOLLOW`
+	/// relative to the descriptor of the level above, and the change is made to that descriptor
+	/// rather than to the path again: a link is skipped instead of resolved, and an entry swapped
+	/// for a link after the walk cannot redirect the change to a target outside the tree.
+	///
+	/// `FileManager.setAttributes` is what this replaces, and it is what made the walk dangerous:
+	/// it looks the path up again and follows a link at the end of it.
+	private func reown(_ directory: URL, uid: uid_t) {
+		let descriptor = open(directory.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW)
+		guard descriptor >= 0 else {
+			logger.error("Could not open '\(directory.path, privacy: .public)' to change its owner: \(String(cString: strerror(errno)), privacy: .public)")
+			return
+		}
+		reown(directoryDescriptor: descriptor, uid: uid, path: directory.path, depth: 0)
+		close(descriptor)
+	}
+
+	/// Takes ownership of `descriptor` and of what is below it. The caller owns `descriptor`.
+	///
+	/// The names come from `FileManager` rather than from `readdir`, and are only ever used
+	/// relative to the descriptor: a name that no longer names an entry there fails the call, and
+	/// one that does names an entry of the directory that was opened — not of whatever the path
+	/// names by now. That is what keeps this out of the `unsafe` pointer handling `readdir` needs
+	/// without giving up the descriptor.
+	private func reown(directoryDescriptor descriptor: Int32, uid: uid_t, path: String, depth: Int) {
+		setOwner(descriptor, uid: uid, path: path)
+
+		let names: [String]
+		do {
+			names = try fileManager.contentsOfDirectory(atPath: path)
+		} catch {
+			logger.error("Could not read '\(path, privacy: .public)': \(error.localizedDescription, privacy: .public)")
+			return
+		}
+
+		for name in names {
+			var status = stat()
+			guard fstatat(descriptor, name, &status, AT_SYMLINK_NOFOLLOW) == 0 else {
+				continue
+			}
+
+			switch status.st_mode & S_IFMT {
+			case S_IFLNK:
+				// A link is never followed, whatever it points at: it is not part of the tree that
+				// is being handed over, and its target may be a file only root may own.
+				continue
+			case S_IFDIR:
+				guard depth < Self.maximumDepth else {
+					logger.error("Not changing the owner below '\(path, privacy: .public)/\(name, privacy: .public)': the tree is deeper than \(Self.maximumDepth, privacy: .public) levels")
+					continue
+				}
+				let child = openat(descriptor, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW)
+				guard child >= 0 else {
+					logger.error("Could not open '\(path, privacy: .public)/\(name, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+					continue
+				}
+				reown(directoryDescriptor: child, uid: uid, path: path + "/" + name, depth: depth + 1)
+				close(child)
+			default:
+				// Not opened: a device node is not something to open just to change its owner, and
+				// `fchownat` does not follow the last component.
+				if fchownat(descriptor, name, uid, uid_t.max, AT_SYMLINK_NOFOLLOW) != 0 {
+					logger.error("Could not change the owner of '\(path, privacy: .public)/\(name, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
 				}
 			}
 		}
