@@ -418,48 +418,133 @@ public final class Helper: @unchecked Sendable {
 
 	func stripFile(_ url: URL, context: HelperContext) {
 		// do not modify executables with code signatures
-		if !hasCodeSignature(url: url) {
-			do {
-				let attributes = try context.fileManager.attributesOfItem(atPath: url.path)
-				let path = url.path
-				let oldSize: Int
-				do {
-					let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
-					oldSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
-				} catch {
-					return
-				}
+		if hasCodeSignature(url: url) {
+			return
+		}
 
-				let process = try Process.run(URL(fileURLWithPath: "/usr/bin/strip", isDirectory: false), arguments: ["-u", "-x", "-S", "-", path])
-				process.waitUntilExit()
+		let path = url.path
+		let oldSize: Int
+		do {
+			let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
+			oldSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
+		} catch {
+			return
+		}
 
-				if process.terminationStatus != EXIT_SUCCESS {
-					logger.error("/usr/bin/strip failed with exit status \(process.terminationStatus, privacy: .public)")
-				}
+		// The file is opened without following a link, and everything that changes it goes through
+		// that descriptor. The walk above refuses a link, but the entry can be replaced by one
+		// afterwards: `strip` takes a path, looks it up and follows a link at the end of it, and so
+		// did the `setAttributes` that restored the ownership. A link swapped in for a file would
+		// therefore have had its target rewritten and then handed to the user, both as root.
+		let descriptor = open(path, O_RDWR | O_NOFOLLOW | O_NONBLOCK)
+		guard descriptor >= 0 else {
+			return
+		}
+		defer { close(descriptor) }
 
-				// Whatever of these the file system reports: `strip` rewrote the file, so its
-				// ownership and mode are restored from what it had before.
-				let restoredKeys: Set<FileAttributeKey> = [.ownerAccountID, .groupOwnerAccountID, .posixPermissions]
-				let newAttributes = attributes.filter { restoredKeys.contains($0.key) }
+		var status = stat()
+		guard fstat(descriptor, &status) == 0, status.st_mode & S_IFMT == S_IFREG else {
+			return
+		}
 
-				do {
-					try context.fileManager.setAttributes(newAttributes, ofItemAtPath: path)
-				} catch {
-					logger.error("Failed to set file attributes for '\(path, privacy: .public)': \(error.localizedDescription, privacy: .public)")
-				}
+		guard let stripped = strippedCopy(of: descriptor) else {
+			return
+		}
+		defer {
+			close(stripped.descriptor)
+			try? context.fileManager.removeItem(atPath: stripped.directory)
+		}
 
-				do {
-					let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
-					let newSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
+		guard copyFile(from: stripped.descriptor, to: descriptor) else {
+			logger.error("Could not write the stripped file back to '\(path, privacy: .public)'")
+			return
+		}
 
-					if oldSize > newSize {
-						let sizeDiff = oldSize - newSize
-						context.reportProgress(url: url, size: sizeDiff)
-					}
-				} catch {}
-			} catch {
-				logger.error("Failed to get file attributes for '\(url.absoluteString, privacy: .public)': \(error.localizedDescription, privacy: .public)")
+		// Whatever of these the file system reports, from the descriptor and back to it: `strip`
+		// rewrote the contents, so the ownership and mode the file had are put back as they were.
+		if fchown(descriptor, status.st_uid, status.st_gid) != 0 {
+			logger.error("Could not restore the owner of '\(path, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+		}
+		if fchmod(descriptor, status.st_mode & 0o7777) != 0 {
+			logger.error("Could not restore the permissions of '\(path, privacy: .public)': \(String(cString: strerror(errno)), privacy: .public)")
+		}
+
+		do {
+			let resourceValues = try url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
+			let newSize = resourceValues.totalFileAllocatedSize ?? resourceValues.fileAllocatedSize ?? 0
+
+			if oldSize > newSize {
+				let sizeDiff = oldSize - newSize
+				context.reportProgress(url: url, size: sizeDiff)
 			}
+		} catch {}
+	}
+
+	/// Runs `strip` over what `descriptor` holds, in a private directory, and returns the result as
+	/// an open descriptor together with the directory that holds it. The caller closes the
+	/// descriptor and removes the directory.
+	///
+	/// `strip` is given a copy rather than the file itself because it takes a path: it looks that
+	/// path up and follows a link at the end of it, so a file swapped for a link after the walk
+	/// would have had its target rewritten. A copy in a directory of our own has no such path.
+	private func strippedCopy(of descriptor: Int32) -> (descriptor: Int32, directory: String)? {
+		var template = Array("\(NSTemporaryDirectory())Monolingual.XXXXXX".utf8CString)
+		guard let created = mkdtemp(&template) else {
+			logger.error("Could not create a directory to strip a copy in: \(String(cString: strerror(errno)), privacy: .public)")
+			return nil
+		}
+		let directory = String(cString: created)
+		let copyPath = directory + "/copy"
+
+		let copyDescriptor = open(copyPath, O_WRONLY | O_CREAT | O_EXCL, 0o600)
+		guard copyDescriptor >= 0, copyFile(from: descriptor, to: copyDescriptor) else {
+			if copyDescriptor >= 0 {
+				close(copyDescriptor)
+			}
+			try? FileManager.default.removeItem(atPath: directory)
+			return nil
+		}
+		close(copyDescriptor)
+
+		do {
+			let process = try Process.run(URL(fileURLWithPath: "/usr/bin/strip", isDirectory: false), arguments: ["-u", "-x", "-S", "-", copyPath])
+			process.waitUntilExit()
+
+			if process.terminationStatus != EXIT_SUCCESS {
+				logger.error("/usr/bin/strip failed with exit status \(process.terminationStatus, privacy: .public)")
+				try? FileManager.default.removeItem(atPath: directory)
+				return nil
+			}
+		} catch {
+			logger.error("Could not run /usr/bin/strip: \(error.localizedDescription, privacy: .public)")
+			try? FileManager.default.removeItem(atPath: directory)
+			return nil
+		}
+
+		let strippedDescriptor = open(copyPath, O_RDONLY)
+		guard strippedDescriptor >= 0 else {
+			try? FileManager.default.removeItem(atPath: directory)
+			return nil
+		}
+		return (strippedDescriptor, directory)
+	}
+
+	/// Copies `source` to `destination` through the descriptors, truncating `destination` first.
+	private func copyFile(from source: Int32, to destination: Int32) -> Bool {
+		guard lseek(source, 0, SEEK_SET) >= 0, lseek(destination, 0, SEEK_SET) >= 0, ftruncate(destination, 0) == 0 else {
+			return false
+		}
+
+		let reader = FileHandle(fileDescriptor: source, closeOnDealloc: false)
+		let writer = FileHandle(fileDescriptor: destination, closeOnDealloc: false)
+		do {
+			while let chunk = try reader.read(upToCount: 1 << 16), !chunk.isEmpty {
+				try writer.write(contentsOf: chunk)
+			}
+			return true
+		} catch {
+			logger.error("Could not copy a file to strip: \(error.localizedDescription, privacy: .public)")
+			return false
 		}
 	}
 
