@@ -7,6 +7,18 @@ Monolingual
 
 <img src="Resources/README.rtfd/Monolingual-2.0.2-en.png" width="752" alt="The Monolingual main window">
 
+## What's new in 2.0.4
+
+A security release.
+
+- **Stripping debug information no longer follows a symbolic link.** With "Strip debug info when
+  removing architectures" enabled, the helper rewrote each executable by path, and `/usr/bin/strip`
+  follows a link at the end of one. A link swapped in for a file after the helper had looked at it
+  had its target rewritten as root, and the ownership the helper put back afterwards was applied to
+  that target as well. The file is now opened without following, `strip` is given a copy in a
+  private directory, and the result is written back through that descriptor. The Trash path had the
+  same kind of problem; 2.0.3 fixed it (GHSA-9gmw-jhrw-g8wf).
+
 ## What's new in 2.0.3
 
 A security release.
