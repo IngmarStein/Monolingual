@@ -65,7 +65,9 @@ J. Schrier
 - Turkish localization by Hasan Beder ([@hasanbeder](https://github.com/hasanbeder))
 
 ### Artwork
+
 Original icon by Matt Davey
+
 New icon in 2.0.2 by [@fingers-piano](https://github.com/fingers-piano)
 
 ## License
