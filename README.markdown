@@ -79,4 +79,4 @@ build it.
 
 ## Status
 
-![GitHub Build Status](https://github.com/IngmarStein/Monolingual/workflows/ci.yml/badge.svg)
+![GitHub Build Status](https://github.com/IngmarStein/Monolingual/actions/workflows/ci.yml/badge.svg)
