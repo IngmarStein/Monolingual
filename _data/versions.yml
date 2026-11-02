@@ -1,3 +1,20 @@
+- version: 2.0.4
+  release: 2026-11-01
+  changes:
+    - >
+      <strong>Stripping debug information no longer follows a symbolic link.</strong> With "Strip
+      debug info when removing architectures" enabled, the helper rewrote each executable by path,
+      and <code>/usr/bin/strip</code> follows a link at the end of one. A link swapped in for a
+      file after the helper had looked at it had its target rewritten as root, and the ownership
+      the helper put back afterwards was applied to that target as well. The file is now opened
+      without following, <code>strip</code> is given a copy in a private directory, and the result
+      is written back through that descriptor.
+  sparkle:
+    edSignature: hfad2qacMGMq8Z1aAK4tO2ic7+IH+6tI8QlY/+t5qYB/d1DVS/vENnNXI0fAJX2ldUWBOIWVdhDq21obCrluDQ==
+    filesize: 5946647
+    file: zip
+  minimum: '27.0'
+
 - version: 2.0.3
   release: 2026-11-01
   changes:
